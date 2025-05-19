@@ -15,11 +15,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, isLoading, error, clearError } = useAuth()
 
   useEffect(() => {
     setMounted(true)
@@ -33,22 +31,11 @@ export default function LoginPage() {
     e.preventDefault()
     if (!mounted) return
 
-    setIsLoading(true)
-    setError("")
+    clearError()
+    const success = await login(username, password)
 
-    try {
-      // Try to login with provided credentials
-      const success = await login(username, password)
-
-      if (success) {
-        router.push("/problems")
-      } else {
-        setError("Invalid username or password")
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.")
-    } finally {
-      setIsLoading(false)
+    if (success) {
+      router.push("/problems")
     }
   }
 
@@ -124,7 +111,7 @@ export default function LoginPage() {
 
             <div className="mt-6 text-center text-sm">
               <p className="text-gray-500">
-                Don&apos;t have an account?{" "}
+                Don't have an account?{" "}
                 <Link href="/register" className="text-[#F8D15B] hover:underline">
                   Register here
                 </Link>

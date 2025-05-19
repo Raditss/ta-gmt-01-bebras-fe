@@ -17,11 +17,9 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { register, isAuthenticated } = useAuth()
+  const { register, isAuthenticated, isLoading, error, clearError } = useAuth()
 
   useEffect(() => {
     setMounted(true)
@@ -37,26 +35,15 @@ export default function RegisterPage() {
 
     // Validate form
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      clearError()
       return
     }
 
-    setIsLoading(true)
-    setError("")
+    clearError()
+    const success = await register(email, username, password)
 
-    try {
-      // Try to register with provided details
-      const success = await register(email, username, password)
-
-      if (success) {
-        router.push("/problems")
-      } else {
-        setError("Username or email already exists")
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.")
-    } finally {
-      setIsLoading(false)
+    if (success) {
+      router.push("/problems")
     }
   }
 

@@ -1,43 +1,45 @@
 "use client"
 
 import { useState } from "react"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { FilterGroup, FilterOption } from "@/components/ui/filter-group"
 
-export function DifficultyFilter() {
-  const [difficulties, setDifficulties] = useState({
+const difficultyOptions: FilterOption[] = [
+  { id: "easy", label: "Easy" },
+  { id: "medium", label: "Medium" },
+  { id: "hard", label: "Hard" },
+]
+
+interface DifficultyFilterProps {
+  selectedDifficulties?: Record<string, boolean>;
+  onDifficultyChange?: (difficultyId: string) => void;
+}
+
+export function DifficultyFilter({ selectedDifficulties, onDifficultyChange }: DifficultyFilterProps = {}) {
+  const [internalSelectedDifficulties, setInternalSelectedDifficulties] = useState({
     easy: true,
     medium: true,
     hard: true,
-  })
+  });
 
-  const handleDifficultyChange = (difficulty: keyof typeof difficulties) => {
-    setDifficulties({
-      ...difficulties,
-      [difficulty]: !difficulties[difficulty],
-    })
-  }
+  const isControlled = selectedDifficulties !== undefined && onDifficultyChange !== undefined;
+
+  const handleDifficultyChange = (difficultyId: string) => {
+    if (isControlled) {
+      onDifficultyChange!(difficultyId);
+    } else {
+      setInternalSelectedDifficulties((prev) => ({
+        ...prev,
+        [difficultyId]: !prev[difficultyId as keyof typeof prev],
+      }));
+    }
+  };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center space-x-2">
-        <Checkbox id="easy" checked={difficulties.easy} onCheckedChange={() => handleDifficultyChange("easy")} />
-        <Label htmlFor="easy" className="text-sm">
-          Easy
-        </Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox id="medium" checked={difficulties.medium} onCheckedChange={() => handleDifficultyChange("medium")} />
-        <Label htmlFor="medium" className="text-sm">
-          Medium
-        </Label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox id="hard" checked={difficulties.hard} onCheckedChange={() => handleDifficultyChange("hard")} />
-        <Label htmlFor="hard" className="text-sm">
-          Hard
-        </Label>
-      </div>
-    </div>
-  )
+    <FilterGroup
+      options={difficultyOptions}
+      selectedOptions={isControlled ? selectedDifficulties! : internalSelectedDifficulties}
+      onChange={handleDifficultyChange}
+      title="Difficulty"
+    />
+  );
 }

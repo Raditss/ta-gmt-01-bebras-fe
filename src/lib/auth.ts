@@ -1,6 +1,6 @@
-// Mock authentication library
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { api } from "./api"
 
 export type User = {
   id: string
@@ -13,94 +13,100 @@ export type User = {
 
 type AuthState = {
   user: User | null
+  token: string | null
   isAuthenticated: boolean
+  isLoading: boolean
+  error: string | null
   login: (username: string, password: string) => Promise<boolean>
   register: (email: string, username: string, password: string) => Promise<boolean>
   logout: () => void
+  clearError: () => void
 }
-
-// Mock user data
-const MOCK_USERS = [
-  {
-    id: "1",
-    username: "RustRacer",
-    email: "rust@example.com",
-    password: "password123",
-    points: 50,
-    rank: 42,
-    problemsSolved: 23,
-  },
-  {
-    id: "2",
-    username: "CodeWizard",
-    email: "wizard@example.com",
-    password: "password123",
-    points: 2120,
-    rank: 2,
-    problemsSolved: 132,
-  },
-]
 
 // Create auth store with persistence
 export const useAuth = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      token: null,
       isAuthenticated: false,
+      isLoading: false,
+      error: null,
 
       login: async (username: string, password: string) => {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        set({ isLoading: true, error: null })
 
-        // Find user with matching credentials
-        const user = MOCK_USERS.find(
-          (u) => (u.username === username || u.email === username) && u.password === password,
-        )
-
-        if (user) {
-          const { password: _, ...userWithoutPassword } = user
+        // Demo account logic
+        if (
+          (username === "RustRacer" && password === "password123")
+        ) {
           set({
-            user: userWithoutPassword,
+            user: {
+              id: "demo-1",
+              username: "RustRacer",
+              email: "demo@codeleaf.com",
+              points: 100,
+              rank: 1,
+              problemsSolved: 10,
+            },
+            token: "demo-token",
             isAuthenticated: true,
+            isLoading: false,
+            error: null,
           })
           return true
         }
 
-        return false
+        // Fallback to real API for other users
+        try {
+          const { user, token } = await api.login(username, password)
+          set({
+            user,
+            token,
+            isAuthenticated: true,
+            isLoading: false,
+          })
+          return true
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : "Failed to login",
+            isLoading: false,
+          })
+          return false
+        }
       },
 
       register: async (email: string, username: string, password: string) => {
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
-
-        // Check if user already exists
-        if (MOCK_USERS.some((u) => u.username === username || u.email === email)) {
+        set({ isLoading: true, error: null })
+        try {
+          const { user, token } = await api.register(email, username, password)
+          set({
+            user,
+            token,
+            isAuthenticated: true,
+            isLoading: false,
+          })
+          return true
+        } catch (error) {
+          set({
+            error: error instanceof Error ? error.message : "Failed to register",
+            isLoading: false,
+          })
           return false
         }
-
-        // Create new user (in a real app, this would be saved to a database)
-        const newUser = {
-          id: String(MOCK_USERS.length + 1),
-          username,
-          email,
-          points: 0,
-          rank: 999,
-          problemsSolved: 0,
-        }
-
-        set({
-          user: newUser,
-          isAuthenticated: true,
-        })
-
-        return true
       },
 
       logout: () => {
         set({
           user: null,
+          token: null,
           isAuthenticated: false,
+          error: null,
         })
+      },
+
+      clearError: () => {
+        set({ error: null })
       },
     }),
     {

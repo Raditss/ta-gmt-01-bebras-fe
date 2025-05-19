@@ -8,12 +8,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth"
+import type { User as AuthUser } from "@/lib/auth"
+
+interface MainNavbarProps {
+  user?: AuthUser | null;
+  isAuthenticated?: boolean;
+  logout?: () => void;
+}
 
 // This component only renders on the client side
-export function MainNavbar() {
+export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticated, logout: propLogout }: MainNavbarProps = {}) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  const { user, isAuthenticated, logout } = useAuth()
+  const auth = useAuth()
+  const user = propUser !== undefined ? propUser : auth.user
+  const isAuthenticated = propIsAuthenticated !== undefined ? propIsAuthenticated : auth.isAuthenticated
+  const logout = propLogout !== undefined ? propLogout : auth.logout
 
   // Set mounted to true on client side
   useEffect(() => {
