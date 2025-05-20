@@ -3,12 +3,13 @@ import { persist } from "zustand/middleware"
 import { api } from "./api"
 
 export type User = {
-  id: string
+  id: number
   username: string
-  email: string
-  points: number
-  rank: number
-  problemsSolved: number
+  name: string
+  role: "STUDENT" | "TEACHER" | "ADMIN"
+  createdAt: string
+  updatedAt: string
+  streak: number
 }
 
 type AuthState = {
@@ -36,20 +37,59 @@ export const useAuth = create<AuthState>()(
       login: async (username: string, password: string) => {
         set({ isLoading: true, error: null })
 
-        // Demo account logic
-        if (
-          (username === "RustRacer" && password === "password123")
-        ) {
+        // Demo accounts logic
+        if (username === "johndoe" && password === "password123") {
           set({
             user: {
-              id: "demo-1",
-              username: "RustRacer",
-              email: "demo@codeleaf.com",
-              points: 100,
-              rank: 1,
-              problemsSolved: 10,
+              id: 1,
+              username: "johndoe",
+              name: "John Doe",
+              role: "STUDENT",
+              createdAt: "2025-05-20T08:19:32.290Z",
+              updatedAt: "2025-05-20T08:19:32.290Z",
+              streak: 25
             },
-            token: "demo-token",
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiam9obmRvZSIsInJvbGUiOiJTVFVERU5UIiwiaWF0IjoxNzQ3NzMxNTQwLCJleHAiOjE3NDc3NzQ3NDB9.-11U9HL_IHcEO6fGjaAn-j6GIDKQCPVkCbyxH7PDSAE",
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          })
+          return true
+        }
+
+        // Demo teacher account
+        if (username === "teacher" && password === "password123") {
+          set({
+            user: {
+              id: 2,
+              username: "teacher",
+              name: "Sarah Smith",
+              role: "TEACHER",
+              createdAt: "2025-05-20T08:19:32.290Z",
+              updatedAt: "2025-05-20T08:19:32.290Z",
+              streak: 15
+            },
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXJuYW1lIjoidGVhY2hlciIsInJvbGUiOiJURUFDSEVSIiwiaWF0IjoxNzQ3NzMxNTQwLCJleHAiOjE3NDc3NzQ3NDB9.teacher-token",
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          })
+          return true
+        }
+
+        // Demo admin account
+        if (username === "admin" && password === "password123") {
+          set({
+            user: {
+              id: 3,
+              username: "admin",
+              name: "Admin User",
+              role: "ADMIN",
+              createdAt: "2025-05-20T08:19:32.290Z",
+              updatedAt: "2025-05-20T08:19:32.290Z",
+              streak: 30
+            },
+            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDc3MzE1NDAsImV4cCI6MTc0Nzc3NDc0MH0.admin-token",
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -59,10 +99,10 @@ export const useAuth = create<AuthState>()(
 
         // Fallback to real API for other users
         try {
-          const { user, token } = await api.login(username, password)
+          const response = await api.login(username, password)
           set({
-            user,
-            token,
+            user: response.user,
+            token: response.access_token.access_token,
             isAuthenticated: true,
             isLoading: false,
           })
@@ -79,10 +119,10 @@ export const useAuth = create<AuthState>()(
       register: async (email: string, username: string, password: string) => {
         set({ isLoading: true, error: null })
         try {
-          const { user, token } = await api.register(email, username, password)
+          const response = await api.register(email, username, password)
           set({
-            user,
-            token,
+            user: response.user,
+            token: response.access_token.access_token,
             isAuthenticated: true,
             isLoading: false,
           })

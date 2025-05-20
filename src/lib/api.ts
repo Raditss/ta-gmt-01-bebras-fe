@@ -1,15 +1,19 @@
 import { User } from "./auth"
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
 
 export interface LoginResponse {
+  access_token: {
+    access_token: string
+  }
   user: User
-  token: string
 }
 
 export interface RegisterResponse {
+  access_token: {
+    access_token: string
+  }
   user: User
-  token: string
 }
 
 export const api = {
