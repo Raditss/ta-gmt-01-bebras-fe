@@ -17,13 +17,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { login, isAuthenticated, isLoading, error, clearError } = useAuth()
+  const { login, isAuthenticated, isLoading, error, clearError, user } = useAuth()
 
   useEffect(() => {
     setMounted(true)
     // If already authenticated, redirect to problems page
     if (isAuthenticated) {
-      router.push("/problems")
+      if (user?.role === "ADMIN") {
+        router.push("/admin")
+      } else {
+        router.push("/problems")
+      }
     }
   }, [isAuthenticated, router])
 
@@ -32,11 +36,7 @@ export default function LoginPage() {
     if (!mounted) return
 
     clearError()
-    const success = await login(username, password)
-
-    if (success) {
-      router.push("/problems")
-    }
+    await login(username, password)
   }
 
   return (
