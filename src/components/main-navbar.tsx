@@ -48,7 +48,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link href="/" className="font-medium">
-              Home
+              landing
             </Link>
             <Link href="/about" className="font-medium">
               About
