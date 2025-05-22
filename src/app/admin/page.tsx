@@ -5,12 +5,43 @@ import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Settings, Users, BookOpen, BarChart3, Shield, AlertTriangle } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { SubmissionsTable, type Submission } from "@/components/tables/submissions-table"
+
+// Mock data for teacher submissions
+const mockSubmissions: Submission[] = [
+  {
+    id: 1,
+    teacherName: "Sarah Smith",
+    questionTypeName: "Algorithm Complexity",
+    submittedAt: "2024-03-15T10:30:00Z",
+    status: "pending",
+    fileUrl: "/templates/algorithm-complexity.json"
+  },
+  {
+    id: 2,
+    teacherName: "John Wilson",
+    questionTypeName: "Data Structures",
+    submittedAt: "2024-03-14T15:45:00Z",
+    status: "approved",
+    fileUrl: "/templates/data-structures.json"
+  },
+  {
+    id: 3,
+    teacherName: "Emily Brown",
+    questionTypeName: "Graph Theory",
+    submittedAt: "2024-03-13T09:15:00Z",
+    status: "rejected",
+    fileUrl: "/templates/graph-theory.json"
+  }
+]
 
 export default function AdminPanelPage() {
   const [mounted, setMounted] = useState(false)
+  const [activeTab, setActiveTab] = useState("overview")
+  const [submissions, setSubmissions] = useState(mockSubmissions)
+  const [filterStatus, setFilterStatus] = useState("all")
   const { user, isAuthenticated } = useAuth()
   const router = useRouter()
 
@@ -22,168 +53,175 @@ export default function AdminPanelPage() {
     }
   }, [isAuthenticated, mounted, router, user?.role])
 
+  const handleApprove = (id: number) => {
+    setSubmissions(submissions.map(sub => 
+      sub.id === id ? { ...sub, status: "approved" } : sub
+    ))
+  }
+
+  const handleReject = (id: number) => {
+    setSubmissions(submissions.map(sub => 
+      sub.id === id ? { ...sub, status: "rejected" } : sub
+    ))
+  }
+
+  const handleView = (fileUrl: string) => {
+    window.open(fileUrl, '_blank')
+  }
+
+  const handleDownload = (fileUrl: string) => {
+    window.open(fileUrl, '_blank')
+  }
+
+  const filteredSubmissions = filterStatus === "all" 
+    ? submissions 
+    : submissions.filter(sub => sub.status === filterStatus)
+
   // Show nothing during SSR or if not authenticated/authorized
   if (!mounted || !isAuthenticated || user?.role !== "ADMIN") {
     return null
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <MainNavbar />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="content">Content Management</TabsTrigger>
+            <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
 
-      {/* Main content */}
-      <main className="flex-1 container mx-auto py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 mb-8">
-            <Shield className="h-8 w-8 text-[#F8D15B]" />
-            <h1 className="text-2xl font-bold">Admin Panel</h1>
-          </div>
-
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
-              <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Users className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Total Users</p>
-                        <h3 className="text-2xl font-bold">1,234</h3>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <BookOpen className="h-6 w-6 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Active Problems</p>
-                        <h3 className="text-2xl font-bold">156</h3>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-yellow-100 rounded-lg">
-                        <BarChart3 className="h-6 w-6 text-yellow-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Submissions Today</p>
-                        <h3 className="text-2xl font-bold">89</h3>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-red-100 rounded-lg">
-                        <AlertTriangle className="h-6 w-6 text-red-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Issues</p>
-                        <h3 className="text-2xl font-bold">3</h3>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                  <CardDescription>Latest actions and events in the system</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Users</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-                        <div className="p-2 bg-gray-200 rounded-full">
-                          <Users className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="font-medium">New user registered</p>
-                          <p className="text-sm text-gray-500">2 minutes ago</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <div className="text-2xl font-bold">1,234</div>
+                  <p className="text-xs text-muted-foreground">+12% from last month</p>
                 </CardContent>
               </Card>
-            </TabsContent>
-
-            <TabsContent value="users">
               <Card>
-                <CardHeader>
-                  <CardTitle>User Management</CardTitle>
-                  <CardDescription>Manage users, roles, and permissions</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Problems</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-end">
-                      <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B]">
-                        <Users className="h-4 w-4 mr-2" />
-                        Add User
-                      </Button>
+                  <div className="text-2xl font-bold">156</div>
+                  <p className="text-xs text-muted-foreground">+8 new this week</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Submissions Today</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">45</div>
+                  <p className="text-xs text-muted-foreground">+23% from yesterday</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Issues</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">3</div>
+                  <p className="text-xs text-muted-foreground">-2 from last week</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                    <div>
+                      <p className="text-sm">New teacher registration: Sarah Smith</p>
+                      <p className="text-xs text-muted-foreground">2 hours ago</p>
                     </div>
-                    {/* Add user management table here */}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="content">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Content Management</CardTitle>
-                  <CardDescription>Manage problems, categories, and learning materials</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-end">
-                      <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B]">
-                        <BookOpen className="h-4 w-4 mr-2" />
-                        Add Problem
-                      </Button>
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div>
+                      <p className="text-sm">New problem type submitted: Algorithm Complexity</p>
+                      <p className="text-xs text-muted-foreground">5 hours ago</p>
                     </div>
-                    {/* Add content management interface here */}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            <TabsContent value="settings">
-              <Card>
-                <CardHeader>
-                  <CardTitle>System Settings</CardTitle>
-                  <CardDescription>Configure system-wide settings and preferences</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {/* Add settings interface here */}
+          <TabsContent value="content" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Question Type Submissions</CardTitle>
+                    <CardDescription>
+                      Review and manage teacher submissions for new question types
+                    </CardDescription>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Submissions</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <SubmissionsTable
+                  submissions={filteredSubmissions}
+                  onApprove={handleApprove}
+                  onReject={handleReject}
+                  onView={handleView}
+                  onDownload={handleDownload}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="users">
+            <Card>
+              <CardHeader>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>
+                  Manage users and their roles
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>User management content will go here</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>System Settings</CardTitle>
+                <CardDescription>
+                  Configure system-wide settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p>Settings content will go here</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   )

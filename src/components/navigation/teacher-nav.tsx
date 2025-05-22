@@ -6,11 +6,11 @@ export function TeacherNav() {
       <Link href="/problems" className="font-medium">
         Problems
       </Link>
-      <Link href="/leaderboard" className="font-medium">
-        Leaderboard
+      <Link href="/add-problem" className="font-medium">
+        Add Problem
       </Link>
-      <Link href="/manage-students" className="font-medium">
-        Manage Students
+      <Link href="/submit-question-type" className="font-medium">
+        Submit Question Type
       </Link>
     </>
   )
