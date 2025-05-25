@@ -12,7 +12,7 @@ import { nanoid } from 'nanoid';
 export default function SolvePage() {
   const [cfgQuestion] = useState(() => new CfgCreateQuestion("Untitled Question"));
 
-  // Applies a rule to selected objects in the end state, replacing them with the rule's "after" objects
+  // Applies a rule to selected objects in the end state
   const applyRuleToEndState = (selectedIndices: number[], ruleToApply: { id: string; after: any[]; }) => {
     if (ruleToApply && selectedIndices.length > 0) {
       const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
@@ -20,13 +20,16 @@ export default function SolvePage() {
       const endIdx = sortedIndices[sortedIndices.length - 1];
       const currentEndState = [...endState];
 
+      // Add unique IDs to new objects
       const afterWithIds = ruleToApply.after.map(obj => ({
         ...obj,
         id: Date.now() + Math.random()
       }));
 
+      // Replace selected objects with rule's output
       currentEndState.splice(startIdx, endIdx - startIdx + 1, ...afterWithIds);
 
+      // Record step for undo/redo
       cfgQuestion.pushStep({ 
         ruleId: ruleToApply.id, 
         index: startIdx,
@@ -45,6 +48,7 @@ export default function SolvePage() {
   const [showStateCreationPopup, setShowStateCreationPopup] = useState(false);
   const [stateCreationMode, setStateCreationMode] = useState<'start' | 'end' | null>(null);
   
+  // Available shapes for creating rules and states
   const availableObjects = [
     { id: 1, type: 'circle', icon: '⚪' },
     { id: 2, type: 'triangle', icon: '△' },
@@ -53,6 +57,7 @@ export default function SolvePage() {
     { id: 5, type: 'hexagon', icon: '⬡' }
   ];
   
+  // Add a new transformation rule
   const handleAddRule = (beforeObjects: any, afterObjects: any) => {
     const newRuleId = nanoid();
     const newRule = { id: newRuleId, before: beforeObjects, after: afterObjects };
@@ -72,6 +77,7 @@ export default function SolvePage() {
     alert('Ready to submit question data!');
   };
 
+  // Keep rules in sync between state and model
   const setRulesAndSync = (newRules: Rule[]) => {
     cfgQuestion.setRules(newRules);
     setRules([...cfgQuestion.rules]);
@@ -81,8 +87,7 @@ export default function SolvePage() {
     const updatedRules = rules.filter(rule => rule.id !== ruleId);
     setRulesAndSync(updatedRules);
     
-    // If we have an end state, we need to reset it to match the start state
-    // since the rules have changed
+    // Reset end state when rules change
     if (endState.length > 0) {
       const newEndState = [...startState];
       setEndState(newEndState);
@@ -91,12 +96,12 @@ export default function SolvePage() {
     }
   };
 
-  // Update start state and propagate changes to end state if it exists
+  // Keep start state in sync and update end state if needed
   const setStartStateAndSync = (newState: State[]) => {
     cfgQuestion.setStartState(newState);
     setStartState([...cfgQuestion.startState]);
     
-    // If we have an end state, we need to reset it to match the new start state
+    // Reset end state when start state changes
     if (endState.length > 0) {
       setEndState([...newState]);
       cfgQuestion.setInitialEndState([...newState]);
@@ -108,26 +113,25 @@ export default function SolvePage() {
     setEndState([...newState]);
   };
 
-  // Handles undoing the last step by replaying remaining steps from initial state
+  // Undo last transformation by replaying remaining steps
   const handleUndo = () => {
     const lastStep = cfgQuestion.popStep();
     if (lastStep) {
       const newEndState = cfgQuestion.replayStepsFromInitialEndState();
       setEndState(newEndState);
-      console.log('Undo - remaining steps:', cfgQuestion.getSteps().length);
     }
   };
 
-  // Handles redoing the last undone step by replaying all steps including the redone one
+  // Redo last undone transformation
   const handleRedo = () => {
     const step = cfgQuestion.redoStep();
     if (step) {
       const newEndState = cfgQuestion.replayStepsFromInitialEndState();
       setEndState(newEndState);
-      console.log('Redo - current steps:', cfgQuestion.getSteps().length);
     }
   };
 
+  // Reset entire question state
   const handleReset = () => {
     cfgQuestion.resetSteps();
     setRulesAndSync([]);
@@ -144,6 +148,7 @@ export default function SolvePage() {
     }
   }, [stateCreationMode]);
 
+  // Add required CSS for shape rendering
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
@@ -171,6 +176,7 @@ export default function SolvePage() {
     };
   }, []);
 
+  // Initialize state from model
   useEffect(() => {
     setRulesAndSync([...cfgQuestion.rules]);
     setStartState([...cfgQuestion.startState]);
@@ -182,12 +188,14 @@ export default function SolvePage() {
       <Header />
       
       <div className="flex-1 container mx-auto px-4 py-6">
+        {/* Rules creation and management */}
         <RulesSection 
           rules={rules} 
           onAddRule={() => setShowRuleModal(true)}
           onDeleteRule={handleDeleteRule}
         />
         
+        {/* State creation buttons */}
         <div className="mt-8 flex justify-center gap-4">
           <button 
             onClick={() => {
@@ -212,62 +220,62 @@ export default function SolvePage() {
           )}
         </div>
         
-        {(startState.length > 0 || endState.length > 0) && (
-          <div className="mt-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {startState.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-bold mb-4">Start State</h2>
-                  <div className="bg-white p-4 rounded-md shadow-md min-h-32 flex items-center justify-center">
-                    <div className="flex flex-wrap justify-center gap-2 max-w-full">
-                      {startState.map((obj, idx) => (
-                        <div key={idx} className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                          {obj.type === 'circle' ? (
-                            <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                          ) : obj.type === 'triangle' ? (
-                            <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                          ) : obj.type === 'square' ? (
-                            <div className="w-10 h-10 bg-gray-300"></div>
-                          ) : obj.type === 'star' ? (
-                            <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                          ) : (
-                            <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+        {/* State displays */}
+        <div className="mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {startState.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Start State</h2>
+                <div className="bg-white p-4 rounded-md shadow-md min-h-32 flex items-center justify-center">
+                  <div className="flex flex-wrap justify-center gap-2 max-w-full">
+                    {startState.map((obj, idx) => (
+                      <div key={idx} className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                        {obj.type === 'circle' ? (
+                          <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                        ) : obj.type === 'triangle' ? (
+                          <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
+                        ) : obj.type === 'square' ? (
+                          <div className="w-10 h-10 bg-gray-300"></div>
+                        ) : obj.type === 'star' ? (
+                          <div className="w-10 h-10 bg-gray-300 clip-star"></div>
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-              
-              {endState.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-bold mb-4">End State</h2>
-                  <div className="bg-white p-4 rounded-md shadow-md min-h-32 flex items-center justify-center">
-                    <div className="flex flex-wrap justify-center gap-2 max-w-full">
-                      {endState.map((obj, idx) => (
-                        <div key={idx} className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-                          {obj.type === 'circle' ? (
-                            <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                          ) : obj.type === 'triangle' ? (
-                            <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                          ) : obj.type === 'square' ? (
-                            <div className="w-10 h-10 bg-gray-300"></div>
-                          ) : obj.type === 'star' ? (
-                            <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                          ) : (
-                            <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+              </div>
+            )}
+            
+            {endState.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">End State</h2>
+                <div className="bg-white p-4 rounded-md shadow-md min-h-32 flex items-center justify-center">
+                  <div className="flex flex-wrap justify-center gap-2 max-w-full">
+                    {endState.map((obj, idx) => (
+                      <div key={idx} className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+                        {obj.type === 'circle' ? (
+                          <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                        ) : obj.type === 'triangle' ? (
+                          <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
+                        ) : obj.type === 'square' ? (
+                          <div className="w-10 h-10 bg-gray-300"></div>
+                        ) : obj.type === 'star' ? (
+                          <div className="w-10 h-10 bg-gray-300 clip-star"></div>
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
+        {/* Submit and Reset buttons */}
         {startState.length > 0 && (
           <div className="mt-8 flex justify-center gap-8">
             <button 
@@ -286,6 +294,7 @@ export default function SolvePage() {
         )}
       </div>
       
+      {/* Rule creation modal */}
       {showRuleModal && (
         <RuleModal 
           availableObjects={availableObjects}
@@ -294,6 +303,7 @@ export default function SolvePage() {
         />
       )}
       
+      {/* State creation/editing popup */}
       {showStateCreationPopup && (
         <StateCreationPopup 
           mode={stateCreationMode}
