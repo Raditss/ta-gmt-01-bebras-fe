@@ -14,14 +14,14 @@ export interface State {
 export interface Step {
     ruleId: string;
     index: number;
-    replacedCount?: number; // Track how many items were replaced
+    replacedCount?: number;
 }
 
 export class CfgCreateQuestion extends ICreateQuestion {
     rules: Rule[];
     startState: State[];
     endState: State[];
-    private initialEndState: State[]; // Store the initial end state for proper undo/redo
+    private initialEndState: State[];
     private steps: Step[];
     private redoStack: Step[];
 
@@ -49,7 +49,6 @@ export class CfgCreateQuestion extends ICreateQuestion {
 
     setInitialEndState(state: State[]): void {
         this.initialEndState = [...state];
-        // Reset steps when setting a new initial end state
         this.resetSteps();
     }
 
@@ -71,7 +70,6 @@ export class CfgCreateQuestion extends ICreateQuestion {
         const step = this.steps.pop();
         if (step) {
             this.redoStack.push(step);
-            console.log('Popped step:', step, 'Remaining steps:', this.steps.length, 'Redo stack:', this.redoStack.length);
         }
         return step;
     }
@@ -80,12 +78,10 @@ export class CfgCreateQuestion extends ICreateQuestion {
         const step = this.redoStack.pop();
         if (step) {
             this.steps.push(step);
-            console.log('Redid step:', step, 'Current steps:', this.steps.length, 'Redo stack:', this.redoStack.length);
         }
         return step;
     }
 
-    // Original method - replays from start state (for different use cases)
     replaySteps(): State[] {
         let currentState = [...this.startState];
         for (const step of this.steps) {
@@ -102,37 +98,28 @@ export class CfgCreateQuestion extends ICreateQuestion {
         return currentState;
     }
 
-    // New method - replays from initial end state (for undo/redo in end state editing)
     replayStepsFromInitialEndState(): State[] {
         let currentState = [...this.initialEndState];
-        console.log('Replaying from initial end state:', currentState.length, 'items');
-        console.log('Steps to replay:', this.steps.length);
         
         for (let i = 0; i < this.steps.length; i++) {
             const step = this.steps[i];
             const rule = this.rules.find(r => r.id === step.ruleId);
             if (!rule) {
-                console.log('Rule not found for step:', step.ruleId);
                 continue;
             }
             
             const replacedCount = step.replacedCount || rule.before.length;
-            console.log(`Step ${i}: replacing ${replacedCount} items at index ${step.index} with ${rule.after.length} items`);
             
-            // Remove the items that were replaced
             currentState.splice(step.index, replacedCount);
             
-            // Add the new items with unique IDs
             const newItems = rule.after.map((obj: any, idx: number) => ({
                 ...obj,
-                id: Date.now() + Math.random() + i + idx // More unique ID generation
+                id: Date.now() + Math.random() + i + idx
             }));
             
             currentState.splice(step.index, 0, ...newItems);
-            console.log('State after step:', currentState.length, 'items');
         }
         
-        console.log('Final replayed state:', currentState.length, 'items');
         return currentState;
     }
 }

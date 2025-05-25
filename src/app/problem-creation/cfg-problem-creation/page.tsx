@@ -9,14 +9,13 @@ import { useParams } from 'next/navigation';
 import { CfgCreateQuestion, State, Rule } from '@/model/cfg-create-question/model';
 import { nanoid } from 'nanoid';
 
-// Main application component
 export default function SolvePage() {
   const params = useParams();
   const id = params?.id as string;
 
   const [cfgQuestion] = useState(() => new CfgCreateQuestion("Untitled Question", id));
 
-  // Fixed applyRuleToEndState to properly replace selected items with rule's "after" objects
+  // Applies a rule to selected objects in the end state, replacing them with the rule's "after" objects
   const applyRuleToEndState = (selectedIndices: number[], ruleToApply: { id: string; after: any[]; }) => {
     if (ruleToApply && selectedIndices.length > 0) {
       const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
@@ -24,7 +23,6 @@ export default function SolvePage() {
       const endIdx = sortedIndices[sortedIndices.length - 1];
       const currentEndState = [...endState];
 
-      // Only generate new ids for the objects, not for the rule
       const afterWithIds = ruleToApply.after.map(obj => ({
         ...obj,
         id: Date.now() + Math.random()
@@ -32,7 +30,6 @@ export default function SolvePage() {
 
       currentEndState.splice(startIdx, endIdx - startIdx + 1, ...afterWithIds);
 
-      // Use the rule's id as passed in
       cfgQuestion.pushStep({ 
         ruleId: ruleToApply.id, 
         index: startIdx,
@@ -50,72 +47,90 @@ export default function SolvePage() {
   const [showStateCreationPopup, setShowStateCreationPopup] = useState(false);
   const [stateCreationMode, setStateCreationMode] = useState<'start' | 'end' | null>(null);
   
-  // Available objects for the game (these would be your predefined objects)
   const availableObjects = [
     { id: 1, type: 'circle', icon: '⚪' },
-    { id: 2, type: 'triangle', icon: '△' }
+    { id: 2, type: 'triangle', icon: '△' },
+    { id: 3, type: 'square', icon: '⬜' },
+    { id: 4, type: 'star', icon: '⭐' },
+    { id: 5, type: 'hexagon', icon: '⬡' }
   ];
   
   const handleAddRule = (beforeObjects: any, afterObjects: any) => {
-    // Use nanoid for unique rule IDs
     const newRuleId = nanoid();
-    setRules([...rules, { id: newRuleId, before: beforeObjects, after: afterObjects }]);
+    const newRule = { id: newRuleId, before: beforeObjects, after: afterObjects };
+    const updatedRules = [...rules, newRule];
+    setRulesAndSync(updatedRules);
     setShowRuleModal(false);
   };
   
   const handleSubmit = () => {
-    // Prepare data for API submission
     const questionData = {
-      id, // include the id here
+      id,
       rules,
       startState,
       endState
     };
     
     console.log('Question data ready for submission:', questionData);
-    // Here you would send the data to your API
     alert('Ready to submit question data!');
   };
 
-  // Set rules
   const setRulesAndSync = (newRules: Rule[]) => {
     cfgQuestion.setRules(newRules);
     setRules([...cfgQuestion.rules]);
   };
 
-  // Set start state
+  const handleDeleteRule = (ruleId: string) => {
+    const updatedRules = rules.filter(rule => rule.id !== ruleId);
+    setRulesAndSync(updatedRules);
+    
+    // If we have an end state, we need to reset it to match the start state
+    // since the rules have changed
+    if (endState.length > 0) {
+      const newEndState = [...startState];
+      setEndState(newEndState);
+      cfgQuestion.setInitialEndState(newEndState);
+      cfgQuestion.resetSteps();
+    }
+  };
+
+  // Update start state and propagate changes to end state if it exists
   const setStartStateAndSync = (newState: State[]) => {
     cfgQuestion.setStartState(newState);
     setStartState([...cfgQuestion.startState]);
+    
+    // If we have an end state, we need to reset it to match the new start state
+    if (endState.length > 0) {
+      setEndState([...newState]);
+      cfgQuestion.setInitialEndState([...newState]);
+      cfgQuestion.resetSteps();
+    }
   };
 
-  // Set end state
   const setEndStateAndSync = (newState: State[]) => {
-    // Only sync to model, don't interfere with step tracking
     setEndState([...newState]);
   };
 
+  // Handles undoing the last step by replaying remaining steps from initial state
   const handleUndo = () => {
     const lastStep = cfgQuestion.popStep();
     if (lastStep) {
-      // Replay all remaining steps from initial state to get the state before the last step
       const newEndState = cfgQuestion.replayStepsFromInitialEndState();
       setEndState(newEndState);
       console.log('Undo - remaining steps:', cfgQuestion.getSteps().length);
     }
   };
 
+  // Handles redoing the last undone step by replaying all steps including the redone one
   const handleRedo = () => {
     const step = cfgQuestion.redoStep();
     if (step) {
-      // Replay all steps (now including the re-added step) from initial state
       const newEndState = cfgQuestion.replayStepsFromInitialEndState();
       setEndState(newEndState);
       console.log('Redo - current steps:', cfgQuestion.getSteps().length);
     }
   };
 
-  // Reset everything to initial state
   const handleReset = () => {
     cfgQuestion.resetSteps();
     setRulesAndSync([]);
@@ -123,12 +138,11 @@ export default function SolvePage() {
     setEndStateAndSync([]);
   };
   
-  // Initialize end state with start state when switching to end state mode
+  // Initialize end state with start state when entering end state mode
   useEffect(() => {
     if (stateCreationMode === 'end' && endState.length === 0) {
       const initialEndState = [...startState];
       setEndState(initialEndState);
-      // Set the initial end state in the model for proper undo/redo functionality
       cfgQuestion.setInitialEndState(initialEndState);
     }
   }, [stateCreationMode]);
@@ -139,6 +153,20 @@ export default function SolvePage() {
       .clip-triangle {
         clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
       }
+      .clip-star {
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      }
+      .clip-hexagon {
+        clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+      }
+      .hover\\:bg-gray-300:hover {
+        background-color: rgb(209, 213, 219);
+      }
+      .transition-colors {
+        transition-property: background-color, border-color, color, fill, stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
     `;
     document.head.appendChild(style);
     return () => {
@@ -147,37 +175,34 @@ export default function SolvePage() {
   }, []);
 
   useEffect(() => {
-    setRules([...cfgQuestion.rules]);
+    setRulesAndSync([...cfgQuestion.rules]);
     setStartState([...cfgQuestion.startState]);
     setEndState([...cfgQuestion.endState]);
   }, []);
   
   return (
     <div className="flex flex-col min-h-screen bg-yellow-400">
-      {/* Header */}
       <Header />
       
-      {/* Main Content */}
       <div className="flex-1 container mx-auto px-4 py-6">
-        {/* Rules Section */}
         <RulesSection 
           rules={rules} 
-          onAddRule={() => setShowRuleModal(true)} 
+          onAddRule={() => setShowRuleModal(true)}
+          onDeleteRule={handleDeleteRule}
         />
         
-        {/* State Creation Buttons */}
         <div className="mt-8 flex justify-center gap-4">
-          {startState.length === 0 ? (
-            <button 
-              onClick={() => {
-                setShowStateCreationPopup(true);
-                setStateCreationMode('start');
-              }}
-              className="bg-yellow-100 hover:bg-yellow-200 text-gray-800 font-bold py-3 px-6 rounded-full"
-            >
-              Create Start State
-            </button>
-          ) : endState.length === 0 ? (
+          <button 
+            onClick={() => {
+              setShowStateCreationPopup(true);
+              setStateCreationMode('start');
+            }}
+            className="bg-yellow-100 hover:bg-yellow-200 text-gray-800 font-bold py-3 px-6 rounded-full"
+          >
+            {startState.length === 0 ? 'Create Start State' : 'Edit Start State'}
+          </button>
+          
+          {startState.length > 0 && (
             <button 
               onClick={() => {
                 setShowStateCreationPopup(true);
@@ -185,39 +210,31 @@ export default function SolvePage() {
               }}
               className="bg-yellow-100 hover:bg-yellow-200 text-gray-800 font-bold py-3 px-6 rounded-full"
             >
-              Create End State
-            </button>
-          ) : (
-            <button 
-              onClick={handleSubmit}
-              className="bg-gray-200 hover:bg-gray-300 text-black font-bold py-3 px-8 rounded-full"
-            >
-              Submit
+              {endState.length === 0 ? 'Create End State' : 'Edit End State'}
             </button>
           )}
-          <button
-            onClick={handleReset}
-            className="bg-red-200 hover:bg-red-300 text-black font-bold py-2 px-4 rounded-full"
-          >
-            Reset
-          </button>
         </div>
         
-        {/* State Display */}
         {(startState.length > 0 || endState.length > 0) && (
           <div className="mt-8">
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {startState.length > 0 && (
                 <div>
                   <h2 className="text-xl font-bold mb-4">Start State</h2>
                   <div className="bg-white p-4 rounded-md shadow-md min-h-32 flex items-center justify-center">
-                    <div className="flex">
+                    <div className="flex flex-wrap justify-center gap-2 max-w-full">
                       {startState.map((obj, idx) => (
-                        <div key={idx} className="w-16 h-16 mx-2 flex items-center justify-center">
+                        <div key={idx} className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                           {obj.type === 'circle' ? (
-                            <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                            <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                          ) : obj.type === 'triangle' ? (
+                            <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
+                          ) : obj.type === 'square' ? (
+                            <div className="w-10 h-10 bg-gray-300"></div>
+                          ) : obj.type === 'star' ? (
+                            <div className="w-10 h-10 bg-gray-300 clip-star"></div>
                           ) : (
-                            <div className="w-12 h-12 bg-gray-300 clip-triangle"></div>
+                            <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
                           )}
                         </div>
                       ))}
@@ -230,13 +247,19 @@ export default function SolvePage() {
                 <div>
                   <h2 className="text-xl font-bold mb-4">End State</h2>
                   <div className="bg-white p-4 rounded-md shadow-md min-h-32 flex items-center justify-center">
-                    <div className="flex">
+                    <div className="flex flex-wrap justify-center gap-2 max-w-full">
                       {endState.map((obj, idx) => (
-                        <div key={idx} className="w-16 h-16 mx-2 flex items-center justify-center">
+                        <div key={idx} className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                           {obj.type === 'circle' ? (
-                            <div className="w-12 h-12 bg-gray-300 rounded-full"></div>
+                            <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                          ) : obj.type === 'triangle' ? (
+                            <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
+                          ) : obj.type === 'square' ? (
+                            <div className="w-10 h-10 bg-gray-300"></div>
+                          ) : obj.type === 'star' ? (
+                            <div className="w-10 h-10 bg-gray-300 clip-star"></div>
                           ) : (
-                            <div className="w-12 h-12 bg-gray-300 clip-triangle"></div>
+                            <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
                           )}
                         </div>
                       ))}
@@ -247,9 +270,25 @@ export default function SolvePage() {
             </div>
           </div>
         )}
+
+        {startState.length > 0 && (
+          <div className="mt-8 flex justify-center gap-8">
+            <button 
+              onClick={handleSubmit}
+              className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full"
+            >
+              Submit
+            </button>
+            <button
+              onClick={handleReset}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full"
+            >
+              Reset
+            </button>
+          </div>
+        )}
       </div>
       
-      {/* Modals */}
       {showRuleModal && (
         <RuleModal 
           availableObjects={availableObjects}
