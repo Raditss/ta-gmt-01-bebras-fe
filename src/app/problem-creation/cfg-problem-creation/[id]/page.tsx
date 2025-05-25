@@ -10,6 +10,9 @@ import { CfgCreateQuestion, State, Rule } from '@/model/cfg-create-question/mode
 import { nanoid } from 'nanoid';
 
 export default function SolvePage() {
+  const params = useParams();
+  const id = params?.id as string;
+
   const [cfgQuestion] = useState(() => new CfgCreateQuestion("Untitled Question"));
 
   // Applies a rule to selected objects in the end state, replacing them with the rule's "after" objects
@@ -62,6 +65,7 @@ export default function SolvePage() {
   
   const handleSubmit = () => {
     const questionData = {
+      id,
       rules,
       startState,
       endState
