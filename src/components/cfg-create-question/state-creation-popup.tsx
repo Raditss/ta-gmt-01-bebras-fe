@@ -1,4 +1,4 @@
-import { State } from "@/model/cfg-create-question/model";
+import { State } from "@/model/cfg/create-question/model";
 import { useState, useEffect } from "react";
 
 // State Creation Popup Component

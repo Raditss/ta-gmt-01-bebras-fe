@@ -6,7 +6,7 @@ import { RulesSection } from '@/components/cfg-create-question/rule-section';
 import { RuleModal } from '@/components/cfg-create-question/rule-modal';
 import { StateCreationPopup } from '@/components/cfg-create-question/state-creation-popup';
 import { useParams } from 'next/navigation';
-import { CfgCreateQuestion, State, Rule } from '@/model/cfg-create-question/model';
+import { CfgCreateQuestion, State, Rule } from '@/model/cfg/create-question/model';
 import { nanoid } from 'nanoid';
 
 export default function SolvePage() {
@@ -33,7 +33,8 @@ export default function SolvePage() {
       cfgQuestion.pushStep({ 
         ruleId: ruleToApply.id, 
         index: startIdx,
-        replacedCount: selectedIndices.length
+        replacedCount: selectedIndices.length,
+        endState: currentEndState
       });
 
       setEndState(currentEndState);
