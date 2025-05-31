@@ -10,36 +10,34 @@ import { MainNavbar } from '@/components/main-navbar';
 import { questionService } from '@/services/questionService';
 import { QuestionType, QUESTION_TYPES } from '@/constants/questionTypes';
 
-export default function SolvePage() {
+export default function GeneratedSolvePage() {
   const params = useParams();
-  const id = params?.id as string;
+  const type = params?.type as QuestionType;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState<Question | null>(null);
-  const [questionType, setQuestionType] = useState<QuestionType>('cfg');
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
 
-  // Fetch question data and initialize
+  // Fetch generated question on mount
   useEffect(() => {
-    const fetchQuestion = async () => {
+    const fetchGeneratedQuestion = async () => {
       try {
-        const data = await questionService.getQuestionById(id);
-        setQuestionType(data.type);
-        const q = new Question(data.id, data.title, data.type, data.isGenerated, data.duration);
+        const data = await questionService.generateQuestion(type);
+        const q = new Question(data.id, data.title, data.type, true, data.duration);
         q.populateQuestionFromString(JSON.stringify(data.content));
         setQuestion(q);
         setCurrentState(q.getCurrentState());
       } catch (err) {
-        setError('Failed to load question');
+        setError('Failed to generate question');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuestion();
-  }, [id]);
+    fetchGeneratedQuestion();
+  }, [type]);
 
   // Update applicable rules when selection changes
   useEffect(() => {
@@ -121,13 +119,26 @@ export default function SolvePage() {
     }
   };
 
+  // Handle leaving confirmation for generated questions
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const message = "You will lose your progress if you leave. Are you sure?";
+      e.preventDefault();
+      e.returnValue = message;
+      return message;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   // Show loading state
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
         <MainNavbar />
         <div className="flex-1 flex justify-center items-center">
-          <p className="text-lg">Loading question...</p>
+          <p className="text-lg">Loading {type} question...</p>
         </div>
       </div>
     );
@@ -146,13 +157,13 @@ export default function SolvePage() {
   }
 
   // For now, only CFG questions are implemented
-  if (questionType !== 'cfg') {
-    const questionTypeInfo = QUESTION_TYPES.find(qt => qt.type === questionType);
+  if (type !== 'cfg') {
+    const questionTypeInfo = QUESTION_TYPES.find(qt => qt.type === type);
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
         <MainNavbar />
         <div className="flex-1 flex justify-center items-center">
-          <p className="text-lg">{questionTypeInfo?.title || questionType.toUpperCase()} questions are coming soon!</p>
+          <p className="text-lg">{questionTypeInfo?.title || type.toUpperCase()} questions are coming soon!</p>
         </div>
       </div>
     );

@@ -10,6 +10,9 @@ import { DifficultyFilter } from "@/components/difficulty-filter"
 import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
+import { QuestionType } from "@/constants/questionTypes"
+import { QuestionTypeModal } from "@/components/question-type-modal"
+import { questionService } from "@/services/questionService"
 
 // Mock problems data
 const MOCK_PROBLEMS = [
@@ -61,6 +64,7 @@ export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false)
   const { isAuthenticated } = useAuth()
   const router = useRouter()
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -74,6 +78,15 @@ export default function ProblemsPage() {
   if (!mounted || !isAuthenticated) {
     return null
   }
+
+  const handleGenerateQuestion = async (type: QuestionType) => {
+    try {
+      setIsTypeModalOpen(false);
+      router.push(`/problems/generated/${type}/solve`);
+    } catch (error) {
+      console.error('Failed to navigate to generated question:', error);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -119,7 +132,13 @@ export default function ProblemsPage() {
             </div>
 
             <div className="mt-8 flex justify-center">
-              <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B] px-6">Random Question</Button>
+              <Button 
+                variant="default"
+                className="bg-yellow-400 hover:bg-yellow-500 text-black"
+                onClick={() => setIsTypeModalOpen(true)}
+              >
+                Generate Random Question
+              </Button>
             </div>
           </div>
         </div>
@@ -131,6 +150,12 @@ export default function ProblemsPage() {
           <p>© {new Date().getFullYear()} CodeLeaf. All rights reserved.</p>
         </div>
       </footer>
+
+      <QuestionTypeModal
+        open={isTypeModalOpen}
+        onClose={() => setIsTypeModalOpen(false)}
+        onSelectType={handleGenerateQuestion}
+      />
     </div>
   )
 }

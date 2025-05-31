@@ -2,15 +2,12 @@
 
 import { useState } from "react"
 import { FilterGroup, FilterOption } from "@/components/ui/filter-group"
+import { QUESTION_TYPES } from "@/constants/questionTypes"
 
-const categoryOptions: FilterOption[] = [
-  { id: "cipher", label: "Cipher" },
-  { id: "binaryTree", label: "Binary Tree" },
-  { id: "balanced", label: "Balanced" },
-  { id: "algorithms", label: "Algorithms" },
-  { id: "dataStructures", label: "Data Structures" },
-  { id: "dynamicProgramming", label: "Dynamic Programming" },
-]
+const categoryOptions: FilterOption[] = QUESTION_TYPES.map(type => ({
+  id: type.id,
+  label: type.label
+}));
 
 interface CategoryFilterProps {
   selectedCategories?: Record<string, boolean>;
@@ -18,14 +15,12 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ selectedCategories, onCategoryChange }: CategoryFilterProps = {}) {
-  const [internalSelectedCategories, setInternalSelectedCategories] = useState({
-    cipher: true,
-    binaryTree: false,
-    balanced: false,
-    algorithms: false,
-    dataStructures: false,
-    dynamicProgramming: false,
-  });
+  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Record<string, boolean>>(
+    QUESTION_TYPES.reduce((acc, type) => ({
+      ...acc,
+      [type.id]: type.id === 'cfg'
+    }), {})
+  );
 
   const isControlled = selectedCategories !== undefined && onCategoryChange !== undefined;
 
@@ -35,7 +30,7 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
     } else {
       setInternalSelectedCategories((prev) => ({
         ...prev,
-        [categoryId]: !prev[categoryId as keyof typeof prev],
+        [categoryId]: !prev[categoryId],
       }));
     }
   };

@@ -1,3 +1,4 @@
+import { QuestionType } from "@/constants/questionTypes";
 import { State, Step, Rule } from "../create-question/model";
 import { IQuestion, QuestionSetup } from "@/model/interfaces/question";
 
@@ -8,9 +9,9 @@ export class Question extends IQuestion {
     private steps: Step[];
     private redoStack: Step[];
 
-    constructor(id: string, title: string, isGenerated: boolean, duration: number) {
+    constructor(id: string, title: string, questionType: QuestionType, isGenerated: boolean, duration: number) {
         const now = new Date();
-        super(id, title, isGenerated, duration, now);
+        super(id, title, isGenerated, questionType, duration, now);
         
         this.questionSetup = {
             startState: [],
