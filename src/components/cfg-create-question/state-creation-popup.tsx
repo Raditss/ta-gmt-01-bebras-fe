@@ -132,10 +132,10 @@ export function StateCreationPopup({
           </div>
         )}
 
-        <div>
-          <div className="bg-white p-6 rounded-md shadow-md mb-6">
-            <div className="flex flex-wrap justify-center gap-2 min-h-[8rem] max-h-[24rem] overflow-y-auto p-4">
-              {mode === 'start' ? startState.map((obj, idx) => (
+        <div className="bg-white p-6 rounded-md shadow-md mb-6">
+          <div className="flex flex-wrap justify-center gap-2 min-h-[8rem] max-h-[24rem] overflow-y-auto p-4">
+            {mode === 'start' ? (
+              startState.map((obj, idx) => (
                 <div 
                   key={idx} 
                   className="w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-75 transition-opacity relative group"
@@ -154,7 +154,9 @@ export function StateCreationPopup({
                     <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
                   )}
                 </div>
-              )) : endState.map((obj, idx) => (
+              ))
+            ) : (
+              endState.map((obj, idx) => (
                 <div 
                   key={idx} 
                   className={`w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer ${
@@ -174,97 +176,97 @@ export function StateCreationPopup({
                     <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
                   )}
                 </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {mode === 'start' ? (
+          <div className="text-center mb-4">
+            <h3 className="font-medium mb-2">Available Objects</h3>
+            <div className="flex flex-wrap justify-center gap-4">
+              {availableObjects.map((obj, idx) => (
+                <button 
+                  key={idx}
+                  onClick={() => addObjectToStartState(obj)}
+                  className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center hover:bg-gray-300"
+                >
+                  {obj.type === 'circle' ? (
+                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+                  ) : obj.type === 'triangle' ? (
+                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
+                  ) : obj.type === 'square' ? (
+                    <div className="w-10 h-10 bg-gray-300"></div>
+                  ) : obj.type === 'star' ? (
+                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
+                  ) : (
+                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
+                  )}
+                </button>
               ))}
             </div>
           </div>
-          
-          {mode === 'start' ? (
-            <div className="text-center mb-4">
-              <h3 className="font-medium mb-2">Available Objects</h3>
-              <div className="flex flex-wrap justify-center gap-4">
-                {availableObjects.map((obj, idx) => (
+        ) : (
+          <div className="text-center mb-4">
+            <h3 className="font-medium mb-2">Available Rules</h3>
+            <div className="flex flex-wrap justify-center gap-4 max-h-[16rem] overflow-y-auto p-4">
+              {applicableRules.length > 0 ? (
+                applicableRules.map((rule, idx) => (
                   <button 
                     key={idx}
-                    onClick={() => addObjectToStartState(obj)}
-                    className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center hover:bg-gray-300"
+                    onClick={() => {
+                      applyRuleToEndState(selectedObjects, {
+                        id: rule.id,
+                        after: rule.after
+                      });
+                      setSelectedObjects([]);
+                    }}
+                    className="p-4 bg-gray-200 rounded-md hover:bg-gray-300 flex items-center space-x-2"
                   >
-                    {obj.type === 'circle' ? (
-                      <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                    ) : obj.type === 'triangle' ? (
-                      <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                    ) : obj.type === 'square' ? (
-                      <div className="w-10 h-10 bg-gray-300"></div>
-                    ) : obj.type === 'star' ? (
-                      <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                    ) : (
-                      <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                    )}
+                    <div className="flex flex-wrap gap-1 max-w-[8rem]">
+                      {rule.before.map((obj, idx) => (
+                        <div key={idx} className="w-8 h-8">
+                          {obj.type === 'circle' ? (
+                            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+                          ) : obj.type === 'triangle' ? (
+                            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
+                          ) : obj.type === 'square' ? (
+                            <div className="w-6 h-6 bg-gray-400"></div>
+                          ) : obj.type === 'star' ? (
+                            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
+                          ) : (
+                            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    <span>→</span>
+                    <div className="flex flex-wrap gap-1 max-w-[8rem]">
+                      {rule.after.map((obj, idx) => (
+                        <div key={idx} className="w-8 h-8">
+                          {obj.type === 'circle' ? (
+                            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+                          ) : obj.type === 'triangle' ? (
+                            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
+                          ) : obj.type === 'square' ? (
+                            <div className="w-6 h-6 bg-gray-400"></div>
+                          ) : obj.type === 'star' ? (
+                            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
+                          ) : (
+                            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </button>
-                ))}
-              </div>
+                ))
+              ) : (
+                <p>No matching rules for selected objects</p>
+              )}
             </div>
-          ) : selectedObjects.length > 0 && (
-            <div className="text-center mb-4">
-              <h3 className="font-medium mb-2">Available Rules</h3>
-              <div className="flex flex-wrap justify-center gap-4 max-h-[16rem] overflow-y-auto p-4">
-                {applicableRules.length > 0 ? (
-                  applicableRules.map((rule, idx) => (
-                    <button 
-                      key={idx}
-                      onClick={() => {
-                        applyRuleToEndState(selectedObjects, {
-                          after: rule.after,
-                          id: rule.id
-                        });
-                        setSelectedObjects([]);
-                      }}
-                      className="p-4 bg-gray-200 rounded-md hover:bg-gray-300 flex items-center space-x-2"
-                    >
-                      <div className="flex flex-wrap gap-1 max-w-[8rem]">
-                        {rule.before.map((obj, idx) => (
-                          <div key={idx} className="w-8 h-8">
-                            {obj.type === 'circle' ? (
-                              <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-                            ) : obj.type === 'triangle' ? (
-                              <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-                            ) : obj.type === 'square' ? (
-                              <div className="w-6 h-6 bg-gray-400"></div>
-                            ) : obj.type === 'star' ? (
-                              <div className="w-6 h-6 bg-gray-400 clip-star"></div>
-                            ) : (
-                              <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                      <span>→</span>
-                      <div className="flex flex-wrap gap-1 max-w-[8rem]">
-                        {rule.after.map((obj, idx) => (
-                          <div key={idx} className="w-8 h-8">
-                            {obj.type === 'circle' ? (
-                              <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-                            ) : obj.type === 'triangle' ? (
-                              <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-                            ) : obj.type === 'square' ? (
-                              <div className="w-6 h-6 bg-gray-400"></div>
-                            ) : obj.type === 'star' ? (
-                              <div className="w-6 h-6 bg-gray-400 clip-star"></div>
-                            ) : (
-                              <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <p>No matching rules for selected objects</p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-        
+          </div>
+        )}
+
         <div className="flex justify-center mt-6">
           <button 
             onClick={onClose}

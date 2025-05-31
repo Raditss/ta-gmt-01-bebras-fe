@@ -31,6 +31,12 @@
   * {
     @apply border-0;
   }
+  /* TODO: When reverting to next/font/google:
+   * 1. Remove this html rule as font will be handled by next/font/google
+   */
+  html {
+    font-family: 'Inter', sans-serif;
+  }
   body {
     @apply bg-background text-foreground;
   }

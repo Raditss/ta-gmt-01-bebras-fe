@@ -1,52 +1,46 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RulesSection } from '@/components/cfg-create-question/rule-section';
 import { RuleModal } from '@/components/cfg-create-question/rule-modal';
 import { StateCreationPopup } from '@/components/cfg-create-question/state-creation-popup';
-import { useParams } from 'next/navigation';
-import { CfgCreateQuestion, State, Rule } from '@/model/cfg/create-question/model';
+import { useParams, useRouter } from 'next/navigation';
+import { State, Rule } from '@/model/cfg/create-question/model';
 import { nanoid } from 'nanoid';
 import { MainNavbar } from '@/components/main-navbar';
+import { useCfgQuestion } from '@/hooks/useCfgQuestion';
+import { NavigationProtection } from '@/components/navigation-protection';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { CheckCircle2, AlertCircle, Save } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { NavigationAlertDialog } from '@/components/ui/navigation-alert-dialog';
 
-export default function SolvePage() {
+export default function CfgCreateProblemPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string;
+  const isNewQuestion = id === 'new';
+  const pendingNavigation = useRef<string | null>(null);
 
-  const [cfgQuestion] = useState(() => new CfgCreateQuestion("Untitled Question"));
+  const {
+    question,
+    loading,
+    saving,
+    error: questionError,
+    hasUnsavedChanges,
+    lastSavedDraft,
+    updateQuestion,
+    saveDraft
+  } = useCfgQuestion(isNewQuestion ? undefined : id);
 
-  // Applies a rule to selected objects in the end state, replacing them with the rule's "after" objects
-  const applyRuleToEndState = (selectedIndices: number[], ruleToApply: { id: string; after: any[]; }) => {
-    if (ruleToApply && selectedIndices.length > 0) {
-      const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
-      const startIdx = sortedIndices[0];
-      const endIdx = sortedIndices[sortedIndices.length - 1];
-      const currentEndState = [...endState];
-
-      const afterWithIds = ruleToApply.after.map(obj => ({
-        ...obj,
-        id: Date.now() + Math.random()
-      }));
-
-      currentEndState.splice(startIdx, endIdx - startIdx + 1, ...afterWithIds);
-
-      cfgQuestion.pushStep({ 
-        ruleId: ruleToApply.id, 
-        index: startIdx,
-        replacedCount: selectedIndices.length,
-        endState: currentEndState
-      });
-
-      setEndState(currentEndState);
-    }
-  };
-
-  const [rules, setRules] = useState(cfgQuestion.rules);
-  const [startState, setStartState] = useState(cfgQuestion.startState);
-  const [endState, setEndState] = useState(cfgQuestion.endState);
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [startState, setStartState] = useState<State[]>([]);
+  const [endState, setEndState] = useState<State[]>([]);
   const [showRuleModal, setShowRuleModal] = useState(false);
   const [showStateCreationPopup, setShowStateCreationPopup] = useState(false);
   const [stateCreationMode, setStateCreationMode] = useState<'start' | 'end' | null>(null);
+  const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
   
   const availableObjects = [
     { id: 1, type: 'circle', icon: '⚪' },
@@ -77,8 +71,10 @@ export default function SolvePage() {
   };
 
   const setRulesAndSync = (newRules: Rule[]) => {
-    cfgQuestion.setRules(newRules);
-    setRules([...cfgQuestion.rules]);
+    if (question) {
+      updateQuestion({ rules: newRules });
+      setRules(newRules);
+    }
   };
 
   const handleDeleteRule = (ruleId: string) => {
@@ -90,50 +86,91 @@ export default function SolvePage() {
     if (endState.length > 0) {
       const newEndState = [...startState];
       setEndState(newEndState);
-      cfgQuestion.setInitialEndState(newEndState);
-      cfgQuestion.resetSteps();
+      updateQuestion({ endState: newEndState });
     }
   };
 
   // Update start state and propagate changes to end state if it exists
   const setStartStateAndSync = (newState: State[]) => {
-    cfgQuestion.setStartState(newState);
-    setStartState([...cfgQuestion.startState]);
-    
-    // If we have an end state, we need to reset it to match the new start state
-    if (endState.length > 0) {
-      setEndState([...newState]);
-      cfgQuestion.setInitialEndState([...newState]);
-      cfgQuestion.resetSteps();
+    if (question) {
+      updateQuestion({ startState: newState });
+      setStartState(newState);
+      
+      // If we have an end state, we need to reset it to match the new start state
+      if (endState.length > 0) {
+        setEndState([...newState]);
+        updateQuestion({ endState: [...newState] });
+      }
     }
   };
 
   const setEndStateAndSync = (newState: State[]) => {
-    setEndState([...newState]);
+    if (question) {
+      updateQuestion({ endState: newState });
+      setEndState(newState);
+    }
+  };
+
+  // Initialize states from question when it loads
+  useEffect(() => {
+    if (question) {
+      setRules(question.rules);
+      setStartState(question.startState);
+      setEndState(question.endState);
+    }
+  }, [question]);
+
+  // Applies a rule to selected objects in the end state, replacing them with the rule's "after" objects
+  const applyRuleToEndState = (selectedIndices: number[], ruleToApply: { id: string; after: any[]; }) => {
+    if (!question || !ruleToApply || selectedIndices.length === 0) return;
+
+    const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
+    const startIdx = sortedIndices[0];
+    const endIdx = sortedIndices[sortedIndices.length - 1];
+    const currentEndState = [...endState];
+
+    const afterWithIds = ruleToApply.after.map(obj => ({
+      ...obj,
+      id: Date.now() + Math.random()
+    }));
+
+    currentEndState.splice(startIdx, endIdx - startIdx + 1, ...afterWithIds);
+
+    question.pushStep({ 
+      ruleId: ruleToApply.id, 
+      index: startIdx,
+      replacedCount: selectedIndices.length,
+      endState: currentEndState
+    });
+
+    setEndState(currentEndState);
   };
 
   // Handles undoing the last step by replaying remaining steps from initial state
   const handleUndo = () => {
-    const lastStep = cfgQuestion.popStep();
+    if (!question) return;
+    const lastStep = question.popStep();
     if (lastStep) {
-      const newEndState = cfgQuestion.replayStepsFromInitialEndState();
+      const newEndState = question.replayStepsFromInitialEndState();
       setEndState(newEndState);
-      console.log('Undo - remaining steps:', cfgQuestion.getSteps().length);
+      console.log('Undo - remaining steps:', question.getSteps().length);
     }
   };
 
   // Handles redoing the last undone step by replaying all steps including the redone one
   const handleRedo = () => {
-    const step = cfgQuestion.redoStep();
+    if (!question) return;
+    const step = question.redoStep();
     if (step) {
-      const newEndState = cfgQuestion.replayStepsFromInitialEndState();
+      const newEndState = question.replayStepsFromInitialEndState();
       setEndState(newEndState);
-      console.log('Redo - current steps:', cfgQuestion.getSteps().length);
+      console.log('Redo - current steps:', question.getSteps().length);
     }
   };
 
   const handleReset = () => {
-    cfgQuestion.resetSteps();
+    if (!question) return;
+    question.resetSteps();
     setRulesAndSync([]);
     setStartStateAndSync([]);
     setEndStateAndSync([]);
@@ -144,9 +181,62 @@ export default function SolvePage() {
     if (stateCreationMode === 'end' && endState.length === 0) {
       const initialEndState = [...startState];
       setEndState(initialEndState);
-      cfgQuestion.setInitialEndState(initialEndState);
+      updateQuestion({ endState: initialEndState });
     }
   }, [stateCreationMode]);
+
+  // Handle navigation attempts
+  const handleBeforeNavigate = useCallback(async () => {
+    if (hasUnsavedChanges) {
+      setShowNavigationDialog(true);
+      return false; // Prevent navigation until user makes a choice
+    }
+    return true;
+  }, [hasUnsavedChanges]);
+
+  // Handle save and navigate
+  const handleSaveAndLeave = useCallback(async () => {
+    await saveDraft();
+    setShowNavigationDialog(false);
+    if (pendingNavigation.current) {
+      router.push(pendingNavigation.current);
+      pendingNavigation.current = null;
+    }
+  }, [saveDraft, router]);
+
+  // Handle leave without saving
+  const handleLeaveWithoutSaving = useCallback(() => {
+    setShowNavigationDialog(false);
+    if (pendingNavigation.current) {
+      router.push(pendingNavigation.current);
+      pendingNavigation.current = null;
+    }
+  }, [router]);
+
+  // Handle staying on page
+  const handleStayOnPage = useCallback(() => {
+    setShowNavigationDialog(false);
+    pendingNavigation.current = null;
+  }, []);
+
+  // Handle manual save
+  const handleManualSave = useCallback(async () => {
+    try {
+      await saveDraft();
+      setShowSaveConfirmation(true);
+      setTimeout(() => setShowSaveConfirmation(false), 3000);
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+    }
+  }, [saveDraft]);
+
+  // Auto-hide save confirmation
+  useEffect(() => {
+    if (showSaveConfirmation) {
+      const timer = setTimeout(() => setShowSaveConfirmation(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveConfirmation]);
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -175,17 +265,88 @@ export default function SolvePage() {
     };
   }, []);
 
-  useEffect(() => {
-    setRulesAndSync([...cfgQuestion.rules]);
-    setStartState([...cfgQuestion.startState]);
-    setEndState([...cfgQuestion.endState]);
-  }, []);
-  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-yellow-400">
+        <MainNavbar />
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (questionError || !question) {
+    return (
+      <div className="min-h-screen bg-yellow-400">
+        <MainNavbar />
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center text-red-600">
+            {questionError || 'Failed to load question'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-yellow-400">
+      <NavigationProtection
+        when={hasUnsavedChanges}
+        onBeforeNavigate={handleBeforeNavigate}
+      />
+      
+      <NavigationAlertDialog
+        open={showNavigationDialog}
+        onOpenChange={setShowNavigationDialog}
+        onSaveAndLeave={handleSaveAndLeave}
+        onLeaveWithoutSaving={handleLeaveWithoutSaving}
+        onCancel={handleStayOnPage}
+      />
+      
       <MainNavbar />
       
       <div className="flex-1 container mx-auto px-4 py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">
+            {isNewQuestion ? 'Create New CFG Question' : 'Edit CFG Question'}
+          </h1>
+          
+          <Button
+            onClick={handleManualSave}
+            disabled={saving || !hasUnsavedChanges}
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {saving ? 'Saving...' : 'Save Draft'}
+          </Button>
+        </div>
+
+        {saving && (
+          <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>Saving draft...</AlertDescription>
+          </Alert>
+        )}
+        
+        {showSaveConfirmation && (
+          <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertDescription>
+              Draft saved successfully!
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {lastSavedDraft && !showSaveConfirmation && (
+          <Alert className="mb-4 bg-gray-50 text-gray-800 border-gray-200">
+            <CheckCircle2 className="h-4 w-4" />
+            <AlertDescription>
+              Last saved at {lastSavedDraft.toLocaleTimeString()}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <RulesSection 
           rules={rules} 
           onAddRule={() => setShowRuleModal(true)}

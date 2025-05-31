@@ -19,6 +19,7 @@ const questionTypes = [
   { id: "true-false", name: "True/False" },
   { id: "short-answer", name: "Short Answer" },
   { id: "coding", name: "Coding Problem" },
+  { id: "cfg", name: "Context-Free Grammar" },
 ]
 
 export default function AddProblemPage() {
@@ -62,6 +63,13 @@ export default function AddProblemPage() {
 
     if (!difficulty) {
       setError("Please select a difficulty level")
+      return
+    }
+
+    // Handle CFG question type differently
+    if (selectedType === "cfg") {
+      // Navigate to CFG creation page with /new to indicate new question
+      router.push("/add-problem/cfg-problem-creation/new")
       return
     }
 
