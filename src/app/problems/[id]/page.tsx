@@ -98,11 +98,11 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
                   <li>The shift value will be between 1 and 25.</li>
                 </ul>
 
-                <div className="bg-gray-100 p-4 rounded-lg mt-6">
-                  <p className="text-center text-gray-500">
-                    Code editor and submission functionality will be implemented by another developer.
-                  </p>
-                </div>
+                <Link href={`/problems/${id}/solve`}>
+                  <Button variant="default" className="pl-0">
+                    Solve!
+                  </Button>
+                </Link>
               </div>
             </CardContent>
           </Card>
