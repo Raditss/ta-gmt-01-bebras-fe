@@ -6,6 +6,7 @@ import { Question } from '@/model/cfg/question/model';
 import { State, Rule } from '@/model/cfg/create-question/model';
 import { StateDrawer } from '@/components/cfg-solve/state-drawer';
 import { RulesTable } from '@/components/cfg-shared/rules-table';
+import { MainNavbar } from '@/components/main-navbar';
 
 // TODO: Replace with actual API call
 const mockQuestionData = {
@@ -146,11 +147,7 @@ export default function SolvePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-yellow-400">
-      <header className="bg-white shadow">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-2xl font-bold">Solve Question</h1>
-        </div>
-      </header>
+      <MainNavbar />
 
       <main className="flex-1 container mx-auto px-4 py-6">
         {/* Display all available transformation rules */}
