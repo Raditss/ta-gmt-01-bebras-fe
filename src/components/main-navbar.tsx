@@ -54,7 +54,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
               About
             </Link>
 
-            {isAuthenticated && <RoleNav user={user} />}
+            {isAuthenticated && user && <RoleNav user={user} />}
           </nav>
         </div>
 
@@ -75,7 +75,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
                   About
                 </Link>
 
-                {isAuthenticated && (
+                {isAuthenticated && user && (
                   <>
                     <RoleNav user={user} />
                     <Link href="/profile" className="font-medium py-2">
@@ -109,7 +109,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
               <Link href="/profile" className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user.username} />
-                  <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{user.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block">
                   <div className="text-sm font-medium">{user.name}</div>

@@ -10,56 +10,53 @@ import { DifficultyFilter } from "@/components/difficulty-filter"
 import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
+import { api } from "@/lib/api"
 
-// Mock problems data
-const MOCK_PROBLEMS = [
-  {
-    id: "1",
-    title: "Exploring the world of cipher with a wonder of the new and efficient algorithm",
-    author: "KnightProgrammer",
-    difficulty: "Easy" as const,
-    category: "Cipher",
-  },
-  {
-    id: "2",
-    title: "Exploring the world of cipher with a wonder of the new and efficient algorithm",
-    author: "KnightProgrammer",
-    difficulty: "Medium" as const,
-    category: "Cipher",
-  },
-  {
-    id: "3",
-    title: "Exploring the world of cipher with a wonder of the new and efficient algorithm",
-    author: "KnightProgrammer",
-    difficulty: "Hard" as const,
-    category: "Cipher",
-  },
-  {
-    id: "4",
-    title: "Balancing binary trees for optimal search performance",
-    author: "TreeMaster",
-    difficulty: "Medium" as const,
-    category: "Binary Tree",
-  },
-  {
-    id: "5",
-    title: "Implementing efficient sorting algorithms for large datasets",
-    author: "SortingWizard",
-    difficulty: "Hard" as const,
-    category: "Algorithms",
-  },
-  {
-    id: "6",
-    title: "Building a simple encryption system using modular arithmetic",
-    author: "CryptoGenius",
-    difficulty: "Easy" as const,
-    category: "Cipher",
-  },
-]
+interface QuestionTypeResponse {
+  props: {
+    id: number
+    name: string
+    description: string
+    createdAt: string
+    updatedAt: string
+  }
+}
+
+interface QuestionType {
+  id: number
+  name: string
+  description: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface Teacher {
+  id: number
+  name: string
+}
+
+interface Question {
+  props: {
+    id: number
+    content: string
+    questionTypeId: number
+    teacherId: number
+    isPublished: boolean
+    questionType: QuestionType
+    createdAt: string
+    updatedAt: string
+    teacher: Teacher
+  }
+}
 
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false)
-  const { isAuthenticated } = useAuth()
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [questionTypes, setQuestionTypes] = useState<QuestionTypeResponse[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({})
+  const { isAuthenticated, token } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -69,6 +66,61 @@ export default function ProblemsPage() {
       router.push("/login")
     }
   }, [isAuthenticated, mounted, router])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isAuthenticated || !token) return
+
+      try {
+        setIsLoading(true)
+        setError(null)
+        
+        console.log('Token being used:', token) // Debug log
+        
+        // Fetch questions and question types in parallel
+        const [questionsResponse, typesResponse] = await Promise.all([
+          api.getQuestions(token),
+          api.getQuestionTypes(token)
+        ])
+        
+        console.log('Question Types:', typesResponse) // Debug log
+        setQuestions(questionsResponse)
+        setQuestionTypes(typesResponse)
+        
+        // Initialize all categories as selected
+        const initialSelectedCategories = Object.fromEntries(
+          typesResponse.map((type: QuestionTypeResponse) => [type.props.name.toLowerCase().replace(/\s+/g, ''), true])
+        )
+        setSelectedCategories(initialSelectedCategories)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+        setError(error instanceof Error ? error.message : "Failed to fetch data")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    if (isAuthenticated) {
+      fetchData()
+    }
+  }, [isAuthenticated, token])
+
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }))
+  }
+
+  const filteredQuestions = questions.filter(question => {
+    const categoryName = question.props.questionType.name.toLowerCase().replace(/\s+/g, '')
+    // If no categories are selected, show all questions
+    if (Object.values(selectedCategories).every(selected => !selected)) {
+      return true
+    }
+    // Show questions that match any selected category
+    return Object.entries(selectedCategories).some(([id, selected]) => selected && id === categoryName)
+  })
 
   // Show nothing during SSR or if not authenticated
   if (!mounted || !isAuthenticated) {
@@ -92,7 +144,11 @@ export default function ProblemsPage() {
 
             <div>
               <h3 className="font-semibold mb-2">Categories</h3>
-              <CategoryFilter />
+              <CategoryFilter 
+                categories={questionTypes.map(type => type.props.name)} 
+                selectedCategories={selectedCategories}
+                onCategoryChange={handleCategoryChange}
+              />
             </div>
 
             <div>
@@ -105,22 +161,40 @@ export default function ProblemsPage() {
           <div className="md:w-3/4">
             <h1 className="text-2xl font-bold mb-6">Coding Problems</h1>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {MOCK_PROBLEMS.map((problem) => (
-                <ProblemCard
-                  key={problem.id}
-                  title={problem.title}
-                  author={problem.author}
-                  difficulty={problem.difficulty}
-                  category={problem.category}
-                  id={problem.id}
-                />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-500 py-8">
+                <p>{error}</p>
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-4 bg-[#F8D15B] text-black hover:bg-[#E8C14B]"
+                >
+                  Try Again
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredQuestions.map((question) => (
+                    <ProblemCard
+                      key={`${question.props.id}-${question.props.questionTypeId}`}
+                      title={question.props.content}
+                      author={question.props.teacher.name}
+                      difficulty="Medium" // TODO: Add difficulty when available
+                      category={question.props.questionType.name}
+                      id={question.props.id.toString()}
+                    />
+                  ))}
+                </div>
 
-            <div className="mt-8 flex justify-center">
-              <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B] px-6">Random Question</Button>
-            </div>
+                <div className="mt-8 flex justify-center">
+                  <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B] px-6">Random Question</Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </main>

@@ -37,80 +37,26 @@ export const useAuth = create<AuthState>()(
       login: async (username: string, password: string) => {
         set({ isLoading: true, error: null })
 
-        // Demo accounts logic
-        if (username === "johndoe" && password === "password123") {
-          set({
-            user: {
-              id: 1,
-              username: "johndoe",
-              name: "John Doe",
-              role: "STUDENT",
-              createdAt: "2025-05-20T08:19:32.290Z",
-              updatedAt: "2025-05-20T08:19:32.290Z",
-              streak: 25
-            },
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiam9obmRvZSIsInJvbGUiOiJTVFVERU5UIiwiaWF0IjoxNzQ3NzMxNTQwLCJleHAiOjE3NDc3NzQ3NDB9.-11U9HL_IHcEO6fGjaAn-j6GIDKQCPVkCbyxH7PDSAE",
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-        }
-
-        // Demo teacher account
-        if (username === "teacher" && password === "password123") {
-          set({
-            user: {
-              id: 2,
-              username: "teacher",
-              name: "Sarah Smith",
-              role: "TEACHER",
-              createdAt: "2025-05-20T08:19:32.290Z",
-              updatedAt: "2025-05-20T08:19:32.290Z",
-              streak: 15
-            },
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXJuYW1lIjoidGVhY2hlciIsInJvbGUiOiJURUFDSEVSIiwiaWF0IjoxNzQ3NzMxNTQwLCJleHAiOjE3NDc3NzQ3NDB9.teacher-token",
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-        }
-
-        // Demo admin account
-        if (username === "admin" && password === "password123") {
-          set({
-            user: {
-              id: 3,
-              username: "admin",
-              name: "Admin User",
-              role: "ADMIN",
-              createdAt: "2025-05-20T08:19:32.290Z",
-              updatedAt: "2025-05-20T08:19:32.290Z",
-              streak: 30
-            },
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDc3MzE1NDAsImV4cCI6MTc0Nzc3NDc0MH0.admin-token",
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-        }
-
-        // Fallback to real API for other users
         try {
           const response = await api.login(username, password)
+          console.log('Login response:', response) // Debug log
+          console.log('Token being stored:', response.accessToken) // Debug log
           set({
-            user: response.user,
-            token: response.access_token.access_token,
+            user: response.user.props,
+            token: response.accessToken,
             isAuthenticated: true,
             isLoading: false,
+            error: null,
           })
           return true
         } catch (error) {
+          console.error('Login error:', error) // Debug log
           set({
             error: error instanceof Error ? error.message : "Failed to login",
             isLoading: false,
+            isAuthenticated: false,
+            user: null,
+            token: null,
           })
           return false
         }
@@ -119,12 +65,12 @@ export const useAuth = create<AuthState>()(
       register: async (username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER") => {
         set({ isLoading: true, error: null })
         try {
-          const response = await api.register(username, password, name, role)
-          set({
-            isLoading: false,
-          })
+          // Register the user without logging in
+          await api.register(username, password, name, role)
+          set({ isLoading: false })
           return true
         } catch (error) {
+          console.error('Register error:', error) // Debug log
           set({
             error: error instanceof Error ? error.message : "Failed to register",
             isLoading: false,
@@ -137,9 +83,9 @@ export const useAuth = create<AuthState>()(
         const state = useAuth.getState()
         if (state.token) {
           try {
-            await api.signOut(state.token)
+            await api.logout(state.token)
           } catch (error) {
-            // Log the error but continue with local state cleanup
+            // Log the error but continuing with local state cleanup
             console.warn("Error during logout:", error)
           }
         }
@@ -158,6 +104,11 @@ export const useAuth = create<AuthState>()(
     }),
     {
       name: "codeleaf-auth",
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     },
   ),
 )

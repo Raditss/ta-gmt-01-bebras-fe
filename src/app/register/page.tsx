@@ -21,15 +21,19 @@ export default function RegisterPage() {
   const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT")
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { register, isAuthenticated, isLoading, error, clearError } = useAuth()
+  const { register, isAuthenticated, isLoading, error, clearError, user } = useAuth()
 
   useEffect(() => {
     setMounted(true)
-    // If already authenticated, redirect to problems page
-    if (isAuthenticated) {
-      router.push("/problems")
+    // If already authenticated, redirect to appropriate page
+    if (isAuthenticated && user) {
+      if (user.role === "ADMIN") {
+        router.push("/admin")
+      } else {
+        router.push("/problems")
+      }
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, router, user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
