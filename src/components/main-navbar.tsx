@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
 import { useAuth } from "@/lib/auth"
 import type { User as AuthUser } from "@/lib/auth"
+import { RoleNav } from "./navigation/role-nav"
 
 interface MainNavbarProps {
   user?: AuthUser | null;
@@ -53,16 +54,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
               About
             </Link>
 
-            {isAuthenticated && (
-              <>
-                <Link href="/problems" className="font-medium">
-                  Problems
-                </Link>
-                <Link href="/leaderboard" className="font-medium">
-                  Leaderboard
-                </Link>
-              </>
-            )}
+            {isAuthenticated && <RoleNav user={user} />}
           </nav>
         </div>
 
@@ -85,12 +77,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
 
                 {isAuthenticated && (
                   <>
-                    <Link href="/problems" className="font-medium py-2">
-                      Problems
-                    </Link>
-                    <Link href="/leaderboard" className="font-medium py-2">
-                      Leaderboard
-                    </Link>
+                    <RoleNav user={user} />
                     <Link href="/profile" className="font-medium py-2">
                       Profile
                     </Link>
@@ -125,10 +112,10 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
                   <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block">
-                  <div className="text-sm font-medium">{user.username}</div>
+                  <div className="text-sm font-medium">{user.name}</div>
                   <div className="flex items-center">
-                    <span className="text-xs">{user.points}</span>
-                    <span className="text-yellow-500 text-xs ml-1">★</span>
+                    <span className="text-xs">{user.streak ?? 0}</span>
+                    <span className="text-yellow-500 text-xs ml-1">🔥</span>
                   </div>
                 </div>
               </Link>

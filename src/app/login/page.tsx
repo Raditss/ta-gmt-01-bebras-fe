@@ -17,13 +17,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { login, isAuthenticated, isLoading, error, clearError } = useAuth()
+  const { login, isAuthenticated, isLoading, error, clearError, user } = useAuth()
 
   useEffect(() => {
     setMounted(true)
     // If already authenticated, redirect to problems page
     if (isAuthenticated) {
-      router.push("/problems")
+      if (user?.role === "ADMIN") {
+        router.push("/admin")
+      } else {
+        router.push("/problems")
+      }
     }
   }, [isAuthenticated, router])
 
@@ -32,11 +36,7 @@ export default function LoginPage() {
     if (!mounted) return
 
     clearError()
-    const success = await login(username, password)
-
-    if (success) {
-      router.push("/problems")
-    }
+    await login(username, password)
   }
 
   return (
@@ -126,13 +126,22 @@ export default function LoginPage() {
             {mounted && (
               <div className="mt-8 p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-medium text-sm mb-2">Demo Accounts</h3>
-                <div className="text-xs text-gray-600">
-                  <p>
-                    Username: <span className="font-mono">RustRacer</span>
-                  </p>
-                  <p>
-                    Password: <span className="font-mono">password123</span>
-                  </p>
+                <div className="space-y-2 text-xs text-gray-600">
+                  <div>
+                    <p className="font-medium">Student Account:</p>
+                    <p>Username: <span className="font-mono">johndoe</span></p>
+                    <p>Password: <span className="font-mono">password123</span></p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Teacher Account:</p>
+                    <p>Username: <span className="font-mono">teacher</span></p>
+                    <p>Password: <span className="font-mono">password123</span></p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Admin Account:</p>
+                    <p>Username: <span className="font-mono">admin</span></p>
+                    <p>Password: <span className="font-mono">password123</span></p>
+                  </div>
                 </div>
               </div>
             )}
