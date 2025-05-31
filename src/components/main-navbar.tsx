@@ -114,7 +114,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
                 <div className="hidden md:block">
                   <div className="text-sm font-medium">{user.name}</div>
                   <div className="flex items-center">
-                    <span className="text-xs">{user.streak}</span>
+                    <span className="text-xs">{user.streak ?? 0}</span>
                     <span className="text-yellow-500 text-xs ml-1">🔥</span>
                   </div>
                 </div>

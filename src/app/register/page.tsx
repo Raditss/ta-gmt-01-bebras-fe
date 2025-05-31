@@ -11,12 +11,14 @@ import { useRouter } from "next/navigation"
 import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState("")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [name, setName] = useState("")
+  const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT")
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const { register, isAuthenticated, isLoading, error, clearError } = useAuth()
@@ -40,10 +42,11 @@ export default function RegisterPage() {
     }
 
     clearError()
-    const success = await register(email, username, password)
+    const success = await register(username, password, name, role)
 
     if (success) {
-      router.push("/problems")
+      // Redirect to login page after successful registration
+      router.push("/login")
     }
   }
 
@@ -83,15 +86,15 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
+                <label htmlFor="name" className="text-sm font-medium">
+                  Full Name
                 </label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="name"
+                  type="text"
+                  placeholder="Your full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   required
                   disabled={isLoading}
                 />
@@ -110,6 +113,21 @@ export default function RegisterPage() {
                   required
                   disabled={isLoading}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="role" className="text-sm font-medium">
+                  Role
+                </label>
+                <Select value={role} onValueChange={(value: "STUDENT" | "TEACHER") => setRole(value)} disabled={isLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="TEACHER">Teacher</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">

@@ -19,8 +19,8 @@ type AuthState = {
   isLoading: boolean
   error: string | null
   login: (username: string, password: string) => Promise<boolean>
-  register: (email: string, username: string, password: string) => Promise<boolean>
-  logout: () => void
+  register: (username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER") => Promise<boolean>
+  logout: () => Promise<void>
   clearError: () => void
 }
 
@@ -116,14 +116,11 @@ export const useAuth = create<AuthState>()(
         }
       },
 
-      register: async (email: string, username: string, password: string) => {
+      register: async (username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER") => {
         set({ isLoading: true, error: null })
         try {
-          const response = await api.register(email, username, password)
+          const response = await api.register(username, password, name, role)
           set({
-            user: response.user,
-            token: response.access_token.access_token,
-            isAuthenticated: true,
             isLoading: false,
           })
           return true
@@ -136,7 +133,17 @@ export const useAuth = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        const state = useAuth.getState()
+        if (state.token) {
+          try {
+            await api.signOut(state.token)
+          } catch (error) {
+            // Log the error but continue with local state cleanup
+            console.warn("Error during logout:", error)
+          }
+        }
+        // Always clear the local state, regardless of API call success
         set({
           user: null,
           token: null,

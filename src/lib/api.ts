@@ -2,14 +2,19 @@ import { User } from "./auth"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
 
-export interface LoginResponse {
-  access_token: {
-    access_token: string
-  }
-  user: User
+export interface SignInRequest {
+  username: string
+  password: string
 }
 
-export interface RegisterResponse {
+export interface SignUpRequest {
+  username: string
+  password: string
+  name: string
+  role: "ADMIN" | "STUDENT" | "TEACHER"
+}
+
+export interface AuthResponse {
   access_token: {
     access_token: string
   }
@@ -17,8 +22,8 @@ export interface RegisterResponse {
 }
 
 export const api = {
-  async login(username: string, password: string): Promise<LoginResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
+  async login(username: string, password: string): Promise<AuthResponse> {
+    const response = await fetch(`${API_URL}/api/auth/sign-in`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,13 +39,13 @@ export const api = {
     return response.json()
   },
 
-  async register(email: string, username: string, password: string): Promise<RegisterResponse> {
-    const response = await fetch(`${API_URL}/auth/register`, {
+  async register(username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER"): Promise<AuthResponse> {
+    const response = await fetch(`${API_URL}/api/auth/sign-up`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, username, password }),
+      body: JSON.stringify({ username, password, name, role }),
     })
 
     if (!response.ok) {
@@ -51,8 +56,25 @@ export const api = {
     return response.json()
   },
 
+  async signOut(token: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/sign-out`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        console.warn("Sign out request failed, but continuing with local state cleanup")
+      }
+    } catch (error) {
+      console.warn("Error during sign out:", error)
+    }
+  },
+
   async getProfile(token: string): Promise<User> {
-    const response = await fetch(`${API_URL}/auth/profile`, {
+    const response = await fetch(`${API_URL}/api/profile`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
