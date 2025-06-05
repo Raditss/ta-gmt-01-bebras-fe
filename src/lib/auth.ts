@@ -103,7 +103,7 @@ export const useAuth = create<AuthState>()(
       },
     }),
     {
-      name: "codeleaf-auth",
+      name: "solvio-auth",
       partialize: (state) => ({
         user: state.user,
         token: state.token,

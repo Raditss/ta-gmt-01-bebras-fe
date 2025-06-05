@@ -111,7 +111,7 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
 
       <footer className="bg-gray-100 py-6 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          <p>© {new Date().getFullYear()} CodeLeaf. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
         </div>
       </footer>
     </div>

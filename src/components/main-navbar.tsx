@@ -40,9 +40,8 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
     <header className="bg-[#F8D15B] p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
-            <Leaf className="h-6 w-6" />
-            <span className="font-semibold">CodeLeaf</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="font-semibold">Solvio</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -142,7 +141,7 @@ function MinimalNavbar() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Leaf className="h-6 w-6" />
-            <span className="font-semibold">CodeLeaf</span>
+            <span className="font-semibold">Solvio</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <span className="font-medium">Home</span>

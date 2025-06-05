@@ -11,6 +11,8 @@ import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { api } from "@/lib/api"
+import { Link } from "next/navigation"
+import { Settings } from "lucide-react"
 
 interface QuestionTypeResponse {
   props: {
@@ -155,6 +157,13 @@ export default function ProblemsPage() {
               <h3 className="font-semibold mb-2">Difficulty</h3>
               <DifficultyFilter />
             </div>
+
+            <Button variant="outline" size="sm" className="flex items-center gap-1" asChild>
+              <Link href="/profile/edit">
+                <Settings className="h-4 w-4" />
+                <span>Edit Profile</span>
+              </Link>
+            </Button>
           </div>
 
           {/* Problem grid */}
@@ -202,7 +211,7 @@ export default function ProblemsPage() {
       {/* Footer */}
       <footer className="bg-gray-100 py-6 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          <p>© {new Date().getFullYear()} CodeLeaf. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
         </div>
       </footer>
     </div>
