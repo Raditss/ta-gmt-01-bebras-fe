@@ -11,7 +11,7 @@ import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { api } from "@/lib/api"
-import { Link } from "next/navigation"
+import Link from "next/link"
 import { Settings } from "lucide-react"
 
 interface QuestionTypeResponse {
@@ -58,16 +58,16 @@ export default function ProblemsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({})
-  const { isAuthenticated, token } = useAuth()
+  const { isAuthenticated, token, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
     // If not authenticated, redirect to login
-    if (mounted && !isAuthenticated) {
+    if (mounted && !isAuthLoading && !isAuthenticated) {
       router.push("/login")
     }
-  }, [isAuthenticated, mounted, router])
+  }, [isAuthenticated, mounted, router, isAuthLoading])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,8 +124,17 @@ export default function ProblemsPage() {
     return Object.entries(selectedCategories).some(([id, selected]) => selected && id === categoryName)
   })
 
-  // Show nothing during SSR or if not authenticated
-  if (!mounted || !isAuthenticated) {
+  // Show loading state during initial auth check
+  if (!mounted || isAuthLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+      </div>
+    )
+  }
+
+  // Show nothing if not authenticated
+  if (!isAuthenticated) {
     return null
   }
 
