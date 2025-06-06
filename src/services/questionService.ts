@@ -1,17 +1,15 @@
-import { IQuestion, IAttempt } from "@/types/question";
-import { QuestionSetup } from "@/model/interfaces/question";
-import { State } from "@/model/cfg/create-question/model";
+import axios from 'axios';
+import { AttemptData } from "@/model/interfaces/question";
+import { CfgQuestionSetup } from '@/model/cfg/question/types';
 import { QuestionType } from "@/constants/questionTypes";
+import { Question } from '@/model/cfg/question/model';
 
-// Mock data for development - this represents the API response format
-interface QuestionResponse {
-  id: string;
-  title: string;
-  isGenerated: boolean;
-  duration: number;
-  type: QuestionType;
-  content: QuestionSetup; // The actual question setup data
-}
+const api = axios.create({
+  baseURL: '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // Question information without the full solve data
 interface QuestionInfo {
@@ -25,116 +23,241 @@ interface QuestionInfo {
   points: number;
 }
 
-const mockQuestionInfo: QuestionInfo = {
-  id: "1",
-  title: "Shape Transformation Challenge",
-  description: "Transform a sequence of shapes into the target sequence using the provided transformation rules. This challenge tests your understanding of Context-Free Grammars and pattern manipulation.",
-  type: 'cfg',
-  difficulty: 'Medium',
-  author: 'System',
-  estimatedTime: 15,
-  points: 100
-};
+interface QuestionResponse {
+  id: string;
+  title: string;
+  isGenerated: boolean;
+  duration: number;
+  type: QuestionType;
+  content: string;
+}
 
-const mockQuestionSetup: QuestionSetup = {
-  startState: [
-    { id: 1, type: 'circle' },
-    { id: 2, type: 'triangle' },
-    { id: 3, type: 'square' },
-    { id: 4, type: 'triangle' },
-    { id: 5, type: 'triangle' },
-    { id: 6, type: 'circle' },
-  ],
-  endState: [
-    { id: 1, type: 'star' },
-    { id: 2, type: 'hexagon' },
-    { id: 3, type: 'star' },
-  ],
-  rules: [
-    {
-      id: 'rule1',
-      before: [
-        { id: 1, type: 'triangle' },
-        { id: 2, type: 'square' },
-        { id: 3, type: 'triangle' }
-      ],
-      after: [{ id: 1, type: 'hexagon' }]
+interface GeneratedAnswerCheck {
+  questionId: string;
+  type: QuestionType;
+  duration: number;
+  solution: string;
+}
+
+interface CheckResponse {
+  isCorrect: boolean;
+  points: number;
+  streak: number;
+}
+
+// Mock data store - other developers can add their mock questions here
+const mockQuestions: Record<string, { info: QuestionInfo, full: QuestionResponse }> = {
+  "1": {
+    info: {
+      id: "1",
+      title: "Shape Transformation Challenge",
+      description: "Transform a sequence of shapes into the target sequence using the provided transformation rules. This challenge tests your understanding of Context-Free Grammars and pattern manipulation.",
+      type: 'cfg',
+      difficulty: 'Medium',
+      author: 'System',
+      estimatedTime: 15,
+      points: 100
     },
-    {
-      id: 'rule2',
-      before: [
-        { id: 1, type: 'circle' },
-        { id: 2, type: 'triangle' }
-      ],
-      after: [{ id: 1, type: 'star' }]
-    },
-    {
-      id: 'rule3',
-      before: [
-        { id: 2, type: 'triangle' },
-        { id: 1, type: 'circle' }
-      ],
-      after: [{ id: 1, type: 'star' }]
+    full: {
+      id: "1",
+      title: "Shape Transformation Challenge",
+      isGenerated: false,
+      duration: 0,
+      type: 'cfg',
+      content: JSON.stringify({
+        startState: [
+          { id: 1, type: 'circle' },
+          { id: 2, type: 'triangle' },
+          { id: 3, type: 'square' },
+          { id: 4, type: 'triangle' },
+          { id: 5, type: 'triangle' },
+          { id: 6, type: 'circle' },
+        ],
+        endState: [
+          { id: 1, type: 'star' },
+          { id: 2, type: 'hexagon' },
+          { id: 3, type: 'star' },
+        ],
+        rules: [
+          {
+            id: 'rule1',
+            before: [
+              { id: 1, type: 'triangle' },
+              { id: 2, type: 'square' },
+              { id: 3, type: 'triangle' }
+            ],
+            after: [{ id: 1, type: 'hexagon' }]
+          },
+          {
+            id: 'rule2',
+            before: [
+              { id: 1, type: 'circle' },
+              { id: 2, type: 'triangle' }
+            ],
+            after: [{ id: 1, type: 'star' }]
+          },
+          {
+            id: 'rule3',
+            before: [
+              { id: 2, type: 'triangle' },
+              { id: 1, type: 'circle' }
+            ],
+            after: [{ id: 1, type: 'star' }]
+          }
+        ],
+        steps: []
+      })
     }
-  ],
-  steps: []
+  }
 };
 
-const mockQuestion: QuestionResponse = {
-  id: "1",
-  title: "Shape Transformation Challenge",
-  isGenerated: false,
-  duration: 0,
-  type: 'cfg',
-  content: mockQuestionSetup
+// Mock attempts store - separate completed and draft attempts
+const mockAttempts: {
+  drafts: Record<string, AttemptData>;
+  completed: Record<string, AttemptData[]>;
+} = {
+  drafts: {},
+  completed: {}
 };
 
 export const questionService = {
   // Fetch question information by ID (without solve data)
   async getQuestionInfo(id: string): Promise<QuestionInfo> {
-    // TODO: Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { ...mockQuestionInfo, id };
+    // const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
+    // return response.data;
+    
+    // Return mock data
+    const mockQuestion = mockQuestions[id];
+    if (!mockQuestion) {
+      throw new Error(`Question with ID ${id} not found`);
+    }
+    return mockQuestion.info;
   },
 
   // Fetch full question data by ID (for solving)
   async getQuestionById(id: string): Promise<QuestionResponse> {
-    // TODO: Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API delay
+    // const response = await api.get<QuestionResponse>(`/questions/${id}`);
+    // return response.data;
     
-    // If it's a generated question ID (contains the type prefix)
-    if (id.includes('-')) {
-      const [type, _] = id.split('-');
-      return {
-        ...mockQuestion,
-        id,
-        title: `Generated: Problem #${Math.floor(Math.random() * 1000)}`,
-        isGenerated: true,
-        type: type as QuestionType
-      };
+    // Return mock data
+    const mockQuestion = mockQuestions[id];
+    if (!mockQuestion) {
+      throw new Error(`Question with ID ${id} not found`);
     }
-    
-    return { ...mockQuestion, id };
+    return mockQuestion.full;
   },
 
   // Generate a random question
   async generateQuestion(type: QuestionType): Promise<QuestionResponse> {
-    // TODO: Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const generatedId = `${type}-${Math.random().toString().slice(2, 8)}`;
-    return { 
-      ...mockQuestion,
-      id: generatedId,
-      title: `Generated: Problem #${Math.floor(Math.random() * 1000)}`,
+    // const response = await api.post<QuestionResponse>(`/questions/generate`, { type });
+    // return response.data;
+    
+    // For now, return the first mock question but mark it as generated
+    const mockQuestion = mockQuestions["1"];
+    if (!mockQuestion) {
+      throw new Error('No mock questions available');
+    }
+    return {
+      ...mockQuestion.full,
+      id: `${type}-${Math.random().toString(36).substr(2, 6)}`,
       isGenerated: true,
       type
     };
   },
 
   // Save attempt progress
-  async saveAttempt(attempt: IAttempt): Promise<void> {
-    // TODO: Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    console.log('Attempt saved:', attempt);
+  async saveDraft(attempt: AttemptData): Promise<void> {
+    // Store in mock drafts - only keep the latest draft
+    mockAttempts.drafts[attempt.questionId] = attempt;
+    console.log('Draft saved:', attempt);
+  },
+
+  // Save attempt synchronously (for beforeunload events)
+  saveDraftSync(attempt: AttemptData): void {
+    // Store in mock drafts - only keep the latest draft
+    mockAttempts.drafts[attempt.questionId] = attempt;
+    console.log('Draft saved (sync):', attempt);
+  },
+
+  // Submit final attempt
+  async submitAttempt(attempt: AttemptData): Promise<void> {
+    // Store in completed attempts
+    if (!mockAttempts.completed[attempt.questionId]) {
+      mockAttempts.completed[attempt.questionId] = [];
+    }
+    mockAttempts.completed[attempt.questionId].push(attempt);
+    
+    // Clear draft for this question
+    delete mockAttempts.drafts[attempt.questionId];
+    
+    console.log('Attempt submitted:', attempt);
+    console.log('Current mock state:', {
+      drafts: mockAttempts.drafts,
+      completed: mockAttempts.completed
+    });
+  },
+
+  // Get attempt history for a question
+  async getAttemptHistory(questionId: string, userId: string): Promise<AttemptData[]> {
+    // Return completed attempts
+    return mockAttempts.completed[questionId] || [];
+  },
+
+  // Get latest attempt for a question
+  async getLatestAttempt(questionId: string, userId: string): Promise<AttemptData | null> {
+    // Only return draft attempt if it exists
+    return mockAttempts.drafts[questionId] || null;
+  },
+
+  // Check answer for generated questions
+  async checkGeneratedAnswer(data: GeneratedAnswerCheck): Promise<CheckResponse> {
+    try {
+      // Get the question data
+      const questionData = mockQuestions["1"]; // Using mock question for now
+      if (!questionData) {
+        throw new Error('Question not found');
+      }
+
+      // Create a Question instance to check the answer
+      const question = new Question(
+        questionData.full.id,
+        questionData.full.title,
+        questionData.full.type,
+        true,
+        questionData.full.duration
+      );
+
+      // Load the question content
+      question.populateQuestionFromString(questionData.full.content);
+
+      // Load the user's solution
+      const solutionData = JSON.parse(data.solution);
+      question.loadSolution(JSON.stringify(solutionData));
+
+      // Use the Question class's checkAnswer method
+      const isCorrect = question.checkAnswer();
+      
+      // Calculate points based on correctness and time
+      const points = isCorrect ? Math.max(100 - Math.floor(data.duration / 10), 10) : 0;
+      
+      // For now, use a simple streak system
+      const streak = isCorrect ? 1 : 0;
+
+      const response = {
+        isCorrect,
+        points,
+        streak
+      };
+      
+      console.log('Generated question answer check:', {
+        ...data,
+        ...response
+      });
+      
+      return response;
+    } catch (err) {
+      console.error('Error checking answer:', err);
+      throw new Error('Failed to check answer');
+    }
   }
 }; 

@@ -1,11 +1,18 @@
 import { QuestionType } from "@/constants/questionTypes";
-import { Rule, State, Step } from "../cfg/create-question/model";
 
-export interface QuestionSetup {
-    startState: State[];
-    endState: State[];
-    rules: Rule[];
-    steps: Step[];
+export interface AttemptData {
+    questionId: string;
+    userId: string;
+    duration: number;
+    status: 'paused' | 'completed';
+    solution: string;
+}
+
+export interface IAttempt {
+    setAttemptData(userId: string, duration: number, status: 'paused' | 'completed'): void;
+    getAttemptData(): AttemptData;
+    toJSON(): string;
+    loadSolution(json: string): void;
 }
 
 export abstract class IQuestion {
@@ -30,6 +37,12 @@ export abstract class IQuestion {
     abstract checkAnswer(): boolean
 
     abstract questionToString(): string
+
+    abstract undo(): boolean
+
+    abstract redo(): boolean
+
+    abstract resetToInitialState(): void
 
     getId() {
         return this.id

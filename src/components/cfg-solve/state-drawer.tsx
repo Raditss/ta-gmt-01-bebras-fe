@@ -12,7 +12,7 @@ interface StateDrawerProps {
   onUndo: () => void;
   onRedo: () => void;
   onReset: () => void;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
 }
 
 export function StateDrawer({
@@ -28,6 +28,16 @@ export function StateDrawer({
   onSubmit,
 }: StateDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -129,7 +139,7 @@ export function StateDrawer({
       </div>
 
       {/* Bottom Action Bar */}
-      <div className="bg-white shadow-lg rounded-t-lg px-4 py-3 flex justify-between items-center">
+      <div className="bg-white shadow-lg p-4 flex justify-between items-center">
         <div className="flex gap-4">
           <button
             onClick={onReset}
@@ -138,10 +148,13 @@ export function StateDrawer({
             Reset
           </button>
           <button
-            onClick={onSubmit}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Submit
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>
         <button
