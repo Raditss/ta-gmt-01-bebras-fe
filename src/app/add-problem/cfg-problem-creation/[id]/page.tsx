@@ -1,15 +1,18 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { Header } from '@/components/cfg-create-question/header';
 import { RulesSection } from '@/components/cfg-create-question/rule-section';
 import { RuleModal } from '@/components/cfg-create-question/rule-modal';
 import { StateCreationPopup } from '@/components/cfg-create-question/state-creation-popup';
 import { useParams } from 'next/navigation';
-import { CfgCreateQuestion, State, Rule } from '@/model/cfg-create-question/model';
+import { CfgCreateQuestion, State, Rule } from '@/model/cfg/create-question/model';
 import { nanoid } from 'nanoid';
+import { MainNavbar } from '@/components/main-navbar';
 
 export default function SolvePage() {
+  const params = useParams();
+  const id = params?.id as string;
+
   const [cfgQuestion] = useState(() => new CfgCreateQuestion("Untitled Question"));
 
   // Applies a rule to selected objects in the end state, replacing them with the rule's "after" objects
@@ -30,7 +33,8 @@ export default function SolvePage() {
       cfgQuestion.pushStep({ 
         ruleId: ruleToApply.id, 
         index: startIdx,
-        replacedCount: selectedIndices.length
+        replacedCount: selectedIndices.length,
+        endState: currentEndState
       });
 
       setEndState(currentEndState);
@@ -62,6 +66,7 @@ export default function SolvePage() {
   
   const handleSubmit = () => {
     const questionData = {
+      id,
       rules,
       startState,
       endState
@@ -178,7 +183,7 @@ export default function SolvePage() {
   
   return (
     <div className="flex flex-col min-h-screen bg-yellow-400">
-      <Header />
+      <MainNavbar />
       
       <div className="flex-1 container mx-auto px-4 py-6">
         <RulesSection 

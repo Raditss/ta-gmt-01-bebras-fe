@@ -1,0 +1,84 @@
+import { Rule } from "@/model/cfg/create-question/model";
+
+interface RuleDisplayProps {
+  allRules: Rule[];
+  applicableRules: Rule[];
+  onApplyRule: (rule: Rule) => void;
+}
+
+const RuleButton = ({ rule, onClick }: { rule: Rule; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="p-4 bg-gray-100 hover:bg-gray-200 rounded-md flex items-center space-x-2"
+  >
+    <div className="flex flex-wrap gap-1 max-w-[8rem]">
+      {rule.before.map((obj, idx) => (
+        <div key={idx} className="w-8 h-8">
+          {obj.type === 'circle' ? (
+            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+          ) : obj.type === 'triangle' ? (
+            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
+          ) : obj.type === 'square' ? (
+            <div className="w-6 h-6 bg-gray-400"></div>
+          ) : obj.type === 'star' ? (
+            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
+          ) : (
+            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
+          )}
+        </div>
+      ))}
+    </div>
+    <span>→</span>
+    <div className="flex flex-wrap gap-1 max-w-[8rem]">
+      {rule.after.map((obj, idx) => (
+        <div key={idx} className="w-8 h-8">
+          {obj.type === 'circle' ? (
+            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
+          ) : obj.type === 'triangle' ? (
+            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
+          ) : obj.type === 'square' ? (
+            <div className="w-6 h-6 bg-gray-400"></div>
+          ) : obj.type === 'star' ? (
+            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
+          ) : (
+            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
+          )}
+        </div>
+      ))}
+    </div>
+  </button>
+);
+
+export function RuleDisplay({ allRules, applicableRules, onApplyRule }: RuleDisplayProps) {
+  return (
+    <div className="space-y-8">
+      {/* Applicable Rules Section */}
+      {applicableRules.length > 0 && (
+        <div className="bg-white rounded-md shadow-md p-6">
+          <h2 className="text-xl font-bold mb-4">Applicable Rules</h2>
+          <div className="flex flex-wrap gap-4">
+            {applicableRules.map((rule, idx) => (
+              <RuleButton key={idx} rule={rule} onClick={() => onApplyRule(rule)} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All Available Rules Section */}
+      <div className="bg-white rounded-md shadow-md p-6">
+        <h2 className="text-xl font-bold mb-4">All Available Rules</h2>
+        <div className="flex flex-wrap gap-4">
+          {allRules.length > 0 ? (
+            allRules.map((rule, idx) => (
+              <div key={idx} className="opacity-50">
+                <RuleButton rule={rule} onClick={() => {}} />
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No rules available</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+} 

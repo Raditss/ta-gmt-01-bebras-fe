@@ -10,26 +10,23 @@ import { DifficultyFilter } from "@/components/difficulty-filter"
 import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
+import { QuestionType, QUESTION_TYPES } from "@/constants/questionTypes"
+import { QuestionTypeModal } from "@/components/question-type-modal"
+import { questionService } from "@/services/questionService"
 import { api } from "@/lib/api"
 import Link from "next/link"
 import { Settings } from "lucide-react"
 
-interface QuestionTypeResponse {
-  props: {
-    id: number
-    name: string
-    description: string
-    createdAt: string
-    updatedAt: string
-  }
-}
-
-interface QuestionType {
+interface QuestionTypeData {
   id: number
   name: string
   description: string
   createdAt: string
   updatedAt: string
+}
+
+interface QuestionTypeResponse {
+  props: QuestionTypeData
 }
 
 interface Teacher {
@@ -44,7 +41,7 @@ interface Question {
     questionTypeId: number
     teacherId: number
     isPublished: boolean
-    questionType: QuestionType
+    questionType: QuestionTypeData
     createdAt: string
     updatedAt: string
     teacher: Teacher
@@ -60,6 +57,7 @@ export default function ProblemsPage() {
   const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({})
   const { isAuthenticated, token, isLoading: isAuthLoading } = useAuth()
   const router = useRouter()
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -138,6 +136,15 @@ export default function ProblemsPage() {
     return null
   }
 
+  const handleGenerateQuestion = async (type: QuestionType) => {
+    try {
+      setIsTypeModalOpen(false);
+      router.push(`/problems/generated/${type}/solve`);
+    } catch (error) {
+      console.error('Failed to navigate to generated question:', error);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
@@ -156,7 +163,6 @@ export default function ProblemsPage() {
             <div>
               <h3 className="font-semibold mb-2">Categories</h3>
               <CategoryFilter 
-                categories={questionTypes.map(type => type.props.name)} 
                 selectedCategories={selectedCategories}
                 onCategoryChange={handleCategoryChange}
               />
@@ -209,7 +215,13 @@ export default function ProblemsPage() {
                 </div>
 
                 <div className="mt-8 flex justify-center">
-                  <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B] px-6">Random Question</Button>
+                  <Button 
+                    variant="default"
+                    className="bg-yellow-400 hover:bg-yellow-500 text-black"
+                    onClick={() => setIsTypeModalOpen(true)}
+                  >
+                    Generate Random Question
+                  </Button>
                 </div>
               </>
             )}
@@ -223,6 +235,12 @@ export default function ProblemsPage() {
           <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
         </div>
       </footer>
+
+      <QuestionTypeModal
+        open={isTypeModalOpen}
+        onClose={() => setIsTypeModalOpen(false)}
+        onSelectType={handleGenerateQuestion}
+      />
     </div>
   )
 }

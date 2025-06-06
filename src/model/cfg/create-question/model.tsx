@@ -1,9 +1,9 @@
-import { ICreateQuestion } from "../interfaces/create-question";
+import { ICreateQuestion } from "../../interfaces/create-question";
 
 export interface Rule {
     id: string;
-    before: any;
-    after: any;
+    before: State[];
+    after: State[];
 }
 
 export interface State {
@@ -14,7 +14,8 @@ export interface State {
 export interface Step {
     ruleId: string;
     index: number;
-    replacedCount?: number;
+    replacedCount: number;
+    endState: State[];
 }
 
 export class CfgCreateQuestion extends ICreateQuestion {

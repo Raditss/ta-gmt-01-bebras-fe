@@ -2,35 +2,25 @@
 
 import { useState, useEffect } from "react"
 import { FilterGroup, FilterOption } from "@/components/ui/filter-group"
+import { QUESTION_TYPES } from "@/constants/questionTypes"
+
+const categoryOptions: FilterOption[] = QUESTION_TYPES.map(type => ({
+  id: type.id,
+  label: type.label
+}));
 
 interface CategoryFilterProps {
   selectedCategories?: Record<string, boolean>;
   onCategoryChange?: (categoryId: string) => void;
-  categories?: string[];
 }
 
-export function CategoryFilter({ selectedCategories, onCategoryChange, categories }: CategoryFilterProps = {}) {
-  const categoryOptions: FilterOption[] = categories ? 
-    categories
-      .filter((cat): cat is string => cat !== undefined && cat !== null)
-      .map(cat => ({ id: cat.toLowerCase().replace(/\s+/g, ''), label: cat })) :
-    [
-      { id: "cipher", label: "Cipher" },
-      { id: "binaryTree", label: "Binary Tree" },
-      { id: "balanced", label: "Balanced" },
-      { id: "algorithms", label: "Algorithms" },
-      { id: "dataStructures", label: "Data Structures" },
-      { id: "dynamicProgramming", label: "Dynamic Programming" },
-    ];
-
-  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    // Initialize internal state when categories change
-    setInternalSelectedCategories(
-      Object.fromEntries(categoryOptions.map(opt => [opt.id, false]))
-    );
-  }, [categories]);
+export function CategoryFilter({ selectedCategories, onCategoryChange }: CategoryFilterProps = {}) {
+  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Record<string, boolean>>(
+    QUESTION_TYPES.reduce((acc, type) => ({
+      ...acc,
+      [type.id]: type.id === 'cfg'
+    }), {})
+  );
 
   const isControlled = selectedCategories !== undefined && onCategoryChange !== undefined;
 
@@ -40,14 +30,10 @@ export function CategoryFilter({ selectedCategories, onCategoryChange, categorie
     } else {
       setInternalSelectedCategories((prev) => ({
         ...prev,
-        [categoryId]: !prev[categoryId as keyof typeof prev],
+        [categoryId]: !prev[categoryId],
       }));
     }
   };
-
-  if (!categories || categories.length === 0) {
-    return null;
-  }
 
   return (
     <FilterGroup
