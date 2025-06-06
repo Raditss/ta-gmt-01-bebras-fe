@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FilterGroup, FilterOption } from "@/components/ui/filter-group"
 import { QUESTION_TYPES } from "@/constants/questionTypes"
 
@@ -40,7 +40,6 @@ export function CategoryFilter({ selectedCategories, onCategoryChange }: Categor
       options={categoryOptions}
       selectedOptions={isControlled ? selectedCategories! : internalSelectedCategories}
       onChange={handleCategoryChange}
-      title="Categories"
     />
   );
 }
