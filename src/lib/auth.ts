@@ -12,7 +12,7 @@ export type User = {
   streak: number
 }
 
-type AuthState = {
+interface AuthState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
@@ -20,8 +20,48 @@ type AuthState = {
   error: string | null
   login: (username: string, password: string) => Promise<boolean>
   register: (username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER") => Promise<boolean>
-  logout: () => Promise<void>
+  logout: () => void
   clearError: () => void
+}
+
+// Mock users for development without backend
+const MOCK_USERS: Record<string, { user: User; token: string }> = {
+  johndoe: {
+    user: {
+      id: 1,
+      username: "johndoe",
+      name: "John Doe",
+      role: "STUDENT",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      streak: 5
+    },
+    token: "mock-token-student"
+  },
+  teacher: {
+    user: {
+      id: 2,
+      username: "teacher",
+      name: "Jane Smith",
+      role: "TEACHER",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      streak: 10
+    },
+    token: "mock-token-teacher"
+  },
+  admin: {
+    user: {
+      id: 3,
+      username: "admin",
+      name: "Admin User",
+      role: "ADMIN",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      streak: 15
+    },
+    token: "mock-token-admin"
+  }
 }
 
 // Create auth store with persistence
@@ -37,80 +77,49 @@ export const useAuth = create<AuthState>()(
       login: async (username: string, password: string) => {
         set({ isLoading: true, error: null })
 
-        // Demo accounts logic
-        if (username === "johndoe" && password === "password123") {
-          set({
-            user: {
-              id: 1,
-              username: "johndoe",
-              name: "John Doe",
-              role: "STUDENT",
-              createdAt: "2025-05-20T08:19:32.290Z",
-              updatedAt: "2025-05-20T08:19:32.290Z",
-              streak: 25
-            },
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInVzZXJuYW1lIjoiam9obmRvZSIsInJvbGUiOiJTVFVERU5UIiwiaWF0IjoxNzQ3NzMxNTQwLCJleHAiOjE3NDc3NzQ3NDB9.-11U9HL_IHcEO6fGjaAn-j6GIDKQCPVkCbyxH7PDSAE",
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-        }
-
-        // Demo teacher account
-        if (username === "teacher" && password === "password123") {
-          set({
-            user: {
-              id: 2,
-              username: "teacher",
-              name: "Sarah Smith",
-              role: "TEACHER",
-              createdAt: "2025-05-20T08:19:32.290Z",
-              updatedAt: "2025-05-20T08:19:32.290Z",
-              streak: 15
-            },
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjIsInVzZXJuYW1lIjoidGVhY2hlciIsInJvbGUiOiJURUFDSEVSIiwiaWF0IjoxNzQ3NzMxNTQwLCJleHAiOjE3NDc3NzQ3NDB9.teacher-token",
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-        }
-
-        // Demo admin account
-        if (username === "admin" && password === "password123") {
-          set({
-            user: {
-              id: 3,
-              username: "admin",
-              name: "Admin User",
-              role: "ADMIN",
-              createdAt: "2025-05-20T08:19:32.290Z",
-              updatedAt: "2025-05-20T08:19:32.290Z",
-              streak: 30
-            },
-            token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NDc3MzE1NDAsImV4cCI6MTc0Nzc3NDc0MH0.admin-token",
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-        }
-
-        // Fallback to real API for other users
         try {
-          const response = await api.login(username, password)
+          // Mock login implementation
+          const mockUser = MOCK_USERS[username]
+          
+          if (!mockUser || password !== "password123") {
+            throw new Error("Invalid username or password")
+          }
+
+          // Simulate network delay
+          await new Promise(resolve => setTimeout(resolve, 500))
+
           set({
-            user: response.user,
-            token: response.access_token.access_token,
+            user: mockUser.user,
+            token: mockUser.token,
             isAuthenticated: true,
             isLoading: false,
+            error: null,
+          })
+
+          return true
+
+          // Original backend implementation (commented)
+          /*
+          const response = await api.login(username, password)
+          console.log('Login response:', response)
+          console.log('Token being stored:', response.accessToken)
+          set({
+            user: response.user.props,
+            token: response.accessToken,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
           })
           return true
+          */
         } catch (error) {
+          console.error('Login error:', error)
           set({
             error: error instanceof Error ? error.message : "Failed to login",
             isLoading: false,
+            isAuthenticated: false,
+            user: null,
+            token: null,
           })
           return false
         }
@@ -119,12 +128,39 @@ export const useAuth = create<AuthState>()(
       register: async (username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER") => {
         set({ isLoading: true, error: null })
         try {
-          const response = await api.register(username, password, name, role)
-          set({
-            isLoading: false,
-          })
+          // Mock register implementation
+          if (MOCK_USERS[username]) {
+            throw new Error("Username already exists")
+          }
+
+          // Simulate network delay
+          await new Promise(resolve => setTimeout(resolve, 500))
+
+          // Add new mock user
+          MOCK_USERS[username] = {
+            user: {
+              id: Object.keys(MOCK_USERS).length + 1,
+              username,
+              name,
+              role,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              streak: 0
+            },
+            token: `mock-token-${username}`
+          }
+
+          set({ isLoading: false })
           return true
+
+          // Original backend implementation (commented)
+          /*
+          await api.register(username, password, name, role)
+          set({ isLoading: false })
+          return true
+          */
         } catch (error) {
+          console.error('Register error:', error)
           set({
             error: error instanceof Error ? error.message : "Failed to register",
             isLoading: false,
@@ -133,17 +169,7 @@ export const useAuth = create<AuthState>()(
         }
       },
 
-      logout: async () => {
-        const state = useAuth.getState()
-        if (state.token) {
-          try {
-            await api.signOut(state.token)
-          } catch (error) {
-            // Log the error but continue with local state cleanup
-            console.warn("Error during logout:", error)
-          }
-        }
-        // Always clear the local state, regardless of API call success
+      logout: () => {
         set({
           user: null,
           token: null,
@@ -152,12 +178,10 @@ export const useAuth = create<AuthState>()(
         })
       },
 
-      clearError: () => {
-        set({ error: null })
-      },
+      clearError: () => set({ error: null }),
     }),
     {
-      name: "codeleaf-auth",
-    },
-  ),
+      name: "auth-storage",
+    }
+  )
 )

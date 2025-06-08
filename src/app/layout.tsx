@@ -6,7 +6,7 @@ import type { Metadata } from "next/types"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "CodeLeaf - Coding Challenge Platform",
+  title: "Solvio - Coding Challenge Platform",
   description: "Explore and solve coding challenges to improve your skills",
   generator: 'v0.dev'
 }

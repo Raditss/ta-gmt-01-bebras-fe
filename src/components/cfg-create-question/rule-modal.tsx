@@ -1,16 +1,29 @@
-import { useState } from "react";
+"use client"
 
-// Rule Modal Component
+import { useState } from 'react';
+import { Shape, ShapeContainer } from '@/components/shared/shape';
+
 export function RuleModal({ availableObjects, onClose, onAddRule }: { availableObjects: { id: number; type: string; icon: string }[]; onClose: () => void; onAddRule: (beforeObjects: any[], afterObjects: any[]) => void }) {
-  const [beforeObjects, setBeforeObjects] = useState<{ id: number; type?: string; icon?: string }[]>([]);
-  const [afterObjects, setAfterObjects] = useState<{ id: number; type?: string; icon?: string }[]>([]);
+  const [beforeObjects, setBeforeObjects] = useState<{ id: number; type: string; icon: string }[]>([]);
+  const [afterObjects, setAfterObjects] = useState<{ id: number; type: string; icon: string }[]>([]);
   
   const handleAddObject = (side: string, objectType: string) => {
     const newObject = availableObjects.find(obj => obj.type === objectType);
+    if (!newObject) {
+      console.error('Object type not found:', objectType);
+      return;
+    }
+    
+    const objectToAdd = { 
+      id: Date.now() + Math.random(), // Ensure unique ID
+      type: newObject.type, 
+      icon: newObject.icon 
+    };
+    
     if (side === 'before') {
-      setBeforeObjects([...beforeObjects, { ...newObject, id: Date.now() }]);
+      setBeforeObjects([...beforeObjects, objectToAdd]);
     } else {
-      setAfterObjects([...afterObjects, { ...newObject, id: Date.now() }]);
+      setAfterObjects([...afterObjects, objectToAdd]);
     }
   };
 
@@ -36,45 +49,25 @@ export function RuleModal({ availableObjects, onClose, onAddRule }: { availableO
             <h3 className="font-medium mb-2">Before (From)</h3>
             <div className="flex flex-wrap mb-4 min-h-16 p-2 border rounded-md">
               {beforeObjects.map((obj, idx) => (
-                <div 
+                <ShapeContainer
                   key={obj.id} 
-                  className="w-12 h-12 m-1 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-75 transition-opacity relative group"
+                  className="m-1 cursor-pointer hover:opacity-75 transition-opacity relative group"
                   onClick={() => handleRemoveObject('before', idx)}
                 >
                   <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-20 rounded transition-opacity"></div>
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </div>
+                  <Shape type={obj.type} size="md" />
+                </ShapeContainer>
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
               {availableObjects.map(obj => (
-                <button 
+                <ShapeContainer
                   key={obj.id}
+                  className="bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
                   onClick={() => handleAddObject('before', obj.type)}
-                  className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center hover:bg-gray-300"
                 >
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </button>
+                  <Shape type={obj.type} size="md" />
+                </ShapeContainer>
               ))}
             </div>
           </div>
@@ -83,45 +76,25 @@ export function RuleModal({ availableObjects, onClose, onAddRule }: { availableO
             <h3 className="font-medium mb-2">After (To)</h3>
             <div className="flex flex-wrap mb-4 min-h-16 p-2 border rounded-md">
               {afterObjects.map((obj, idx) => (
-                <div 
+                <ShapeContainer
                   key={obj.id} 
-                  className="w-12 h-12 m-1 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-75 transition-opacity relative group"
+                  className="m-1 cursor-pointer hover:opacity-75 transition-opacity relative group"
                   onClick={() => handleRemoveObject('after', idx)}
                 >
                   <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-20 rounded transition-opacity"></div>
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </div>
+                  <Shape type={obj.type} size="md" />
+                </ShapeContainer>
               ))}
             </div>
             <div className="flex flex-wrap gap-2">
               {availableObjects.map(obj => (
-                <button 
+                <ShapeContainer
                   key={obj.id}
+                  className="bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
                   onClick={() => handleAddObject('after', obj.type)}
-                  className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center hover:bg-gray-300"
                 >
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </button>
+                  <Shape type={obj.type} size="md" />
+                </ShapeContainer>
               ))}
             </div>
           </div>

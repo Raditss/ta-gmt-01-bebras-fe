@@ -9,12 +9,28 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Clock, Award, User } from "lucide-react"
 import Link from "next/link"
+import { questionService } from "@/services/questionService"
+import { QuestionType, QUESTION_TYPES } from "@/constants/questionTypes"
+
+interface QuestionInfo {
+  id: string;
+  title: string;
+  description: string;
+  type: QuestionType;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  author: string;
+  estimatedTime: number;
+  points: number;
+}
 
 export default function ProblemDetailPage({ params }: { params: { id: string } }) {
   const [mounted, setMounted] = useState(false)
   const { isAuthenticated } = useAuth()
   const router = useRouter()
   const { id } = params
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [questionInfo, setQuestionInfo] = useState<QuestionInfo | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -24,10 +40,38 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
     }
   }, [isAuthenticated, mounted, router])
 
+  // Fetch question info
+  useEffect(() => {
+    const fetchQuestionInfo = async () => {
+      try {
+        const info = await questionService.getQuestionInfo(id)
+        setQuestionInfo(info)
+      } catch (err) {
+        setError('Failed to load question information')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (mounted && isAuthenticated) {
+      fetchQuestionInfo()
+    }
+  }, [id, mounted, isAuthenticated])
+
   // Show nothing during SSR or if not authenticated
   if (!mounted || !isAuthenticated) {
-    return null
+    return null;
   }
+
+  if (loading) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
+
+  if (error || !questionInfo) {
+    return <div className="flex justify-center items-center min-h-screen">Error loading question</div>;
+  }
+
+  const questionTypeInfo = QUESTION_TYPES.find(qt => qt.type === questionInfo.type);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -35,7 +79,7 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
 
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-6">
+          <div className="mb-6 flex justify-between items-center">
             <Link href="/problems">
               <Button variant="ghost" className="pl-0">
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -48,58 +92,43 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
             <CardHeader>
               <div className="flex flex-wrap gap-2 mb-2">
                 <Badge variant="outline" className="bg-gray-100">
-                  Cipher
+                  {questionTypeInfo?.label || questionInfo.type}
                 </Badge>
-                <Badge className="bg-green-100 text-green-800">Easy</Badge>
+                <Badge 
+                  className={`${
+                    questionInfo.difficulty === 'Easy' 
+                      ? 'bg-green-100 text-green-800' 
+                      : questionInfo.difficulty === 'Medium'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
+                  {questionInfo.difficulty}
+                </Badge>
               </div>
-              <CardTitle className="text-2xl">Problem #{id}: Caesar Cipher Implementation</CardTitle>
+              <CardTitle className="text-2xl">Problem #{id}: {questionInfo.title}</CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-4 mt-2">
                 <div className="flex items-center">
                   <User className="mr-1 h-4 w-4 text-gray-500" />
-                  <span className="text-sm">CryptoGenius</span>
+                  <span className="text-sm">{questionInfo.author}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="mr-1 h-4 w-4 text-gray-500" />
-                  <span className="text-sm">Estimated time: 30 mins</span>
+                  <span className="text-sm">Estimated time: {questionInfo.estimatedTime} mins</span>
                 </div>
                 <div className="flex items-center">
                   <Award className="mr-1 h-4 w-4 text-gray-500" />
-                  <span className="text-sm">10 points</span>
+                  <span className="text-sm">{questionInfo.points} points</span>
                 </div>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
                 <h3>Problem Description</h3>
-                <p>
-                  This is a placeholder for the problem description. Another developer will implement the full problem
-                  page with code editor, test cases, and submission functionality.
-                </p>
-                <p>
-                  The Caesar Cipher is one of the earliest and simplest forms of encryption. It is a substitution cipher
-                  where each letter in the plaintext is shifted a certain number of places down the alphabet.
-                </p>
-
-                <h3>Task</h3>
-                <p>
-                  Implement a function that encrypts a given string using the Caesar Cipher technique with a specified
-                  shift value.
-                </p>
-
-                <h3>Example</h3>
-                <pre>
-                  <code>Input: "HELLO", shift=3 Output: "KHOOR"</code>
-                </pre>
-
-                <h3>Constraints</h3>
-                <ul>
-                  <li>The input string will only contain uppercase letters (A-Z) and spaces.</li>
-                  <li>Spaces should remain unchanged.</li>
-                  <li>The shift value will be between 1 and 25.</li>
-                </ul>
+                <p>{questionInfo.description}</p>
 
                 <Link href={`/problems/${id}/solve`}>
-                  <Button variant="default" className="pl-0">
+                  <Button variant="default" className="w-full mt-6 bg-yellow-400 hover:bg-yellow-500 text-black">
                     Solve!
                   </Button>
                 </Link>
@@ -111,7 +140,7 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
 
       <footer className="bg-gray-100 py-6 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          <p>© {new Date().getFullYear()} CodeLeaf. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
         </div>
       </footer>
     </div>

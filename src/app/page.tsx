@@ -14,7 +14,7 @@ export default function LandingPage() {
       <section className="bg-gradient-to-b from-[#F8D15B]/50 to-white py-20">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-12">
           <div className="md:w-1/2 space-y-6">
-            <h1 className="text-4xl md:text-5xl font-bold">Grow Your Coding Skills with CodeLeaf</h1>
+            <h1 className="text-4xl md:text-5xl font-bold">Grow Your Coding Skills with Solvio</h1>
             <p className="text-lg text-gray-700">
               Challenge yourself with our curated collection of coding problems, track your progress, and compete with
               others on the leaderboard.
@@ -45,7 +45,7 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose CodeLeaf?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Solvio?</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="bg-[#F8D15B]/20 p-3 rounded-full w-fit mb-4">
@@ -86,7 +86,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <p className="text-gray-600 mb-4">
-                "CodeLeaf has been instrumental in helping me prepare for technical interviews. The problems are
+                "Solvio has been instrumental in helping me prepare for technical interviews. The problems are
                 challenging and relevant."
               </p>
               <div className="flex items-center gap-3">
@@ -132,7 +132,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Level Up Your Coding Skills?</h2>
           <p className="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">
-            Join thousands of developers who are improving their problem-solving abilities with CodeLeaf.
+            Join thousands of developers who are improving their problem-solving abilities with Solvio.
           </p>
           <Link href="/register">
             <Button className="bg-[#F8D15B] text-black hover:bg-[#E8C14B] px-8 py-6 text-lg">
@@ -149,7 +149,7 @@ export default function LandingPage() {
             <div className="md:w-1/3">
               <div className="flex items-center gap-2 mb-4">
                 <Leaf className="h-6 w-6" />
-                <span className="font-semibold text-xl">CodeLeaf</span>
+                <span className="font-semibold text-xl">Solvio</span>
               </div>
               <p className="text-gray-300">
                 A platform for developers to enhance their coding skills through practice and challenges.
@@ -232,7 +232,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>© {new Date().getFullYear()} CodeLeaf. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
           </div>
         </div>
       </footer>

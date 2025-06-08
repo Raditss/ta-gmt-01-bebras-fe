@@ -39,7 +39,6 @@ export function DifficultyFilter({ selectedDifficulties, onDifficultyChange }: D
       options={difficultyOptions}
       selectedOptions={isControlled ? selectedDifficulties! : internalSelectedDifficulties}
       onChange={handleDifficultyChange}
-      title="Difficulty"
     />
   );
 }

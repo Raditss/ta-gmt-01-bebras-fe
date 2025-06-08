@@ -1,5 +1,8 @@
-import { State } from "@/model/cfg/create-question/model";
+"use client"
+
 import { useState, useEffect } from "react";
+import { State } from '@/model/cfg/create-question/model';
+import { Shape, ShapeContainer } from '@/components/shared/shape';
 
 // State Creation Popup Component
 export function StateCreationPopup({ 
@@ -44,8 +47,17 @@ export function StateCreationPopup({
   // Check which rules can be applied to currently selected objects
   useEffect(() => {
     if (mode === 'end' && selectedObjects.length > 0) {
-      // Get the actual objects from the indices
-      const selectedObjectTypes = selectedObjects.map(index => endState[index].type);
+      // Validate indices and get the actual objects from the indices
+      const validSelectedObjects = selectedObjects.filter(index => 
+        index >= 0 && index < endState.length && endState[index] && endState[index].type
+      );
+      
+      if (validSelectedObjects.length === 0) {
+        setApplicableRules([]);
+        return;
+      }
+      
+      const selectedObjectTypes = validSelectedObjects.map(index => endState[index].type);
       
       // Find rules where the "before" part matches the selected objects
       const matchingRules = rules.filter(rule => {
@@ -135,48 +147,34 @@ export function StateCreationPopup({
         <div className="bg-white p-6 rounded-md shadow-md mb-6">
           <div className="flex flex-wrap justify-center gap-2 min-h-[8rem] max-h-[24rem] overflow-y-auto p-4">
             {mode === 'start' ? (
-              startState.map((obj, idx) => (
-                <div 
-                  key={idx} 
-                  className="w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-75 transition-opacity relative group"
-                  onClick={() => removeFromStartState(idx)}
-                >
-                  <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-20 rounded transition-opacity"></div>
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </div>
-              ))
+              startState.filter(obj => obj && obj.type).map((obj, idx) => {
+                // Find the original index in the unfiltered array
+                const originalIdx = startState.findIndex(item => item === obj);
+                return (
+                  <ShapeContainer
+                    key={obj.id || idx} 
+                    className="cursor-pointer hover:opacity-75 transition-opacity relative group"
+                    onClick={() => removeFromStartState(originalIdx)}
+                  >
+                    <div className="absolute inset-0 bg-red-500 opacity-0 group-hover:opacity-20 rounded transition-opacity"></div>
+                    <Shape type={obj.type} size="md" />
+                  </ShapeContainer>
+                );
+              })
             ) : (
-              endState.map((obj, idx) => (
-                <div 
-                  key={idx} 
-                  className={`w-12 h-12 flex items-center justify-center flex-shrink-0 cursor-pointer ${
-                    selectedObjects.includes(idx) ? 'ring-2 ring-blue-500' : ''
-                  }`}
-                  onClick={() => toggleObjectSelection(idx)}
-                >
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </div>
-              ))
+              endState.filter(obj => obj && obj.type).map((obj, idx) => {
+                // Find the original index in the unfiltered array
+                const originalIdx = endState.findIndex(item => item === obj);
+                return (
+                  <ShapeContainer
+                    key={obj.id || idx} 
+                    className={`cursor-pointer ${selectedObjects.includes(originalIdx) ? 'ring-2 ring-blue-500' : ''}`}
+                    onClick={() => toggleObjectSelection(originalIdx)}
+                  >
+                    <Shape type={obj.type} size="md" />
+                  </ShapeContainer>
+                );
+              })
             )}
           </div>
         </div>
@@ -186,76 +184,40 @@ export function StateCreationPopup({
             <h3 className="font-medium mb-2">Available Objects</h3>
             <div className="flex flex-wrap justify-center gap-4">
               {availableObjects.map((obj, idx) => (
-                <button 
+                <ShapeContainer
                   key={idx}
+                  className="bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
                   onClick={() => addObjectToStartState(obj)}
-                  className="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center hover:bg-gray-300"
                 >
-                  {obj.type === 'circle' ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === 'triangle' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === 'square' ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === 'star' ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </button>
+                  <Shape type={obj.type} size="md" />
+                </ShapeContainer>
               ))}
             </div>
           </div>
         ) : (
           <div className="text-center mb-4">
-            <h3 className="font-medium mb-2">Available Rules</h3>
-            <div className="flex flex-wrap justify-center gap-4 max-h-[16rem] overflow-y-auto p-4">
+            <h3 className="font-medium mb-2">Available Rules for Selected Objects</h3>
+            <div className="flex flex-wrap justify-center gap-2">
               {applicableRules.length > 0 ? (
                 applicableRules.map((rule, idx) => (
-                  <button 
+                  <button
                     key={idx}
-                    onClick={() => {
-                      applyRuleToEndState(selectedObjects, {
-                        id: rule.id,
-                        after: rule.after
-                      });
-                      setSelectedObjects([]);
-                    }}
-                    className="p-4 bg-gray-200 rounded-md hover:bg-gray-300 flex items-center space-x-2"
+                    onClick={() => applyRuleToEndState(selectedObjects, rule)}
+                    className="p-4 bg-gray-100 hover:bg-gray-200 rounded-md flex items-center space-x-2"
                   >
                     <div className="flex flex-wrap gap-1 max-w-[8rem]">
-                      {rule.before.map((obj, idx) => (
-                        <div key={idx} className="w-8 h-8">
-                          {obj.type === 'circle' ? (
-                            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-                          ) : obj.type === 'triangle' ? (
-                            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-                          ) : obj.type === 'square' ? (
-                            <div className="w-6 h-6 bg-gray-400"></div>
-                          ) : obj.type === 'star' ? (
-                            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
-                          ) : (
-                            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
-                          )}
-                        </div>
+                      {rule.before.filter(obj => obj && obj.type).map((obj, idx) => (
+                        <ShapeContainer key={idx}>
+                          <Shape type={obj.type} size="sm" />
+                        </ShapeContainer>
                       ))}
                     </div>
                     <span>→</span>
                     <div className="flex flex-wrap gap-1 max-w-[8rem]">
-                      {rule.after.map((obj, idx) => (
-                        <div key={idx} className="w-8 h-8">
-                          {obj.type === 'circle' ? (
-                            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-                          ) : obj.type === 'triangle' ? (
-                            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-                          ) : obj.type === 'square' ? (
-                            <div className="w-6 h-6 bg-gray-400"></div>
-                          ) : obj.type === 'star' ? (
-                            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
-                          ) : (
-                            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
-                          )}
-                        </div>
+                      {rule.after.filter(obj => obj && obj.type).map((obj, idx) => (
+                        <ShapeContainer key={idx}>
+                          <Shape type={obj.type} size="sm" />
+                        </ShapeContainer>
                       ))}
                     </div>
                   </button>

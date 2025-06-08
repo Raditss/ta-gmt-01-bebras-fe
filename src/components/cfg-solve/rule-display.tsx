@@ -1,4 +1,7 @@
+"use client"
+
 import { Rule } from "@/model/cfg/create-question/model";
+import { Shape, ShapeContainer } from '@/components/shared/shape';
 
 interface RuleDisplayProps {
   allRules: Rule[];
@@ -13,37 +16,17 @@ const RuleButton = ({ rule, onClick }: { rule: Rule; onClick: () => void }) => (
   >
     <div className="flex flex-wrap gap-1 max-w-[8rem]">
       {rule.before.map((obj, idx) => (
-        <div key={idx} className="w-8 h-8">
-          {obj.type === 'circle' ? (
-            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-          ) : obj.type === 'triangle' ? (
-            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-          ) : obj.type === 'square' ? (
-            <div className="w-6 h-6 bg-gray-400"></div>
-          ) : obj.type === 'star' ? (
-            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
-          ) : (
-            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
-          )}
-        </div>
+        <ShapeContainer key={idx}>
+          <Shape type={obj.type} size="sm" className="bg-gray-400" />
+        </ShapeContainer>
       ))}
     </div>
     <span>→</span>
     <div className="flex flex-wrap gap-1 max-w-[8rem]">
       {rule.after.map((obj, idx) => (
-        <div key={idx} className="w-8 h-8">
-          {obj.type === 'circle' ? (
-            <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-          ) : obj.type === 'triangle' ? (
-            <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-          ) : obj.type === 'square' ? (
-            <div className="w-6 h-6 bg-gray-400"></div>
-          ) : obj.type === 'star' ? (
-            <div className="w-6 h-6 bg-gray-400 clip-star"></div>
-          ) : (
-            <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
-          )}
-        </div>
+        <ShapeContainer key={idx}>
+          <Shape type={obj.type} size="sm" className="bg-gray-400" />
+        </ShapeContainer>
       ))}
     </div>
   </button>

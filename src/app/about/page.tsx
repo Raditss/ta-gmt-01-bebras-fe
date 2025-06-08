@@ -13,9 +13,9 @@ export default function AboutPage() {
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-4">About CodeLeaf</h1>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              CodeLeaf is a platform designed to help developers improve their coding skills through practice,
+            <h1 className="text-4xl font-bold mb-4">About Solvio</h1>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              Solvio is a platform designed to help developers improve their coding skills through practice,
               challenges, and community collaboration.
             </p>
           </div>
@@ -32,11 +32,11 @@ export default function AboutPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Our Mission</CardTitle>
-                  <CardDescription>Why we created CodeLeaf and what we aim to achieve</CardDescription>
+                  <CardDescription>Why we created Solvio and what we aim to achieve</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p>
-                    CodeLeaf was founded in 2023 with a simple mission: to make coding practice accessible, engaging,
+                    Solvio was founded in 2023 with a simple mission: to make coding practice accessible, engaging,
                     and effective for developers at all levels.
                   </p>
                   <p>
@@ -81,7 +81,7 @@ export default function AboutPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Our Team</CardTitle>
-                  <CardDescription>The people behind CodeLeaf</CardDescription>
+                  <CardDescription>The people behind Solvio</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-3 gap-8">
@@ -139,7 +139,7 @@ export default function AboutPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Platform Features</CardTitle>
-                  <CardDescription>What makes CodeLeaf special</CardDescription>
+                  <CardDescription>What makes Solvio special</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-6">
@@ -206,14 +206,14 @@ export default function AboutPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Frequently Asked Questions</CardTitle>
-                  <CardDescription>Common questions about CodeLeaf</CardDescription>
+                  <CardDescription>Common questions about Solvio</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {[
                     {
-                      question: "Is CodeLeaf free to use?",
+                      question: "Is Solvio free to use?",
                       answer:
-                        "Yes, CodeLeaf offers a free tier with access to a wide range of problems. We also offer a premium subscription with additional features and content.",
+                        "Yes, Solvio offers a free tier with access to a wide range of problems. We also offer a premium subscription with additional features and content.",
                     },
                     {
                       question: "How often are new problems added?",
@@ -221,7 +221,7 @@ export default function AboutPage() {
                         "We add new problems weekly, with a focus on keeping content fresh and relevant to current industry trends and interview questions.",
                     },
                     {
-                      question: "Can I use CodeLeaf to prepare for technical interviews?",
+                      question: "Can I use Solvio to prepare for technical interviews?",
                       answer:
                         "Many of our problems are designed to help you prepare for technical interviews at top tech companies.",
                     },
@@ -251,7 +251,7 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="bg-gray-100 py-6 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
-          <p>© {new Date().getFullYear()} CodeLeaf. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
         </div>
       </footer>
     </div>

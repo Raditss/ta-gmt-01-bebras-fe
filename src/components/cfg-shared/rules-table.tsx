@@ -1,4 +1,7 @@
+"use client"
+
 import { Rule } from "@/model/cfg/create-question/model";
+import { Shape, ShapeContainer } from '@/components/shared/shape';
 
 interface RulesTableProps {
   rules: Rule[];
@@ -8,19 +11,9 @@ interface RulesTableProps {
 
 export function RulesTable({ rules, showActions = false, onDeleteRule }: RulesTableProps) {
   const RuleShape = ({ type }: { type: string }) => (
-    <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
-      {type === 'circle' ? (
-        <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-      ) : type === 'triangle' ? (
-        <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-      ) : type === 'square' ? (
-        <div className="w-10 h-10 bg-gray-300"></div>
-      ) : type === 'star' ? (
-        <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-      ) : (
-        <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-      )}
-    </div>
+    <ShapeContainer>
+      <Shape type={type} size="md" />
+    </ShapeContainer>
   );
 
   return (
@@ -31,8 +24,8 @@ export function RulesTable({ rules, showActions = false, onDeleteRule }: RulesTa
         {showActions && <div className="p-4 text-center font-medium w-24">Action</div>}
       </div>
       
-      {rules.map(rule => (
-        <div key={rule.id} className={`grid ${showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'} border-b`}>
+      {rules.map((rule) => (
+        <div key={rule.id} className={`grid ${showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'} border-b last:border-b-0`}>
           <div className="p-6 flex justify-center items-center border-r">
             <div className="flex flex-wrap justify-center gap-2 max-w-full">
               {rule.before.map((obj, idx) => (

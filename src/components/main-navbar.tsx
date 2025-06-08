@@ -40,9 +40,8 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
     <header className="bg-[#F8D15B] p-4">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2">
-            <Leaf className="h-6 w-6" />
-            <span className="font-semibold">CodeLeaf</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="font-semibold">Solvio</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -54,7 +53,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
               About
             </Link>
 
-            {isAuthenticated && <RoleNav user={user} />}
+            {isAuthenticated && user && <RoleNav user={user} />}
           </nav>
         </div>
 
@@ -75,7 +74,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
                   About
                 </Link>
 
-                {isAuthenticated && (
+                {isAuthenticated && user && (
                   <>
                     <RoleNav user={user} />
                     <Link href="/profile" className="font-medium py-2">
@@ -109,7 +108,7 @@ export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticate
               <Link href="/profile" className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/placeholder.svg?height=32&width=32" alt={user.username} />
-                  <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                  <AvatarFallback>{user.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block">
                   <div className="text-sm font-medium">{user.name}</div>
@@ -142,7 +141,7 @@ function MinimalNavbar() {
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Leaf className="h-6 w-6" />
-            <span className="font-semibold">CodeLeaf</span>
+            <span className="font-semibold">Solvio</span>
           </div>
           <nav className="hidden md:flex items-center gap-6">
             <span className="font-medium">Home</span>
