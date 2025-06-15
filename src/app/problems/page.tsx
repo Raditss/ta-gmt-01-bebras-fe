@@ -77,8 +77,8 @@ export default function ProblemsPage() {
         
         // Fetch questions and question types in parallel
         const [questionsResponse, typesResponse] = await Promise.all([
-          api.getQuestions(token),
-          api.getQuestionTypes(token)
+          api.getQuestions(),
+          api.getQuestionTypes()
         ])
         setQuestions(questionsResponse)
         setQuestionTypes(typesResponse)

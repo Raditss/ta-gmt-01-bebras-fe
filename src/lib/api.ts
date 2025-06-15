@@ -1,6 +1,27 @@
 import { User } from "./auth"
+import axios from "axios"
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+
+// Create axios instance with base configuration
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+})
+
+// Add request interceptor to add auth token
+axiosInstance.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth-storage")
+  if (token) {
+    const parsedToken = JSON.parse(token).state.token
+    if (parsedToken) {
+      config.headers.Authorization = `Bearer ${parsedToken}`
+    }
+  }
+  return config
+})
 
 export interface LoginRequest {
   username: string
@@ -91,182 +112,61 @@ const MOCK_QUESTION_TYPES = [
 ]
 
 export const api = {
-  // The login and register functions are now handled in auth.ts with mock data
   async login(username: string, password: string): Promise<AuthResponse> {
-    throw new Error("Login is handled by mock implementation in auth.ts")
+    const response = await axiosInstance.post<AuthResponse>("/api/auth/login", {
+      username,
+      password,
+    })
+    return response.data
   },
 
   async register(username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER"): Promise<void> {
-    throw new Error("Register is handled by mock implementation in auth.ts")
-  },
-
-  async logout(token: string): Promise<void> {
-    // No need to do anything in mock implementation
-    return
-  },
-
-  async getProfile(token: string): Promise<User> {
-    // Mock implementation - return user based on token
-    const mockUser: User = {
-      id: 1,
-      username: "johndoe",
-      name: "John Doe",
-      role: "STUDENT",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      streak: 5
-    }
-    return mockUser
-
-    // Original implementation
-    /*
-    const response = await fetch(`${API_URL}/api/profile`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    await axiosInstance.post("/api/auth/register", {
+      username,
+      password,
+      name,
+      role,
     })
+  },
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to get profile")
-    }
+  async logout(): Promise<void> {
+    await axiosInstance.post("/api/auth/logout")
+  },
 
-    return response.json()
-    */
+  async getProfile(): Promise<User> {
+    const response = await axiosInstance.get<User>("/api/profile")
+    return response.data
   },
 
   // Questions API
-  async getQuestions(token: string) {
-    // Mock implementation
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-    return MOCK_QUESTIONS
-
-    // Original implementation
-    /*
-    const response = await fetch(`${API_URL}/api/questions`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to get questions")
-    }
-
-    return response.json()
-    */
+  async getQuestions() {
+    const response = await axiosInstance.get("/api/questions")
+    return response.data
   },
 
-  async getQuestionById(token: string, id: string) {
-    // Mock implementation
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-    const question = MOCK_QUESTIONS.find(q => q.props.id.toString() === id)
-    if (!question) {
-      throw new Error("Question not found")
-    }
-    return question
-
-    // Original implementation
-    /*
-    const response = await fetch(`${API_URL}/api/questions/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to get question")
-    }
-
-    return response.json()
-    */
+  async getQuestionById(id: string) {
+    const response = await axiosInstance.get(`/api/questions/${id}`)
+    return response.data
   },
 
   // Question Types API
-  async getQuestionTypes(token: string) {
-    // Mock implementation
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-    return MOCK_QUESTION_TYPES
-
-    // Original implementation
-    /*
-    const response = await fetch(`${API_URL}/api/question-types`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to get question types")
-    }
-
-    return response.json()
-    */
+  async getQuestionTypes() {
+    const response = await axiosInstance.get("/api/question-types")
+    return response.data
   },
 
   // Question Attempts API
-  async createQuestionAttempt(token: string, questionId: number) {
-    // Mock implementation
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-    return {
-      id: Math.random().toString(36).substr(2, 9),
+  async createQuestionAttempt(questionId: number) {
+    const response = await axiosInstance.post("/api/question-attempts", {
       questionId,
-      startTime: new Date().toISOString(),
-      status: "in_progress"
-    }
-
-    // Original implementation
-    /*
-    const response = await fetch(`${API_URL}/api/question-attempts`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ questionId }),
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to create question attempt")
-    }
-
-    return response.json()
-    */
+    return response.data
   },
 
-  async updateQuestionAttempt(token: string, id: string, answer: object) {
-    // Mock implementation
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate network delay
-    return {
-      id,
-      status: "completed",
-      answer
-    }
-
-    // Original implementation
-    /*
-    const response = await fetch(`${API_URL}/api/question-attempts/${id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ answer }),
+  async updateQuestionAttempt(id: string, answer: object) {
+    const response = await axiosInstance.patch(`/api/question-attempts/${id}`, {
+      answer,
     })
-
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.message || "Failed to update question attempt")
-    }
-
-    return response.json()
-    */
+    return response.data
   }
 }

@@ -78,40 +78,39 @@ export const useAuth = create<AuthState>()(
         set({ isLoading: true, error: null })
 
         try {
-          // Mock login implementation
+          // First check if it's a mock user
           const mockUser = MOCK_USERS[username]
           
-          if (!mockUser || password !== "password123") {
-            throw new Error("Invalid username or password")
+          if (mockUser && password === "password123") {
+            // Simulate network delay for mock users
+            await new Promise(resolve => setTimeout(resolve, 500))
+
+            set({
+              user: mockUser.user,
+              token: mockUser.token,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            })
+
+            return true
           }
 
-          // Simulate network delay
-          await new Promise(resolve => setTimeout(resolve, 500))
-
-          set({
-            user: mockUser.user,
-            token: mockUser.token,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-
-          return true
-
-          // Original backend implementation (commented)
-          /*
-          const response = await api.login(username, password)
-          console.log('Login response:', response)
-          console.log('Token being stored:', response.accessToken)
-          set({
-            user: response.user.props,
-            token: response.accessToken,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          })
-          return true
-          */
+          // If not a mock user, try the backend API
+          try {
+            const response = await api.login(username, password)
+            set({
+              user: response.user.props,
+              token: response.accessToken,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            })
+            return true
+          } catch (apiError) {
+            // If both mock and API login fail, throw error
+            throw new Error("Invalid username or password")
+          }
         } catch (error) {
           console.error('Login error:', error)
           set({
@@ -128,37 +127,15 @@ export const useAuth = create<AuthState>()(
       register: async (username: string, password: string, name: string, role: "ADMIN" | "STUDENT" | "TEACHER") => {
         set({ isLoading: true, error: null })
         try {
-          // Mock register implementation
+          // Check if username exists in mock users
           if (MOCK_USERS[username]) {
             throw new Error("Username already exists")
           }
 
-          // Simulate network delay
-          await new Promise(resolve => setTimeout(resolve, 500))
-
-          // Add new mock user
-          MOCK_USERS[username] = {
-            user: {
-              id: Object.keys(MOCK_USERS).length + 1,
-              username,
-              name,
-              role,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              streak: 0
-            },
-            token: `mock-token-${username}`
-          }
-
-          set({ isLoading: false })
-          return true
-
-          // Original backend implementation (commented)
-          /*
+          // Try to register with backend API
           await api.register(username, password, name, role)
           set({ isLoading: false })
           return true
-          */
         } catch (error) {
           console.error('Register error:', error)
           set({
