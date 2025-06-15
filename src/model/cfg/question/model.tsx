@@ -69,12 +69,39 @@ export class Question extends IQuestion implements IAttempt {
     // IQuestion implementation
     populateQuestionFromString(questionString: string): void {
         try {
+            // Check if the string is valid JSON
             const questionData = JSON.parse(questionString) as CfgQuestionSetup;
-            this.questionSetup = questionData;
+            
+            // Validate that it has the expected CFG structure
+            if (!questionData || typeof questionData !== 'object') {
+                throw new Error('Invalid question data structure');
+            }
+            
+            // Ensure required properties exist with defaults
+            this.questionSetup = {
+                startState: questionData.startState || [],
+                endState: questionData.endState || [],
+                rules: questionData.rules || [],
+                steps: questionData.steps || []
+            };
+            
             this.resetToInitialState();
         } catch (error) {
             console.error('Error parsing question data:', error);
-            throw new Error('Invalid question data format');
+            console.error('Question string:', questionString);
+            
+            // If it's not valid JSON or doesn't have CFG structure, 
+            // initialize with empty CFG data
+            this.questionSetup = {
+                startState: [],
+                endState: [],
+                rules: [],
+                steps: []
+            };
+            this.resetToInitialState();
+            
+            // Don't throw error, just log it and continue with empty state
+            console.warn('Initialized CFG question with empty data due to parsing error');
         }
     }
 

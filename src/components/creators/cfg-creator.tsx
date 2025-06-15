@@ -38,20 +38,38 @@ interface ShapeObject {
 // Helper function to create question instance (moved outside component to prevent re-creation)
 const createQuestionInstance = (data: CreationData): CfgCreateQuestion => {
   try {
+    console.log('Creating CFG question instance with data:', data);
+    
+    // Ensure all required fields have valid values
+    const safeData = {
+      title: data.title || 'Untitled Question',
+      description: data.description || '',
+      difficulty: data.difficulty || 'Easy',
+      category: data.category || 'Context-Free Grammar',
+      points: data.points || 100,
+      estimatedTime: data.estimatedTime || 30,
+      author: data.author || 'Unknown',
+      questionId: data.questionId || `temp-${Date.now()}`,
+      creatorId: data.creatorId || 'temp-user'
+    };
+    
     const instance = new CfgCreateQuestion(
-      data.title,
-      data.description,
-      data.difficulty,
-      data.category,
-      data.points,
-      data.estimatedTime,
-      data.author,
-      data.questionId,
-      data.creatorId
+      safeData.title,
+      safeData.description,
+      safeData.difficulty as 'Easy' | 'Medium' | 'Hard',
+      safeData.category,
+      safeData.points,
+      safeData.estimatedTime,
+      safeData.author,
+      safeData.questionId,
+      safeData.creatorId
     );
+    
+    console.log('CFG question instance created successfully');
     return instance;
   } catch (error) {
     console.error('Error creating CFG question instance:', error);
+    console.error('Data that caused error:', data);
     throw error;
   }
 };
@@ -152,9 +170,12 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
     const newRule = { id: newRuleId, before: beforeObjects, after: afterObjects };
     const updatedRules = [...rules, newRule];
     
+    console.log('🔄 CFG CREATOR - Adding rule:', newRule);
     cfgQuestion.setRules(updatedRules);
     setRules(updatedRules);
     setShowRuleModal(false);
+    
+    console.log('🔄 CFG CREATOR - Content after rule added:', cfgQuestion.contentToString());
     markAsChanged();
   }, [question, rules, markAsChanged]);
 
@@ -180,6 +201,7 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
     const cfgQuestion = question as CfgCreateQuestion | null;
     if (!cfgQuestion) return;
     
+    console.log('🔄 CFG CREATOR - Setting start state:', newState);
     cfgQuestion.setStartState(newState);
     setStartState(newState);
     
@@ -190,6 +212,7 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
       setEndState(newEndState);
     }
     
+    console.log('🔄 CFG CREATOR - Content after start state change:', cfgQuestion.contentToString());
     markAsChanged();
   }, [question, endState, markAsChanged]);
 
@@ -310,13 +333,24 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
   // Handle manual save
   const handleManualSave = useCallback(async () => {
     try {
+      console.log('💾 CFG CREATOR - Manual save triggered');
+      if (cfgQuestion) {
+        console.log('💾 CFG CREATOR - Current content before save:', cfgQuestion.contentToString());
+        console.log('💾 CFG CREATOR - Current state:', {
+          rulesCount: cfgQuestion.rules?.length || 0,
+          startStateCount: cfgQuestion.startState?.length || 0,
+          endStateCount: cfgQuestion.endState?.length || 0,
+          stepsCount: cfgQuestion.getSteps()?.length || 0
+        });
+      }
+      
       await saveDraft();
       setShowSaveConfirmation(true);
       setTimeout(() => setShowSaveConfirmation(false), 3000);
     } catch (error) {
       console.error('Failed to save draft:', error);
     }
-  }, [saveDraft]);
+  }, [saveDraft, cfgQuestion]);
 
   // Handle submission
   const handleSubmit = useCallback(() => {
@@ -409,6 +443,22 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
               {saving ? 'Saving...' : 'Save Draft'}
             </Button>
           </div>
+
+          {/* Guidance for empty questions */}
+          {rules.length === 0 && startState.length === 0 && (
+            <Alert className="mb-6 bg-blue-50 text-blue-800 border-blue-200">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Getting Started:</strong> To create a CFG question, you need to:
+                <ol className="list-decimal list-inside mt-2 space-y-1">
+                  <li>Add transformation rules using the "Add Rule" button below</li>
+                  <li>Create a start state with initial objects</li>
+                  <li>Define the target end state</li>
+                </ol>
+                Your question will be saved automatically as you add content.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {saving && (
             <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">

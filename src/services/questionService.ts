@@ -1,14 +1,32 @@
 import axios from 'axios';
 import { AttemptData } from "@/model/interfaces/question";
-import { CfgQuestionSetup } from '@/model/cfg/question/types';
 import { QuestionType } from "@/constants/questionTypes";
-import { Question } from '@/model/cfg/question/model';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+// Create axios instance with authentication
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
+});
+
+// Add request interceptor to add auth token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth-storage");
+  if (token) {
+    try {
+      const parsedToken = JSON.parse(token).state.token;
+      if (parsedToken) {
+        config.headers.Authorization = `Bearer ${parsedToken}`;
+      }
+    } catch (error) {
+      console.warn('Failed to parse auth token:', error);
+    }
+  }
+  return config;
 });
 
 // Question information without the full solve data
@@ -45,219 +63,143 @@ interface CheckResponse {
   streak: number;
 }
 
-// Mock data store - other developers can add their mock questions here
-const mockQuestions: Record<string, { info: QuestionInfo, full: QuestionResponse }> = {
-  "1": {
-    info: {
-      id: "1",
-      title: "Shape Transformation Challenge",
-      description: "Transform a sequence of shapes into the target sequence using the provided transformation rules. This challenge tests your understanding of Context-Free Grammars and pattern manipulation.",
-      type: 'cfg',
-      difficulty: 'Medium',
-      author: 'System',
-      estimatedTime: 15,
-      points: 100
-    },
-    full: {
-      id: "1",
-      title: "Shape Transformation Challenge",
-      isGenerated: false,
-      duration: 0,
-      type: 'cfg',
-      content: JSON.stringify({
-        startState: [
-          { id: 1, type: 'circle' },
-          { id: 2, type: 'triangle' },
-          { id: 3, type: 'square' },
-          { id: 4, type: 'triangle' },
-          { id: 5, type: 'triangle' },
-          { id: 6, type: 'circle' },
-        ],
-        endState: [
-          { id: 1, type: 'star' },
-          { id: 2, type: 'hexagon' },
-          { id: 3, type: 'star' },
-        ],
-        rules: [
-          {
-            id: 'rule1',
-            before: [
-              { id: 1, type: 'triangle' },
-              { id: 2, type: 'square' },
-              { id: 3, type: 'triangle' }
-            ],
-            after: [{ id: 1, type: 'hexagon' }]
-          },
-          {
-            id: 'rule2',
-            before: [
-              { id: 1, type: 'circle' },
-              { id: 2, type: 'triangle' }
-            ],
-            after: [{ id: 1, type: 'star' }]
-          },
-          {
-            id: 'rule3',
-            before: [
-              { id: 2, type: 'triangle' },
-              { id: 1, type: 'circle' }
-            ],
-            after: [{ id: 1, type: 'star' }]
-          }
-        ],
-        steps: []
-      })
-    }
-  }
-};
-
-// Mock attempts store - separate completed and draft attempts
-const mockAttempts: {
-  drafts: Record<string, AttemptData>;
-  completed: Record<string, AttemptData[]>;
-} = {
-  drafts: {},
-  completed: {}
+// Helper function to get question type mapping
+const getQuestionTypeFromBackend = (questionTypeId: number): QuestionType => {
+  // This should be expanded based on your question types
+  const typeMap: Record<number, QuestionType> = {
+    1: 'cfg',
+    2: 'decision-tree',
+    3: 'cipher',
+    4: 'cfg' // fallback
+  };
+  return typeMap[questionTypeId] || 'cfg';
 };
 
 export const questionService = {
   // Fetch question information by ID (without solve data)
   async getQuestionInfo(id: string): Promise<QuestionInfo> {
-    // const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
-    // return response.data;
-    
-    // Return mock data
-    const mockQuestion = mockQuestions[id];
-    if (!mockQuestion) {
-      throw new Error(`Question with ID ${id} not found`);
-    }
-    return mockQuestion.info;
+    const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
+    return response.data;
   },
 
   // Fetch full question data by ID (for solving)
   async getQuestionById(id: string): Promise<QuestionResponse> {
-    // const response = await api.get<QuestionResponse>(`/questions/${id}`);
-    // return response.data;
+    const response = await api.get(`/questions/${id}`);
+    const question = response.data.props; // Extract from props wrapper
     
-    // Return mock data
-    const mockQuestion = mockQuestions[id];
-    if (!mockQuestion) {
-      throw new Error(`Question with ID ${id} not found`);
+    // Handle content - it might be JSON string or plain string
+    let content: string;
+    if (typeof question.content === 'string') {
+      // Try to parse as JSON first, if it fails, use as plain string
+      try {
+        JSON.parse(question.content);
+        content = question.content; // It's valid JSON, keep as string
+      } catch {
+        content = question.content; // It's plain text, keep as string
+      }
+    } else {
+      content = JSON.stringify(question.content); // It's already an object
     }
-    return mockQuestion.full;
+    
+    // Transform backend response to frontend format
+    return {
+      id: question.id.toString(),
+      title: `Question ${question.id}`,
+      isGenerated: false,
+      duration: 0,
+      type: getQuestionTypeFromBackend(question.questionTypeId),
+      content: content,
+    };
   },
 
   // Generate a random question
   async generateQuestion(type: QuestionType): Promise<QuestionResponse> {
-    // const response = await api.post<QuestionResponse>(`/questions/generate`, { type });
-    // return response.data;
-    
-    // For now, return the first mock question but mark it as generated
-    const mockQuestion = mockQuestions["1"];
-    if (!mockQuestion) {
-      throw new Error('No mock questions available');
-    }
-    return {
-      ...mockQuestion.full,
-      id: `${type}-${Math.random().toString(36).substr(2, 6)}`,
-      isGenerated: true,
-      type
-    };
+    const response = await api.post<QuestionResponse>(`/questions/generate`, { type });
+    return response.data;
   },
 
   // Save attempt progress
   async saveDraft(attempt: AttemptData): Promise<void> {
-    // Store in mock drafts - only keep the latest draft
-    mockAttempts.drafts[attempt.questionId] = attempt;
-    console.log('Draft saved:', attempt);
+    await api.post('/question-attempts/save-draft', {
+      questionId: parseInt(attempt.questionId),
+      duration: attempt.duration,
+      answer: JSON.parse(attempt.solution),
+    });
+    console.log('Draft saved to backend:', attempt);
   },
 
   // Save attempt synchronously (for beforeunload events)
   saveDraftSync(attempt: AttemptData): void {
-    // Store in mock drafts - only keep the latest draft
-    mockAttempts.drafts[attempt.questionId] = attempt;
-    console.log('Draft saved (sync):', attempt);
+    // For synchronous operations, we'll use navigator.sendBeacon if available
+    if (navigator.sendBeacon) {
+      const data = JSON.stringify({
+        questionId: parseInt(attempt.questionId),
+        duration: attempt.duration,
+        answer: JSON.parse(attempt.solution),
+      });
+      
+      navigator.sendBeacon(
+        `${API_URL}/api/question-attempts/save-draft`,
+        data
+      );
+      console.log('Draft saved synchronously via beacon:', attempt);
+    } else {
+      console.warn('navigator.sendBeacon not available, draft not saved synchronously');
+    }
   },
 
   // Submit final attempt
   async submitAttempt(attempt: AttemptData): Promise<void> {
-    // Store in completed attempts
-    if (!mockAttempts.completed[attempt.questionId]) {
-      mockAttempts.completed[attempt.questionId] = [];
-    }
-    mockAttempts.completed[attempt.questionId].push(attempt);
-    
-    // Clear draft for this question
-    delete mockAttempts.drafts[attempt.questionId];
-    
-    console.log('Attempt submitted:', attempt);
-    console.log('Current mock state:', {
-      drafts: mockAttempts.drafts,
-      completed: mockAttempts.completed
+    const response = await api.post('/question-attempts/submit', {
+      questionId: parseInt(attempt.questionId),
+      duration: attempt.duration,
+      answer: JSON.parse(attempt.solution),
     });
+    
+    console.log('Attempt submitted to backend:', response.data);
   },
 
   // Get attempt history for a question
-  async getAttemptHistory(questionId: string, userId: string): Promise<AttemptData[]> {
-    // Return completed attempts
-    return mockAttempts.completed[questionId] || [];
+  async getAttemptHistory(questionId: string): Promise<AttemptData[]> {
+    const response = await api.get(`/question-attempts/history/${questionId}`);
+    
+    // Transform backend response to frontend format
+    return response.data.map((attempt: { questionId: number; studentId: number; duration: number; isCompleted: boolean; answer: unknown }) => ({
+      questionId: attempt.questionId.toString(),
+      userId: attempt.studentId.toString(),
+      duration: attempt.duration,
+      status: attempt.isCompleted ? 'completed' : 'paused',
+      solution: JSON.stringify(attempt.answer || {}),
+    }));
   },
 
   // Get latest attempt for a question
-  async getLatestAttempt(questionId: string, userId: string): Promise<AttemptData | null> {
-    // Only return draft attempt if it exists
-    return mockAttempts.drafts[questionId] || null;
+  async getLatestAttempt(questionId: string): Promise<AttemptData | null> {
+    try {
+      const response = await api.get(`/question-attempts/latest/${questionId}`);
+      
+      if (!response.data) {
+        return null;
+      }
+      
+      // Transform backend response to frontend format
+      return {
+        questionId: response.data.questionId.toString(),
+        userId: response.data.studentId.toString(),
+        duration: response.data.duration,
+        status: response.data.isCompleted ? 'completed' : 'paused',
+        solution: JSON.stringify(response.data.answer || {}),
+      };
+    } catch {
+      // Return null if no draft found or backend error
+      return null;
+    }
   },
 
   // Check answer for generated questions
   async checkGeneratedAnswer(data: GeneratedAnswerCheck): Promise<CheckResponse> {
-    try {
-      // Get the question data
-      const questionData = mockQuestions["1"]; // Using mock question for now
-      if (!questionData) {
-        throw new Error('Question not found');
-      }
-
-      // Create a Question instance to check the answer
-      const question = new Question(
-        questionData.full.id,
-        questionData.full.title,
-        questionData.full.type,
-        true,
-        questionData.full.duration
-      );
-
-      // Load the question content
-      question.populateQuestionFromString(questionData.full.content);
-
-      // Load the user's solution
-      const solutionData = JSON.parse(data.solution);
-      question.loadSolution(JSON.stringify(solutionData));
-
-      // Use the Question class's checkAnswer method
-      const isCorrect = question.checkAnswer();
-      
-      // Calculate points based on correctness and time
-      const points = isCorrect ? Math.max(100 - Math.floor(data.duration / 10), 10) : 0;
-      
-      // For now, use a simple streak system
-      const streak = isCorrect ? 1 : 0;
-
-      const response = {
-        isCorrect,
-        points,
-        streak
-      };
-      
-      console.log('Generated question answer check:', {
-        ...data,
-        ...response
-      });
-      
-      return response;
-    } catch (err) {
-      console.error('Error checking answer:', err);
-      throw new Error('Failed to check answer');
-    }
+    const response = await api.post('/question-attempts/check-generated-answer', data);
+    console.log('Answer checked via backend:', response.data);
+    return response.data;
   }
 }; 

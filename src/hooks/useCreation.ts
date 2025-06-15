@@ -51,7 +51,7 @@ export const useCreation = ({
         let creationData: CreationData;
 
         if (isNewQuestion) {
-          // Creating a new question
+          // Creating a new question - don't make backend calls yet
           // Use provided initial data or default values for fresh questions
           const defaultData = {
             title: 'Untitled Question',
@@ -65,18 +65,45 @@ export const useCreation = ({
 
           const dataToUse = initialData || defaultData;
 
-          creationData = await creationService.createQuestion(
-            user?.id?.toString() || 'temp-user',
+          if (!user?.id) {
+            setError('Please log in to create questions');
+            setLoading(false);
+            return;
+          }
+
+          // For new questions, create a temporary local instance
+          // Backend creation will happen when user saves draft or submits
+          console.log('🆕 CREATING NEW QUESTION - Using temporary ID, no backend call');
+          creationData = {
+            questionId: `temp-${Date.now()}`,
+            creatorId: user.id.toString(),
+            ...dataToUse,
             questionType,
-            dataToUse
-          );
+            content: '{}',
+            isDraft: true,
+            lastModified: new Date()
+          };
         } else {
           // Loading existing creation
+          console.log('📖 LOADING EXISTING QUESTION - ID:', questionId);
           try {
             creationData = await creationService.getCreationData(questionId);
+            console.log('📖 LOADED CREATION DATA:', {
+              questionId: creationData.questionId,
+              title: creationData.title,
+              contentLength: creationData.content?.length || 0,
+              content: creationData.content,
+              isDraft: creationData.isDraft
+            });
           } catch (err) {
-            console.error('Failed to load existing creation:', err);
-            setError(`Failed to load question with ID: ${questionId}`);
+            console.error('❌ Failed to load existing creation:', err);
+            
+            // Handle specific error for submitted questions
+            if (err instanceof Error && err.message === 'QUESTION_ALREADY_SUBMITTED') {
+              setError('This question has already been submitted and cannot be changed.');
+            } else {
+              setError(`Failed to load question with ID: ${questionId}`);
+            }
             setLoading(false);
             return;
           }
@@ -95,16 +122,20 @@ export const useCreation = ({
         
         // Set metadata from creation data
         try {
-          questionInstance.setId(creationData.questionId);
-          questionInstance.setCreatorId(creationData.creatorId);
-          questionInstance.setTitle(creationData.title);
-          questionInstance.setDescription(creationData.description);
-          questionInstance.setDifficulty(creationData.difficulty);
-          questionInstance.setCategory(creationData.category);
-          questionInstance.setPoints(creationData.points);
-          questionInstance.setEstimatedTime(creationData.estimatedTime);
-          questionInstance.setAuthor(creationData.author);
-          questionInstance.setIsDraft(creationData.isDraft);
+          if (creationData.questionId) {
+            questionInstance.setId(creationData.questionId);
+          }
+          if (creationData.creatorId) {
+            questionInstance.setCreatorId(creationData.creatorId);
+          }
+          questionInstance.setTitle(creationData.title || 'Untitled Question');
+          questionInstance.setDescription(creationData.description || '');
+          questionInstance.setDifficulty(creationData.difficulty || 'Easy');
+          questionInstance.setCategory(creationData.category || 'General');
+          questionInstance.setPoints(creationData.points || 100);
+          questionInstance.setEstimatedTime(creationData.estimatedTime || 30);
+          questionInstance.setAuthor(creationData.author || 'Unknown');
+          questionInstance.setIsDraft(creationData.isDraft !== false);
         } catch (metaError) {
           console.error('Failed to set question metadata:', metaError);
           setError('Failed to initialize question metadata');
@@ -113,14 +144,27 @@ export const useCreation = ({
         }
         
         // Populate from content if available
+        console.log('🔄 POPULATING CONTENT - Checking content:', {
+          hasContent: !!creationData.content,
+          contentLength: creationData.content?.length || 0,
+          content: creationData.content,
+          isEmptyObject: creationData.content === '{}',
+          shouldPopulate: creationData.content && creationData.content !== '{}'
+        });
+        
         if (creationData.content && creationData.content !== '{}') {
           try {
+            console.log('🔄 POPULATING CONTENT - Calling populateFromContentString with:', creationData.content);
             questionInstance.populateFromContentString(creationData.content);
+            console.log('✅ CONTENT POPULATED - Successfully populated question content');
           } catch (contentError) {
+            console.error('❌ CONTENT POPULATION FAILED:', contentError);
             console.warn('Failed to populate content, starting fresh:', contentError);
             // Don't fail the entire initialization if content parsing fails
             // Just log the error and continue with empty content
           }
+        } else {
+          console.log('ℹ️ NO CONTENT TO POPULATE - Starting with empty content');
         }
 
         setQuestion(questionInstance);
@@ -159,21 +203,76 @@ export const useCreation = ({
       throw new Error('User not authenticated - cannot save');
     }
 
+    // Safely get question data with fallbacks
+    const questionId = question.getId();
+    const creatorId = user.id;
+    
+    console.log('📋 CREATE DATA - Getting question data:', {
+      questionId: questionId,
+      hasQuestionId: !!questionId,
+      questionIdType: typeof questionId,
+      creatorId: creatorId
+    });
+    
+    if (!creatorId) {
+      throw new Error('User ID is not available');
+    }
+
+    const finalQuestionId = questionId || `temp-${Date.now()}`;
+    const contentString = question.contentToString() || '{}';
+    
+    // Check if content is meaningful (not just empty arrays)
+    let hasContent = false;
+    try {
+      const parsedContent = JSON.parse(contentString);
+      if (parsedContent && typeof parsedContent === 'object') {
+        // For CFG questions, check if there are rules, start state, or end state
+        if (questionType === 'cfg') {
+          hasContent = (
+            (parsedContent.rules && parsedContent.rules.length > 0) ||
+            (parsedContent.startState && parsedContent.startState.length > 0) ||
+            (parsedContent.endState && parsedContent.endState.length > 0) ||
+            (parsedContent.steps && parsedContent.steps.length > 0)
+          );
+        } else {
+          // For other question types, assume any non-empty object has content
+          hasContent = Object.keys(parsedContent).length > 0;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to parse content for validation:', error);
+      hasContent = contentString !== '{}';
+    }
+    
+    console.log('📋 CONTENT VALIDATION:', {
+      contentString,
+      hasContent,
+      questionType
+    });
+
     const data = {
-      questionId: question.getId() || `temp-${Date.now()}`,
-      creatorId: user.id.toString(),
-      title: question.getTitle(),
-      description: question.getDescription(),
-      difficulty: question.getDifficulty(),
-      category: question.getCategory(),
-      points: question.getPoints(),
-      estimatedTime: question.getEstimatedTime(),
-      author: question.getAuthor(),
+      questionId: finalQuestionId,
+      creatorId: creatorId.toString(),
+      title: question.getTitle() || 'Untitled Question',
+      description: question.getDescription() || '',
+      difficulty: question.getDifficulty() || 'Easy',
+      category: question.getCategory() || 'General',
+      points: question.getPoints() || 100,
+      estimatedTime: question.getEstimatedTime() || 30,
+      author: question.getAuthor() || 'Unknown',
       questionType,
-      content: question.contentToString(),
-      isDraft: question.getIsDraft(),
-      lastModified: new Date()
+      content: contentString,
+      isDraft: question.getIsDraft() !== false, // Default to true if undefined
+      lastModified: new Date(),
+      hasContent // Add this for validation
     };
+    
+    console.log('📋 CREATE DATA - Final creation data:', {
+      questionId: data.questionId,
+      title: data.title,
+      isTemp: data.questionId.startsWith('temp-'),
+      hasContent: hasContent
+    });
     
     return data;
   }, [question, user, questionType]);
@@ -192,23 +291,49 @@ export const useCreation = ({
       setSaving(true);
       const creationData = createCreationData();
       
-      console.log('Saving draft with data:', creationData);
-      // TODO: Replace with actual backend call
-      // await fetch('/api/questions/drafts', { method: 'POST', body: JSON.stringify(creationData) });
-      await creationService.saveDraft(creationData);
+      console.log('🚀 HOOK - Starting save draft process with data:', {
+        questionId: creationData.questionId,
+        title: creationData.title,
+        currentQuestionId: question?.getId(),
+        hasContent: creationData.hasContent
+      });
       
-      // Update question ID if it was newly created
-      if (!question.getId() && creationData.questionId) {
-        console.log('Updating question ID from temp to:', creationData.questionId);
-        question.setId(creationData.questionId);
+      // Warn about empty content but still allow saving
+      if (!creationData.hasContent) {
+        console.warn('⚠️ SAVING EMPTY QUESTION - Question has no meaningful content yet');
+      }
+      
+      const updatedCreationData = await creationService.saveDraft(creationData);
+      
+      console.log('🔄 HOOK - Received updated creation data:', {
+        originalId: creationData.questionId,
+        updatedId: updatedCreationData.questionId,
+        changed: creationData.questionId !== updatedCreationData.questionId
+      });
+      
+      // Update question ID if it was newly created (temp ID was replaced)
+      if (creationData.questionId !== updatedCreationData.questionId) {
+        console.log('🔄 HOOK - Updating question ID in model:', {
+          from: creationData.questionId,
+          to: updatedCreationData.questionId,
+          questionBefore: question?.getId()
+        });
+        
+        question.setId(updatedCreationData.questionId);
+        
+        console.log('✅ HOOK - Question ID updated in model:', {
+          newQuestionId: question?.getId()
+        });
+      } else {
+        console.log('ℹ️ HOOK - No ID change needed, keeping:', creationData.questionId);
       }
       
       const now = new Date();
       setLastSavedDraft(now);
       setHasUnsavedChanges(false);
-      console.log('Draft saved successfully at:', now);
+      console.log('✅ HOOK - Draft saved successfully at:', now);
     } catch (err) {
-      console.error('Failed to save draft:', err);
+      console.error('❌ HOOK - Failed to save draft:', err);
       setError('Failed to save draft');
     } finally {
       setSaving(false);
@@ -278,9 +403,16 @@ export const useCreation = ({
       const creationData = createCreationData();
       
       console.log('Submitting creation with data:', creationData);
-      // TODO: Replace with actual backend call
-      // await fetch('/api/questions', { method: 'POST', body: JSON.stringify(creationData) });
-      await creationService.submitCreation(creationData);
+      const updatedCreationData = await creationService.submitCreation(creationData);
+      
+      // Update question ID if it was newly created (temp ID was replaced)
+      if (creationData.questionId !== updatedCreationData.questionId) {
+        console.log('Updating question ID from', creationData.questionId, 'to:', updatedCreationData.questionId);
+        question.setId(updatedCreationData.questionId);
+      }
+      
+      // Mark as published
+      question.setIsDraft(false);
       
       setHasUnsavedChanges(false);
       console.log('Creation submitted successfully');

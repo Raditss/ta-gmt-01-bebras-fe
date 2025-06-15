@@ -38,11 +38,18 @@ export abstract class ICreateQuestion {
     abstract populateFromContentString(contentString: string): void;
 
     public getId(): string | undefined {
+        console.log('🔍 MODEL - Getting question ID:', this.id);
         return this.id;
     }
 
     public setId(id: string): void {
+        console.log('🆔 MODEL - Setting question ID:', {
+            oldId: this.id,
+            newId: id,
+            changed: this.id !== id
+        });
         this.id = id;
+        console.log('✅ MODEL - Question ID set to:', this.id);
     }
 
     public getCreatorId(): string | undefined {

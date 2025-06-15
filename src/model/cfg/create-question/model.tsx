@@ -61,20 +61,42 @@ export class CfgCreateQuestion extends ICreateQuestion {
             endState: this.endState,
             steps: this.steps
         };
-        return JSON.stringify(content);
+        
+        const jsonString = JSON.stringify(content);
+        console.log('📝 CFG CONTENT TO STRING - Generated content:', {
+            rulesCount: this.rules.length,
+            startStateCount: this.startState.length,
+            endStateCount: this.endState.length,
+            stepsCount: this.steps.length,
+            contentObject: content,
+            jsonString: jsonString,
+            jsonLength: jsonString.length
+        });
+        
+        return jsonString;
     }
 
     populateFromContentString(contentString: string): void {
+        console.log('🔄 CFG POPULATE - Starting with content string:', contentString);
         try {
             const content = JSON.parse(contentString) as CfgCreationContent;
+            console.log('🔄 CFG POPULATE - Parsed content:', content);
+            
             this.rules = content.rules || [];
             this.startState = content.startState || [];
             this.endState = content.endState || [];
             this.initialEndState = [...this.endState];
             this.steps = content.steps || [];
             this.redoStack = [];
+            
+            console.log('✅ CFG POPULATE - Successfully populated:', {
+                rulesCount: this.rules.length,
+                startStateCount: this.startState.length,
+                endStateCount: this.endState.length,
+                stepsCount: this.steps.length
+            });
         } catch (error) {
-            console.error('Error parsing CFG creation content:', error);
+            console.error('❌ CFG POPULATE - Error parsing CFG creation content:', error);
             throw new Error('Invalid CFG creation content format');
         }
     }

@@ -1,4 +1,32 @@
 import { QuestionType } from '@/constants/questionTypes';
+import axios from 'axios';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
+// Create axios instance with authentication
+const api = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+// Add request interceptor to add auth token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("auth-storage");
+  if (token) {
+    try {
+      const parsedToken = JSON.parse(token).state.token;
+      if (parsedToken) {
+        config.headers.Authorization = `Bearer ${parsedToken}`;
+      }
+    } catch (error) {
+      console.warn('Failed to parse auth token:', error);
+    }
+  }
+  return config;
+});
 
 export interface CreationData {
   questionId: string;
@@ -14,6 +42,7 @@ export interface CreationData {
   content: string; // JSON string of question-specific data
   isDraft: boolean;
   lastModified: Date;
+  hasContent?: boolean; // Optional field for validation
 }
 
 export interface CreationInfo {
@@ -30,40 +59,16 @@ export interface CreationInfo {
   lastModified: Date;
 }
 
-// Unified storage for all creations (drafts and published)
-// Use localStorage for persistence during development
-const STORAGE_KEY = 'mockCreations';
-
-const loadFromStorage = (): Record<string, CreationData> => {
-  if (typeof window === 'undefined') return {};
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // Convert lastModified strings back to Date objects
-      Object.values(parsed).forEach((creation: any) => {
-        creation.lastModified = new Date(creation.lastModified);
-      });
-      console.log('Creation service: Loaded', Object.keys(parsed).length, 'creations from localStorage');
-      return parsed;
-    }
-  } catch (error) {
-    console.error('Creation service: Failed to load from localStorage:', error);
-  }
-  return {};
+// Helper function to transform backend question type ID to frontend type
+const getQuestionTypeFromBackend = (questionTypeId: number): QuestionType => {
+  const typeMap: Record<number, QuestionType> = {
+    1: 'cfg',
+    2: 'decision-tree',
+    3: 'cipher',
+    4: 'cfg' // fallback
+  };
+  return typeMap[questionTypeId] || 'cfg';
 };
-
-const saveToStorage = (creations: Record<string, CreationData>) => {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(creations));
-    console.log('Creation service: Saved', Object.keys(creations).length, 'creations to localStorage');
-  } catch (error) {
-    console.error('Creation service: Failed to save to localStorage:', error);
-  }
-};
-
-const mockCreations: Record<string, CreationData> = loadFromStorage();
 
 export const creationService = {
   // Create a new question creation session
@@ -80,155 +85,293 @@ export const creationService = {
       author: string;
     }
   ): Promise<CreationData> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Map question type to backend type ID
+    const typeIdMap: Record<QuestionType, number> = {
+      'cfg': 1,
+      'decision-tree': 2,
+      'cipher': 3
+    };
     
-    const id = `creation-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const creation: CreationData = {
-      questionId: id,
+    const response = await api.post('/questions', {
+      questionTypeId: typeIdMap[questionType],
+      content: '{}', // Empty content initially as string
+      isPublished: false // Start as draft
+    });
+    
+    console.log('Create question response:', response.data);
+    
+    const question = response.data;
+    
+    // Handle different response formats
+    if (!question) {
+      throw new Error('No question data received from server');
+    }
+    
+    // Check if question has required fields
+    if (!question.id) {
+      console.error('Question response missing id:', question);
+      throw new Error('Invalid question response: missing id');
+    }
+    
+    if (!question.createdAt) {
+      console.error('Question response missing createdAt:', question);
+      throw new Error('Invalid question response: missing createdAt');
+    }
+    
+    return {
+      questionId: question.id.toString(),
       creatorId,
       ...initialData,
       questionType,
-      content: '{}', // Empty content initially
+      content: '{}',
       isDraft: true,
-      lastModified: new Date()
+      lastModified: new Date(question.createdAt)
     };
-    
-    mockCreations[id] = creation;
-    saveToStorage(mockCreations);
-    console.log('Creation service: Created new question with ID:', id);
-    
-    return creation;
   },
 
   // Fetch creation info by ID
   async getCreationInfo(id: string): Promise<CreationInfo> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    const creation = mockCreations[id];
-    if (!creation) {
-      console.error(`Creation service: Creation with ID ${id} not found`);
-      throw new Error(`Creation with ID ${id} not found`);
-    }
+    const response = await api.get(`/questions/${id}/info`);
+    const question = response.data; // This endpoint returns direct format
     
     return {
-      id: creation.questionId,
-      title: creation.title,
-      description: creation.description,
-      type: creation.questionType,
-      difficulty: creation.difficulty,
-      category: creation.category,
-      points: creation.points,
-      estimatedTime: creation.estimatedTime,
-      author: creation.author,
-      isDraft: creation.isDraft,
-      lastModified: creation.lastModified
+      id: question.id.toString(),
+      title: question.title || `Question ${question.id}`,
+      description: question.description || '',
+      type: getQuestionTypeFromBackend(question.questionTypeId),
+      difficulty: 'Medium', // Default, should come from question metadata
+      category: 'General', // Default, should come from question metadata
+      points: 100, // Default, should come from question metadata
+      estimatedTime: 15, // Default, should come from question metadata
+      author: question.teacher?.name || 'Unknown',
+      isDraft: !question.isPublished,
+      lastModified: new Date(question.updatedAt)
     };
   },
 
   // Fetch full creation data by ID
   async getCreationData(id: string): Promise<CreationData> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
+    console.log('📥 GET CREATION DATA - Fetching question ID:', id);
     
-    const creation = mockCreations[id];
-    if (!creation) {
-      console.error(`Creation service: Creation with ID ${id} not found`);
-      throw new Error(`Creation with ID ${id} not found`);
+    const response = await api.get(`/questions/${id}`);
+    console.log('📥 BACKEND RESPONSE - Raw response:', response.data);
+    
+    const question = response.data.props; // Extract from props wrapper
+    console.log('📥 EXTRACTED QUESTION - Question data:', question);
+    
+    // Check if question is already published/submitted
+    if (question.isPublished) {
+      throw new Error('QUESTION_ALREADY_SUBMITTED');
     }
     
-    return creation;
+    const processedContent = typeof question.content === 'string' ? question.content : JSON.stringify(question.content);
+    console.log('📥 PROCESSED CONTENT:', {
+      originalContent: question.content,
+      originalType: typeof question.content,
+      processedContent: processedContent,
+      processedLength: processedContent?.length || 0
+    });
+    
+    const creationData = {
+      questionId: question.id.toString(),
+      creatorId: question.teacherId.toString(),
+      title: question.title || `Question ${question.id}`,
+      description: question.description || '',
+      difficulty: 'Medium' as 'Easy' | 'Medium' | 'Hard', // Default, should come from question metadata
+      category: 'General', // Default, should come from question metadata
+      points: 100, // Default, should come from question metadata
+      estimatedTime: 15, // Default, should come from question metadata
+      author: question.teacher?.name || 'Unknown',
+      questionType: getQuestionTypeFromBackend(question.questionTypeId),
+      content: processedContent,
+      isDraft: !question.isPublished,
+      lastModified: new Date(question.updatedAt)
+    };
+    
+    console.log('📥 FINAL CREATION DATA:', creationData);
+    return creationData;
   },
 
   // Save creation progress as draft
-  async saveDraft(creation: CreationData): Promise<void> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    // Store/update in unified storage as draft
-    const updatedCreation = {
-      ...creation,
-      isDraft: true,
-      lastModified: new Date()
-    };
-    
-    mockCreations[creation.questionId] = updatedCreation;
-    saveToStorage(mockCreations);
-    console.log('Creation service: Draft saved for ID:', creation.questionId);
+  async saveDraft(creation: CreationData): Promise<CreationData> {
+    console.log('🔄 SAVE DRAFT - Starting with creation data:', {
+      questionId: creation.questionId,
+      title: creation.title,
+      isTemp: creation.questionId.startsWith('temp-')
+    });
+
+    // If we have a temporary ID, we need to create the question first
+    if (creation.questionId.startsWith('temp-')) {
+      console.log('🆕 CREATING NEW QUESTION - Temporary ID detected:', creation.questionId);
+      
+      // Map question type to backend type ID
+      const typeIdMap: Record<QuestionType, number> = {
+        'cfg': 1,
+        'decision-tree': 2,
+        'cipher': 3
+      };
+      
+      const requestData = {
+        questionTypeId: typeIdMap[creation.questionType],
+        content: creation.content, // Send as string, not parsed object
+        isPublished: false // Start as draft
+      };
+      
+      console.log('📤 BACKEND REQUEST - Creating question with data:', requestData);
+      
+      const response = await api.post('/questions', requestData);
+      
+      console.log('📥 BACKEND RESPONSE - Question created:', response.data);
+      
+      const newQuestion = response.data;
+      
+      // Return updated creation data with real ID
+      const updatedCreation = {
+        ...creation,
+        questionId: newQuestion.id.toString(),
+        lastModified: new Date(newQuestion.createdAt)
+      };
+      
+      console.log('✅ NEW QUESTION CREATED - Updated creation data:', {
+        oldId: creation.questionId,
+        newId: updatedCreation.questionId,
+        backendId: newQuestion.id
+      });
+      
+      return updatedCreation;
+    } else {
+      console.log('📝 UPDATING EXISTING QUESTION - ID:', creation.questionId);
+      
+      // Update existing question
+      const updateData = {
+        content: creation.content, // Send as string, not parsed object
+        isPublished: false // Keep as draft
+      };
+      
+      console.log('📤 BACKEND UPDATE REQUEST - Updating question with data:', updateData);
+      
+      await api.patch(`/questions/${creation.questionId}`, updateData);
+      
+      console.log('✅ DRAFT UPDATED - Question ID:', creation.questionId);
+      return creation;
+    }
   },
 
   // Save creation synchronously (for beforeunload events)
   saveDraftSync(creation: CreationData): void {
-    // Store/update in unified storage as draft
-    const updatedCreation = {
-      ...creation,
-      isDraft: true,
-      lastModified: new Date()
-    };
-    
-    mockCreations[creation.questionId] = updatedCreation;
-    saveToStorage(mockCreations);
-    console.log('Creation service: Draft saved synchronously for ID:', creation.questionId);
+    if (navigator.sendBeacon) {
+      const data = JSON.stringify({
+        content: creation.content, // Send as string, not parsed object
+        isPublished: false
+      });
+      
+      navigator.sendBeacon(
+        `${API_URL}/api/questions/${creation.questionId}`,
+        data
+      );
+      console.log('Creation service: Draft saved synchronously via beacon for ID:', creation.questionId);
+    } else {
+      console.warn('navigator.sendBeacon not available, draft not saved synchronously');
+    }
   },
 
   // Submit final creation (publish)
-  async submitCreation(creation: CreationData): Promise<void> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Store/update in unified storage as published
-    const publishedCreation = {
-      ...creation,
-      isDraft: false,
-      lastModified: new Date()
-    };
-    
-    mockCreations[creation.questionId] = publishedCreation;
-    saveToStorage(mockCreations);
-    
-    console.log('Creation service: Question submitted for ID:', creation.questionId);
+  async submitCreation(creation: CreationData): Promise<CreationData> {
+    // If we have a temporary ID, we need to create the question first
+    if (creation.questionId.startsWith('temp-')) {
+      console.log('Creating new question for submission with temporary ID:', creation.questionId);
+      
+      // Map question type to backend type ID
+      const typeIdMap: Record<QuestionType, number> = {
+        'cfg': 1,
+        'decision-tree': 2,
+        'cipher': 3
+      };
+      
+      const response = await api.post('/questions', {
+        questionTypeId: typeIdMap[creation.questionType],
+        content: creation.content, // Send as string, not parsed object
+        isPublished: true // Publish immediately
+      });
+      
+      const newQuestion = response.data;
+      
+      // Return updated creation data with real ID
+      const updatedCreation = {
+        ...creation,
+        questionId: newQuestion.id.toString(),
+        isDraft: false,
+        lastModified: new Date(newQuestion.createdAt)
+      };
+      
+      console.log('Creation service: New question created and submitted with ID:', newQuestion.id);
+      return updatedCreation;
+    } else {
+      // Update existing question to published
+      await api.patch(`/questions/${creation.questionId}`, {
+        content: creation.content, // Send as string, not parsed object
+        isPublished: true // Publish the question
+      });
+      
+      console.log('Creation service: Question submitted for ID:', creation.questionId);
+      return { ...creation, isDraft: false };
+    }
   },
 
   // Get latest draft for a creation
   async getLatestDraft(creationId: string): Promise<CreationData | null> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    const creation = mockCreations[creationId];
-    return (creation && creation.isDraft) ? creation : null;
+    try {
+      const response = await api.get(`/questions/${creationId}`);
+      const question = response.data.props; // Extract from props wrapper
+      
+      // Only return if it's a draft
+      if (question.isPublished) {
+        return null;
+      }
+      
+      return {
+        questionId: question.id.toString(),
+        creatorId: question.teacherId.toString(),
+        title: question.title || `Question ${question.id}`,
+        description: question.description || '',
+        difficulty: 'Medium',
+        category: 'General',
+        points: 100,
+        estimatedTime: 15,
+        author: question.teacher?.name || 'Unknown',
+        questionType: getQuestionTypeFromBackend(question.questionTypeId),
+        content: typeof question.content === 'string' ? question.content : JSON.stringify(question.content),
+        isDraft: !question.isPublished,
+        lastModified: new Date(question.updatedAt)
+      };
+    } catch {
+      return null;
+    }
   },
 
   // Delete creation/draft
   async deleteCreation(id: string): Promise<void> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    delete mockCreations[id];
-    saveToStorage(mockCreations);
+    await api.delete(`/questions/${id}`);
     console.log(`Creation service: Deleted creation with ID: ${id}`);
   },
 
   // List user's creations
   async getUserCreations(creatorId: string): Promise<CreationInfo[]> {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 400));
+    const response = await api.get(`/questions/user/${creatorId}`);
+    const questions = response.data;
     
-    return Object.values(mockCreations)
-      .filter(creation => creation.creatorId === creatorId)
-      .map(creation => ({
-        id: creation.questionId,
-        title: creation.title,
-        description: creation.description,
-        type: creation.questionType,
-        difficulty: creation.difficulty,
-        category: creation.category,
-        points: creation.points,
-        estimatedTime: creation.estimatedTime,
-        author: creation.author,
-        isDraft: creation.isDraft,
-        lastModified: creation.lastModified
-      }))
-      .sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
+    return questions.map((question: { id: number; title?: string; description?: string; questionTypeId: number; teacher?: { name: string }; isPublished: boolean; updatedAt: string }) => ({
+      id: question.id.toString(),
+      title: question.title || `Question ${question.id}`,
+      description: question.description || '',
+      type: getQuestionTypeFromBackend(question.questionTypeId),
+      difficulty: 'Medium' as const,
+      category: 'General',
+      points: 100,
+      estimatedTime: 15,
+      author: question.teacher?.name || 'Unknown',
+      isDraft: !question.isPublished,
+      lastModified: new Date(question.updatedAt)
+    })).sort((a: CreationInfo, b: CreationInfo) => b.lastModified.getTime() - a.lastModified.getTime());
   }
 }; 

@@ -37,6 +37,7 @@ interface Teacher {
 interface Question {
   props: {
     id: number
+    title: string
     content: string
     questionTypeId: number
     teacherId: number
@@ -201,7 +202,7 @@ export default function ProblemsPage() {
                   {filteredQuestions.map((question) => (
                     <ProblemCard
                       key={`${question.props.id}-${question.props.questionTypeId}`}
-                      title={question.props.content}
+                      title={question.props.title}
                       author={question.props.teacher.name}
                       difficulty="Medium" // TODO: Add difficulty when available
                       category={question.props.questionType.name}

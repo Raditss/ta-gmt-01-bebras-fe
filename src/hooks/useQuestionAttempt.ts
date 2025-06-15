@@ -36,11 +36,15 @@ export const useQuestionAttempt = (questionId: string, shouldSaveAttempt: boolea
 
         // Only fetch latest attempt if user is logged in and we should save attempts
         if (user?.id && shouldSaveAttempt) {
-          const latestAttempt = await questionService.getLatestAttempt(questionId, String(user.id));
+          const latestAttempt = await questionService.getLatestAttempt(questionId);
           
           // Only restore state if there's a draft attempt
           if (latestAttempt && latestAttempt.status === 'paused') {
+            // Set the accumulated duration from the draft
             durationRef.current = latestAttempt.duration;
+            
+            // Reset start time to now since we're resuming from this point
+            startTimeRef.current = new Date();
             
             // Restore the attempt state if it's a CFG question
             if (questionData.type === 'cfg') {
@@ -53,6 +57,10 @@ export const useQuestionAttempt = (questionId: string, shouldSaveAttempt: boolea
             startTimeRef.current = new Date();
             initializeAttemptData(q, 0);
           }
+        } else {
+          // Reset duration if not saving attempts
+          durationRef.current = 0;
+          startTimeRef.current = new Date();
         }
 
         setQuestion(q);
