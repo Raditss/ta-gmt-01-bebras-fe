@@ -1,4 +1,5 @@
-export class ICreateQuestion {
+export abstract class ICreateQuestion {
+    isDraft: boolean
     private id?: string;
     private creatorId?: string;
     private title: string;
@@ -29,14 +30,27 @@ export class ICreateQuestion {
         this.author = author;
         this.id = id;
         this.creatorId = creatorId;
+        this.isDraft = true;
     }
+
+    // Abstract methods for serialization/deserialization
+    abstract contentToString(): string;
+    abstract populateFromContentString(contentString: string): void;
 
     public getId(): string | undefined {
         return this.id;
     }
 
+    public setId(id: string): void {
+        this.id = id;
+    }
+
     public getCreatorId(): string | undefined {
         return this.creatorId;
+    }
+
+    public setCreatorId(creatorId: string): void {
+        this.creatorId = creatorId;
     }
 
     public getTitle(): string {
@@ -93,5 +107,13 @@ export class ICreateQuestion {
 
     public setAuthor(author: string): void {
         this.author = author;
+    }
+
+    public getIsDraft(): boolean {
+        return this.isDraft;
+    }
+
+    public setIsDraft(isDraft: boolean): void {
+        this.isDraft = isDraft;
     }
 }

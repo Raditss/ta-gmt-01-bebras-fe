@@ -75,15 +75,11 @@ export default function ProblemsPage() {
         setIsLoading(true)
         setError(null)
         
-        console.log('Token being used:', token) // Debug log
-        
         // Fetch questions and question types in parallel
         const [questionsResponse, typesResponse] = await Promise.all([
           api.getQuestions(token),
           api.getQuestionTypes(token)
         ])
-        
-        console.log('Question Types:', typesResponse) // Debug log
         setQuestions(questionsResponse)
         setQuestionTypes(typesResponse)
         

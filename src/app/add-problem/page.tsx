@@ -19,6 +19,7 @@ const questionTypes = [
   { id: "true-false", name: "True/False" },
   { id: "short-answer", name: "Short Answer" },
   { id: "coding", name: "Coding Problem" },
+  { id: "cfg", name: "Context-Free Grammar" },
 ]
 
 export default function AddProblemPage() {
@@ -27,6 +28,8 @@ export default function AddProblemPage() {
   const [description, setDescription] = useState("")
   const [selectedType, setSelectedType] = useState("")
   const [difficulty, setDifficulty] = useState("")
+  const [points, setPoints] = useState("100")
+  const [estimatedTime, setEstimatedTime] = useState("30")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const { user, isAuthenticated } = useAuth()
@@ -65,19 +68,38 @@ export default function AddProblemPage() {
       return
     }
 
-    // Here you would typically submit the problem to your API
-    // For now, we'll just simulate a successful submission
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setSuccess(true)
-      setTitle("")
-      setDescription("")
-      setSelectedType("")
-      setDifficulty("")
-    } catch (err) {
-      setError("Failed to add problem. Please try again.")
+    if (!points || parseInt(points) <= 0) {
+      setError("Please enter valid points")
+      return
     }
+
+    if (!estimatedTime || parseInt(estimatedTime) <= 0) {
+      setError("Please enter valid estimated time")
+      return
+    }
+
+    // Handle CFG question type differently
+    if (selectedType === "cfg") {
+      // Create URL search params with form data
+      const params = new URLSearchParams({
+        title: title.trim(),
+        description: description.trim(),
+        difficulty,
+        category: questionTypes.find(qt => qt.id === selectedType)?.name || selectedType,
+        points,
+        estimatedTime,
+        author: user?.name || 'Unknown Author'
+      });
+
+      const targetUrl = `/add-problem/create/cfg/new?${params.toString()}`;
+
+      // Navigate to CFG creation page with form data
+      router.push(targetUrl);
+      return;
+    }
+
+    // For other question types, show not implemented message
+    setError(`Question type "${questionTypes.find(qt => qt.id === selectedType)?.name}" is not yet implemented. Please try Context-Free Grammar for now.`);
   }
 
   // Show nothing during SSR or if not authenticated/authorized
@@ -137,18 +159,46 @@ export default function AddProblemPage() {
                 </Select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty Level</Label>
-                <Select value={difficulty} onValueChange={setDifficulty}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="difficulty">Difficulty Level</Label>
+                  <Select value={difficulty} onValueChange={setDifficulty}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select difficulty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Easy">Easy</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="points">Points</Label>
+                  <Input
+                    id="points"
+                    type="number"
+                    min="1"
+                    placeholder="100"
+                    value={points}
+                    onChange={(e) => setPoints(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="estimatedTime">Estimated Time (min)</Label>
+                  <Input
+                    id="estimatedTime"
+                    type="number"
+                    min="1"
+                    placeholder="30"
+                    value={estimatedTime}
+                    onChange={(e) => setEstimatedTime(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
 
               {error && (
@@ -167,8 +217,32 @@ export default function AddProblemPage() {
               )}
 
               <Button type="submit" className="w-full">
-                Add Problem
+                Continue to Question Creation
               </Button>
+              
+              {/* Debug: Direct link to fresh CFG creator */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-sm text-gray-600 mb-2">Debug: Test fresh question creation</p>
+                                 <Button 
+                   type="button" 
+                   variant="outline" 
+                   className="w-full"
+                   onClick={() => router.push('/add-problem/create/cfg/new')}
+                 >
+                   Create Fresh CFG Question (No Form Data)
+                 </Button>
+                 
+                 {!isAuthenticated && (
+                   <Button 
+                     type="button" 
+                     variant="outline" 
+                     className="w-full mt-2"
+                     onClick={() => router.push('/login')}
+                   >
+                     Login Required for Question Creation
+                   </Button>
+                 )}
+              </div>
             </form>
           </CardContent>
         </Card>

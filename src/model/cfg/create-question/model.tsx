@@ -18,6 +18,13 @@ export interface Step {
     endState: State[];
 }
 
+export interface CfgCreationContent {
+    rules: Rule[];
+    startState: State[];
+    endState: State[];
+    steps: Step[];
+}
+
 export class CfgCreateQuestion extends ICreateQuestion {
     rules: Rule[];
     startState: State[];
@@ -26,14 +33,50 @@ export class CfgCreateQuestion extends ICreateQuestion {
     private steps: Step[];
     private redoStack: Step[];
 
-    constructor(title: string, id?: string, creatorId?: string) {
-        super(title, id, creatorId);
+    constructor(
+        title: string,
+        description: string = '',
+        difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy',
+        category: string = 'Context-Free Grammar',
+        points: number = 100,
+        estimatedTime: number = 30,
+        author: string = '',
+        id?: string,
+        creatorId?: string
+    ) {
+        super(title, description, difficulty, category, points, estimatedTime, author, id, creatorId);
         this.rules = [];
         this.startState = [];
         this.endState = [];
         this.initialEndState = [];
         this.steps = [];
         this.redoStack = [];
+    }
+
+    // Implementation of abstract methods
+    contentToString(): string {
+        const content: CfgCreationContent = {
+            rules: this.rules,
+            startState: this.startState,
+            endState: this.endState,
+            steps: this.steps
+        };
+        return JSON.stringify(content);
+    }
+
+    populateFromContentString(contentString: string): void {
+        try {
+            const content = JSON.parse(contentString) as CfgCreationContent;
+            this.rules = content.rules || [];
+            this.startState = content.startState || [];
+            this.endState = content.endState || [];
+            this.initialEndState = [...this.endState];
+            this.steps = content.steps || [];
+            this.redoStack = [];
+        } catch (error) {
+            console.error('Error parsing CFG creation content:', error);
+            throw new Error('Invalid CFG creation content format');
+        }
     }
 
     setRules(rules: Rule[]): void {

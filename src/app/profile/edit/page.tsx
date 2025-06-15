@@ -47,7 +47,7 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // TODO: Implement profile update logic
-    console.log("Form submitted:", formData)
+    // Form submission logic would go here
     router.push("/profile")
   }
 
