@@ -1,4 +1,4 @@
-import { IQuestion } from "../../interfaces/question";
+import { IQuestion, IAttempt, AttemptData } from "../../interfaces/question";
 import { QuestionType } from "@/constants/questionTypes";
 
 interface CipherVertex {
@@ -41,7 +41,7 @@ interface CipherContent {
     };
 }
 
-export class CipherQuestion extends IQuestion {
+export class CipherQuestion extends IQuestion implements IAttempt {
     private content: CipherContent;
     private currentState: {
         currentVertex: number;
@@ -57,11 +57,16 @@ export class CipherQuestion extends IQuestion {
     };
     private history: Array<typeof this.currentState>;
     private historyIndex: number;
+    private userId: string | undefined;
+    private attemptDuration: number;
+    private attemptStatus: 'paused' | 'completed';
 
     constructor(id: string, title: string, isGenerated: boolean, duration: number, startTime: Date) {
         super(id, title, isGenerated, 'cipher', duration, startTime);
         this.history = [];
         this.historyIndex = -1;
+        this.attemptDuration = 0;
+        this.attemptStatus = 'paused';
         this.content = {
             problemType: '',
             config: {
@@ -195,5 +200,44 @@ export class CipherQuestion extends IQuestion {
 
     getContent() {
         return this.content;
+    }
+
+    // IAttempt implementation
+    setAttemptData(userId: string, duration: number, status: 'paused' | 'completed') {
+        this.userId = userId;
+        this.attemptDuration = duration;
+        this.attemptStatus = status;
+    }
+
+    getAttemptData(): AttemptData {
+        if (!this.userId) {
+            throw new Error('No user ID set for this attempt');
+        }
+        return {
+            questionId: this.getId(),
+            userId: this.userId,
+            duration: this.attemptDuration,
+            status: this.attemptStatus,
+            solution: this.toJSON()
+        };
+    }
+
+    toJSON(): string {
+        return JSON.stringify({
+            currentState: this.currentState,
+            history: this.history,
+            historyIndex: this.historyIndex
+        });
+    }
+
+    loadSolution(json: string): void {
+        try {
+            const solution = JSON.parse(json);
+            this.currentState = solution.currentState;
+            this.history = solution.history;
+            this.historyIndex = solution.historyIndex;
+        } catch (error) {
+            console.error('Error loading solution:', error);
+        }
     }
 } 

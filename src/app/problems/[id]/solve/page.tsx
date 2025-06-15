@@ -12,7 +12,7 @@ import { BaseSolverProps } from '@/components/solvers/base-solver';
 const solvers: Record<QuestionType, React.ComponentType<BaseSolverProps>> = {
   'cfg': dynamic(() => import('@/components/solvers/cfg-solver')),
   'decision-tree': dynamic(() => import('@/components/solvers/not-implemented')),
-  'cipher': dynamic(() => import('@/components/solvers/not-implemented'))
+  'cipher': dynamic(() => import('@/components/solvers/cipher-solver'))
 };
 
 export default function SolvePage() {
