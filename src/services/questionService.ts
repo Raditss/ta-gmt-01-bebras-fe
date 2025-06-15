@@ -105,26 +105,71 @@ const mockQuestions: Record<
     },
   },
   "2": {
-    info: {
-      id: "2",
-      title: "Cipher N",
-      description:
-        "Chiper N is a game where you need to help the chiper to find the correct path to the treasure.",
-      type: "cipher",
-      difficulty: "Medium",
-      author: "System",
-      estimatedTime: 15,
-      points: 100,
-    },
-    full: {
-      id: "2",
-      title: "Chiper N",
-      isGenerated: false,
-      duration: 0,
-      type: "cipher",
-      content: JSON.stringify({}),
-    },
+  info: {
+    id: "2",
+    title: "Octagon Cipher Challenge",
+    description: "Encrypt messages using an 8-sided polygon with rotating arrows. Each letter is encoded using rotation and position numbers in a clockwise cipher system.",
+    type: "cipher",
+    difficulty: "Medium",
+    author: "System",
+    estimatedTime: 12,
+    points: 120
   },
+  full: {
+    id: "2",
+    title: "Octagon Cipher Challenge",
+    isGenerated: true,
+    duration: 0,
+    type: "cipher",
+    content: JSON.stringify({
+      problemType: "polygon_cipher",
+      config: {
+        vertexCount: 8,
+        polygonName: "octagon",
+        startingVertex: 0,
+        rotationDirection: "clockwise"
+      },
+      vertices: [
+        { pos: 0, letters: "ABC" },
+        { pos: 1, letters: "DEF" },
+        { pos: 2, letters: "GHI" },
+        { pos: 3, letters: "JKLY" },
+        { pos: 4, letters: "MNOZ" },
+        { pos: 5, letters: "PQR" },
+        { pos: 6, letters: "STU" },
+        { pos: 7, letters: "VWX" }
+      ],
+      instructions: [
+        "An octagon has groups of letters at each vertex.",
+        "An arrow points from center to a vertex and can rotate clockwise.",
+        "At the start of encryption, the arrow always points to ABC.",
+        "Each letter is encoded as two numbers:",
+        "• First number: how many vertices to rotate the arrow",
+        "• Second number: position of the letter in the target group"
+      ],
+      example: {
+        plaintext: "TREE",
+        encrypted: "62-73-42-02",
+        explanation: "T→rotate 6 to STU, position 2 = 62; R→rotate 7 to PQR, position 3 = 73; etc."
+      },
+      question: {
+        task: "encrypt",
+        plaintext: "WATER",
+        prompt: "What is the encrypted message for WATER?"
+      },
+      answer: {
+        encrypted: "72-11-62-42-43",
+        steps: [
+          { letter: "W", from: 0, rotation: 7, to: 7, pos: 2, code: "72" },
+          { letter: "A", from: 7, rotation: 1, to: 0, pos: 1, code: "11" },
+          { letter: "T", from: 0, rotation: 6, to: 6, pos: 2, code: "62" },
+          { letter: "E", from: 6, rotation: 4, to: 1, pos: 2, code: "42" },
+          { letter: "R", from: 1, rotation: 4, to: 5, pos: 3, code: "43" }
+        ]
+      }
+    })
+  }
+},
   "3": {
     info: {
       id: "3",
