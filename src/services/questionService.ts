@@ -1,23 +1,14 @@
-import axios from 'axios';
 import { AttemptData } from "@/model/interfaces/question";
-import { CfgQuestionSetup } from '@/model/cfg/question/types';
 import { QuestionType } from "@/constants/questionTypes";
-import { Question } from '@/model/cfg/question/model';
-
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { Question } from "@/model/cfg/question/model";
 
 // Question information without the full solve data
-interface QuestionInfo {
+export interface QuestionInfo {
   id: string;
   title: string;
   description: string;
   type: QuestionType;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: "Easy" | "Medium" | "Hard";
   author: string;
   estimatedTime: number;
   points: number;
@@ -46,69 +37,115 @@ interface CheckResponse {
 }
 
 // Mock data store - other developers can add their mock questions here
-const mockQuestions: Record<string, { info: QuestionInfo, full: QuestionResponse }> = {
+const mockQuestions: Record<
+  string,
+  { info: QuestionInfo; full: QuestionResponse }
+> = {
   "1": {
     info: {
       id: "1",
       title: "Shape Transformation Challenge",
-      description: "Transform a sequence of shapes into the target sequence using the provided transformation rules. This challenge tests your understanding of Context-Free Grammars and pattern manipulation.",
-      type: 'cfg',
-      difficulty: 'Medium',
-      author: 'System',
+      description:
+        "Transform a sequence of shapes into the target sequence using the provided transformation rules. This challenge tests your understanding of Context-Free Grammars and pattern manipulation.",
+      type: "cfg",
+      difficulty: "Hard",
+      author: "System",
       estimatedTime: 15,
-      points: 100
+      points: 100,
     },
     full: {
       id: "1",
       title: "Shape Transformation Challenge",
       isGenerated: false,
       duration: 0,
-      type: 'cfg',
+      type: "cfg",
       content: JSON.stringify({
         startState: [
-          { id: 1, type: 'circle' },
-          { id: 2, type: 'triangle' },
-          { id: 3, type: 'square' },
-          { id: 4, type: 'triangle' },
-          { id: 5, type: 'triangle' },
-          { id: 6, type: 'circle' },
+          { id: 1, type: "circle" },
+          { id: 2, type: "triangle" },
+          { id: 3, type: "square" },
+          { id: 4, type: "triangle" },
+          { id: 5, type: "triangle" },
+          { id: 6, type: "circle" },
         ],
         endState: [
-          { id: 1, type: 'star' },
-          { id: 2, type: 'hexagon' },
-          { id: 3, type: 'star' },
+          { id: 1, type: "star" },
+          { id: 2, type: "hexagon" },
+          { id: 3, type: "star" },
         ],
         rules: [
           {
-            id: 'rule1',
+            id: "rule1",
             before: [
-              { id: 1, type: 'triangle' },
-              { id: 2, type: 'square' },
-              { id: 3, type: 'triangle' }
+              { id: 1, type: "triangle" },
+              { id: 2, type: "square" },
+              { id: 3, type: "triangle" },
             ],
-            after: [{ id: 1, type: 'hexagon' }]
+            after: [{ id: 1, type: "hexagon" }],
           },
           {
-            id: 'rule2',
+            id: "rule2",
             before: [
-              { id: 1, type: 'circle' },
-              { id: 2, type: 'triangle' }
+              { id: 1, type: "circle" },
+              { id: 2, type: "triangle" },
             ],
-            after: [{ id: 1, type: 'star' }]
+            after: [{ id: 1, type: "star" }],
           },
           {
-            id: 'rule3',
+            id: "rule3",
             before: [
-              { id: 2, type: 'triangle' },
-              { id: 1, type: 'circle' }
+              { id: 2, type: "triangle" },
+              { id: 1, type: "circle" },
             ],
-            after: [{ id: 1, type: 'star' }]
-          }
+            after: [{ id: 1, type: "star" }],
+          },
         ],
-        steps: []
-      })
-    }
-  }
+        steps: [],
+      }),
+    },
+  },
+  "2": {
+    info: {
+      id: "2",
+      title: "Cipher N",
+      description:
+        "Chiper N is a game where you need to help the chiper to find the correct path to the treasure.",
+      type: "cipher",
+      difficulty: "Medium",
+      author: "System",
+      estimatedTime: 15,
+      points: 100,
+    },
+    full: {
+      id: "2",
+      title: "Chiper N",
+      isGenerated: false,
+      duration: 0,
+      type: "cipher",
+      content: JSON.stringify({}),
+    },
+  },
+  "3": {
+    info: {
+      id: "3",
+      title: "Beaver's Dress Code",
+      description:
+        "Beavers are known for their unique dress code. Help them choose the correct outfit for the day.",
+      type: "decision-tree",
+      difficulty: "Easy",
+      author: "System",
+      estimatedTime: 10,
+      points: 100,
+    },
+    full: {
+      id: "3",
+      title: "Beaver's Dress Code",
+      isGenerated: false,
+      duration: 0,
+      type: "decision-tree",
+      content: JSON.stringify({}),
+    },
+  },
 };
 
 // Mock attempts store - separate completed and draft attempts
@@ -117,7 +154,7 @@ const mockAttempts: {
   completed: Record<string, AttemptData[]>;
 } = {
   drafts: {},
-  completed: {}
+  completed: {},
 };
 
 export const questionService = {
@@ -125,7 +162,7 @@ export const questionService = {
   async getQuestionInfo(id: string): Promise<QuestionInfo> {
     // const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
     // return response.data;
-    
+
     // Return mock data
     const mockQuestion = mockQuestions[id];
     if (!mockQuestion) {
@@ -138,7 +175,7 @@ export const questionService = {
   async getQuestionById(id: string): Promise<QuestionResponse> {
     // const response = await api.get<QuestionResponse>(`/questions/${id}`);
     // return response.data;
-    
+
     // Return mock data
     const mockQuestion = mockQuestions[id];
     if (!mockQuestion) {
@@ -151,17 +188,17 @@ export const questionService = {
   async generateQuestion(type: QuestionType): Promise<QuestionResponse> {
     // const response = await api.post<QuestionResponse>(`/questions/generate`, { type });
     // return response.data;
-    
+
     // For now, return the first mock question but mark it as generated
     const mockQuestion = mockQuestions["1"];
     if (!mockQuestion) {
-      throw new Error('No mock questions available');
+      throw new Error("No mock questions available");
     }
     return {
       ...mockQuestion.full,
       id: `${type}-${Math.random().toString(36).substr(2, 6)}`,
       isGenerated: true,
-      type
+      type,
     };
   },
 
@@ -169,14 +206,14 @@ export const questionService = {
   async saveDraft(attempt: AttemptData): Promise<void> {
     // Store in mock drafts - only keep the latest draft
     mockAttempts.drafts[attempt.questionId] = attempt;
-    console.log('Draft saved:', attempt);
+    console.log("Draft saved:", attempt);
   },
 
   // Save attempt synchronously (for beforeunload events)
   saveDraftSync(attempt: AttemptData): void {
     // Store in mock drafts - only keep the latest draft
     mockAttempts.drafts[attempt.questionId] = attempt;
-    console.log('Draft saved (sync):', attempt);
+    console.log("Draft saved (sync):", attempt);
   },
 
   // Submit final attempt
@@ -186,36 +223,46 @@ export const questionService = {
       mockAttempts.completed[attempt.questionId] = [];
     }
     mockAttempts.completed[attempt.questionId].push(attempt);
-    
+
     // Clear draft for this question
     delete mockAttempts.drafts[attempt.questionId];
-    
-    console.log('Attempt submitted:', attempt);
-    console.log('Current mock state:', {
+
+    console.log("Attempt submitted:", attempt);
+    console.log("Current mock state:", {
       drafts: mockAttempts.drafts,
-      completed: mockAttempts.completed
+      completed: mockAttempts.completed,
     });
   },
 
   // Get attempt history for a question
-  async getAttemptHistory(questionId: string, userId: string): Promise<AttemptData[]> {
+  async getAttemptHistory(
+    questionId: string,
+    userId: string
+  ): Promise<AttemptData[]> {
     // Return completed attempts
+    console.log(userId);
     return mockAttempts.completed[questionId] || [];
   },
 
   // Get latest attempt for a question
-  async getLatestAttempt(questionId: string, userId: string): Promise<AttemptData | null> {
+  async getLatestAttempt(
+    questionId: string,
+    userId: string
+  ): Promise<AttemptData | null> {
     // Only return draft attempt if it exists
+    console.log(userId);
     return mockAttempts.drafts[questionId] || null;
   },
 
   // Check answer for generated questions
-  async checkGeneratedAnswer(data: GeneratedAnswerCheck): Promise<CheckResponse> {
+  async checkGeneratedAnswer(
+    data: GeneratedAnswerCheck
+  ): Promise<CheckResponse> {
     try {
       // Get the question data
       const questionData = mockQuestions["1"]; // Using mock question for now
       if (!questionData) {
-        throw new Error('Question not found');
+        throw new Error("Question not found");
       }
 
       // Create a Question instance to check the answer
@@ -236,28 +283,30 @@ export const questionService = {
 
       // Use the Question class's checkAnswer method
       const isCorrect = question.checkAnswer();
-      
+
       // Calculate points based on correctness and time
-      const points = isCorrect ? Math.max(100 - Math.floor(data.duration / 10), 10) : 0;
-      
+      const points = isCorrect
+        ? Math.max(100 - Math.floor(data.duration / 10), 10)
+        : 0;
+
       // For now, use a simple streak system
       const streak = isCorrect ? 1 : 0;
 
       const response = {
         isCorrect,
         points,
-        streak
+        streak,
       };
-      
-      console.log('Generated question answer check:', {
+
+      console.log("Generated question answer check:", {
         ...data,
-        ...response
+        ...response,
       });
-      
+
       return response;
     } catch (err) {
-      console.error('Error checking answer:', err);
-      throw new Error('Failed to check answer');
+      console.error("Error checking answer:", err);
+      throw new Error("Failed to check answer");
     }
-  }
-}; 
+  },
+};
