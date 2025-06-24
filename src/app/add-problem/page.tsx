@@ -20,6 +20,7 @@ const questionTypes = [
   { id: "short-answer", name: "Short Answer" },
   { id: "coding", name: "Coding Problem" },
   { id: "cfg", name: "Context-Free Grammar" },
+  { id: "cipher", name: "Cipher Challenge" },
 ]
 
 export default function AddProblemPage() {
@@ -98,8 +99,28 @@ export default function AddProblemPage() {
       return;
     }
 
+    // Handle cipher question type
+    if (selectedType === "cipher") {
+      // Create URL search params with form data
+      const params = new URLSearchParams({
+        title: title.trim(),
+        description: description.trim(),
+        difficulty,
+        category: questionTypes.find(qt => qt.id === selectedType)?.name || selectedType,
+        points,
+        estimatedTime,
+        author: user?.name || 'Unknown Author'
+      });
+
+      const targetUrl = `/add-problem/create/cipher/new?${params.toString()}`;
+
+      // Navigate to cipher creation page with form data
+      router.push(targetUrl);
+      return;
+    }
+
     // For other question types, show not implemented message
-    setError(`Question type "${questionTypes.find(qt => qt.id === selectedType)?.name}" is not yet implemented. Please try Context-Free Grammar for now.`);
+    setError(`Question type "${questionTypes.find(qt => qt.id === selectedType)?.name}" is not yet implemented. Please try Context-Free Grammar or Cipher Challenge for now.`);
   }
 
   // Show nothing during SSR or if not authenticated/authorized

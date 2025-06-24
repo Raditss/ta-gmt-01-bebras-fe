@@ -59,9 +59,11 @@ class CreatorErrorBoundary extends React.Component<
 
 // Import creators for different question types
 import CfgCreator from '@/components/creators/cfg-creator';
+import CipherCreator from '@/components/creators/cipher-creator';
 
 const creators: Partial<Record<QuestionType, React.ComponentType<BaseCreatorProps>>> = {
-  'cfg': CfgCreator
+  'cfg': CfgCreator,
+  'cipher': CipherCreator
 };
 
 export default function CreateQuestionPage() {
