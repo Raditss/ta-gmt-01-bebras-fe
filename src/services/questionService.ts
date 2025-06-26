@@ -30,7 +30,7 @@ interface GeneratedAnswerCheck {
   solution: string;
 }
 
-interface CheckResponse {
+export interface CheckResponse {
   isCorrect: boolean;
   points: number;
   streak: number;
@@ -128,9 +128,8 @@ const mockQuestions: Record<
   "3": {
     info: {
       id: "3",
-      title: "Beaver's Dress Code",
-      description:
-        "Beavers are known for their unique dress code. Help them choose the correct outfit for the day.",
+      title: "Monster Mischief",
+      description: "Find the monster that is causing mischief in the forest.",
       type: "decision-tree",
       difficulty: "Easy",
       author: "System",
@@ -139,11 +138,54 @@ const mockQuestions: Record<
     },
     full: {
       id: "3",
-      title: "Beaver's Dress Code",
+      title: "Monster Mischief",
       isGenerated: false,
       duration: 0,
       type: "decision-tree",
-      content: JSON.stringify({}),
+      content: JSON.stringify({
+        rules: [
+          {
+            id: 1,
+            conditions: [
+              {
+                attribute: "hat",
+                operator: "=",
+                value: "red",
+              },
+              {
+                attribute: "jacket",
+                operator: "=",
+                value: "blue",
+              },
+              {
+                attribute: "shirt",
+                operator: "=",
+                value: "white",
+              },
+            ],
+          },
+          {
+            id: 2,
+            conditions: [
+              {
+                attribute: "hat",
+                operator: "=",
+                value: "green",
+              },
+              {
+                attribute: "jacket",
+                operator: "=",
+                value: "green",
+              },
+              {
+                attribute: "shirt",
+                operator: "=",
+                value: "white",
+              },
+            ],
+          },
+        ],
+      }),
     },
   },
 };
