@@ -16,8 +16,8 @@ export const extractOptions = (
     if (match)
       options.add({
         label: match[1],
-        value: match.input!,
-        answer: match[1],
+        source: match.input!,
+        value: match[1],
       });
   });
   return Array.from(options);
@@ -43,7 +43,7 @@ export const extractSpriteOptions = () => {
 
   return {
     body: bodyOptions,
-    horns: hornOptions,
+    horns: [{ label: "None", value: "none" }, ...hornOptions],
     legs: legOptions,
     arms: armOptions,
     colors: ColorOptions,

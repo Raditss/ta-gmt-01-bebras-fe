@@ -148,19 +148,29 @@ const mockQuestions: Record<
             id: 1,
             conditions: [
               {
-                attribute: "hat",
+                attribute: "color",
                 operator: "=",
                 value: "red",
               },
               {
-                attribute: "jacket",
+                attribute: "horn",
                 operator: "=",
-                value: "blue",
+                value: "none",
               },
               {
-                attribute: "shirt",
+                attribute: "body",
                 operator: "=",
-                value: "white",
+                value: "A",
+              },
+              {
+                attribute: "arm",
+                operator: "=",
+                value: "A",
+              },
+              {
+                attribute: "leg",
+                operator: "=",
+                value: "A",
               },
             ],
           },
@@ -168,19 +178,29 @@ const mockQuestions: Record<
             id: 2,
             conditions: [
               {
-                attribute: "hat",
+                attribute: "color",
                 operator: "=",
-                value: "green",
+                value: "blue",
               },
               {
-                attribute: "jacket",
+                attribute: "horn",
                 operator: "=",
-                value: "green",
+                value: "small",
               },
               {
-                attribute: "shirt",
+                attribute: "body",
                 operator: "=",
-                value: "white",
+                value: "B",
+              },
+              {
+                attribute: "arm",
+                operator: "=",
+                value: "B",
+              },
+              {
+                attribute: "leg",
+                operator: "=",
+                value: "B",
               },
             ],
           },

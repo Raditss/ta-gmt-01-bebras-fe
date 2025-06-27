@@ -4,7 +4,7 @@ import {
   MonsterPartOptionType,
   MonsterPartType,
 } from "@/components/solvers/decision-tree/types";
-import { useMonsterSprites } from "@/components/decision-tree/shared/useMonsterSprites";
+import { useMonsterSprites } from "./useMonsterSprites";
 import {
   MonsterLeg,
   MonsterArm,
@@ -31,9 +31,11 @@ const MainContainer = ({
 }: PropsWithChildren<IMainContainerProps>) => {
   const { isLoading, getTexture, getStaticTexture } = useMonsterSprites();
 
+  // Calculate center position based on canvas size
   const centerX = canvasSize.width / 2;
   const centerY = canvasSize.height / 2;
 
+  // Calculate scale factor based on canvas size
   const scaleFactor = Math.min(canvasSize.width, canvasSize.height) / 600;
 
   const getCurrentSelection = (category: MonsterPartType) => {
@@ -48,7 +50,7 @@ const MainContainer = ({
       [MonsterPartType.HORN]: "none",
     };
 
-    return selections[category]?.answer || defaultValues[category];
+    return selections[category]?.value || defaultValues[category];
   };
 
   if (isLoading) {
@@ -57,6 +59,7 @@ const MainContainer = ({
 
   return (
     <Container>
+      {/* Back legs (behind body) */}
       <MonsterLeg
         texture={getTexture(
           MonsterPartType.LEG,
@@ -80,6 +83,7 @@ const MainContainer = ({
         scaleY={0.4 * scaleFactor}
       />
 
+      {/* Arms */}
       <MonsterArm
         texture={getTexture(
           MonsterPartType.ARM,
@@ -103,6 +107,7 @@ const MainContainer = ({
         scaleY={-0.3 * scaleFactor}
       />
 
+      {/* Body */}
       <MonsterBody
         texture={getTexture(
           MonsterPartType.BODY,
@@ -115,6 +120,7 @@ const MainContainer = ({
         scaleY={0.5 * scaleFactor}
       />
 
+      {/* Horn (if present) */}
       <MonsterHorn
         texture={getTexture(
           MonsterPartType.HORN,
@@ -127,6 +133,7 @@ const MainContainer = ({
         scaleY={0.4 * scaleFactor}
       />
 
+      {/* Eyes */}
       <MonsterEye
         texture={getStaticTexture("eye_human")}
         x={centerX}
@@ -135,6 +142,7 @@ const MainContainer = ({
         scaleY={0.4 * scaleFactor}
       />
 
+      {/* Mouth */}
       <MonsterMouth
         texture={getStaticTexture("mouth_openToothless")}
         x={centerX}

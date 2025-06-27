@@ -30,128 +30,74 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
     return -1;
   };
 
-  // Build tree for hat colors
-  const buildHatTree = (): TreeNode => {
-    return {
-      type: "decision",
-      attribute: "hat",
-      value: "red",
-      yes: {
+  // Extract all unique attributes and their possible values from rules
+  const attributeValues: Record<string, Set<string>> = {};
+
+  rules.forEach((rule) => {
+    rule.conditions.forEach((condition) => {
+      if (!attributeValues[condition.attribute]) {
+        attributeValues[condition.attribute] = new Set();
+      }
+      attributeValues[condition.attribute].add(condition.value);
+    });
+  });
+
+  // Convert to arrays and sort for consistent ordering
+  const attributes = Object.keys(attributeValues).sort();
+  const valueMap: Record<string, string[]> = {};
+  attributes.forEach((attr) => {
+    valueMap[attr] = Array.from(attributeValues[attr]).sort();
+  });
+
+  // Build a tree that properly branches for each value
+  const buildTreeRecursive = (
+    attributeIndex: number,
+    currentConditions: Record<string, string>
+  ): TreeNode => {
+    // If we've exhausted all attributes, this is a leaf
+    if (attributeIndex >= attributes.length) {
+      return {
+        type: "leaf",
+        ruleId: findMatchingRule(currentConditions),
+      };
+    }
+
+    const currentAttribute = attributes[attributeIndex];
+    const possibleValues = valueMap[currentAttribute];
+
+    // Create a chain of binary decisions for each value
+    const buildValueChain = (valueIndex: number): TreeNode => {
+      if (valueIndex >= possibleValues.length) {
+        // No more values to check, this means no match for this attribute
+        return {
+          type: "leaf",
+          ruleId: -1,
+        };
+      }
+
+      const currentValue = possibleValues[valueIndex];
+
+      return {
         type: "decision",
-        attribute: "jacket",
-        value: "blue",
-        yes: {
-          type: "decision",
-          attribute: "shirt",
-          value: "white",
-          yes: {
-            type: "leaf",
-            ruleId: findMatchingRule({
-              hat: "red",
-              jacket: "blue",
-              shirt: "white",
-            }),
-          },
-          no: {
-            type: "leaf",
-            ruleId: findMatchingRule({
-              hat: "red",
-              jacket: "blue",
-              shirt: "other",
-            }),
-          },
-        },
-        no: {
-          type: "decision",
-          attribute: "jacket",
-          value: "green",
-          yes: {
-            type: "decision",
-            attribute: "shirt",
-            value: "white",
-            yes: {
-              type: "leaf",
-              ruleId: findMatchingRule({
-                hat: "red",
-                jacket: "green",
-                shirt: "white",
-              }),
-            },
-            no: {
-              type: "leaf",
-              ruleId: findMatchingRule({
-                hat: "red",
-                jacket: "green",
-                shirt: "other",
-              }),
-            },
-          },
-          no: { type: "leaf", ruleId: -1 }, // Other jacket colors
-        },
-      },
-      no: {
-        type: "decision",
-        attribute: "hat",
-        value: "green",
-        yes: {
-          type: "decision",
-          attribute: "jacket",
-          value: "blue",
-          yes: {
-            type: "decision",
-            attribute: "shirt",
-            value: "white",
-            yes: {
-              type: "leaf",
-              ruleId: findMatchingRule({
-                hat: "green",
-                jacket: "blue",
-                shirt: "white",
-              }),
-            },
-            no: {
-              type: "leaf",
-              ruleId: findMatchingRule({
-                hat: "green",
-                jacket: "blue",
-                shirt: "other",
-              }),
-            },
-          },
-          no: {
-            type: "decision",
-            attribute: "jacket",
-            value: "green",
-            yes: {
-              type: "decision",
-              attribute: "shirt",
-              value: "white",
-              yes: {
-                type: "leaf",
-                ruleId: findMatchingRule({
-                  hat: "green",
-                  jacket: "green",
-                  shirt: "white",
-                }),
-              },
-              no: {
-                type: "leaf",
-                ruleId: findMatchingRule({
-                  hat: "green",
-                  jacket: "green",
-                  shirt: "other",
-                }),
-              },
-            },
-            no: { type: "leaf", ruleId: -1 }, // Other jacket colors
-          },
-        },
-        no: { type: "leaf", ruleId: -1 }, // Other hat colors
-      },
+        attribute: currentAttribute,
+        value: currentValue,
+        yes: buildTreeRecursive(attributeIndex + 1, {
+          ...currentConditions,
+          [currentAttribute]: currentValue,
+        }),
+        no: buildValueChain(valueIndex + 1), // Try the next value
+      };
     };
+
+    return buildValueChain(0);
   };
 
-  return buildHatTree();
+  // Start building from the first attribute
+  if (attributes.length === 0) {
+    return { type: "leaf", ruleId: -1 };
+  }
+
+  return buildTreeRecursive(0, {});
 };
 
 export function DecisionTree({
@@ -177,6 +123,9 @@ export function DecisionTree({
     const hasSelection = currentSelections[node.attribute] !== undefined;
     const matchesSelection = currentSelections[node.attribute] === node.value;
 
+    // Node is on path if parent is on path AND either:
+    // 1. No selection has been made for this attribute yet, OR
+    // 2. Selection matches this node's value
     return parentOnPath && (!hasSelection || matchesSelection);
   };
 
@@ -196,15 +145,15 @@ export function DecisionTree({
           <button
             onClick={() => isValidRule && onRuleSelect(node.ruleId!)}
             disabled={!isValidRule}
-            className={`px-2 py-1 rounded border-2 transition-all min-w-16 text-xs ${
+            className={`px-1 py-0.5 rounded border text-xs min-w-12 ${
               isSelected
                 ? "bg-blue-500 text-white border-blue-600"
                 : isValidRule
                 ? "bg-green-100 border-green-300 hover:bg-green-200"
                 : "bg-gray-100 border-gray-300 text-gray-500"
-            } ${isOnPath ? "ring-2 ring-yellow-400 ring-opacity-70" : ""}`}
+            } ${isOnPath ? "ring-1 ring-yellow-400" : ""}`}
           >
-            {isValidRule ? `Rule ${node.ruleId}` : "No Match"}
+            {isValidRule ? `R${node.ruleId}` : "X"}
           </button>
         </div>
       );
@@ -216,56 +165,56 @@ export function DecisionTree({
     const shouldHighlight = isOnPath && hasSelection && matchesCondition;
 
     return (
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex flex-col items-center space-y-2">
         {/* Decision Node */}
         <div
-          className={`px-3 py-1 rounded-full border-2 transition-all min-w-24 text-center ${
+          className={`px-2 py-0.5 rounded border text-center text-xs min-w-20 ${
             shouldHighlight
-              ? "bg-yellow-200 border-yellow-500 ring-2 ring-yellow-400"
+              ? "bg-yellow-200 border-yellow-500 ring-1 ring-yellow-400"
               : "bg-orange-100 border-orange-300"
           }`}
         >
-          <span className="text-xs font-medium capitalize">
-            {node.attribute} = {node.value}?
+          <span className="font-medium capitalize">
+            {node.attribute}={node.value}?
           </span>
         </div>
 
         {/* Connecting line down */}
-        <div className="border-l-2 border-gray-300 h-2"></div>
+        <div className="border-l border-gray-300 h-1"></div>
 
         {/* Branches */}
-        <div className="flex space-x-8">
+        <div className="flex space-x-4">
           {/* Yes Branch */}
-          <div className="flex flex-col items-center space-y-1">
-            <span className="text-xs text-green-600 font-bold">YES</span>
+          <div className="flex flex-col items-center space-y-0.5">
+            <span className="text-xs text-green-600 font-semibold">Y</span>
             {/* Branch line */}
             <div className="flex flex-col items-center">
-              <div className="border-l-2 border-gray-300 h-2"></div>
-              <div className="border-b-2 border-gray-300 w-6"></div>
-              <div className="border-l-2 border-gray-300 h-2"></div>
+              <div className="border-l border-gray-300 h-1"></div>
+              <div className="border-b border-gray-300 w-3"></div>
+              <div className="border-l border-gray-300 h-1"></div>
             </div>
             {node.yes &&
               renderNode(
                 node.yes,
                 depth + 1,
-                isOnPath && hasSelection && matchesCondition
+                isOnPath && (!hasSelection || matchesCondition)
               )}
           </div>
 
           {/* No Branch */}
-          <div className="flex flex-col items-center space-y-1">
-            <span className="text-xs text-red-600 font-bold">NO</span>
+          <div className="flex flex-col items-center space-y-0.5">
+            <span className="text-xs text-red-600 font-semibold">N</span>
             {/* Branch line */}
             <div className="flex flex-col items-center">
-              <div className="border-l-2 border-gray-300 h-2"></div>
-              <div className="border-b-2 border-gray-300 w-6"></div>
-              <div className="border-l-2 border-gray-300 h-2"></div>
+              <div className="border-l border-gray-300 h-1"></div>
+              <div className="border-b border-gray-300 w-3"></div>
+              <div className="border-l border-gray-300 h-1"></div>
             </div>
             {node.no &&
               renderNode(
                 node.no,
                 depth + 1,
-                isOnPath && hasSelection && !matchesCondition
+                isOnPath && (!hasSelection || !matchesCondition)
               )}
           </div>
         </div>
@@ -274,13 +223,13 @@ export function DecisionTree({
   };
 
   return (
-    <div className="overflow-x-auto p-6 bg-gray-50 rounded-lg">
+    <div className="overflow-x-auto p-3 bg-gray-50 rounded-lg">
       <div className="min-w-max flex justify-center">
         <div className="flex flex-col items-center">
-          <div className="mb-4 px-4 py-2 bg-blue-100 border-2 border-blue-300 rounded-lg">
-            <span className="text-sm font-bold text-blue-700">START</span>
+          <div className="mb-2 px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs">
+            <span className="font-semibold text-blue-700">START</span>
           </div>
-          <div className="border-l-2 border-gray-300 h-4"></div>
+          <div className="border-l border-gray-300 h-2"></div>
           {renderNode(tree)}
         </div>
       </div>

@@ -26,6 +26,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
 
 export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
   const { user } = useAuth();
@@ -81,7 +82,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
       setSelections((prev) => {
         const newSelections = { ...prev, [category]: value };
         // TODO
-        question.setSelection(category, value.value || "");
+        question.setSelection(category, value.source || "");
         return newSelections;
       });
       setSelectedRule(null);
@@ -172,7 +173,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 max-w-7xl mx-auto w-full">
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center ">
                 <div className="mb-8 p-6 w-fit h-fit rounded-lg shadow-lg flex items-center justify-center">
                   <MonsterCharacter selections={selections} hovered={hovered} />
                 </div>
@@ -181,7 +182,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                     defaultValue={Object.keys(monsterParts)[0]}
                     className="mt-4"
                   >
-                    <TabsList className="flex flex-wrap justify-center">
+                    <TabsList className="flex justify-center">
                       {Object.keys(monsterParts).map((part) => (
                         <TabsTrigger
                           key={part}
@@ -193,7 +194,11 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                       ))}
                     </TabsList>
                     {Object.keys(monsterParts).map((part) => (
-                      <TabsContent key={part} value={part}>
+                      <TabsContent
+                        key={part}
+                        value={part}
+                        className="w-full h-full"
+                      >
                         {monsterParts[part as MonsterPartType] &&
                           (monsterParts[part as MonsterPartType].length < 4 ? (
                             <div className="grid grid-cols-2 gap-2">
@@ -223,7 +228,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                               )}
                             </div>
                           ) : (
-                            <Carousel className="w-full" opts={{}}>
+                            <Carousel className="z-50" opts={{}}>
                               <CarouselContent className="w-full">
                                 {Array.from({
                                   length: Math.ceil(
@@ -315,19 +320,19 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                 </div>
 
                 <div className="mt-6 flex justify-center gap-4">
-                  <button
+                  <Button
                     onClick={handleReset}
                     className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                   >
                     Reset All
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleSave}
                     className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                   >
                     Save Progress
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleSubmit}
                     disabled={selectedRule === null || !isCorrect}
                     className={`px-6 py-2 rounded-lg transition-colors ${
@@ -337,7 +342,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                     }`}
                   >
                     Submit Answer
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

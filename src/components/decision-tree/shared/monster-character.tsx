@@ -21,7 +21,6 @@ export default function MonsterCharacter({
   selections,
   hovered,
 }: MonsterCharacterProps) {
-  console.log("🔍 selections: ", selections);
   const [canvasSize, setCanvasSize] = useState(calculateCanvasSize());
 
   const updateCanvasSize = useCallback(() => {
@@ -32,8 +31,6 @@ export default function MonsterCharacter({
     window.addEventListener("resize", updateCanvasSize);
     return () => window.removeEventListener("resize", updateCanvasSize);
   }, [updateCanvasSize]);
-
-  console.log("🔍", selections, hovered);
 
   return (
     <Stage width={canvasSize.width} height={canvasSize.height}>
