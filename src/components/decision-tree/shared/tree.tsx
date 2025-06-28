@@ -4,11 +4,9 @@ import { JSX } from "react";
 interface TreeNode {
   type: "decision" | "leaf";
   attribute?: string;
-  value?: string;
-  yes?: TreeNode;
-  no?: TreeNode;
+  children?: Map<string, TreeNode>;
   ruleId?: number;
-  isMatch?: boolean;
+  attributeValue?: string; // For leaf nodes that represent attribute-value pairs
 }
 
 interface TreeProps {
@@ -19,7 +17,10 @@ interface TreeProps {
 }
 
 const buildDecisionTree = (rules: Rule[]): TreeNode => {
-  // Helper function to find matching rule for a combination
+  // Fixed hierarchical order for monster attributes
+  const attributeOrder = ["body", "arm", "legs", "horns", "color"];
+
+  // Helper function to find matching rule for a complete path
   const findMatchingRule = (conditions: Record<string, string>): number => {
     for (const rule of rules) {
       const matches = rule.conditions.every(
@@ -30,71 +31,103 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
     return -1;
   };
 
-  // Extract all unique attributes and their possible values from rules
-  const attributeValues: Record<string, Set<string>> = {};
+  // Helper function to get possible values for an attribute at a given depth
+  // considering only rules that are still possible given current conditions
+  const getValidValuesForAttribute = (
+    attribute: string,
+    currentConditions: Record<string, string>
+  ): string[] => {
+    const validValues = new Set<string>();
 
-  rules.forEach((rule) => {
-    rule.conditions.forEach((condition) => {
-      if (!attributeValues[condition.attribute]) {
-        attributeValues[condition.attribute] = new Set();
+    // Check each rule to see if it's still possible given current conditions
+    rules.forEach((rule) => {
+      // Check if this rule matches all current conditions
+      const ruleMatches = Object.entries(currentConditions).every(
+        ([attr, value]) => {
+          const ruleCondition = rule.conditions.find(
+            (c) => c.attribute === attr
+          );
+          return ruleCondition && ruleCondition.value === value;
+        }
+      );
+
+      if (ruleMatches) {
+        // If rule is still possible, add its value for the target attribute
+        const attributeCondition = rule.conditions.find(
+          (c) => c.attribute === attribute
+        );
+        if (attributeCondition) {
+          validValues.add(attributeCondition.value);
+        }
       }
-      attributeValues[condition.attribute].add(condition.value);
     });
-  });
 
-  // Convert to arrays and sort for consistent ordering
-  const attributes = Object.keys(attributeValues).sort();
-  const valueMap: Record<string, string[]> = {};
-  attributes.forEach((attr) => {
-    valueMap[attr] = Array.from(attributeValues[attr]).sort();
-  });
+    return Array.from(validValues).sort();
+  };
 
-  // Build a tree that properly branches for each value
   const buildTreeRecursive = (
     attributeIndex: number,
     currentConditions: Record<string, string>
   ): TreeNode => {
-    // If we've exhausted all attributes, this is a leaf
-    if (attributeIndex >= attributes.length) {
+    // If we've gone through all attributes, check for a matching rule
+    if (attributeIndex >= attributeOrder.length) {
+      const ruleId = findMatchingRule(currentConditions);
       return {
         type: "leaf",
-        ruleId: findMatchingRule(currentConditions),
+        ruleId: ruleId !== -1 ? ruleId : undefined,
       };
     }
 
-    const currentAttribute = attributes[attributeIndex];
-    const possibleValues = valueMap[currentAttribute];
+    const currentAttribute = attributeOrder[attributeIndex];
 
-    // Create a chain of binary decisions for each value
-    const buildValueChain = (valueIndex: number): TreeNode => {
-      if (valueIndex >= possibleValues.length) {
-        // No more values to check, this means no match for this attribute
-        return {
-          type: "leaf",
-          ruleId: -1,
-        };
-      }
+    // Get only the valid values for this attribute given current conditions
+    const possibleValues = getValidValuesForAttribute(
+      currentAttribute,
+      currentConditions
+    );
 
-      const currentValue = possibleValues[valueIndex];
-
+    // If no valid values, this path doesn't lead to any rules
+    if (possibleValues.length === 0) {
       return {
-        type: "decision",
-        attribute: currentAttribute,
-        value: currentValue,
-        yes: buildTreeRecursive(attributeIndex + 1, {
-          ...currentConditions,
-          [currentAttribute]: currentValue,
-        }),
-        no: buildValueChain(valueIndex + 1), // Try the next value
+        type: "leaf",
+        ruleId: undefined,
       };
+    }
+
+    // Create decision node
+    const node: TreeNode = {
+      type: "decision",
+      attribute: currentAttribute,
+      children: new Map(),
     };
 
-    return buildValueChain(0);
+    // Create children only for valid values
+    possibleValues.forEach((value: string) => {
+      const childConditions = {
+        ...currentConditions,
+        [currentAttribute]: value,
+      };
+
+      const childNode = buildTreeRecursive(attributeIndex + 1, childConditions);
+
+      // Only add the child if it leads to something meaningful
+      if (childNode.type === "leaf" && childNode.ruleId !== undefined) {
+        node.children!.set(value, childNode);
+      } else if (
+        childNode.type === "decision" &&
+        childNode.children &&
+        childNode.children.size > 0
+      ) {
+        node.children!.set(value, childNode);
+      }
+    });
+
+    return node;
   };
 
   // Start building from the first attribute
-  if (attributes.length === 0) {
-    return { type: "leaf", ruleId: -1 };
+  if (attributeOrder.length === 0) {
+    return { type: "leaf", ruleId: undefined };
   }
 
   return buildTreeRecursive(0, {});
@@ -108,126 +141,105 @@ export function DecisionTree({
 }: TreeProps) {
   const tree = buildDecisionTree(rules);
 
-  const getPathToNode = (
-    node: TreeNode,
-    currentSelections: Record<string, string>,
-    parentOnPath: boolean = true
-  ): boolean => {
-    if (node.type === "leaf") {
-      return parentOnPath;
-    }
-
-    if (!node.attribute || !node.value) return false;
-
-    // Check if this decision node matches current selections
-    const hasSelection = currentSelections[node.attribute] !== undefined;
-    const matchesSelection = currentSelections[node.attribute] === node.value;
-
-    // Node is on path if parent is on path AND either:
-    // 1. No selection has been made for this attribute yet, OR
-    // 2. Selection matches this node's value
-    return parentOnPath && (!hasSelection || matchesSelection);
-  };
-
-  const renderNode = (
-    node: TreeNode,
-    depth: number = 0,
-    parentOnPath: boolean = true
-  ): JSX.Element => {
-    const isOnPath = getPathToNode(node, selections, parentOnPath);
+  const renderNode = (node: TreeNode, depth: number = 0): JSX.Element => {
+    const currentPath = Object.keys(selections).length;
+    const isOnActivePath = depth <= currentPath;
 
     if (node.type === "leaf") {
+      const hasRule = node.ruleId !== undefined;
       const isSelected = selectedRule === node.ruleId;
-      const isValidRule = node.ruleId !== -1;
 
       return (
         <div className="flex flex-col items-center">
           <button
-            onClick={() => isValidRule && onRuleSelect(node.ruleId!)}
-            disabled={!isValidRule}
-            className={`px-1 py-0.5 rounded border text-xs min-w-12 ${
+            onClick={() => hasRule && onRuleSelect(node.ruleId!)}
+            disabled={!hasRule}
+            className={`px-2 py-1 rounded border text-xs min-w-16 ${
               isSelected
                 ? "bg-blue-500 text-white border-blue-600"
-                : isValidRule
+                : hasRule
                 ? "bg-green-100 border-green-300 hover:bg-green-200"
                 : "bg-gray-100 border-gray-300 text-gray-500"
-            } ${isOnPath ? "ring-1 ring-yellow-400" : ""}`}
+            } ${isOnActivePath ? "ring-2 ring-yellow-400" : ""}`}
           >
-            {isValidRule ? `R${node.ruleId}` : "X"}
+            {hasRule ? `Rule ${node.ruleId}` : "No Match"}
           </button>
         </div>
       );
     }
 
-    // For decision nodes, check if current selection matches
+    // For decision nodes
     const hasSelection = selections[node.attribute!] !== undefined;
-    const matchesCondition = selections[node.attribute!] === node.value;
-    const shouldHighlight = isOnPath && hasSelection && matchesCondition;
+    const selectedValue = selections[node.attribute!];
+    const shouldHighlight = isOnActivePath && hasSelection;
 
     return (
       <div className="flex flex-col items-center space-y-2">
-        {/* Decision Node */}
+        {/* Attribute Node */}
         <div
-          className={`px-2 py-0.5 rounded border text-center text-xs min-w-20 ${
+          className={`px-3 py-1 rounded border text-center text-sm font-medium min-w-20 ${
             shouldHighlight
-              ? "bg-yellow-200 border-yellow-500 ring-1 ring-yellow-400"
-              : "bg-orange-100 border-orange-300"
+              ? "bg-yellow-200 border-yellow-500 ring-2 ring-yellow-400"
+              : isOnActivePath
+              ? "bg-blue-100 border-blue-300"
+              : "bg-gray-100 border-gray-300"
           }`}
         >
-          <span className="font-medium capitalize">
-            {node.attribute}={node.value}?
-          </span>
+          <span className="capitalize">{node.attribute}</span>
         </div>
 
         {/* Connecting line down */}
-        <div className="border-l border-gray-300 h-1"></div>
+        {node.children && node.children.size > 0 && (
+          <div className="border-l border-gray-300 h-2"></div>
+        )}
 
-        {/* Branches */}
-        <div className="flex space-x-4">
-          {/* Yes Branch */}
-          <div className="flex flex-col items-center space-y-0.5">
-            <span className="text-xs text-green-600 font-semibold">Y</span>
-            {/* Branch line */}
-            <div className="flex flex-col items-center">
-              <div className="border-l border-gray-300 h-1"></div>
-              <div className="border-b border-gray-300 w-3"></div>
-              <div className="border-l border-gray-300 h-1"></div>
-            </div>
-            {node.yes &&
-              renderNode(
-                node.yes,
-                depth + 1,
-                isOnPath && (!hasSelection || matchesCondition)
-              )}
-          </div>
+        {/* Children branches */}
+        {node.children && node.children.size > 0 && (
+          <div className="flex space-x-6">
+            {Array.from(node.children.entries()).map(([value, childNode]) => {
+              const isSelectedPath = selectedValue === value;
+              const showChild = !hasSelection || isSelectedPath;
 
-          {/* No Branch */}
-          <div className="flex flex-col items-center space-y-0.5">
-            <span className="text-xs text-red-600 font-semibold">N</span>
-            {/* Branch line */}
-            <div className="flex flex-col items-center">
-              <div className="border-l border-gray-300 h-1"></div>
-              <div className="border-b border-gray-300 w-3"></div>
-              <div className="border-l border-gray-300 h-1"></div>
-            </div>
-            {node.no &&
-              renderNode(
-                node.no,
-                depth + 1,
-                isOnPath && (!hasSelection || !matchesCondition)
-              )}
+              return (
+                <div
+                  key={value}
+                  className={`flex flex-col items-center space-y-1 ${
+                    !showChild ? "opacity-30" : ""
+                  }`}
+                >
+                  {/* Edge label */}
+                  <div
+                    className={`px-2 py-0.5 rounded text-xs font-semibold ${
+                      isSelectedPath
+                        ? "bg-green-200 text-green-800 border border-green-400"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {value}
+                  </div>
+
+                  {/* Connecting line */}
+                  <div className="border-l border-gray-300 h-2"></div>
+
+                  {/* Child node */}
+                  {showChild && renderNode(childNode, depth + 1)}
+                </div>
+              );
+            })}
           </div>
-        </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="overflow-x-auto p-3 bg-gray-50 rounded-lg">
+    <div className="overflow-x-auto p-4 bg-gray-50 rounded-lg">
       <div className="min-w-max flex justify-center">
         <div className="flex flex-col items-center">
-          <div className="mb-2 px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs">
-            <span className="font-semibold text-blue-700">START</span>
+          <div className="mb-3 px-3 py-1 bg-blue-100 border border-blue-300 rounded text-sm">
+            <span className="font-semibold text-blue-700">
+              Monster Decision Tree
+            </span>
           </div>
           <div className="border-l border-gray-300 h-2"></div>
           {renderNode(tree)}

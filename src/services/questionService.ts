@@ -129,11 +129,12 @@ const mockQuestions: Record<
     info: {
       id: "3",
       title: "Monster Mischief",
-      description: "Find the monster that is causing mischief in the forest.",
+      description:
+        "Find the monster that is causing mischief in the forest using the RBDT-1 decision tree algorithm.",
       type: "decision-tree",
-      difficulty: "Easy",
+      difficulty: "Medium",
       author: "System",
-      estimatedTime: 10,
+      estimatedTime: 15,
       points: 100,
     },
     full: {
@@ -147,61 +148,81 @@ const mockQuestions: Record<
           {
             id: 1,
             conditions: [
-              {
-                attribute: "color",
-                operator: "=",
-                value: "red",
-              },
-              {
-                attribute: "horn",
-                operator: "=",
-                value: "none",
-              },
-              {
-                attribute: "body",
-                operator: "=",
-                value: "A",
-              },
-              {
-                attribute: "arm",
-                operator: "=",
-                value: "A",
-              },
-              {
-                attribute: "leg",
-                operator: "=",
-                value: "A",
-              },
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arm", operator: "=", value: "B" },
+              { attribute: "legs", operator: "=", value: "C" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "red" },
             ],
           },
           {
             id: 2,
             conditions: [
-              {
-                attribute: "color",
-                operator: "=",
-                value: "blue",
-              },
-              {
-                attribute: "horn",
-                operator: "=",
-                value: "small",
-              },
-              {
-                attribute: "body",
-                operator: "=",
-                value: "B",
-              },
-              {
-                attribute: "arm",
-                operator: "=",
-                value: "B",
-              },
-              {
-                attribute: "leg",
-                operator: "=",
-                value: "B",
-              },
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arm", operator: "=", value: "C" },
+              { attribute: "legs", operator: "=", value: "A" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "green" },
+            ],
+          },
+          {
+            id: 3,
+            conditions: [
+              { attribute: "body", operator: "=", value: "D" },
+              { attribute: "legs", operator: "=", value: "E" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "arm", operator: "=", value: "A" },
+              { attribute: "color", operator: "=", value: "blue" },
+            ],
+          },
+          {
+            id: 4,
+            conditions: [
+              { attribute: "body", operator: "=", value: "F" },
+              { attribute: "arm", operator: "=", value: "D" },
+              { attribute: "legs", operator: "=", value: "B" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "color", operator: "=", value: "blue" },
+            ],
+          },
+          {
+            id: 5,
+            conditions: [
+              { attribute: "body", operator: "=", value: "B" },
+              { attribute: "arm", operator: "=", value: "E" },
+              { attribute: "legs", operator: "=", value: "D" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "red" },
+            ],
+          },
+          {
+            id: 6,
+            conditions: [
+              { attribute: "body", operator: "=", value: "B" },
+              { attribute: "arm", operator: "=", value: "B" },
+              { attribute: "legs", operator: "=", value: "A" },
+              { attribute: "horns", operator: "=", value: "none" },
+              { attribute: "color", operator: "=", value: "green" },
+            ],
+          },
+          {
+            id: 7,
+            conditions: [
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arm", operator: "=", value: "A" },
+              { attribute: "legs", operator: "=", value: "C" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "color", operator: "=", value: "red" },
+            ],
+          },
+          {
+            id: 8,
+            conditions: [
+              { attribute: "body", operator: "=", value: "B" },
+              { attribute: "arm", operator: "=", value: "C" },
+              { attribute: "legs", operator: "=", value: "E" },
+              { attribute: "horns", operator: "=", value: "none" },
+              { attribute: "color", operator: "=", value: "blue" },
             ],
           },
         ],

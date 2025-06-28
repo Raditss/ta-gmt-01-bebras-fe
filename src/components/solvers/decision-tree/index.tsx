@@ -81,8 +81,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
 
       setSelections((prev) => {
         const newSelections = { ...prev, [category]: value };
-        // TODO
-        question.setSelection(category, value.source || "");
+        question.setSelection(category, value.value);
         return newSelections;
       });
       setSelectedRule(null);
