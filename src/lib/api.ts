@@ -13,6 +13,16 @@ const axiosInstance = axios.create({
 
 // Add request interceptor to add auth token
 axiosInstance.interceptors.request.use((config) => {
+  console.log('🚨 DEBUG: Main API axios interceptor:', config.method?.toUpperCase(), config.url);
+  
+  // Block any API calls that contain "/new" in the questions endpoint
+  if (config.url?.includes('/questions/new') || config.url?.includes('questions/new')) {
+    console.log('🚨 DEBUG: MAIN API BLOCKING API CALL TO /questions/new');
+    console.log('🚨 DEBUG: Full config:', config);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    throw new Error('BLOCKED: Main API call to /questions/new is not allowed.');
+  }
+  
   const token = localStorage.getItem("auth-storage")
   if (token) {
     const parsedToken = JSON.parse(token).state.token
@@ -145,6 +155,14 @@ export const api = {
   },
 
   async getQuestionById(id: string) {
+    console.log('🚨 DEBUG: api.getQuestionById called with ID:', id);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    // Safeguard: Block calls for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('api.getQuestionById: Cannot fetch question for new or temporary questions');
+    }
+    
     const response = await axiosInstance.get(`/api/questions/${id}`)
     return response.data
   },

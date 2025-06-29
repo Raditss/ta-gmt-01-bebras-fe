@@ -35,58 +35,54 @@ interface ShapeObject {
   [key: string]: unknown;
 }
 
-// Helper function to create question instance (moved outside component to prevent re-creation)
-const createQuestionInstance = (data: CreationData): CfgCreateQuestion => {
-  try {
-    console.log('Creating CFG question instance with data:', data);
-    
-    // Ensure all required fields have valid values
-    const safeData = {
-      title: data.title || 'Untitled Question',
-      description: data.description || '',
-      difficulty: data.difficulty || 'Easy',
-      category: data.category || 'Context-Free Grammar',
-      points: data.points || 100,
-      estimatedTime: data.estimatedTime || 30,
-      author: data.author || 'Unknown',
-      questionId: data.questionId || `temp-${Date.now()}`,
-      creatorId: data.creatorId || 'temp-user'
-    };
-    
-    const instance = new CfgCreateQuestion(
-      safeData.title,
-      safeData.description,
-      safeData.difficulty as 'Easy' | 'Medium' | 'Hard',
-      safeData.category,
-      safeData.points,
-      safeData.estimatedTime,
-      safeData.author,
-      safeData.questionId,
-      safeData.creatorId
-    );
-    
-    console.log('CFG question instance created successfully');
-    return instance;
-  } catch (error) {
-    console.error('Error creating CFG question instance:', error);
-    console.error('Data that caused error:', data);
-    throw error;
-  }
-};
-
 export default function CfgCreator({ questionId, initialData }: BaseCreatorProps) {
+  // ====== ALL HOOKS MUST BE AT THE TOP - NEVER CONDITIONAL ======
+  
+  // Router and auth hooks
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   
-  // IMPORTANT: All hooks must be called at the top level to avoid React error #310
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
+  // createQuestionInstance callback - MUST be declared before useCreation
+  const createQuestionInstance = React.useCallback((data: CreationData): CfgCreateQuestion => {
+    try {
+      // Validate input data
+      if (!data) {
+        throw new Error('CreationData is null or undefined');
+      }
+      
+      // Ensure all required fields have valid values
+      const safeData = {
+        title: data.title || 'Untitled Question',
+        description: data.description || '',
+        difficulty: data.difficulty || 'Easy',
+        category: data.category || 'Context-Free Grammar',
+        points: data.points || 100,
+        estimatedTime: data.estimatedTime || 30,
+        author: data.author || 'Unknown',
+        questionId: data.questionId || `temp-${Date.now()}`,
+        creatorId: data.creatorId || 'temp-user'
+      };
+      
+      const instance = new CfgCreateQuestion(
+        safeData.title,
+        safeData.description,
+        safeData.difficulty as 'Easy' | 'Medium' | 'Hard',
+        safeData.category,
+        safeData.points,
+        safeData.estimatedTime,
+        safeData.author,
+        safeData.questionId,
+        safeData.creatorId
+      );
+      
+      return instance;
+    } catch (error) {
+      console.error('Error creating CFG question instance:', error);
+      throw error;
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, []);
 
-  // Always call useCreation hook - never conditionally
+  // useCreation hook - MUST be called at top level
   const {
     question,
     loading,
@@ -98,13 +94,13 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
     submitCreation,
     markAsChanged
   } = useCreation({
-    questionId,
+    questionId: questionId || 'new', // Provide fallback to prevent undefined
     questionType: 'cfg',
     initialData,
     createQuestionInstance
   });
 
-  // ALL hooks must be called at the top level - move navigation guard here
+  // Navigation guard hook - MUST be at top level
   const {
     showDialog: showNavigationDialog,
     onSaveAndLeave: handleSaveAndLeave,
@@ -127,6 +123,13 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   
   // ALL useEffect hooks at top level
+  // Auth redirect effect
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, authLoading, router]);
+  
   // Sync local state with question model
   useEffect(() => {
     const cfgQuestion = question as CfgCreateQuestion | null;
@@ -158,7 +161,7 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
         markAsChanged();
       }
     }
-     }, [stateCreationMode, endState.length, startState, question, markAsChanged]);
+  }, [stateCreationMode, endState.length, startState, question, markAsChanged]);
 
   // ALL useCallback hooks at top level to avoid React error #310
   // Add a new transformation rule
@@ -170,12 +173,9 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
     const newRule = { id: newRuleId, before: beforeObjects, after: afterObjects };
     const updatedRules = [...rules, newRule];
     
-    console.log('🔄 CFG CREATOR - Adding rule:', newRule);
     cfgQuestion.setRules(updatedRules);
     setRules(updatedRules);
     setShowRuleModal(false);
-    
-    console.log('🔄 CFG CREATOR - Content after rule added:', cfgQuestion.contentToString());
     markAsChanged();
   }, [question, rules, markAsChanged]);
 
@@ -201,7 +201,6 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
     const cfgQuestion = question as CfgCreateQuestion | null;
     if (!cfgQuestion) return;
     
-    console.log('🔄 CFG CREATOR - Setting start state:', newState);
     cfgQuestion.setStartState(newState);
     setStartState(newState);
     
@@ -212,7 +211,6 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
       setEndState(newEndState);
     }
     
-    console.log('🔄 CFG CREATOR - Content after start state change:', cfgQuestion.contentToString());
     markAsChanged();
   }, [question, endState, markAsChanged]);
 
@@ -333,24 +331,13 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
   // Handle manual save
   const handleManualSave = useCallback(async () => {
     try {
-      console.log('💾 CFG CREATOR - Manual save triggered');
-      if (cfgQuestion) {
-        console.log('💾 CFG CREATOR - Current content before save:', cfgQuestion.contentToString());
-        console.log('💾 CFG CREATOR - Current state:', {
-          rulesCount: cfgQuestion.rules?.length || 0,
-          startStateCount: cfgQuestion.startState?.length || 0,
-          endStateCount: cfgQuestion.endState?.length || 0,
-          stepsCount: cfgQuestion.getSteps()?.length || 0
-        });
-      }
-      
       await saveDraft();
       setShowSaveConfirmation(true);
       setTimeout(() => setShowSaveConfirmation(false), 3000);
     } catch (error) {
       console.error('Failed to save draft:', error);
     }
-  }, [saveDraft, cfgQuestion]);
+  }, [saveDraft]);
 
   // Handle submission
   const handleSubmit = useCallback(() => {
@@ -383,10 +370,29 @@ export default function CfgCreator({ questionId, initialData }: BaseCreatorProps
       author: question.getAuthor()
     };
   }, [question]);
-   
-  // Type-safe CFG question accessor
-  const cfgQuestion = question as CfgCreateQuestion | null;
 
+  // ====== CONDITIONAL LOGIC AFTER ALL HOOKS ======
+  
+  // Handle missing questionId AFTER hooks are called
+  if (!questionId) {
+    return (
+      <div className="flex flex-col min-h-screen bg-yellow-400">
+        <div className="flex-1 flex justify-center items-center">
+          <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
+            <h2 className="text-xl font-bold text-red-600 mb-4">Missing Question ID</h2>
+            <p className="text-gray-700 mb-4">No question ID provided</p>
+            <button 
+              onClick={() => window.location.href = '/add-problem'} 
+              className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
+            >
+              Back to Add Problem
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   // Handle loading states AFTER hooks are called
   if (authLoading) {
     return (

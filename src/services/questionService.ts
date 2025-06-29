@@ -78,12 +78,22 @@ const getQuestionTypeFromBackend = (questionTypeId: number): QuestionType => {
 export const questionService = {
   // Fetch question information by ID (without solve data)
   async getQuestionInfo(id: string): Promise<QuestionInfo> {
+    // Safeguard: Block calls for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('questionService.getQuestionInfo: Cannot fetch info for new or temporary questions');
+    }
+    
     const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
     return response.data;
   },
 
   // Fetch full question data by ID (for solving)
   async getQuestionById(id: string): Promise<QuestionResponse> {
+    // Safeguard: Block calls for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('questionService.getQuestionById: Cannot fetch question for new or temporary questions');
+    }
+    
     const response = await api.get(`/questions/${id}`);
     const question = response.data.props; // Extract from props wrapper
     

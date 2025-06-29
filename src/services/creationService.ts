@@ -8,12 +8,23 @@ const api = axios.create({
   baseURL: `${API_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
   withCredentials: true,
 });
 
 // Add request interceptor to add auth token
 api.interceptors.request.use((config) => {
+  // BLOCK any API calls that contain "/new" in the questions endpoint
+  if (config.url?.includes('/questions/new') || config.url?.includes('questions/new')) {
+    throw new Error('BLOCKED: API call to /questions/new is not allowed. Use local creation instead.');
+  }
+  
+  // Also check for literal "new" as question ID
+  if (config.url?.match(/\/questions\/new(\/|$|\?)/)) {
+    throw new Error('BLOCKED: API call with "new" as question ID is not allowed.');
+  }
+  
   const token = localStorage.getItem("auth-storage");
   if (token) {
     try {
@@ -95,10 +106,18 @@ export const creationService = {
     const response = await api.post('/questions', {
       questionTypeId: typeIdMap[questionType],
       content: '{}', // Empty content initially as string
-      isPublished: false // Start as draft
+      isPublished: false, // Start as draft
+      // Include metadata fields
+      title: initialData.title,
+      description: initialData.description,
+      difficulty: initialData.difficulty,
+      category: initialData.category,
+      points: initialData.points,
+      estimatedTime: initialData.estimatedTime,
+      author: initialData.author
     });
     
-    console.log('Create question response:', response.data);
+
     
     const question = response.data;
     
@@ -131,6 +150,11 @@ export const creationService = {
 
   // Fetch creation info by ID
   async getCreationInfo(id: string): Promise<CreationInfo> {
+    // Safeguard: Never call backend for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('Cannot fetch creation info for new or temporary questions. Use local creation instead.');
+    }
+    
     const response = await api.get(`/questions/${id}/info`);
     const question = response.data; // This endpoint returns direct format
     
@@ -139,11 +163,11 @@ export const creationService = {
       title: question.title || `Question ${question.id}`,
       description: question.description || '',
       type: getQuestionTypeFromBackend(question.questionTypeId),
-      difficulty: 'Medium', // Default, should come from question metadata
-      category: 'General', // Default, should come from question metadata
-      points: 100, // Default, should come from question metadata
-      estimatedTime: 15, // Default, should come from question metadata
-      author: question.teacher?.name || 'Unknown',
+      difficulty: (question.difficulty || 'Medium') as 'Easy' | 'Medium' | 'Hard',
+      category: question.category || 'General',
+      points: question.points || 100,
+      estimatedTime: question.estimatedTime || 15,
+      author: question.author || question.teacher?.name || 'Unknown',
       isDraft: !question.isPublished,
       lastModified: new Date(question.updatedAt)
     };
@@ -151,13 +175,13 @@ export const creationService = {
 
   // Fetch full creation data by ID
   async getCreationData(id: string): Promise<CreationData> {
-    console.log('📥 GET CREATION DATA - Fetching question ID:', id);
+    // Safeguard: Never call backend for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('Cannot fetch creation data for new or temporary questions. Use local creation instead.');
+    }
     
     const response = await api.get(`/questions/${id}`);
-    console.log('📥 BACKEND RESPONSE - Raw response:', response.data);
-    
     const question = response.data.props; // Extract from props wrapper
-    console.log('📥 EXTRACTED QUESTION - Question data:', question);
     
     // Check if question is already published/submitted
     if (question.isPublished) {
@@ -165,45 +189,30 @@ export const creationService = {
     }
     
     const processedContent = typeof question.content === 'string' ? question.content : JSON.stringify(question.content);
-    console.log('📥 PROCESSED CONTENT:', {
-      originalContent: question.content,
-      originalType: typeof question.content,
-      processedContent: processedContent,
-      processedLength: processedContent?.length || 0
-    });
     
     const creationData = {
       questionId: question.id.toString(),
       creatorId: question.teacherId.toString(),
       title: question.title || `Question ${question.id}`,
       description: question.description || '',
-      difficulty: 'Medium' as 'Easy' | 'Medium' | 'Hard', // Default, should come from question metadata
-      category: 'General', // Default, should come from question metadata
-      points: 100, // Default, should come from question metadata
-      estimatedTime: 15, // Default, should come from question metadata
-      author: question.teacher?.name || 'Unknown',
+      difficulty: (question.difficulty || 'Medium') as 'Easy' | 'Medium' | 'Hard',
+      category: question.category || 'General',
+      points: question.points || 100,
+      estimatedTime: question.estimatedTime || 15,
+      author: question.author || question.teacher?.name || 'Unknown',
       questionType: getQuestionTypeFromBackend(question.questionTypeId),
       content: processedContent,
       isDraft: !question.isPublished,
       lastModified: new Date(question.updatedAt)
     };
     
-    console.log('📥 FINAL CREATION DATA:', creationData);
     return creationData;
   },
 
   // Save creation progress as draft
   async saveDraft(creation: CreationData): Promise<CreationData> {
-    console.log('🔄 SAVE DRAFT - Starting with creation data:', {
-      questionId: creation.questionId,
-      title: creation.title,
-      isTemp: creation.questionId.startsWith('temp-')
-    });
-
     // If we have a temporary ID, we need to create the question first
     if (creation.questionId.startsWith('temp-')) {
-      console.log('🆕 CREATING NEW QUESTION - Temporary ID detected:', creation.questionId);
-      
       // Map question type to backend type ID
       const typeIdMap: Record<QuestionType, number> = {
         'cfg': 1,
@@ -211,48 +220,79 @@ export const creationService = {
         'cipher': 3
       };
       
+      // TEMPORARY: Send only required fields to test basic functionality
       const requestData = {
         questionTypeId: typeIdMap[creation.questionType],
-        content: creation.content, // Send as string, not parsed object
-        isPublished: false // Start as draft
+        content: creation.content,
+        isPublished: false
       };
       
-      console.log('📤 BACKEND REQUEST - Creating question with data:', requestData);
+      // TODO: Add optional metadata fields once validation is working
+      // if (creation.title) requestData.title = creation.title;
+      
+              console.log('🚀 FRONTEND - Creating new question with data:', {
+          url: '/questions',
+          method: 'POST',
+          questionTypeId: requestData.questionTypeId,
+          isPublished: requestData.isPublished,
+          contentLength: requestData.content?.length || 0,
+          allFields: Object.keys(requestData),
+          fullData: requestData
+        });
       
       const response = await api.post('/questions', requestData);
+      let newQuestion = response.data;
       
-      console.log('📥 BACKEND RESPONSE - Question created:', response.data);
+      console.log('🔍 DEBUGGING - Full response:', response);
+      console.log('🔍 DEBUGGING - Response data:', newQuestion);
       
-      const newQuestion = response.data;
+      // Handle both wrapped and unwrapped response formats
+      if (newQuestion.props) {
+        console.log('🔍 DEBUGGING - Found props wrapper, unwrapping...');
+        newQuestion = newQuestion.props;
+      }
+      
+      console.log('🔍 DEBUGGING - Final question data:', newQuestion);
+      console.log('🔍 DEBUGGING - Question ID type:', typeof newQuestion.id);
+      console.log('🔍 DEBUGGING - Question ID value:', newQuestion.id);
+      
+      if (!newQuestion.id) {
+        console.error('❌ ERROR - No ID received from backend:', newQuestion);
+        throw new Error('Failed to get question ID from backend response');
+      }
+      
+      // Log the created question ID for easy access
+      console.log('📝 QUESTION CREATED - ID:', newQuestion.id);
+      console.log('🔗 Direct URL: http://localhost:3100/add-problem/create/cfg/' + newQuestion.id);
       
       // Return updated creation data with real ID
       const updatedCreation = {
         ...creation,
         questionId: newQuestion.id.toString(),
-        lastModified: new Date(newQuestion.createdAt)
+        lastModified: new Date(newQuestion.createdAt || new Date())
       };
-      
-      console.log('✅ NEW QUESTION CREATED - Updated creation data:', {
-        oldId: creation.questionId,
-        newId: updatedCreation.questionId,
-        backendId: newQuestion.id
-      });
       
       return updatedCreation;
     } else {
-      console.log('📝 UPDATING EXISTING QUESTION - ID:', creation.questionId);
-      
-      // Update existing question
+      // Update existing question - TEMPORARY: only required fields until validation is fixed
       const updateData = {
-        content: creation.content, // Send as string, not parsed object
-        isPublished: false // Keep as draft
+        content: creation.content,
+        isPublished: false
       };
       
-      console.log('📤 BACKEND UPDATE REQUEST - Updating question with data:', updateData);
+      // TODO: Add optional metadata fields once PATCH validation is working
+      // if (creation.title) updateData.title = creation.title;
+      
+      console.log('🚀 FRONTEND - Updating existing question:', {
+        url: `/questions/${creation.questionId}`,
+        method: 'PATCH',
+        questionId: creation.questionId,
+        contentLength: updateData.content?.length || 0,
+        allFields: Object.keys(updateData),
+        fullData: updateData
+      });
       
       await api.patch(`/questions/${creation.questionId}`, updateData);
-      
-      console.log('✅ DRAFT UPDATED - Question ID:', creation.questionId);
       return creation;
     }
   },
@@ -279,8 +319,6 @@ export const creationService = {
   async submitCreation(creation: CreationData): Promise<CreationData> {
     // If we have a temporary ID, we need to create the question first
     if (creation.questionId.startsWith('temp-')) {
-      console.log('Creating new question for submission with temporary ID:', creation.questionId);
-      
       // Map question type to backend type ID
       const typeIdMap: Record<QuestionType, number> = {
         'cfg': 1,
@@ -288,13 +326,27 @@ export const creationService = {
         'cipher': 3
       };
       
-      const response = await api.post('/questions', {
+      // TEMPORARY: Only required fields for new question creation until validation is fixed
+      const requestData = {
         questionTypeId: typeIdMap[creation.questionType],
-        content: creation.content, // Send as string, not parsed object
-        isPublished: true // Publish immediately
-      });
+        content: creation.content,
+        isPublished: true
+      };
       
-      const newQuestion = response.data;
+      // TODO: Add optional metadata fields once POST validation is working
+      // if (creation.title) requestData.title = creation.title;
+      
+      const response = await api.post('/questions', requestData);
+      let newQuestion = response.data;
+      
+      // Handle both wrapped and unwrapped response formats
+      if (newQuestion.props) {
+        newQuestion = newQuestion.props;
+      }
+      
+      // Log the submitted question ID for easy access
+      console.log('📝 QUESTION SUBMITTED - ID:', newQuestion.id);
+      console.log('🔗 Direct URL: http://localhost:3100/add-problem/create/cfg/' + newQuestion.id);
       
       // Return updated creation data with real ID
       const updatedCreation = {
@@ -304,22 +356,40 @@ export const creationService = {
         lastModified: new Date(newQuestion.createdAt)
       };
       
-      console.log('Creation service: New question created and submitted with ID:', newQuestion.id);
       return updatedCreation;
     } else {
-      // Update existing question to published
-      await api.patch(`/questions/${creation.questionId}`, {
-        content: creation.content, // Send as string, not parsed object
-        isPublished: true // Publish the question
+      // Update existing question to published - TEMPORARY: only required fields until validation is fixed
+      const updateData = {
+        content: creation.content,
+        isPublished: true
+      };
+      
+      // TODO: Add optional metadata fields once PATCH validation is working
+      // if (creation.title) updateData.title = creation.title;
+      
+      console.log('🚀 FRONTEND - Submitting existing question:', {
+        url: `/questions/${creation.questionId}`,
+        method: 'PATCH',
+        questionId: creation.questionId,
+        contentLength: updateData.content?.length || 0,
+        allFields: Object.keys(updateData),
+        fullData: updateData
       });
       
-      console.log('Creation service: Question submitted for ID:', creation.questionId);
+      await api.patch(`/questions/${creation.questionId}`, updateData);
+      
+      console.log('📝 QUESTION SUBMITTED - ID:', creation.questionId);
       return { ...creation, isDraft: false };
     }
   },
 
   // Get latest draft for a creation
   async getLatestDraft(creationId: string): Promise<CreationData | null> {
+    // Safeguard: Never call backend for "new" questions
+    if (creationId === 'new' || creationId.startsWith('temp-')) {
+      return null; // No draft exists for new questions
+    }
+    
     try {
       const response = await api.get(`/questions/${creationId}`);
       const question = response.data.props; // Extract from props wrapper
@@ -334,11 +404,11 @@ export const creationService = {
         creatorId: question.teacherId.toString(),
         title: question.title || `Question ${question.id}`,
         description: question.description || '',
-        difficulty: 'Medium',
-        category: 'General',
-        points: 100,
-        estimatedTime: 15,
-        author: question.teacher?.name || 'Unknown',
+        difficulty: (question.difficulty || 'Medium') as 'Easy' | 'Medium' | 'Hard',
+        category: question.category || 'General',
+        points: question.points || 100,
+        estimatedTime: question.estimatedTime || 15,
+        author: question.author || question.teacher?.name || 'Unknown',
         questionType: getQuestionTypeFromBackend(question.questionTypeId),
         content: typeof question.content === 'string' ? question.content : JSON.stringify(question.content),
         isDraft: !question.isPublished,
@@ -351,8 +421,12 @@ export const creationService = {
 
   // Delete creation/draft
   async deleteCreation(id: string): Promise<void> {
+    // Safeguard: Never call backend for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      return;
+    }
+    
     await api.delete(`/questions/${id}`);
-    console.log(`Creation service: Deleted creation with ID: ${id}`);
   },
 
   // List user's creations
@@ -360,16 +434,29 @@ export const creationService = {
     const response = await api.get(`/questions/user/${creatorId}`);
     const questions = response.data;
     
-    return questions.map((question: { id: number; title?: string; description?: string; questionTypeId: number; teacher?: { name: string }; isPublished: boolean; updatedAt: string }) => ({
+    return questions.map((question: { 
+      id: number; 
+      title?: string; 
+      description?: string; 
+      difficulty?: string;
+      category?: string;
+      points?: number;
+      estimatedTime?: number;
+      author?: string;
+      questionTypeId: number; 
+      teacher?: { name: string }; 
+      isPublished: boolean; 
+      updatedAt: string 
+    }) => ({
       id: question.id.toString(),
       title: question.title || `Question ${question.id}`,
       description: question.description || '',
       type: getQuestionTypeFromBackend(question.questionTypeId),
-      difficulty: 'Medium' as const,
-      category: 'General',
-      points: 100,
-      estimatedTime: 15,
-      author: question.teacher?.name || 'Unknown',
+      difficulty: (question.difficulty || 'Medium') as 'Easy' | 'Medium' | 'Hard',
+      category: question.category || 'General',
+      points: question.points || 100,
+      estimatedTime: question.estimatedTime || 15,
+      author: question.author || question.teacher?.name || 'Unknown',
       isDraft: !question.isPublished,
       lastModified: new Date(question.updatedAt)
     })).sort((a: CreationInfo, b: CreationInfo) => b.lastModified.getTime() - a.lastModified.getTime());

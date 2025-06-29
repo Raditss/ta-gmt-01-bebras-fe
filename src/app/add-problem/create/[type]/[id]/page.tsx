@@ -63,6 +63,8 @@ export default function CreateQuestionPage() {
   const id = params?.id as string;
   const [initialData, setInitialData] = React.useState<any>(undefined);
   const [mounted, setMounted] = React.useState(false);
+  
+
 
   // Extract initial data on client side only
   React.useEffect(() => {

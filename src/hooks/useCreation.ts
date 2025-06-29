@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 import { creationService, CreationData } from '@/services/creationService';
 import { ICreateQuestion } from '@/model/interfaces/create-question';
 import { QuestionType } from '@/constants/questionTypes';
@@ -26,6 +27,7 @@ export const useCreation = ({
   createQuestionInstance
 }: CreationHookParams) => {
   const { user } = useAuth();
+  const router = useRouter();
   const [question, setQuestion] = useState<ICreateQuestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,6 @@ export const useCreation = ({
 
         if (isNewQuestion) {
           // Creating a new question - don't make backend calls yet
-          // Use provided initial data or default values for fresh questions
           const defaultData = {
             title: 'Untitled Question',
             description: '',
@@ -73,7 +74,6 @@ export const useCreation = ({
 
           // For new questions, create a temporary local instance
           // Backend creation will happen when user saves draft or submits
-          console.log('🆕 CREATING NEW QUESTION - Using temporary ID, no backend call');
           creationData = {
             questionId: `temp-${Date.now()}`,
             creatorId: user.id.toString(),
@@ -85,18 +85,10 @@ export const useCreation = ({
           };
         } else {
           // Loading existing creation
-          console.log('📖 LOADING EXISTING QUESTION - ID:', questionId);
           try {
             creationData = await creationService.getCreationData(questionId);
-            console.log('📖 LOADED CREATION DATA:', {
-              questionId: creationData.questionId,
-              title: creationData.title,
-              contentLength: creationData.content?.length || 0,
-              content: creationData.content,
-              isDraft: creationData.isDraft
-            });
           } catch (err) {
-            console.error('❌ Failed to load existing creation:', err);
+            console.error('Failed to load existing creation:', err);
             
             // Handle specific error for submitted questions
             if (err instanceof Error && err.message === 'QUESTION_ALREADY_SUBMITTED') {
@@ -112,10 +104,14 @@ export const useCreation = ({
         // Create question instance
         let questionInstance;
         try {
+          console.log('🚨 DEBUG: About to call createQuestionInstance with data:', creationData);
           questionInstance = createQuestionInstance(creationData);
+          console.log('🚨 DEBUG: Successfully created question instance:', questionInstance);
         } catch (createError) {
-          console.error('Failed to create question instance:', createError);
-          setError('Failed to create question instance');
+          console.error('🚨 DEBUG: Failed to create question instance:', createError);
+          console.error('🚨 DEBUG: Error stack:', createError.stack);
+          console.error('🚨 DEBUG: Creation data that caused error:', creationData);
+          setError(`Failed to create question instance: ${createError.message}`);
           setLoading(false);
           return;
         }
@@ -144,27 +140,14 @@ export const useCreation = ({
         }
         
         // Populate from content if available
-        console.log('🔄 POPULATING CONTENT - Checking content:', {
-          hasContent: !!creationData.content,
-          contentLength: creationData.content?.length || 0,
-          content: creationData.content,
-          isEmptyObject: creationData.content === '{}',
-          shouldPopulate: creationData.content && creationData.content !== '{}'
-        });
-        
         if (creationData.content && creationData.content !== '{}') {
           try {
-            console.log('🔄 POPULATING CONTENT - Calling populateFromContentString with:', creationData.content);
             questionInstance.populateFromContentString(creationData.content);
-            console.log('✅ CONTENT POPULATED - Successfully populated question content');
           } catch (contentError) {
-            console.error('❌ CONTENT POPULATION FAILED:', contentError);
             console.warn('Failed to populate content, starting fresh:', contentError);
             // Don't fail the entire initialization if content parsing fails
             // Just log the error and continue with empty content
           }
-        } else {
-          console.log('ℹ️ NO CONTENT TO POPULATE - Starting with empty content');
         }
 
         setQuestion(questionInstance);
@@ -207,13 +190,6 @@ export const useCreation = ({
     const questionId = question.getId();
     const creatorId = user.id;
     
-    console.log('📋 CREATE DATA - Getting question data:', {
-      questionId: questionId,
-      hasQuestionId: !!questionId,
-      questionIdType: typeof questionId,
-      creatorId: creatorId
-    });
-    
     if (!creatorId) {
       throw new Error('User ID is not available');
     }
@@ -243,12 +219,6 @@ export const useCreation = ({
       console.warn('Failed to parse content for validation:', error);
       hasContent = contentString !== '{}';
     }
-    
-    console.log('📋 CONTENT VALIDATION:', {
-      contentString,
-      hasContent,
-      questionType
-    });
 
     const data = {
       questionId: finalQuestionId,
@@ -267,13 +237,6 @@ export const useCreation = ({
       hasContent // Add this for validation
     };
     
-    console.log('📋 CREATE DATA - Final creation data:', {
-      questionId: data.questionId,
-      title: data.title,
-      isTemp: data.questionId.startsWith('temp-'),
-      hasContent: hasContent
-    });
-    
     return data;
   }, [question, user, questionType]);
 
@@ -291,54 +254,43 @@ export const useCreation = ({
       setSaving(true);
       const creationData = createCreationData();
       
-      console.log('🚀 HOOK - Starting save draft process with data:', {
-        questionId: creationData.questionId,
-        title: creationData.title,
-        currentQuestionId: question?.getId(),
-        hasContent: creationData.hasContent
-      });
-      
-      // Warn about empty content but still allow saving
-      if (!creationData.hasContent) {
-        console.warn('⚠️ SAVING EMPTY QUESTION - Question has no meaningful content yet');
-      }
-      
       const updatedCreationData = await creationService.saveDraft(creationData);
       
-      console.log('🔄 HOOK - Received updated creation data:', {
-        originalId: creationData.questionId,
-        updatedId: updatedCreationData.questionId,
-        changed: creationData.questionId !== updatedCreationData.questionId
+      // Update question ID if it was newly created (temp ID was replaced)
+      console.log('🔍 CHECKING REDIRECTION:', {
+        oldId: creationData.questionId,
+        newId: updatedCreationData.questionId,
+        shouldRedirect: creationData.questionId !== updatedCreationData.questionId
       });
       
-      // Update question ID if it was newly created (temp ID was replaced)
       if (creationData.questionId !== updatedCreationData.questionId) {
-        console.log('🔄 HOOK - Updating question ID in model:', {
-          from: creationData.questionId,
-          to: updatedCreationData.questionId,
-          questionBefore: question?.getId()
-        });
+        const newQuestionId = updatedCreationData.questionId;
+        question.setId(newQuestionId);
         
-        question.setId(updatedCreationData.questionId);
+        // Log the created question ID for easy access
+        console.log('📝 QUESTION CREATED - ID:', newQuestionId);
+        console.log('🔗 Direct URL: http://localhost:3100/add-problem/create/cfg/' + newQuestionId);
         
-        console.log('✅ HOOK - Question ID updated in model:', {
-          newQuestionId: question?.getId()
-        });
-      } else {
-        console.log('ℹ️ HOOK - No ID change needed, keeping:', creationData.questionId);
+        // Redirect to the new question ID URL to switch from "new" to "edit" mode
+        const newUrl = `/add-problem/create/${questionType}/${newQuestionId}`;
+        console.log('🔄 REDIRECTING to:', newUrl);
+        
+        // Add a small delay to ensure state updates complete before navigation
+        setTimeout(() => {
+          router.push(newUrl);
+        }, 100);
       }
       
       const now = new Date();
       setLastSavedDraft(now);
       setHasUnsavedChanges(false);
-      console.log('✅ HOOK - Draft saved successfully at:', now);
     } catch (err) {
       console.error('❌ HOOK - Failed to save draft:', err);
       setError('Failed to save draft');
     } finally {
       setSaving(false);
     }
-  }, [question, user, saving, createCreationData]);
+  }, [question, user, saving, createCreationData, questionType, router]);
 
   // Note: Removed auto-save timer - only save on navigation/leave like solve page
 
@@ -407,8 +359,14 @@ export const useCreation = ({
       
       // Update question ID if it was newly created (temp ID was replaced)
       if (creationData.questionId !== updatedCreationData.questionId) {
-        console.log('Updating question ID from', creationData.questionId, 'to:', updatedCreationData.questionId);
-        question.setId(updatedCreationData.questionId);
+        const newQuestionId = updatedCreationData.questionId;
+        console.log('Updating question ID from', creationData.questionId, 'to:', newQuestionId);
+        question.setId(newQuestionId);
+        
+        // For submit, redirect to the problems page or success page instead of edit mode
+        const newUrl = `/add-problem/create/${questionType}/${newQuestionId}`;
+        console.log('🔄 SUBMIT REDIRECT to:', newUrl);
+        router.push(newUrl);
       }
       
       // Mark as published
@@ -423,7 +381,7 @@ export const useCreation = ({
     } finally {
       setSaving(false);
     }
-  }, [question, user, createCreationData]);
+  }, [question, user, createCreationData, questionType, router]);
 
   const markAsChanged = useCallback(() => {
     console.log('Marking creation as changed');
