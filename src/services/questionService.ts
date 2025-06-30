@@ -130,7 +130,7 @@ const mockQuestions: Record<
       id: "3",
       title: "Monster Mischief",
       description:
-        "Find the monster that is causing mischief in the forest using the RBDT-1 decision tree algorithm.",
+        "Find the monster that is causing mischief in the forest using an interactive decision tree visualization.",
       type: "decision-tree",
       difficulty: "Medium",
       author: "System",
@@ -149,7 +149,7 @@ const mockQuestions: Record<
             id: 1,
             conditions: [
               { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arm", operator: "=", value: "B" },
+              { attribute: "arms", operator: "=", value: "B" },
               { attribute: "legs", operator: "=", value: "C" },
               { attribute: "horns", operator: "=", value: "large" },
               { attribute: "color", operator: "=", value: "red" },
@@ -159,7 +159,7 @@ const mockQuestions: Record<
             id: 2,
             conditions: [
               { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arm", operator: "=", value: "C" },
+              { attribute: "arms", operator: "=", value: "C" },
               { attribute: "legs", operator: "=", value: "A" },
               { attribute: "horns", operator: "=", value: "large" },
               { attribute: "color", operator: "=", value: "green" },
@@ -171,7 +171,7 @@ const mockQuestions: Record<
               { attribute: "body", operator: "=", value: "D" },
               { attribute: "legs", operator: "=", value: "E" },
               { attribute: "horns", operator: "=", value: "small" },
-              { attribute: "arm", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "A" },
               { attribute: "color", operator: "=", value: "blue" },
             ],
           },
@@ -179,7 +179,7 @@ const mockQuestions: Record<
             id: 4,
             conditions: [
               { attribute: "body", operator: "=", value: "F" },
-              { attribute: "arm", operator: "=", value: "D" },
+              { attribute: "arms", operator: "=", value: "D" },
               { attribute: "legs", operator: "=", value: "B" },
               { attribute: "horns", operator: "=", value: "small" },
               { attribute: "color", operator: "=", value: "blue" },
@@ -189,7 +189,7 @@ const mockQuestions: Record<
             id: 5,
             conditions: [
               { attribute: "body", operator: "=", value: "B" },
-              { attribute: "arm", operator: "=", value: "E" },
+              { attribute: "arms", operator: "=", value: "E" },
               { attribute: "legs", operator: "=", value: "D" },
               { attribute: "horns", operator: "=", value: "large" },
               { attribute: "color", operator: "=", value: "red" },
@@ -199,7 +199,7 @@ const mockQuestions: Record<
             id: 6,
             conditions: [
               { attribute: "body", operator: "=", value: "B" },
-              { attribute: "arm", operator: "=", value: "B" },
+              { attribute: "arms", operator: "=", value: "B" },
               { attribute: "legs", operator: "=", value: "A" },
               { attribute: "horns", operator: "=", value: "none" },
               { attribute: "color", operator: "=", value: "green" },
@@ -209,7 +209,7 @@ const mockQuestions: Record<
             id: 7,
             conditions: [
               { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arm", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "A" },
               { attribute: "legs", operator: "=", value: "C" },
               { attribute: "horns", operator: "=", value: "small" },
               { attribute: "color", operator: "=", value: "red" },
@@ -219,7 +219,7 @@ const mockQuestions: Record<
             id: 8,
             conditions: [
               { attribute: "body", operator: "=", value: "B" },
-              { attribute: "arm", operator: "=", value: "C" },
+              { attribute: "arms", operator: "=", value: "C" },
               { attribute: "legs", operator: "=", value: "E" },
               { attribute: "horns", operator: "=", value: "none" },
               { attribute: "color", operator: "=", value: "blue" },
@@ -231,7 +231,6 @@ const mockQuestions: Record<
   },
 };
 
-// Mock attempts store - separate completed and draft attempts
 const mockAttempts: {
   drafts: Record<string, AttemptData>;
   completed: Record<string, AttemptData[]>;

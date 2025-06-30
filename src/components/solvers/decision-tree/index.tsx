@@ -280,7 +280,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
               </div>
 
               <div className="xl:col-span-2">
-                <div className="p-6 bg-white rounded-lg shadow-lg">
+                <div className="p-6rounded-lg shadow-lg">
                   <h2 className="text-xl font-semibold mb-4 text-center">
                     Decision Tree
                   </h2>

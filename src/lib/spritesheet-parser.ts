@@ -27,11 +27,15 @@ interface PIXISpritesheetData {
 export class SpritesheetParser {
   private xmlData: string | null = null;
   private sprites: Map<string, SpriteFrame> = new Map();
+  private xmlPath: string | null = null;
 
   async loadXML(xmlPath: string): Promise<void> {
     try {
       const response = await fetch(xmlPath);
       this.xmlData = await response.text();
+      if (this.xmlPath === xmlPath) return;
+      this.xmlPath = xmlPath;
+      this.sprites.clear();
       this.parseXML();
     } catch (error) {
       console.error("Failed to load XML:", error);

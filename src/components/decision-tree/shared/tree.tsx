@@ -1,12 +1,13 @@
 import { Rule } from "@/model/decision-tree/question/model";
-import { JSX } from "react";
+import { useMemo } from "react";
+import ReactECharts from "echarts-for-react";
 
 interface TreeNode {
   type: "decision" | "leaf";
   attribute?: string;
   children?: Map<string, TreeNode>;
   ruleId?: number;
-  attributeValue?: string; // For leaf nodes that represent attribute-value pairs
+  value?: string;
 }
 
 interface TreeProps {
@@ -16,11 +17,34 @@ interface TreeProps {
   selectedRule: number | null;
 }
 
-const buildDecisionTree = (rules: Rule[]): TreeNode => {
-  // Fixed hierarchical order for monster attributes
-  const attributeOrder = ["body", "arm", "legs", "horns", "color"];
+interface EChartsNode {
+  name: string;
+  value?: string;
+  children?: EChartsNode[];
+  itemStyle?: {
+    color?: string;
+    borderColor?: string;
+    borderWidth?: number;
+  };
+  label?: {
+    color?: string;
+    fontWeight?: string;
+  };
+  lineStyle?: {
+    color?: string;
+    width?: number;
+  };
 
-  // Helper function to find matching rule for a complete path
+  // Custom properties for our logic
+  nodeType?: "decision" | "leaf";
+  ruleId?: number;
+  isSelected?: boolean;
+  isOnPath?: boolean;
+}
+
+const buildDecisionTree = (rules: Rule[]): TreeNode => {
+  const attributeOrder = ["body", "arms", "legs", "horns", "color"];
+
   const findMatchingRule = (conditions: Record<string, string>): number => {
     for (const rule of rules) {
       const matches = rule.conditions.every(
@@ -31,17 +55,13 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
     return -1;
   };
 
-  // Helper function to get possible values for an attribute at a given depth
-  // considering only rules that are still possible given current conditions
   const getValidValuesForAttribute = (
     attribute: string,
     currentConditions: Record<string, string>
   ): string[] => {
     const validValues = new Set<string>();
 
-    // Check each rule to see if it's still possible given current conditions
     rules.forEach((rule) => {
-      // Check if this rule matches all current conditions
       const ruleMatches = Object.entries(currentConditions).every(
         ([attr, value]) => {
           const ruleCondition = rule.conditions.find(
@@ -52,7 +72,6 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
       );
 
       if (ruleMatches) {
-        // If rule is still possible, add its value for the target attribute
         const attributeCondition = rule.conditions.find(
           (c) => c.attribute === attribute
         );
@@ -69,7 +88,6 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
     attributeIndex: number,
     currentConditions: Record<string, string>
   ): TreeNode => {
-    // If we've gone through all attributes, check for a matching rule
     if (attributeIndex >= attributeOrder.length) {
       const ruleId = findMatchingRule(currentConditions);
       return {
@@ -79,45 +97,37 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
     }
 
     const currentAttribute = attributeOrder[attributeIndex];
-
-    // Get only the valid values for this attribute given current conditions
     const possibleValues = getValidValuesForAttribute(
       currentAttribute,
       currentConditions
     );
 
-    // If no valid values, this path doesn't lead to any rules
     if (possibleValues.length === 0) {
-      return {
-        type: "leaf",
-        ruleId: undefined,
-      };
+      return { type: "leaf", ruleId: undefined };
     }
 
-    // Create decision node
     const node: TreeNode = {
       type: "decision",
       attribute: currentAttribute,
       children: new Map(),
     };
 
-    // Create children only for valid values
     possibleValues.forEach((value: string) => {
       const childConditions = {
         ...currentConditions,
         [currentAttribute]: value,
       };
-
       const childNode = buildTreeRecursive(attributeIndex + 1, childConditions);
 
-      // Only add the child if it leads to something meaningful
       if (childNode.type === "leaf" && childNode.ruleId !== undefined) {
+        childNode.value = value;
         node.children!.set(value, childNode);
       } else if (
         childNode.type === "decision" &&
         childNode.children &&
         childNode.children.size > 0
       ) {
+        childNode.value = value;
         node.children!.set(value, childNode);
       }
     });
@@ -125,12 +135,101 @@ const buildDecisionTree = (rules: Rule[]): TreeNode => {
     return node;
   };
 
-  // Start building from the first attribute
-  if (attributeOrder.length === 0) {
-    return { type: "leaf", ruleId: undefined };
+  return buildTreeRecursive(0, {});
+};
+
+// Convert to ECharts format
+const convertToEChartsFormat = (
+  tree: TreeNode,
+  selections: Record<string, string>,
+  selectedRule: number | null,
+  path: string[] = []
+): EChartsNode => {
+  const checkIfOnPath = (currentPath: string[]): boolean => {
+    return currentPath.every((condition) => {
+      const [attr, value] = condition.split("=");
+      return selections[attr] === value;
+    });
+  };
+
+  if (tree.type === "leaf") {
+    const hasRule = tree.ruleId !== undefined;
+    const isSelected = selectedRule === tree.ruleId;
+
+    // For leaf nodes, we need to show the final decision that led here
+    // Extract the last decision from the path
+    let leafName = hasRule ? `Rule #${tree.ruleId}` : "No Rule";
+    if (path.length > 0) {
+      const lastDecision = path[path.length - 1];
+      const [attr, value] = lastDecision.split("=");
+      const attrLabel = attr.charAt(0).toUpperCase() + attr.slice(1);
+      leafName = `${attrLabel}: ${value} → ${leafName}`;
+    }
+
+    return {
+      name: leafName,
+      nodeType: "leaf",
+      ruleId: tree.ruleId,
+      isSelected,
+      isOnPath: checkIfOnPath(path),
+      itemStyle: {
+        color: isSelected ? "#3b82f6" : hasRule ? "#dcfce7" : "#f3f4f6",
+        borderColor: isSelected ? "#1d4ed8" : hasRule ? "#16a34a" : "#9ca3af",
+        borderWidth: 2,
+      },
+      label: {
+        color: isSelected ? "#ffffff" : hasRule ? "#15803d" : "#6b7280",
+        fontWeight: "bold",
+      },
+    };
   }
 
-  return buildTreeRecursive(0, {});
+  const children: EChartsNode[] = [];
+  const hasSelection = selections[tree.attribute!] !== undefined;
+  const selectedValue = selections[tree.attribute!];
+
+  tree.children?.forEach((childNode, value) => {
+    const childPath = [...path, `${tree.attribute}=${value}`];
+    const child = convertToEChartsFormat(
+      childNode,
+      selections,
+      selectedRule,
+      childPath
+    );
+
+    // Format: "Attribute: Value" - shows the decision being made
+    const attributeLabel =
+      tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1);
+    child.name = `${attributeLabel}: ${value}`;
+
+    const isSelectedPath = selectedValue === value;
+
+    child.lineStyle = {
+      color: isSelectedPath ? "#16a34a" : hasSelection ? "#cbd5e1" : "#6b7280",
+      width: isSelectedPath ? 3 : 2,
+    };
+
+    children.push(child);
+  });
+
+  return {
+    name:
+      path.length === 0
+        ? "Start"
+        : tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1),
+    children,
+    nodeType: "decision",
+    isOnPath: checkIfOnPath(path),
+    itemStyle: {
+      color: hasSelection ? "#fef3c7" : "#dbeafe",
+      borderColor: hasSelection ? "#f59e0b" : "#3b82f6",
+      borderWidth: 2,
+    },
+    label: {
+      color: hasSelection ? "#92400e" : "#1e40af",
+      fontWeight: "bold",
+    },
+  };
 };
 
 export function DecisionTree({
@@ -139,112 +238,83 @@ export function DecisionTree({
   onRuleSelect,
   selectedRule,
 }: TreeProps) {
-  const tree = buildDecisionTree(rules);
+  const option = useMemo(() => {
+    const tree = buildDecisionTree(rules);
+    const data = convertToEChartsFormat(tree, selections, selectedRule);
 
-  const renderNode = (node: TreeNode, depth: number = 0): JSX.Element => {
-    const currentPath = Object.keys(selections).length;
-    const isOnActivePath = depth <= currentPath;
+    return {
+      tooltip: {
+        trigger: "item",
+        triggerOn: "mousemove",
+      },
+      series: [
+        {
+          type: "tree",
+          data: [data],
+          top: "5%",
+          left: "7%",
+          bottom: "5%",
+          right: "20%",
+          symbolSize: 7,
+          label: {
+            position: "top",
+            verticalAlign: "bottom",
+            align: "center",
+            fontSize: 12,
+            distance: 10,
+          },
 
-    if (node.type === "leaf") {
-      const hasRule = node.ruleId !== undefined;
-      const isSelected = selectedRule === node.ruleId;
+          leaves: {
+            label: {
+              position: "top",
+              verticalAlign: "bottom",
+              align: "center",
+              distance: 10,
+            },
+          },
+          emphasis: {
+            focus: "descendant",
+          },
+          expandAndCollapse: false,
+          animationDuration: 550,
+          animationDurationUpdate: 750,
+          layout: "orthogonal",
+          orient: "LR", // Left to Right
+          roam: true, // Enable zoom and pan
+        },
+      ],
+    };
+  }, [rules, selections, selectedRule]);
 
-      return (
-        <div className="flex flex-col items-center">
-          <button
-            onClick={() => hasRule && onRuleSelect(node.ruleId!)}
-            disabled={!hasRule}
-            className={`px-2 py-1 rounded border text-xs min-w-16 ${
-              isSelected
-                ? "bg-blue-500 text-white border-blue-600"
-                : hasRule
-                ? "bg-green-100 border-green-300 hover:bg-green-200"
-                : "bg-gray-100 border-gray-300 text-gray-500"
-            } ${isOnActivePath ? "ring-2 ring-yellow-400" : ""}`}
-          >
-            {hasRule ? `Rule ${node.ruleId}` : "No Match"}
-          </button>
-        </div>
-      );
-    }
-
-    // For decision nodes
-    const hasSelection = selections[node.attribute!] !== undefined;
-    const selectedValue = selections[node.attribute!];
-    const shouldHighlight = isOnActivePath && hasSelection;
-
-    return (
-      <div className="flex flex-col items-center space-y-2">
-        {/* Attribute Node */}
-        <div
-          className={`px-3 py-1 rounded border text-center text-sm font-medium min-w-20 ${
-            shouldHighlight
-              ? "bg-yellow-200 border-yellow-500 ring-2 ring-yellow-400"
-              : isOnActivePath
-              ? "bg-blue-100 border-blue-300"
-              : "bg-gray-100 border-gray-300"
-          }`}
-        >
-          <span className="capitalize">{node.attribute}</span>
-        </div>
-
-        {/* Connecting line down */}
-        {node.children && node.children.size > 0 && (
-          <div className="border-l border-gray-300 h-2"></div>
-        )}
-
-        {/* Children branches */}
-        {node.children && node.children.size > 0 && (
-          <div className="flex space-x-6">
-            {Array.from(node.children.entries()).map(([value, childNode]) => {
-              const isSelectedPath = selectedValue === value;
-              const showChild = !hasSelection || isSelectedPath;
-
-              return (
-                <div
-                  key={value}
-                  className={`flex flex-col items-center space-y-1 ${
-                    !showChild ? "opacity-30" : ""
-                  }`}
-                >
-                  {/* Edge label */}
-                  <div
-                    className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                      isSelectedPath
-                        ? "bg-green-200 text-green-800 border border-green-400"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
-                  >
-                    {value}
-                  </div>
-
-                  {/* Connecting line */}
-                  <div className="border-l border-gray-300 h-2"></div>
-
-                  {/* Child node */}
-                  {showChild && renderNode(childNode, depth + 1)}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  };
+  const onEvents = useMemo(
+    () => ({
+      click: (params: { data?: EChartsNode }) => {
+        if (params.data?.nodeType === "leaf" && params.data?.ruleId) {
+          onRuleSelect(params.data.ruleId);
+        }
+      },
+    }),
+    [onRuleSelect]
+  );
 
   return (
-    <div className="overflow-x-auto p-4 bg-gray-50 rounded-lg">
-      <div className="min-w-max flex justify-center">
-        <div className="flex flex-col items-center">
-          <div className="mb-3 px-3 py-1 bg-blue-100 border border-blue-300 rounded text-sm">
-            <span className="font-semibold text-blue-700">
-              Monster Decision Tree
-            </span>
-          </div>
-          <div className="border-l border-gray-300 h-2"></div>
-          {renderNode(tree)}
-        </div>
+    <div className="w-full border rounded-lg bg-white p-4">
+      <div className="mb-2 text-sm font-semibold text-gray-700">
+        Monster Decision Tree
       </div>
+      <div className="mb-3 text-xs text-gray-500">
+        {Object.keys(selections).length > 0
+          ? `Selected: ${Object.entries(selections)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(", ")}`
+          : "Click on leaf nodes to select rules • Use mouse wheel to zoom • Drag to pan"}
+      </div>
+      <ReactECharts
+        option={option}
+        onEvents={onEvents}
+        style={{ height: "400px", width: "100%" }}
+        opts={{ renderer: "svg" }}
+      />
     </div>
   );
 }

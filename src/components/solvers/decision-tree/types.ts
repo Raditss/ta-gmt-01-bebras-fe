@@ -8,9 +8,9 @@ export enum MonsterPartType {
   COLOR = "color",
   // EYE_NUMBER = "eye_number",
   BODY = "body",
-  LEG = "leg",
-  ARM = "arm",
-  HORN = "horn",
+  LEG = "legs",
+  ARM = "arms",
+  HORN = "horns",
 }
 
 export const ColorOptions: MonsterPartOptionType[] = [
