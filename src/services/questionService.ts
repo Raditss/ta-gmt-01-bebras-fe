@@ -30,7 +30,7 @@ interface GeneratedAnswerCheck {
   solution: string;
 }
 
-interface CheckResponse {
+export interface CheckResponse {
   isCorrect: boolean;
   points: number;
   streak: number;
@@ -128,27 +128,109 @@ const mockQuestions: Record<
   "3": {
     info: {
       id: "3",
-      title: "Beaver's Dress Code",
+      title: "Monster Mischief",
       description:
-        "Beavers are known for their unique dress code. Help them choose the correct outfit for the day.",
+        "Find the monster that is causing mischief in the forest using an interactive decision tree visualization.",
       type: "decision-tree",
-      difficulty: "Easy",
+      difficulty: "Medium",
       author: "System",
-      estimatedTime: 10,
+      estimatedTime: 15,
       points: 100,
     },
     full: {
       id: "3",
-      title: "Beaver's Dress Code",
+      title: "Monster Mischief",
       isGenerated: false,
       duration: 0,
       type: "decision-tree",
-      content: JSON.stringify({}),
+      content: JSON.stringify({
+        rules: [
+          {
+            id: 1,
+            conditions: [
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "B" },
+              { attribute: "legs", operator: "=", value: "C" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "red" },
+            ],
+          },
+          {
+            id: 2,
+            conditions: [
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "C" },
+              { attribute: "legs", operator: "=", value: "A" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "green" },
+            ],
+          },
+          {
+            id: 3,
+            conditions: [
+              { attribute: "body", operator: "=", value: "D" },
+              { attribute: "legs", operator: "=", value: "E" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "arms", operator: "=", value: "A" },
+              { attribute: "color", operator: "=", value: "blue" },
+            ],
+          },
+          {
+            id: 4,
+            conditions: [
+              { attribute: "body", operator: "=", value: "F" },
+              { attribute: "arms", operator: "=", value: "D" },
+              { attribute: "legs", operator: "=", value: "B" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "color", operator: "=", value: "blue" },
+            ],
+          },
+          {
+            id: 5,
+            conditions: [
+              { attribute: "body", operator: "=", value: "B" },
+              { attribute: "arms", operator: "=", value: "E" },
+              { attribute: "legs", operator: "=", value: "D" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "red" },
+            ],
+          },
+          {
+            id: 6,
+            conditions: [
+              { attribute: "body", operator: "=", value: "B" },
+              { attribute: "arms", operator: "=", value: "B" },
+              { attribute: "legs", operator: "=", value: "A" },
+              { attribute: "horns", operator: "=", value: "none" },
+              { attribute: "color", operator: "=", value: "green" },
+            ],
+          },
+          {
+            id: 7,
+            conditions: [
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "A" },
+              { attribute: "legs", operator: "=", value: "C" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "color", operator: "=", value: "red" },
+            ],
+          },
+          {
+            id: 8,
+            conditions: [
+              { attribute: "body", operator: "=", value: "B" },
+              { attribute: "arms", operator: "=", value: "C" },
+              { attribute: "legs", operator: "=", value: "E" },
+              { attribute: "horns", operator: "=", value: "none" },
+              { attribute: "color", operator: "=", value: "blue" },
+            ],
+          },
+        ],
+      }),
     },
   },
 };
 
-// Mock attempts store - separate completed and draft attempts
 const mockAttempts: {
   drafts: Record<string, AttemptData>;
   completed: Record<string, AttemptData[]>;
