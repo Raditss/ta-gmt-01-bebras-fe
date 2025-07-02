@@ -235,7 +235,10 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                                       .length / 4
                                   ),
                                 }).map((_, pageIndex) => (
-                                  <CarouselItem key={pageIndex}>
+                                  <CarouselItem
+                                    key={pageIndex}
+                                    className="basis-1/3"
+                                  >
                                     <div className="grid grid-cols-2 gap-2">
                                       {monsterParts[part as MonsterPartType]
                                         .slice(

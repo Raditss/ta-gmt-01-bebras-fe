@@ -64,12 +64,14 @@ class CreatorErrorBoundary extends React.Component<
 // Import creators for different question types
 import CfgCreator from "@/components/creators/cfg-creator";
 import DecisionTreeCreator from "@/components/creators/decision-tree-creator";
+import DecisionTree2Creator from "@/components/creators/decision-tree-2-creator";
 
 const creators: Partial<
   Record<QuestionType, React.ComponentType<BaseCreatorProps>>
 > = {
   cfg: CfgCreator,
   "decision-tree": DecisionTreeCreator,
+  "decision-tree-2": DecisionTree2Creator,
 };
 
 export default function CreateQuestionPage() {
