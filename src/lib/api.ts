@@ -13,6 +13,16 @@ const axiosInstance = axios.create({
 
 // Add request interceptor to add auth token
 axiosInstance.interceptors.request.use((config) => {
+  console.log('🚨 DEBUG: Main API axios interceptor:', config.method?.toUpperCase(), config.url);
+  
+  // Block any API calls that contain "/new" in the questions endpoint
+  if (config.url?.includes('/questions/new') || config.url?.includes('questions/new')) {
+    console.log('🚨 DEBUG: MAIN API BLOCKING API CALL TO /questions/new');
+    console.log('🚨 DEBUG: Full config:', config);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    throw new Error('BLOCKED: Main API call to /questions/new is not allowed.');
+  }
+  
   const token = localStorage.getItem("auth-storage");
   if (token) {
     const parsedToken = JSON.parse(token).state.token;
@@ -43,6 +53,43 @@ export interface AuthResponse {
 }
 
 export const api = {
+  // Generic HTTP methods for direct use
+  async get<T = any>(url: string) {
+    console.log('🚨 DEBUG: api.get called with URL:', url);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    // Safeguard: Block calls for "new" questions
+    if (url.includes('/questions/new') || url.includes('questions/new')) {
+      throw new Error('api.get: Cannot fetch question for new or temporary questions');
+    }
+    
+    const response = await axiosInstance.get<T>(`/api${url}`);
+    console.log('🚨 DEBUG: api.get response:', response.data);
+    return response;
+  },
+
+  async post<T = any>(url: string, data?: any) {
+    console.log('🚨 DEBUG: api.post called with URL:', url, 'Data:', data);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    const response = await axiosInstance.post<T>(`/api${url}`, data);
+    console.log('🚨 DEBUG: api.post response:', response.data);
+    return response;
+  },
+
+  async patch<T = any>(url: string, data?: any) {
+    console.log('🚨 DEBUG: api.patch called with URL:', url, 'Data:', data);
+    const response = await axiosInstance.patch<T>(`/api${url}`, data);
+    return response;
+  },
+
+  async delete<T = any>(url: string) {
+    console.log('🚨 DEBUG: api.delete called with URL:', url);
+    const response = await axiosInstance.delete<T>(`/api${url}`);
+    return response;
+  },
+
+  // Auth API
   async login(username: string, password: string): Promise<AuthResponse> {
     const response = await axiosInstance.post<AuthResponse>("/api/auth/login", {
       username,
@@ -81,6 +128,14 @@ export const api = {
   },
 
   async getQuestionById(id: string) {
+    console.log('🚨 DEBUG: api.getQuestionById called with ID:', id);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    // Safeguard: Block calls for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('api.getQuestionById: Cannot fetch question for new or temporary questions');
+    }
+    
     const response = await axiosInstance.get(`/api/questions/${id}`);
     return response.data;
   },

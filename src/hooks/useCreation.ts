@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 import { creationService, CreationData } from '@/services/creationService';
 import { ICreateQuestion } from '@/model/interfaces/create-question';
 import { QuestionType } from '@/constants/questionTypes';
@@ -26,6 +27,7 @@ export const useCreation = ({
   createQuestionInstance
 }: CreationHookParams) => {
   const { user } = useAuth();
+  const router = useRouter();
   const [question, setQuestion] = useState<ICreateQuestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,8 +53,7 @@ export const useCreation = ({
         let creationData: CreationData;
 
         if (isNewQuestion) {
-          // Creating a new question
-          // Use provided initial data or default values for fresh questions
+          // Creating a new question - don't make backend calls yet
           const defaultData = {
             title: 'Untitled Question',
             description: '',
@@ -65,18 +66,36 @@ export const useCreation = ({
 
           const dataToUse = initialData || defaultData;
 
-          creationData = await creationService.createQuestion(
-            user?.id?.toString() || 'temp-user',
+          if (!user?.id) {
+            setError('Please log in to create questions');
+            setLoading(false);
+            return;
+          }
+
+          // For new questions, create a temporary local instance
+          // Backend creation will happen when user saves draft or submits
+          creationData = {
+            questionId: `temp-${Date.now()}`,
+            creatorId: user.id.toString(),
+            ...dataToUse,
             questionType,
-            dataToUse
-          );
+            content: '{}',
+            isDraft: true,
+            lastModified: new Date()
+          };
         } else {
           // Loading existing creation
           try {
             creationData = await creationService.getCreationData(questionId);
           } catch (err) {
             console.error('Failed to load existing creation:', err);
-            setError(`Failed to load question with ID: ${questionId}`);
+            
+            // Handle specific error for submitted questions
+            if (err instanceof Error && err.message === 'QUESTION_ALREADY_SUBMITTED') {
+              setError('This question has already been submitted and cannot be changed.');
+            } else {
+              setError(`Failed to load question with ID: ${questionId}`);
+            }
             setLoading(false);
             return;
           }
@@ -85,26 +104,34 @@ export const useCreation = ({
         // Create question instance
         let questionInstance;
         try {
+          console.log('🚨 DEBUG: About to call createQuestionInstance with data:', creationData);
           questionInstance = createQuestionInstance(creationData);
+          console.log('🚨 DEBUG: Successfully created question instance:', questionInstance);
         } catch (createError) {
-          console.error('Failed to create question instance:', createError);
-          setError('Failed to create question instance');
+          console.error('🚨 DEBUG: Failed to create question instance:', createError);
+          console.error('🚨 DEBUG: Error stack:', createError.stack);
+          console.error('🚨 DEBUG: Creation data that caused error:', creationData);
+          setError(`Failed to create question instance: ${createError.message}`);
           setLoading(false);
           return;
         }
         
         // Set metadata from creation data
         try {
-          questionInstance.setId(creationData.questionId);
-          questionInstance.setCreatorId(creationData.creatorId);
-          questionInstance.setTitle(creationData.title);
-          questionInstance.setDescription(creationData.description);
-          questionInstance.setDifficulty(creationData.difficulty);
-          questionInstance.setCategory(creationData.category);
-          questionInstance.setPoints(creationData.points);
-          questionInstance.setEstimatedTime(creationData.estimatedTime);
-          questionInstance.setAuthor(creationData.author);
-          questionInstance.setIsDraft(creationData.isDraft);
+          if (creationData.questionId) {
+            questionInstance.setId(creationData.questionId);
+          }
+          if (creationData.creatorId) {
+            questionInstance.setCreatorId(creationData.creatorId);
+          }
+          questionInstance.setTitle(creationData.title || 'Untitled Question');
+          questionInstance.setDescription(creationData.description || '');
+          questionInstance.setDifficulty(creationData.difficulty || 'Easy');
+          questionInstance.setCategory(creationData.category || 'General');
+          questionInstance.setPoints(creationData.points || 100);
+          questionInstance.setEstimatedTime(creationData.estimatedTime || 30);
+          questionInstance.setAuthor(creationData.author || 'Unknown');
+          questionInstance.setIsDraft(creationData.isDraft !== false);
         } catch (metaError) {
           console.error('Failed to set question metadata:', metaError);
           setError('Failed to initialize question metadata');
@@ -159,20 +186,55 @@ export const useCreation = ({
       throw new Error('User not authenticated - cannot save');
     }
 
+    // Safely get question data with fallbacks
+    const questionId = question.getId();
+    const creatorId = user.id;
+    
+    if (!creatorId) {
+      throw new Error('User ID is not available');
+    }
+
+    const finalQuestionId = questionId || `temp-${Date.now()}`;
+    const contentString = question.contentToString() || '{}';
+    
+    // Check if content is meaningful (not just empty arrays)
+    let hasContent = false;
+    try {
+      const parsedContent = JSON.parse(contentString);
+      if (parsedContent && typeof parsedContent === 'object') {
+        // For CFG questions, check if there are rules, start state, or end state
+        if (questionType === 'cfg') {
+          hasContent = (
+            (parsedContent.rules && parsedContent.rules.length > 0) ||
+            (parsedContent.startState && parsedContent.startState.length > 0) ||
+            (parsedContent.endState && parsedContent.endState.length > 0) ||
+            (parsedContent.steps && parsedContent.steps.length > 0)
+          );
+        } else {
+          // For other question types, assume any non-empty object has content
+          hasContent = Object.keys(parsedContent).length > 0;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to parse content for validation:', error);
+      hasContent = contentString !== '{}';
+    }
+
     const data = {
-      questionId: question.getId() || `temp-${Date.now()}`,
-      creatorId: user.id.toString(),
-      title: question.getTitle(),
-      description: question.getDescription(),
-      difficulty: question.getDifficulty(),
-      category: question.getCategory(),
-      points: question.getPoints(),
-      estimatedTime: question.getEstimatedTime(),
-      author: question.getAuthor(),
+      questionId: finalQuestionId,
+      creatorId: creatorId.toString(),
+      title: question.getTitle() || 'Untitled Question',
+      description: question.getDescription() || '',
+      difficulty: question.getDifficulty() || 'Easy',
+      category: question.getCategory() || 'General',
+      points: question.getPoints() || 100,
+      estimatedTime: question.getEstimatedTime() || 30,
+      author: question.getAuthor() || 'Unknown',
       questionType,
-      content: question.contentToString(),
-      isDraft: question.getIsDraft(),
-      lastModified: new Date()
+      content: contentString,
+      isDraft: question.getIsDraft() !== false, // Default to true if undefined
+      lastModified: new Date(),
+      hasContent // Add this for validation
     };
     
     return data;
@@ -192,28 +254,43 @@ export const useCreation = ({
       setSaving(true);
       const creationData = createCreationData();
       
-      console.log('Saving draft with data:', creationData);
-      // TODO: Replace with actual backend call
-      // await fetch('/api/questions/drafts', { method: 'POST', body: JSON.stringify(creationData) });
-      await creationService.saveDraft(creationData);
+      const updatedCreationData = await creationService.saveDraft(creationData);
       
-      // Update question ID if it was newly created
-      if (!question.getId() && creationData.questionId) {
-        console.log('Updating question ID from temp to:', creationData.questionId);
-        question.setId(creationData.questionId);
+      // Update question ID if it was newly created (temp ID was replaced)
+      console.log('🔍 CHECKING REDIRECTION:', {
+        oldId: creationData.questionId,
+        newId: updatedCreationData.questionId,
+        shouldRedirect: creationData.questionId !== updatedCreationData.questionId
+      });
+      
+      if (creationData.questionId !== updatedCreationData.questionId) {
+        const newQuestionId = updatedCreationData.questionId;
+        question.setId(newQuestionId);
+        
+        // Log the created question ID for easy access
+        console.log('📝 QUESTION CREATED - ID:', newQuestionId);
+        console.log('🔗 Direct URL: http://localhost:3100/add-problem/create/cfg/' + newQuestionId);
+        
+        // Redirect to the new question ID URL to switch from "new" to "edit" mode
+        const newUrl = `/add-problem/create/${questionType}/${newQuestionId}`;
+        console.log('🔄 REDIRECTING to:', newUrl);
+        
+        // Add a small delay to ensure state updates complete before navigation
+        setTimeout(() => {
+          router.push(newUrl);
+        }, 100);
       }
       
       const now = new Date();
       setLastSavedDraft(now);
       setHasUnsavedChanges(false);
-      console.log('Draft saved successfully at:', now);
     } catch (err) {
-      console.error('Failed to save draft:', err);
+      console.error('❌ HOOK - Failed to save draft:', err);
       setError('Failed to save draft');
     } finally {
       setSaving(false);
     }
-  }, [question, user, saving, createCreationData]);
+  }, [question, user, saving, createCreationData, questionType, router]);
 
   // Note: Removed auto-save timer - only save on navigation/leave like solve page
 
@@ -278,9 +355,22 @@ export const useCreation = ({
       const creationData = createCreationData();
       
       console.log('Submitting creation with data:', creationData);
-      // TODO: Replace with actual backend call
-      // await fetch('/api/questions', { method: 'POST', body: JSON.stringify(creationData) });
-      await creationService.submitCreation(creationData);
+      const updatedCreationData = await creationService.submitCreation(creationData);
+      
+      // Update question ID if it was newly created (temp ID was replaced)
+      if (creationData.questionId !== updatedCreationData.questionId) {
+        const newQuestionId = updatedCreationData.questionId;
+        console.log('Updating question ID from', creationData.questionId, 'to:', newQuestionId);
+        question.setId(newQuestionId);
+        
+        // For submit, redirect to the problems page or success page instead of edit mode
+        const newUrl = `/add-problem/create/${questionType}/${newQuestionId}`;
+        console.log('🔄 SUBMIT REDIRECT to:', newUrl);
+        router.push(newUrl);
+      }
+      
+      // Mark as published
+      question.setIsDraft(false);
       
       setHasUnsavedChanges(false);
       console.log('Creation submitted successfully');
@@ -291,7 +381,7 @@ export const useCreation = ({
     } finally {
       setSaving(false);
     }
-  }, [question, user, createCreationData]);
+  }, [question, user, createCreationData, questionType, router]);
 
   const markAsChanged = useCallback(() => {
     console.log('Marking creation as changed');

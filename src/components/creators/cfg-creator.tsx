@@ -38,17 +38,36 @@ interface ShapeObject {
 // Helper function to create question instance (moved outside component to prevent re-creation)
 const createQuestionInstance = (data: CreationData): CfgCreateQuestion => {
   try {
+    // Validate input data
+    if (!data) {
+      throw new Error('CreationData is null or undefined');
+    }
+    
+    // Ensure all required fields have valid values
+    const safeData = {
+      title: data.title || 'Untitled Question',
+      description: data.description || '',
+      difficulty: data.difficulty || 'Easy',
+      category: data.category || 'Context-Free Grammar',
+      points: data.points || 100,
+      estimatedTime: data.estimatedTime || 30,
+      author: data.author || 'Unknown',
+      questionId: data.questionId || `temp-${Date.now()}`,
+      creatorId: data.creatorId || 'temp-user'
+    };
+    
     const instance = new CfgCreateQuestion(
-      data.title,
-      data.description,
-      data.difficulty,
-      data.category,
-      data.points,
-      data.estimatedTime,
-      data.author,
-      data.questionId,
-      data.creatorId
+      safeData.title,
+      safeData.description,
+      safeData.difficulty as 'Easy' | 'Medium' | 'Hard',
+      safeData.category,
+      safeData.points,
+      safeData.estimatedTime,
+      safeData.author,
+      safeData.questionId,
+      safeData.creatorId
     );
+    
     return instance;
   } catch (error) {
     console.error("Error creating CFG question instance:", error);
@@ -60,6 +79,9 @@ export default function CfgCreator({
   questionId,
   initialData,
 }: BaseCreatorProps) {
+  // ====== ALL HOOKS MUST BE AT THE TOP - NEVER CONDITIONAL ======
+  
+  // Router and auth hooks
   const router = useRouter();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -71,7 +93,7 @@ export default function CfgCreator({
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // Always call useCreation hook - never conditionally
+  // useCreation hook - MUST be called at top level
   const {
     question,
     loading,
@@ -83,13 +105,13 @@ export default function CfgCreator({
     submitCreation,
     markAsChanged,
   } = useCreation({
-    questionId,
+    questionId: questionId || 'new', // Provide fallback to prevent undefined
     questionType: "cfg",
     initialData,
     createQuestionInstance,
   });
 
-  // ALL hooks must be called at the top level - move navigation guard here
+  // Navigation guard hook - MUST be at top level
   const {
     showDialog: showNavigationDialog,
     onSaveAndLeave: handleSaveAndLeave,
@@ -114,6 +136,7 @@ export default function CfgCreator({
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
 
   // ALL useEffect hooks at top level
+  
   // Sync local state with question model
   useEffect(() => {
     const cfgQuestion = question as CfgCreateQuestion | null;
@@ -387,6 +410,28 @@ export default function CfgCreator({
 
   // Type-safe CFG question accessor
 
+  // ====== CONDITIONAL LOGIC AFTER ALL HOOKS ======
+  
+  // Handle missing questionId AFTER hooks are called
+  if (!questionId) {
+    return (
+      <div className="flex flex-col min-h-screen bg-yellow-400">
+        <div className="flex-1 flex justify-center items-center">
+          <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
+            <h2 className="text-xl font-bold text-red-600 mb-4">Missing Question ID</h2>
+            <p className="text-gray-700 mb-4">No question ID provided</p>
+            <button 
+              onClick={() => window.location.href = '/add-problem'} 
+              className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
+            >
+              Back to Add Problem
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   // Handle loading states AFTER hooks are called
   if (authLoading) {
     return (
@@ -445,6 +490,22 @@ export default function CfgCreator({
               {saving ? "Saving..." : "Save Draft"}
             </Button>
           </div>
+
+          {/* Guidance for empty questions */}
+          {rules.length === 0 && startState.length === 0 && (
+            <Alert className="mb-6 bg-blue-50 text-blue-800 border-blue-200">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Getting Started:</strong> To create a CFG question, you need to:
+                <ol className="list-decimal list-inside mt-2 space-y-1">
+                  <li>Add transformation rules using the "Add Rule" button below</li>
+                  <li>Create a start state with initial objects</li>
+                  <li>Define the target end state</li>
+                </ol>
+                Your question will be saved automatically as you add content.
+              </AlertDescription>
+            </Alert>
+          )}
 
           {saving && (
             <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">

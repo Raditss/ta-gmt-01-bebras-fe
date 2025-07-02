@@ -1,6 +1,19 @@
 import { AttemptData } from "@/model/interfaces/question";
 import { QuestionType } from "@/constants/questionTypes";
 import { Question } from "@/model/cfg/question/model";
+import { api } from "@/lib/api";
+
+// Helper function to get question type mapping
+const getQuestionTypeFromBackend = (questionTypeId: number): QuestionType => {
+  // This should be expanded based on your question types
+  const typeMap: Record<number, QuestionType> = {
+    1: 'cfg',
+    2: 'decision-tree',
+    3: 'cipher',
+    4: 'cfg' // fallback
+  };
+  return typeMap[questionTypeId] || 'cfg';
+};
 
 // Question information without the full solve data
 export interface QuestionInfo {
@@ -36,433 +49,233 @@ export interface CheckResponse {
   streak: number;
 }
 
-// Mock data store - other developers can add their mock questions here
-const mockQuestions: Record<
-  string,
-  { info: QuestionInfo; full: QuestionResponse }
-> = {
-  "1": {
-    info: {
-      id: "1",
-      title: "Shape Transformation Challenge",
-      description:
-        "Transform a sequence of shapes into the target sequence using the provided transformation rules. This challenge tests your understanding of Context-Free Grammars and pattern manipulation.",
-      type: "cfg",
-      difficulty: "Hard",
-      author: "System",
-      estimatedTime: 15,
-      points: 100,
-    },
-    full: {
-      id: "1",
-      title: "Shape Transformation Challenge",
-      isGenerated: false,
-      duration: 0,
-      type: "cfg",
-      content: JSON.stringify({
-        startState: [
-          { id: 1, type: "circle" },
-          { id: 2, type: "triangle" },
-          { id: 3, type: "square" },
-          { id: 4, type: "triangle" },
-          { id: 5, type: "triangle" },
-          { id: 6, type: "circle" },
-        ],
-        endState: [
-          { id: 1, type: "star" },
-          { id: 2, type: "hexagon" },
-          { id: 3, type: "star" },
-        ],
-        rules: [
-          {
-            id: "rule1",
-            before: [
-              { id: 1, type: "triangle" },
-              { id: 2, type: "square" },
-              { id: 3, type: "triangle" },
-            ],
-            after: [{ id: 1, type: "hexagon" }],
-          },
-          {
-            id: "rule2",
-            before: [
-              { id: 1, type: "circle" },
-              { id: 2, type: "triangle" },
-            ],
-            after: [{ id: 1, type: "star" }],
-          },
-          {
-            id: "rule3",
-            before: [
-              { id: 2, type: "triangle" },
-              { id: 1, type: "circle" },
-            ],
-            after: [{ id: 1, type: "star" }],
-          },
-        ],
-        steps: [],
-      }),
-    },
-  },
-  "2": {
-    info: {
-      id: "2",
-      title: "Cipher N",
-      description:
-        "Chiper N is a game where you need to help the chiper to find the correct path to the treasure.",
-      type: "cipher",
-      difficulty: "Medium",
-      author: "System",
-      estimatedTime: 15,
-      points: 100,
-    },
-    full: {
-      id: "2",
-      title: "Chiper N",
-      isGenerated: false,
-      duration: 0,
-      type: "cipher",
-      content: JSON.stringify({}),
-    },
-  },
-  "3": {
-    info: {
-      id: "3",
-      title: "Monster Mischief",
-      description:
-        "Find the monster that is causing mischief in the forest using an interactive decision tree visualization.",
-      type: "decision-tree",
-      difficulty: "Medium",
-      author: "System",
-      estimatedTime: 15,
-      points: 100,
-    },
-    full: {
-      id: "3",
-      title: "Monster Mischief",
-      isGenerated: false,
-      duration: 0,
-      type: "decision-tree",
-      content: JSON.stringify({
-        rules: [
-          {
-            id: 1,
-            conditions: [
-              { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arms", operator: "=", value: "B" },
-              { attribute: "legs", operator: "=", value: "C" },
-              { attribute: "horns", operator: "=", value: "large" },
-              { attribute: "color", operator: "=", value: "red" },
-            ],
-          },
-          {
-            id: 2,
-            conditions: [
-              { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arms", operator: "=", value: "C" },
-              { attribute: "legs", operator: "=", value: "A" },
-              { attribute: "horns", operator: "=", value: "large" },
-              { attribute: "color", operator: "=", value: "green" },
-            ],
-          },
-          {
-            id: 3,
-            conditions: [
-              { attribute: "body", operator: "=", value: "D" },
-              { attribute: "legs", operator: "=", value: "E" },
-              { attribute: "horns", operator: "=", value: "small" },
-              { attribute: "arms", operator: "=", value: "A" },
-              { attribute: "color", operator: "=", value: "blue" },
-            ],
-          },
-          {
-            id: 4,
-            conditions: [
-              { attribute: "body", operator: "=", value: "F" },
-              { attribute: "arms", operator: "=", value: "D" },
-              { attribute: "legs", operator: "=", value: "B" },
-              { attribute: "horns", operator: "=", value: "small" },
-              { attribute: "color", operator: "=", value: "blue" },
-            ],
-          },
-          {
-            id: 5,
-            conditions: [
-              { attribute: "body", operator: "=", value: "B" },
-              { attribute: "arms", operator: "=", value: "E" },
-              { attribute: "legs", operator: "=", value: "D" },
-              { attribute: "horns", operator: "=", value: "large" },
-              { attribute: "color", operator: "=", value: "red" },
-            ],
-          },
-          {
-            id: 6,
-            conditions: [
-              { attribute: "body", operator: "=", value: "B" },
-              { attribute: "arms", operator: "=", value: "B" },
-              { attribute: "legs", operator: "=", value: "A" },
-              { attribute: "horns", operator: "=", value: "none" },
-              { attribute: "color", operator: "=", value: "green" },
-            ],
-          },
-          {
-            id: 7,
-            conditions: [
-              { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arms", operator: "=", value: "A" },
-              { attribute: "legs", operator: "=", value: "C" },
-              { attribute: "horns", operator: "=", value: "small" },
-              { attribute: "color", operator: "=", value: "red" },
-            ],
-          },
-          {
-            id: 8,
-            conditions: [
-              { attribute: "body", operator: "=", value: "B" },
-              { attribute: "arms", operator: "=", value: "C" },
-              { attribute: "legs", operator: "=", value: "E" },
-              { attribute: "horns", operator: "=", value: "none" },
-              { attribute: "color", operator: "=", value: "blue" },
-            ],
-          },
-        ],
-      }),
-    },
-  },
-  "4": {
-    info: {
-      id: "4",
-      title: "The Great Escape",
-      description:
-        "The Great Escape is a game where you need to help the character to escape from the maze.",
-      type: "decision-tree-2",
-      difficulty: "Hard",
-      author: "System",
-      estimatedTime: 15,
-      points: 100,
-    },
-    full: {
-      id: "4",
-      title: "The Great Escape",
-      isGenerated: false,
-      duration: 0,
-      type: "decision-tree-2",
-      content: JSON.stringify({
-        finishes: [
-          { id: 1, name: "A" },
-          { id: 2, name: "B" },
-          { id: 3, name: "C" },
-        ],
-        goals: [1, 2],
-        rules: [
-          {
-            id: 1,
-            conditions: [
-              { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arms", operator: "=", value: "B" },
-              { attribute: "legs", operator: "=", value: "C" },
-              { attribute: "horns", operator: "=", value: "large" },
-              { attribute: "color", operator: "=", value: "red" },
-            ],
-            finish: 1,
-          },
-          {
-            id: 2,
-            conditions: [
-              { attribute: "body", operator: "=", value: "A" },
-              { attribute: "arms", operator: "=", value: "C" },
-              { attribute: "legs", operator: "=", value: "A" },
-              { attribute: "horns", operator: "=", value: "large" },
-              { attribute: "color", operator: "=", value: "green" },
-            ],
-            finish: 2,
-          },
-          {
-            id: 3,
-            conditions: [
-              { attribute: "body", operator: "=", value: "D" },
-              { attribute: "legs", operator: "=", value: "E" },
-              { attribute: "horns", operator: "=", value: "small" },
-              { attribute: "arms", operator: "=", value: "A" },
-              { attribute: "color", operator: "=", value: "blue" },
-            ],
-            finish: 3,
-          },
-          // {
-          //   id: 4,
-          //   conditions: [
-          //     { attribute: "body", operator: "=", value: "E" },
-          //     { attribute: "legs", operator: "=", value: "E" },
-          //     { attribute: "horns", operator: "=", value: "small" },
-          //     { attribute: "arms", operator: "=", value: "A" },
-          //     { attribute: "color", operator: "=", value: "dark" },
-          //   ],
-          //   finish: 1,
-          // },
-        ],
-      }),
-    },
-  },
-};
 
-const mockAttempts: {
-  drafts: Record<string, AttemptData>;
-  completed: Record<string, AttemptData[]>;
-} = {
-  drafts: {},
-  completed: {},
-};
 
 export const questionService = {
   // Fetch question information by ID (without solve data)
   async getQuestionInfo(id: string): Promise<QuestionInfo> {
-    // const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
-    // return response.data;
-
-    // Return mock data
-    const mockQuestion = mockQuestions[id];
-    if (!mockQuestion) {
-      throw new Error(`Question with ID ${id} not found`);
+    console.log('🚨 DEBUG: questionService.getQuestionInfo called with ID:', id);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    // Safeguard: Block calls for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('questionService.getQuestionInfo: Cannot fetch info for new or temporary questions');
     }
-    return mockQuestion.info;
+    
+    try {
+      console.log('🚨 DEBUG: About to call api.get for question info');
+      const response = await api.get<QuestionInfo>(`/questions/${id}/info`);
+      console.log('🚨 DEBUG: Successfully got question info response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in questionService.getQuestionInfo:', error);
+      throw error;
+    }
   },
 
   // Fetch full question data by ID (for solving)
   async getQuestionById(id: string): Promise<QuestionResponse> {
-    // const response = await api.get<QuestionResponse>(`/questions/${id}`);
-    // return response.data;
-
-    // Return mock data
-    const mockQuestion = mockQuestions[id];
-    if (!mockQuestion) {
-      throw new Error(`Question with ID ${id} not found`);
+    console.log('🚨 DEBUG: questionService.getQuestionById called with ID:', id);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    // Safeguard: Block calls for "new" questions
+    if (id === 'new' || id.startsWith('temp-')) {
+      throw new Error('questionService.getQuestionById: Cannot fetch question for new or temporary questions');
     }
-    return mockQuestion.full;
+    
+    try {
+      console.log('🚨 DEBUG: About to call api.get for full question');
+      const response = await api.get(`/questions/${id}`);
+      console.log('🚨 DEBUG: Successfully got question response:', response.data);
+      
+      const question = response.data.props; // Extract from props wrapper
+      console.log('🚨 DEBUG: Extracted question from props:', question);
+      
+      // Handle content - it might be JSON string or plain string
+      let content: string;
+      if (typeof question.content === 'string') {
+        // Try to parse as JSON first, if it fails, use as plain string
+        try {
+          JSON.parse(question.content);
+          content = question.content; // It's valid JSON, keep as string
+        } catch {
+          content = question.content; // It's plain text, keep as string
+        }
+      } else {
+        content = JSON.stringify(question.content); // It's already an object
+      }
+      
+      // Transform backend response to frontend format
+      const result = {
+        id: question.id.toString(),
+        title: `Question ${question.id}`,
+        isGenerated: false,
+        duration: 0,
+        type: getQuestionTypeFromBackend(question.questionTypeId),
+        content: content,
+      };
+      
+      console.log('🚨 DEBUG: Transformed question result:', result);
+      return result;
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in questionService.getQuestionById:', error);
+      throw error;
+    }
   },
 
   // Generate a random question
   async generateQuestion(type: QuestionType): Promise<QuestionResponse> {
-    // const response = await api.post<QuestionResponse>(`/questions/generate`, { type });
-    // return response.data;
-
-    // For now, return the first mock question but mark it as generated
-    const mockQuestion = mockQuestions["1"];
-    if (!mockQuestion) {
-      throw new Error("No mock questions available");
-    }
-    return {
-      ...mockQuestion.full,
-      id: `${type}-${Math.random().toString(36).substr(2, 6)}`,
-      isGenerated: true,
-      type,
-    };
+    const response = await api.post<QuestionResponse>(`/questions/generate`, { type });
+    return response.data;
   },
 
   // Save attempt progress
   async saveDraft(attempt: AttemptData): Promise<void> {
-    // Store in mock drafts - only keep the latest draft
-    mockAttempts.drafts[attempt.questionId] = attempt;
-    console.log("Draft saved:", attempt);
+    console.log('🚨 DEBUG: questionService.saveDraft called with attempt:', attempt);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    try {
+      const payload = {
+        questionId: parseInt(attempt.questionId),
+        duration: attempt.duration,
+        answer: JSON.parse(attempt.solution),
+      };
+      console.log('🚨 DEBUG: saveDraft payload:', payload);
+      
+      const response = await api.post('/question-attempts/save-draft', payload);
+      console.log('🚨 DEBUG: saveDraft response:', response.data);
+      console.log('Draft saved to backend successfully:', attempt);
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in saveDraft:', error);
+      throw error;
+    }
   },
 
   // Save attempt synchronously (for beforeunload events)
   saveDraftSync(attempt: AttemptData): void {
-    // Store in mock drafts - only keep the latest draft
-    mockAttempts.drafts[attempt.questionId] = attempt;
-    console.log("Draft saved (sync):", attempt);
+    console.log('🚨 DEBUG: questionService.saveDraftSync called with attempt:', attempt);
+    
+    // For synchronous operations, we'll use navigator.sendBeacon if available
+    if (navigator.sendBeacon) {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      
+      try {
+        const payload = {
+          questionId: parseInt(attempt.questionId),
+          duration: attempt.duration,
+          answer: JSON.parse(attempt.solution),
+        };
+        console.log('🚨 DEBUG: saveDraftSync payload:', payload);
+        
+        const data = JSON.stringify(payload);
+        
+        const success = navigator.sendBeacon(
+          `${API_URL}/api/question-attempts/save-draft`,
+          data
+        );
+        console.log('🚨 DEBUG: sendBeacon success:', success);
+        console.log('Draft saved synchronously via beacon:', attempt);
+      } catch (error) {
+        console.error('🚨 DEBUG: Error in saveDraftSync:', error);
+      }
+    } else {
+      console.warn('navigator.sendBeacon not available, draft not saved synchronously');
+    }
   },
 
   // Submit final attempt
   async submitAttempt(attempt: AttemptData): Promise<void> {
-    // Store in completed attempts
-    if (!mockAttempts.completed[attempt.questionId]) {
-      mockAttempts.completed[attempt.questionId] = [];
+    console.log('🚨 DEBUG: questionService.submitAttempt called with attempt:', attempt);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    try {
+      const payload = {
+        questionId: parseInt(attempt.questionId),
+        duration: attempt.duration,
+        answer: JSON.parse(attempt.solution),
+      };
+      console.log('🚨 DEBUG: submitAttempt payload:', payload);
+      
+      const response = await api.post('/question-attempts/submit', payload);
+      console.log('🚨 DEBUG: submitAttempt response:', response.data);
+      console.log('Attempt submitted to backend successfully:', response.data);
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in submitAttempt:', error);
+      throw error;
     }
-    mockAttempts.completed[attempt.questionId].push(attempt);
-
-    // Clear draft for this question
-    delete mockAttempts.drafts[attempt.questionId];
-
-    console.log("Attempt submitted:", attempt);
-    console.log("Current mock state:", {
-      drafts: mockAttempts.drafts,
-      completed: mockAttempts.completed,
-    });
   },
 
   // Get attempt history for a question
-  async getAttemptHistory(
-    questionId: string,
-    userId: string
-  ): Promise<AttemptData[]> {
-    // Return completed attempts
-    console.log(userId);
-    return mockAttempts.completed[questionId] || [];
+  async getAttemptHistory(questionId: string): Promise<AttemptData[]> {
+    console.log('🚨 DEBUG: questionService.getAttemptHistory called with questionId:', questionId);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    try {
+      const response = await api.get(`/question-attempts/history/${questionId}`);
+      console.log('🚨 DEBUG: getAttemptHistory response:', response.data);
+      
+      // Transform backend response to frontend format
+      const transformed = response.data.map((attempt: { questionId: number; studentId: number; duration: number; isCompleted: boolean; answer: unknown }) => ({
+        questionId: attempt.questionId.toString(),
+        userId: attempt.studentId.toString(),
+        duration: attempt.duration,
+        status: attempt.isCompleted ? 'completed' : 'paused',
+        solution: JSON.stringify(attempt.answer || {}),
+      }));
+      
+      console.log('🚨 DEBUG: getAttemptHistory transformed result:', transformed);
+      return transformed;
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in getAttemptHistory:', error);
+      throw error;
+    }
   },
 
   // Get latest attempt for a question
-  async getLatestAttempt(
-    questionId: string,
-    userId: string
-  ): Promise<AttemptData | null> {
-    // Only return draft attempt if it exists
-    console.log(userId);
-    return mockAttempts.drafts[questionId] || null;
+  async getLatestAttempt(questionId: string): Promise<AttemptData | null> {
+    console.log('🚨 DEBUG: questionService.getLatestAttempt called with questionId:', questionId);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
+    try {
+      const response = await api.get(`/question-attempts/latest/${questionId}`);
+      console.log('🚨 DEBUG: getLatestAttempt response:', response.data);
+      
+      if (!response.data) {
+        console.log('🚨 DEBUG: No latest attempt found, returning null');
+        return null;
+      }
+      
+      // Transform backend response to frontend format
+      const transformed = {
+        questionId: response.data.questionId.toString(),
+        userId: response.data.studentId.toString(),
+        duration: response.data.duration,
+        status: response.data.isCompleted ? 'completed' : 'paused',
+        solution: JSON.stringify(response.data.answer || {}),
+      };
+      
+      console.log('🚨 DEBUG: getLatestAttempt transformed result:', transformed);
+      return transformed;
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in getLatestAttempt:', error);
+      // Return null if no draft found or backend error
+      return null;
+    }
   },
 
   // Check answer for generated questions
-  async checkGeneratedAnswer(
-    data: GeneratedAnswerCheck
-  ): Promise<CheckResponse> {
+  async checkGeneratedAnswer(data: GeneratedAnswerCheck): Promise<CheckResponse> {
+    console.log('🚨 DEBUG: questionService.checkGeneratedAnswer called with data:', data);
+    console.log('🚨 DEBUG: Stack trace:', new Error().stack);
+    
     try {
-      // Get the question data
-      const questionData = mockQuestions["1"]; // Using mock question for now
-      if (!questionData) {
-        throw new Error("Question not found");
-      }
-
-      // Create a Question instance to check the answer
-      const question = new Question(
-        questionData.full.id,
-        questionData.full.title,
-        questionData.full.type,
-        true,
-        questionData.full.duration
-      );
-
-      // Load the question content
-      question.populateQuestionFromString(questionData.full.content);
-
-      // Load the user's solution
-      const solutionData = JSON.parse(data.solution);
-      question.loadSolution(JSON.stringify(solutionData));
-
-      // Use the Question class's checkAnswer method
-      const isCorrect = question.checkAnswer();
-
-      // Calculate points based on correctness and time
-      const points = isCorrect
-        ? Math.max(100 - Math.floor(data.duration / 10), 10)
-        : 0;
-
-      // For now, use a simple streak system
-      const streak = isCorrect ? 1 : 0;
-
-      const response = {
-        isCorrect,
-        points,
-        streak,
-      };
-
-      console.log("Generated question answer check:", {
-        ...data,
-        ...response,
-      });
-
-      return response;
-    } catch (err) {
-      console.error("Error checking answer:", err);
-      throw new Error("Failed to check answer");
+      const response = await api.post('/question-attempts/check-generated-answer', data);
+      console.log('🚨 DEBUG: checkGeneratedAnswer response:', response.data);
+      console.log('Answer checked via backend successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('🚨 DEBUG: Error in checkGeneratedAnswer:', error);
+      throw error;
     }
-  },
+  }
 };
