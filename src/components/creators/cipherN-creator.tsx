@@ -189,7 +189,7 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
     markAsChanged
   } = useCreation({
     questionId,
-    questionType: 'cipher',
+    questionType: 'cipher-n',
     initialData,
     createQuestionInstance
   });
@@ -458,7 +458,14 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
     };
     
     // Calculate answer if we have a question plaintext
-    let answer = { encrypted: '', steps: [] };
+    let answer: { encrypted: string; steps: Array<{
+      letter: string;
+      from: number;
+      rotation: number;
+      to: number;
+      pos: number;
+      code: string;
+    }> } = { encrypted: '', steps: [] };
     if (questionData.plaintext.trim()) {
       answer = encryptMessage(questionData.plaintext);
     }

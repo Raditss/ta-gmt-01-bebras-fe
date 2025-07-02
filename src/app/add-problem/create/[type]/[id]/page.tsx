@@ -65,13 +65,30 @@ class CreatorErrorBoundary extends React.Component<
 import CfgCreator from "@/components/creators/cfg-creator";
 import DecisionTreeCreator from "@/components/creators/decision-tree-creator";
 import DecisionTree2Creator from "@/components/creators/decision-tree-2-creator";
+import CipherNCreator from "@/components/creators/cipherN-creator";
+import RingCipherCreator from "@/components/creators/ring-cipher-creator";
 
 const creators: Partial<
   Record<QuestionType, React.ComponentType<BaseCreatorProps>>
 > = {
-  cfg: CfgCreator,
+  "cfg": CfgCreator,
   "decision-tree": DecisionTreeCreator,
   "decision-tree-2": DecisionTree2Creator,
+  "cipher-n": CipherNCreator,
+  "ring-cipher": RingCipherCreator,
+};
+
+const transformInitialData = (data: QuestionInfo | null) => {
+  if (!data) return undefined;
+  return {
+    title: data.title,
+    description: data.description,
+    difficulty: data.difficulty,
+    category: "",
+    points: data.points,
+    estimatedTime: data.estimatedTime,
+    author: data.author,
+  };
 };
 
 export default function CreateQuestionPage() {
@@ -102,6 +119,8 @@ export default function CreateQuestionPage() {
 
       const extractedData = title
         ? {
+            id,
+            type,
             title,
             description: description || "",
             difficulty: difficulty || "Easy",
@@ -147,14 +166,14 @@ export default function CreateQuestionPage() {
     }
     return (
       <CreatorErrorBoundary questionId={id} type={type}>
-        <DefaultCreator questionId={id} initialData={initialData} />
+        <DefaultCreator questionId={id} initialData={transformInitialData(initialData)} />
       </CreatorErrorBoundary>
     );
   }
 
   return (
     <CreatorErrorBoundary questionId={id} type={type}>
-      <Creator questionId={id} initialData={initialData} />
+      <Creator questionId={id} initialData={transformInitialData(initialData)} />
     </CreatorErrorBoundary>
   );
 }

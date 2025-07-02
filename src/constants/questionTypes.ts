@@ -1,8 +1,9 @@
 export type QuestionType =
   | "cfg"
   | "decision-tree"
-  | "cipher"
-  | "decision-tree-2";
+  | "cipher-n"
+  | "decision-tree-2"
+  | "ring-cipher"
 
 export interface QuestionTypeInfo {
   type: QuestionType;
@@ -31,11 +32,11 @@ export const QUESTION_TYPES: QuestionTypeInfo[] = [
     color: "bg-green-100 hover:bg-green-200",
   },
   {
-    type: "cipher",
-    id: "cipher",
-    label: "Cipher",
-    title: "Cipher",
-    description: "Solve encryption and decryption challenges",
+    type: "cipher-n",
+    id: "cipher-n",
+    label: "Cipher-n",
+    title: "Cipher-n",
+    description: "Solve encryption challenges using n-sided polygons",
     color: "bg-purple-100 hover:bg-purple-200",
   },
   {
@@ -45,5 +46,13 @@ export const QUESTION_TYPES: QuestionTypeInfo[] = [
     title: "Decision Tree 2",
     description: "Determine the finish of the character",
     color: "bg-red-100 hover:bg-red-200",
+  },
+  {
+    type: "ring-cipher",
+    id: "ring-cipher",
+    label: "Ring Cipher",
+    title: "Ring Cipher",
+    description: "Solve encryption challenges using ring ciphers",
+    color: "bg-orange-100 hover:bg-orange-200",
   },
 ];

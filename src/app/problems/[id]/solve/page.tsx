@@ -15,7 +15,8 @@ const solvers: Record<QuestionType, ComponentType<BaseSolverProps>> = {
   "decision-tree-2": dynamic(
     () => import("@/components/solvers/decision-tree-2")
   ),
-  cipher: dynamic(() => import("@/components/solvers/not-implemented")),
+  "cipher-n": dynamic(() => import("@/components/solvers/cipherN-solver")),
+  "ring-cipher": dynamic(() => import("@/components/solvers/ring-cipher-solver")),
 };
 
 export default function SolvePage() {

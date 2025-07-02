@@ -218,7 +218,7 @@ export default function ProblemsPage() {
                   {filteredQuestions.map((question) => (
                     <ProblemCard
                       key={`${question.props.id}-${question.props.questionTypeId}`}
-                      title={question.props.content}
+                      title={`${question.props.questionType.name} Challenge #${question.props.id}`}
                       author={question.props.teacher.name}
                       difficulty="Medium" // TODO: Add difficulty when available
                       category={question.props.questionType.name}

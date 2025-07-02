@@ -109,7 +109,7 @@ const mockQuestions: Record<
     id: "2",
     title: "Octagon Cipher Challenge",
     description: "Encrypt messages using an 8-sided polygon with rotating arrows. Each letter is encoded using rotation and position numbers in a clockwise cipher system.",
-    type: "cipher",
+    type: "cipher-n",
     difficulty: "Medium",
     author: "System",
     estimatedTime: 12,
@@ -120,7 +120,7 @@ const mockQuestions: Record<
     title: "Octagon Cipher Challenge",
     isGenerated: true,
     duration: 0,
-    type: "cipher",
+    type: "cipher-n",
     content: JSON.stringify({
       problemType: "polygon_cipher",
       config: {
@@ -347,6 +347,66 @@ const mockQuestions: Record<
         ],
       }),
     },
+  },
+  "5": {
+    info: {
+      id: "5",
+      title: "Ring Cipher Challenge",
+      description: "Encrypt messages using concentric rings with rotating letters. Each letter is encoded using ring number and rotation steps in a clockwise cipher system.",
+      type: "ring-cipher",
+      difficulty: "Medium",
+      author: "System",
+      estimatedTime: 15,
+      points: 120
+    },
+    full: {
+      id: "5",
+      title: "Ring Cipher Challenge",
+      isGenerated: true,
+      duration: 0,
+      type: "ring-cipher",
+      content: JSON.stringify({
+        problemType: "ring_cipher",
+        config: {
+          ringCount: 3,
+          markerPosition: 0
+        },
+        rings: [
+          { id: 1, letters: ["A", "E", "I", "O", "U", "Y"], currentPosition: 0 },
+          { id: 2, letters: ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M"], currentPosition: 0 },
+          { id: 3, letters: ["N", "P", "Q", "R", "S", "T", "V", "W", "X", "Z"], currentPosition: 0 }
+        ],
+        instructions: [
+          "Three concentric rings contain different groups of letters.",
+          "A stationary marker points at the 12 o'clock position.",
+          "All rings start with their first letter at the marker.",
+          "Each letter is encoded as two numbers:",
+          "• First number: which ring the letter is on (1, 2, or 3)",
+          "• Second number: how many steps clockwise that ring must rotate to bring the letter to the marker",
+          "After encryption, the ring stays in its new position for the next letter."
+        ],
+        example: {
+          plaintext: "HELLO",
+          encrypted: "23-10-24-24-13",
+          explanation: "H→Ring 2, rotate 3 steps = 23; E→Ring 1, already at position = 10; etc."
+        },
+        question: {
+          task: "encrypt",
+          plaintext: "WATER",
+          prompt: "What is the encrypted message for WATER?"
+        },
+        answer: {
+          encrypted: "37-10-37-11-38",
+          steps: [
+            { letter: "W", ringId: 3, initialPosition: 0, stepsToRotate: 7, finalPosition: 7, code: "37" },
+            { letter: "A", ringId: 1, initialPosition: 0, stepsToRotate: 0, finalPosition: 0, code: "10" },
+            { letter: "T", ringId: 3, initialPosition: 7, stepsToRotate: 7, finalPosition: 4, code: "37" },
+            { letter: "E", ringId: 1, initialPosition: 0, stepsToRotate: 1, finalPosition: 1, code: "11" },
+            { letter: "R", ringId: 3, initialPosition: 4, stepsToRotate: 8, finalPosition: 2, code: "38" }
+          ]
+        }
+      })
+    }
   },
 };
 
