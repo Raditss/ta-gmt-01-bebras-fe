@@ -229,6 +229,80 @@ const mockQuestions: Record<
       }),
     },
   },
+  "4": {
+    info: {
+      id: "4",
+      title: "The Great Escape",
+      description:
+        "The Great Escape is a game where you need to help the character to escape from the maze.",
+      type: "decision-tree-2",
+      difficulty: "Hard",
+      author: "System",
+      estimatedTime: 15,
+      points: 100,
+    },
+    full: {
+      id: "4",
+      title: "The Great Escape",
+      isGenerated: false,
+      duration: 0,
+      type: "decision-tree-2",
+      content: JSON.stringify({
+        finishes: [
+          { id: 1, name: "A" },
+          { id: 2, name: "B" },
+          { id: 3, name: "C" },
+        ],
+        goals: [1, 2],
+        rules: [
+          {
+            id: 1,
+            conditions: [
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "B" },
+              { attribute: "legs", operator: "=", value: "C" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "red" },
+            ],
+            finish: 1,
+          },
+          {
+            id: 2,
+            conditions: [
+              { attribute: "body", operator: "=", value: "A" },
+              { attribute: "arms", operator: "=", value: "C" },
+              { attribute: "legs", operator: "=", value: "A" },
+              { attribute: "horns", operator: "=", value: "large" },
+              { attribute: "color", operator: "=", value: "green" },
+            ],
+            finish: 2,
+          },
+          {
+            id: 3,
+            conditions: [
+              { attribute: "body", operator: "=", value: "D" },
+              { attribute: "legs", operator: "=", value: "E" },
+              { attribute: "horns", operator: "=", value: "small" },
+              { attribute: "arms", operator: "=", value: "A" },
+              { attribute: "color", operator: "=", value: "blue" },
+            ],
+            finish: 3,
+          },
+          // {
+          //   id: 4,
+          //   conditions: [
+          //     { attribute: "body", operator: "=", value: "E" },
+          //     { attribute: "legs", operator: "=", value: "E" },
+          //     { attribute: "horns", operator: "=", value: "small" },
+          //     { attribute: "arms", operator: "=", value: "A" },
+          //     { attribute: "color", operator: "=", value: "dark" },
+          //   ],
+          //   finish: 1,
+          // },
+        ],
+      }),
+    },
+  },
 };
 
 const mockAttempts: {

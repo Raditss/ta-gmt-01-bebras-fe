@@ -12,6 +12,9 @@ import DecisionTreeSolver from "@/components/solvers/decision-tree";
 const solvers: Record<QuestionType, ComponentType<BaseSolverProps>> = {
   cfg: dynamic(() => import("@/components/solvers/cfg-solver")),
   "decision-tree": DecisionTreeSolver,
+  "decision-tree-2": dynamic(
+    () => import("@/components/solvers/decision-tree-2")
+  ),
   cipher: dynamic(() => import("@/components/solvers/not-implemented")),
 };
 
