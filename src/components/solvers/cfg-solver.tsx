@@ -141,24 +141,19 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
 
       // Set attempt data and submit
       question.setAttemptData(String(user.id), duration, "completed");
-      await questionService.submitAttempt(question.getAttemptData());
+      const result = await questionService.submitAttempt(question.getAttemptData());
 
-      // Check answer using Question class's method
-      const isCorrect = question.checkAnswer();
+      console.log('🚨 DEBUG: Submit result from backend:', result);
 
-      // Calculate points based on correctness and time
-      const points = isCorrect
-        ? Math.max(100 - Math.floor(duration / 10), 10)
-        : 0;
-
-      // For now, use a simple streak system
-      const streak = isCorrect ? 1 : 0;
-
+      // Use the backend response for scoring
       setSubmissionResult({
-        isCorrect,
-        points,
-        streak,
+        isCorrect: result.isCorrect,
+        points: result.points, // Use scoreEarned from backend
+        streak: 1, // Simple streak for now
         timeTaken: duration,
+        explanation: result.scoringDetails?.explanation || '',
+        newTotalScore: result.scoringDetails?.newTotalScore || 0,
+        questionsCompleted: result.scoringDetails?.questionsCompleted || 0,
       });
     } catch (err) {
       console.error("Failed to submit answer:", err);

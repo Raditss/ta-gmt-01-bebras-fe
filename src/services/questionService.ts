@@ -184,7 +184,7 @@ export const questionService = {
   },
 
   // Submit final attempt
-  async submitAttempt(attempt: AttemptData): Promise<void> {
+  async submitAttempt(attempt: AttemptData): Promise<any> {
     console.log('🚨 DEBUG: questionService.submitAttempt called with attempt:', attempt);
     console.log('🚨 DEBUG: Stack trace:', new Error().stack);
     
@@ -198,7 +198,8 @@ export const questionService = {
       
       const response = await api.post('/question-attempts/submit', payload);
       console.log('🚨 DEBUG: submitAttempt response:', response.data);
-      console.log('Attempt submitted to backend successfully:', response.data);
+      
+      return response.data; // Return the backend response
     } catch (error) {
       console.error('🚨 DEBUG: Error in submitAttempt:', error);
       throw error;

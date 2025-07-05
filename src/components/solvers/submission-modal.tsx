@@ -13,7 +13,9 @@ interface SubmissionResult {
   points: number;
   streak: number;
   timeTaken: number;
-  // Add other statistics as needed
+  explanation?: string;
+  newTotalScore?: number;
+  questionsCompleted?: number;
 }
 
 interface SubmissionModalProps {
@@ -66,14 +68,28 @@ export function SubmissionModal({
                 <p className="text-lg font-semibold">{result.points}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Current Streak</p>
-                <p className="text-lg font-semibold">{result.streak}</p>
-              </div>
-              <div>
                 <p className="text-sm font-medium text-gray-500">Time Taken</p>
                 <p className="text-lg font-semibold">{Math.floor(result.timeTaken / 60)}m {result.timeTaken % 60}s</p>
               </div>
+              {result.newTotalScore !== undefined && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Total Score</p>
+                  <p className="text-lg font-semibold">{result.newTotalScore}</p>
+                </div>
+              )}
+              {result.questionsCompleted !== undefined && (
+                <div>
+                  <p className="text-sm font-medium text-gray-500">Questions Completed</p>
+                  <p className="text-lg font-semibold">{result.questionsCompleted}</p>
+                </div>
+              )}
             </div>
+            {result.explanation && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-700 mb-1">Scoring Details</p>
+                <p className="text-sm text-gray-600">{result.explanation}</p>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button onClick={onClose}>
