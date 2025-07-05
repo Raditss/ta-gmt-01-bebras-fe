@@ -373,7 +373,6 @@ export function DecisionTree2({
       tooltip: {
         trigger: "item",
         triggerOn: "mousemove",
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         formatter: (params: any) => {
           const data = params.data;
           if (!data) return params.name || "Unknown";
