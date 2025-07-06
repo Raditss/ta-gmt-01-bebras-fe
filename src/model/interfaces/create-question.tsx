@@ -4,7 +4,7 @@ export abstract class ICreateQuestion {
     private creatorId?: string;
     private title: string;
     private description: string;
-    private difficulty: 'Easy' | 'Medium' | 'Hard';
+    private difficulty: string;
     private category: string;
     private points: number;
     private estimatedTime: number;
@@ -13,7 +13,7 @@ export abstract class ICreateQuestion {
     constructor(
         title: string,
         description: string = '',
-        difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy',
+        difficulty: string = 'EASY',
         category: string = '',
         points: number = 0,
         estimatedTime: number = 0,
@@ -67,7 +67,7 @@ export abstract class ICreateQuestion {
     public setTitle(title: string): void {
         this.title = title;
     }
-
+    
     public getDescription(): string {
         return this.description;
     }
@@ -75,15 +75,15 @@ export abstract class ICreateQuestion {
     public setDescription(description: string): void {
         this.description = description;
     }
-
-    public getDifficulty(): 'Easy' | 'Medium' | 'Hard' {
+    
+    public getDifficulty(): string {
         return this.difficulty;
     }
 
-    public setDifficulty(difficulty: 'Easy' | 'Medium' | 'Hard'): void {
+    public setDifficulty(difficulty: string): void {
         this.difficulty = difficulty;
     }
-
+    
     public getCategory(): string {
         return this.category;
     }
@@ -99,7 +99,7 @@ export abstract class ICreateQuestion {
     public setPoints(points: number): void {
         this.points = points;
     }
-
+    
     public getEstimatedTime(): number {
         return this.estimatedTime;
     }

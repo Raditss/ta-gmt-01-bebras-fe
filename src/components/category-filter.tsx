@@ -2,12 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { FilterGroup, FilterOption } from "@/components/ui/filter-group"
-import { QUESTION_TYPES } from "@/constants/questionTypes"
-
-const categoryOptions: FilterOption[] = QUESTION_TYPES.map(type => ({
-  id: type.id,
-  label: type.label
-}));
+import { api } from "@/lib/api"
 
 interface CategoryFilterProps {
   selectedCategories?: Record<string, boolean>;
@@ -15,12 +10,46 @@ interface CategoryFilterProps {
 }
 
 export function CategoryFilter({ selectedCategories, onCategoryChange }: CategoryFilterProps = {}) {
-  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Record<string, boolean>>(
-    QUESTION_TYPES.reduce((acc, type) => ({
-      ...acc,
-      [type.id]: type.id === 'cfg'
-    }), {})
-  );
+  const [categoryOptions, setCategoryOptions] = useState<FilterOption[]>([]);
+  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const fetchQuestionTypes = async () => {
+      try {
+        const questionTypes = await api.getQuestionTypes();
+        const options = questionTypes.map(type => ({
+          id: type.id.toString(),
+          label: type.name
+        }));
+        setCategoryOptions(options);
+        
+        // Initialize all categories as selected
+        const initialSelection = options.reduce((acc, option) => {
+          acc[option.id] = true;
+          return acc;
+        }, {} as Record<string, boolean>);
+        setInternalSelectedCategories(initialSelection);
+      } catch (error) {
+        console.error('Failed to fetch question types:', error);
+        // Fallback to hardcoded values
+        const fallbackOptions = [
+          { id: "1", label: "Context-Free Grammar" },
+          { id: "2", label: "Multiple Choice" },
+          { id: "3", label: "True/False" },
+          { id: "4", label: "Short Answer" },
+        ];
+        setCategoryOptions(fallbackOptions);
+        setInternalSelectedCategories({
+          "1": true,
+          "2": true,
+          "3": true,
+          "4": true,
+        });
+      }
+    };
+
+    fetchQuestionTypes();
+  }, []);
 
   const isControlled = selectedCategories !== undefined && onCategoryChange !== undefined;
 

@@ -10,24 +10,15 @@ import { DifficultyFilter } from "@/components/difficulty-filter"
 import { MainNavbar } from "@/components/main-navbar"
 import { useAuth } from "@/lib/auth"
 import { useRouter } from "next/navigation"
-import { QuestionType, QUESTION_TYPES } from "@/constants/questionTypes"
+import { QuestionType as ConstantQuestionType, QUESTION_TYPES } from "@/constants/questionTypes"
+import { QuestionType } from "@/lib/api"
 import { QuestionTypeModal } from "@/components/question-type-modal"
 import { questionService } from "@/services/questionService"
 import { api } from "@/lib/api"
 import Link from "next/link"
 import { Settings } from "lucide-react"
 
-interface QuestionTypeData {
-  id: number
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
-}
 
-interface QuestionTypeResponse {
-  props: QuestionTypeData
-}
 
 interface Teacher {
   id: number
@@ -42,7 +33,13 @@ interface Question {
     questionTypeId: number
     teacherId: number
     isPublished: boolean
-    questionType: QuestionTypeData
+    description: string
+    difficulty: string
+    category: string
+    points: number
+    estimatedTime: number
+    author: string
+    questionType: QuestionType
     createdAt: string
     updatedAt: string
     teacher: Teacher
@@ -52,7 +49,7 @@ interface Question {
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false)
   const [questions, setQuestions] = useState<Question[]>([])
-  const [questionTypes, setQuestionTypes] = useState<QuestionTypeResponse[]>([])
+  const [questionTypes, setQuestionTypes] = useState<QuestionType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({})
@@ -81,12 +78,26 @@ export default function ProblemsPage() {
           api.getQuestions(),
           api.getQuestionTypes()
         ])
+        
+        console.log('🔍 DEBUG: questionsResponse:', questionsResponse)
+        console.log('🔍 DEBUG: typesResponse:', typesResponse)
+        console.log('🔍 DEBUG: typesResponse type:', typeof typesResponse)
+        console.log('🔍 DEBUG: typesResponse Array.isArray:', Array.isArray(typesResponse))
+        
         setQuestions(questionsResponse)
         setQuestionTypes(typesResponse)
         
         // Initialize all categories as selected
+        console.log('🔍 DEBUG: About to map typesResponse...')
+        if (Array.isArray(typesResponse)) {
+          typesResponse.forEach((type, index) => {
+            console.log(`🔍 DEBUG: typesResponse[${index}]:`, type)
+            console.log(`🔍 DEBUG: typesResponse[${index}].id:`, type?.id)
+          })
+        }
+        
         const initialSelectedCategories = Object.fromEntries(
-          typesResponse.map((type: QuestionTypeResponse) => [type.props.name.toLowerCase().replace(/\s+/g, ''), true])
+          typesResponse.map((type: QuestionType) => [type.id.toString(), true])
         )
         setSelectedCategories(initialSelectedCategories)
       } catch (error) {
@@ -110,13 +121,13 @@ export default function ProblemsPage() {
   }
 
   const filteredQuestions = questions.filter(question => {
-    const categoryName = question.props.questionType.name.toLowerCase().replace(/\s+/g, '')
+    const questionTypeId = question.props.questionTypeId.toString()
     // If no categories are selected, show all questions
     if (Object.values(selectedCategories).every(selected => !selected)) {
       return true
     }
     // Show questions that match any selected category
-    return Object.entries(selectedCategories).some(([id, selected]) => selected && id === categoryName)
+    return selectedCategories[questionTypeId]
   })
 
   // Show loading state during initial auth check
@@ -133,7 +144,7 @@ export default function ProblemsPage() {
     return null
   }
 
-  const handleGenerateQuestion = async (type: QuestionType) => {
+  const handleGenerateQuestion = async (type: ConstantQuestionType) => {
     try {
       setIsTypeModalOpen(false);
       router.push(`/problems/generated/${type}/solve`);
@@ -204,7 +215,7 @@ export default function ProblemsPage() {
                       key={`${question.props.id}-${question.props.questionTypeId}`}
                       title={question.props.title}
                       author={question.props.teacher.name}
-                      difficulty="Medium" // TODO: Add difficulty when available
+                      difficulty={question.props.difficulty}
                       category={question.props.questionType.name}
                       id={question.props.id.toString()}
                     />

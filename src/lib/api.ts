@@ -52,6 +52,18 @@ export interface AuthResponse {
   };
 }
 
+export interface QuestionType {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Difficulty {
+  value: string;
+  label: string;
+}
+
 export const api = {
   // Generic HTTP methods for direct use
   async get<T = any>(url: string) {
@@ -141,8 +153,10 @@ export const api = {
   },
 
   // Question Types API
-  async getQuestionTypes() {
-    const response = await axiosInstance.get("/api/question-types");
+  async getQuestionTypes(): Promise<QuestionType[]> {
+    console.log('🔍 DEBUG: Calling /api/metadata/question-types...');
+    const response = await axiosInstance.get("/api/metadata/question-types");
+    console.log('🔍 DEBUG: getQuestionTypes response.data:', response.data);
     return response.data;
   },
 
@@ -158,6 +172,11 @@ export const api = {
     const response = await axiosInstance.patch(`/api/question-attempts/${id}`, {
       answer,
     });
+    return response.data;
+  },
+
+  async getDifficulties(): Promise<Difficulty[]> {
+    const response = await axiosInstance.get("/api/metadata/difficulties");
     return response.data;
   },
 };

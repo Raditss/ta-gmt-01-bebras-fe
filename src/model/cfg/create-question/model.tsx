@@ -36,7 +36,7 @@ export class CfgCreateQuestion extends ICreateQuestion {
   constructor(
     title: string,
     description: string = "",
-    difficulty: "Easy" | "Medium" | "Hard" = "Easy",
+    difficulty: string = "EASY",
     category: string = "Context-Free Grammar",
     points: number = 100,
     estimatedTime: number = 30,

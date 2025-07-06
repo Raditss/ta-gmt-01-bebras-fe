@@ -23,7 +23,7 @@ export class DecisionTreeCreateQuestion extends ICreateQuestion {
   constructor(
     title: string,
     description: string = "",
-    difficulty: "Easy" | "Medium" | "Hard" = "Easy",
+    difficulty: string = "EASY",
     category: string = "Decision Tree",
     points: number = 100,
     estimatedTime: number = 30,

@@ -76,7 +76,7 @@ const getQuestionTypeFromBackend = (questionTypeId: number): QuestionType => {
     1: 'cfg',
     2: 'decision-tree',
     3: 'cipher',
-    4: 'cfg' // fallback
+    4: 'cfg', // fallback
   };
   return typeMap[questionTypeId] || 'cfg';
 };
@@ -100,7 +100,8 @@ export const creationService = {
     const typeIdMap: Record<QuestionType, number> = {
       'cfg': 1,
       'decision-tree': 2,
-      'cipher': 3
+      'cipher': 3,
+      'decision-tree-2': 0
     };
     
     const response = await api.post('/questions', {
@@ -217,7 +218,8 @@ export const creationService = {
       const typeIdMap: Record<QuestionType, number> = {
         'cfg': 1,
         'decision-tree': 2,
-        'cipher': 3
+        'cipher': 3,
+        'decision-tree-2': 0
       };
       
       // TEMPORARY: Send only required fields to test basic functionality
@@ -274,14 +276,19 @@ export const creationService = {
       
       return updatedCreation;
     } else {
-      // Update existing question - TEMPORARY: only required fields until validation is fixed
+      // Update existing question - include all metadata fields
       const updateData = {
         content: creation.content,
-        isPublished: false
+        isPublished: false,
+        // Include metadata fields
+        title: creation.title,
+        description: creation.description,
+        difficulty: creation.difficulty,
+        category: creation.category,
+        points: creation.points,
+        estimatedTime: creation.estimatedTime,
+        author: creation.author
       };
-      
-      // TODO: Add optional metadata fields once PATCH validation is working
-      // if (creation.title) updateData.title = creation.title;
       
       console.log('🚀 FRONTEND - Updating existing question:', {
         url: `/questions/${creation.questionId}`,
@@ -323,18 +330,24 @@ export const creationService = {
       const typeIdMap: Record<QuestionType, number> = {
         'cfg': 1,
         'decision-tree': 2,
-        'cipher': 3
+        'cipher': 3,
+        'decision-tree-2': 0
       };
       
-      // TEMPORARY: Only required fields for new question creation until validation is fixed
+      // Include all metadata fields for new question creation
       const requestData = {
         questionTypeId: typeIdMap[creation.questionType],
         content: creation.content,
-        isPublished: true
+        isPublished: true,
+        // Include metadata fields
+        title: creation.title,
+        description: creation.description,
+        difficulty: creation.difficulty,
+        category: creation.category,
+        points: creation.points,
+        estimatedTime: creation.estimatedTime,
+        author: creation.author
       };
-      
-      // TODO: Add optional metadata fields once POST validation is working
-      // if (creation.title) requestData.title = creation.title;
       
       const response = await api.post('/questions', requestData);
       let newQuestion = response.data;
@@ -358,14 +371,19 @@ export const creationService = {
       
       return updatedCreation;
     } else {
-      // Update existing question to published - TEMPORARY: only required fields until validation is fixed
+      // Update existing question to published - include all metadata fields
       const updateData = {
         content: creation.content,
-        isPublished: true
+        isPublished: true,
+        // Include metadata fields
+        title: creation.title,
+        description: creation.description,
+        difficulty: creation.difficulty,
+        category: creation.category,
+        points: creation.points,
+        estimatedTime: creation.estimatedTime,
+        author: creation.author
       };
-      
-      // TODO: Add optional metadata fields once PATCH validation is working
-      // if (creation.title) updateData.title = creation.title;
       
       console.log('🚀 FRONTEND - Submitting existing question:', {
         url: `/questions/${creation.questionId}`,

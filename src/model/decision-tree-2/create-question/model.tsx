@@ -33,7 +33,7 @@ export class DecisionTree2CreateQuestion extends ICreateQuestion {
   constructor(
     title: string,
     description: string = "",
-    difficulty: "Easy" | "Medium" | "Hard" = "Easy",
+    difficulty: string = "EASY",
     category: string = "Decision Tree 2",
     points: number = 100,
     estimatedTime: number = 30,

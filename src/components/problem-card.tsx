@@ -4,23 +4,27 @@ interface ProblemCardProps {
   id: string
   title: string
   author: string
-  difficulty: "Easy" | "Medium" | "Hard"
+  difficulty: string
   category: string
 }
 
 export function ProblemCard({ id, title, author, difficulty, category }: ProblemCardProps) {
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "Easy":
+    const normalizedDifficulty = difficulty.toLowerCase();
+    switch (normalizedDifficulty) {
+      case "easy":
         return "bg-green-100 text-green-800"
-      case "Medium":
+      case "medium":
         return "bg-yellow-100 text-yellow-800"
-      case "Hard":
+      case "hard":
         return "bg-red-100 text-red-800"
       default:
-        return ""
+        return "bg-gray-100 text-gray-800"
     }
   }
+
+  // Capitalize the first letter of difficulty for display
+  const displayDifficulty = difficulty.charAt(0).toUpperCase() + difficulty.slice(1).toLowerCase();
 
   return (
     <ContentCard
@@ -34,7 +38,7 @@ export function ProblemCard({ id, title, author, difficulty, category }: Problem
           className: "bg-gray-100",
         },
         {
-          label: difficulty,
+          label: displayDifficulty,
           className: getDifficultyColor(difficulty),
         },
       ]}

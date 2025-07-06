@@ -16,29 +16,29 @@ type Story = StoryObj<typeof ProblemCard>;
 export const Easy: Story = {
   args: {
     id: '1',
-    title: 'Two Sum',
+    title: 'Simple Context-Free Grammar',
     author: 'John Doe',
-    difficulty: 'Easy',
-    category: 'Array',
+    difficulty: 'EASY',
+    category: 'Context-Free Grammar',
   },
 };
 
 export const Medium: Story = {
   args: {
     id: '2',
-    title: 'Add Two Numbers',
+    title: 'Intermediate Decision Tree',
     author: 'Jane Smith',
-    difficulty: 'Medium',
-    category: 'Linked List',
+    difficulty: 'MEDIUM',
+    category: 'Decision Tree',
   },
 };
 
 export const Hard: Story = {
   args: {
     id: '3',
-    title: 'Median of Two Sorted Arrays',
-    author: 'Alex Johnson',
-    difficulty: 'Hard',
-    category: 'Array',
+    title: 'Advanced Algorithm Challenge',
+    author: 'Bob Johnson',
+    difficulty: 'HARD',
+    category: 'Multiple Choice',
   },
 }; 
