@@ -29,29 +29,13 @@ interface RingCipherContent {
         prompt: string;
     };
     answer: {
-        encrypted: string;
-        steps: Array<{
-            letter: string;
-            ringId: number;
-            initialPosition: number;
-            stepsToRotate: number;
-            finalPosition: number;
-            code: string;
-        }>;
+        encrypted: [number, number][];
     };
 }
 
 interface RingCipherSolutionState {
     ringPositions: number[];
-    encryptedMessage: string;
-    steps: Array<{
-        letter: string;
-        ringId: number;
-        initialPosition: number;
-        stepsToRotate: number;
-        finalPosition: number;
-        code: string;
-    }>;
+    encryptedMessage: [number, number][];
 }
 
 export class RingCipherQuestionModel extends IQuestion implements IAttempt {
@@ -65,10 +49,11 @@ export class RingCipherQuestionModel extends IQuestion implements IAttempt {
     constructor(
         id: number,
         title: string,
-        duration: number,
-        startTime: Date
+        questionType: QuestionTypeEnum,
+        duration: number
     ) {
-        super(id, title, QuestionTypeEnum.RING_CIPHER, duration, startTime);
+        const now = new Date();
+        super(id, title, questionType, duration, now);
         this.content = {
             problemType: '',
             config: {
@@ -88,14 +73,12 @@ export class RingCipherQuestionModel extends IQuestion implements IAttempt {
                 prompt: '',
             },
             answer: {
-                encrypted: '',
-                steps: [],
+                encrypted: [],
             },
         };
         this.currentState = {
             ringPositions: [],
-            encryptedMessage: '',
-            steps: [],
+            encryptedMessage: [],
         };
         this.undoStack = [];
         this.redoStack = [];
@@ -137,8 +120,7 @@ export class RingCipherQuestionModel extends IQuestion implements IAttempt {
     resetToInitialState(): void {
         this.currentState = {
             ringPositions: this.content.rings.map(() => 0),
-            encryptedMessage: '',
-            steps: [],
+            encryptedMessage: [],
         };
         this.undoStack = [];
         this.redoStack = [];
@@ -194,10 +176,7 @@ export class RingCipherQuestionModel extends IQuestion implements IAttempt {
             finalPosition,
             code,
         };
-        this.currentState.steps.push(step);
-        this.currentState.encryptedMessage = this.currentState.encryptedMessage
-            ? `${this.currentState.encryptedMessage}-${code}`
-            : code;
+        this.currentState.encryptedMessage.push([ringId + 1, stepsToRotate]);
         return code;
     }
 

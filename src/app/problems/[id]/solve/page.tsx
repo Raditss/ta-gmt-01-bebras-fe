@@ -10,15 +10,16 @@ import { BaseSolverProps } from "@/components/features/bases/base.solver";
 import DecisionTreeSolver from "@/components/features/question/dt-0/solver";
 import CfgSolver from "@/components/features/question/cfg/cfg.solver";
 import { NotImplemented } from "@/components/features/fallbacks/not-implemented.solver";
+import RingCipherSolver from "@/components/features/question/ring-cipher/solver/ring-cipher-solver";
+import CipherNSolver from "@/components/features/question/cipher-n/solver/cipher-n-solver";
+import DecisionTree2Solver from "@/components/features/question/dt-1/dt-1.solver";
 
 const solvers: Record<QuestionTypeEnum, ComponentType<BaseSolverProps>> = {
   [QuestionTypeEnum.CFG]: CfgSolver,
   [QuestionTypeEnum.DECISION_TREE] : DecisionTreeSolver,
-  [QuestionTypeEnum.DECISION_TREE_2]: dynamic(
-    () => import("@/components/features/question/dt-1/dt-1.solver")
-  ),
-  [QuestionTypeEnum.CIPHER_N]: NotImplemented,
-  [QuestionTypeEnum.RING_CIPHER]: NotImplemented,
+  [QuestionTypeEnum.DECISION_TREE_2]: DecisionTree2Solver,
+  [QuestionTypeEnum.CIPHER_N]: CipherNSolver,
+  [QuestionTypeEnum.RING_CIPHER]: RingCipherSolver,
 };
 
 export default function SolvePage() {
