@@ -4,68 +4,39 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ProblemCard } from "@/components/problem-card";
-import { CategoryFilter } from "@/components/category-filter";
-import { DifficultyFilter } from "@/components/difficulty-filter";
-import { MainNavbar } from "@/components/main-navbar";
-import { useAuth } from "@/lib/auth";
+import { ProblemCard } from "@/components/features/questions/problem-card";
+import { QuestionTypeFilter } from "@/components/features/questions/question-type-filter";
+import { MainNavbar } from "@/components/layout/Nav/main-navbar";
 import { useRouter } from "next/navigation";
-import { QuestionType } from "@/constants/questionTypes";
-import { QuestionTypeModal } from "@/components/question-type-modal";
-import { api } from "@/lib/api";
+import { QuestionTypeEnum } from "@/types/question-type.type";
+import { QuestionTypeModal } from "@/components/features/questions/question-type-modal";
+import { questionsApi } from "@/lib/api";
 import Link from "next/link";
 import { Settings } from "lucide-react";
-
-interface QuestionTypeData {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface QuestionTypeResponse {
-  props: QuestionTypeData;
-}
-
-interface Teacher {
-  id: number;
-  name: string;
-}
-
-interface Question {
-  props: {
-    id: number;
-    content: string;
-    questionTypeId: number;
-    teacherId: number;
-    isPublished: boolean;
-    questionType: QuestionTypeData;
-    createdAt: string;
-    updatedAt: string;
-    teacher: Teacher;
-  };
-}
+import {QuestionResponse} from "@/utils/validations/question.validation";
+import {useAuth} from "@/hooks/useAuth";
+import {QuestionTypeResponse} from "@/utils/validations/question-type.validation";
+import {questionTypeApi} from "@/lib/api/question-type.api";
 
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false);
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<
     Record<string, boolean>
   >({});
-  const { isAuthenticated, token, isLoading: isAuthLoading } = useAuth();
+  const { isAuthenticated, token } = useAuth();
   const router = useRouter();
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     // If not authenticated, redirect to login
-    if (mounted && !isAuthLoading && !isAuthenticated) {
+    if (mounted && !isAuthenticated) {
       router.push("/login");
     }
-  }, [isAuthenticated, mounted, router, isAuthLoading]);
+  }, [isAuthenticated, mounted, router]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -77,8 +48,8 @@ export default function ProblemsPage() {
 
         // Fetch questions and question types in parallel
         const [questionsResponse, typesResponse] = await Promise.all([
-          api.getQuestions(),
-          api.getQuestionTypes(),
+          questionsApi.getQuestions(),
+          questionTypeApi.getQuestionTypes(),
         ]);
         setQuestions(questionsResponse);
 
@@ -105,10 +76,10 @@ export default function ProblemsPage() {
     }
   }, [isAuthenticated, token]);
 
-  const handleCategoryChange = (categoryId: string) => {
+  const handleCategoryChange = (questionTypeId: number) => {
     setSelectedCategories((prev) => ({
       ...prev,
-      [categoryId]: !prev[categoryId],
+      [questionTypeId]: !prev[questionTypeId],
     }));
   };
 
@@ -127,7 +98,7 @@ export default function ProblemsPage() {
   });
 
   // Show loading state during initial auth check
-  if (!mounted || isAuthLoading) {
+  if (!mounted) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -140,7 +111,7 @@ export default function ProblemsPage() {
     return null;
   }
 
-  const handleGenerateQuestion = async (type: QuestionType) => {
+  const handleGenerateQuestion = async (type: QuestionTypeEnum) => {
     try {
       setIsTypeModalOpen(false);
       router.push(`/problems/generated/${type}/solve`);
@@ -170,16 +141,12 @@ export default function ProblemsPage() {
 
             <div>
               <h3 className="font-semibold mb-2">Categories</h3>
-              <CategoryFilter
-                selectedCategories={selectedCategories}
-                onCategoryChange={handleCategoryChange}
+              <QuestionTypeFilter
+                selectedQuestionTypes={selectedCategories}
+                onQuestionTypeChange={handleCategoryChange}
               />
             </div>
 
-            <div>
-              <h3 className="font-semibold mb-2">Difficulty</h3>
-              <DifficultyFilter />
-            </div>
 
             <Button
               variant="outline"
@@ -218,7 +185,7 @@ export default function ProblemsPage() {
                   {filteredQuestions.map((question) => (
                     <ProblemCard
                       key={`${question.props.id}-${question.props.questionTypeId}`}
-                      title={`${question.props.questionType.name} Challenge #${question.props.id}`}
+                      title={question.props.title}
                       author={question.props.teacher.name}
                       difficulty="Medium" // TODO: Add difficulty when available
                       category={question.props.questionType.name}

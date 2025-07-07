@@ -1,10 +1,21 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { QuestionType } from "@/constants/questionTypes";
-import { BaseCreatorProps } from "@/components/creators/base-creator";
-import React, { useState } from "react";
-import { QuestionInfo } from "@/services/questionService";
+import { QuestionTypeEnum } from "@/types/question-type.type";
+import { BaseCreatorProps } from "@/components/features/bases/base.creator";
+import React from "react";
+import CfgCreator from "@/components/features/question/cfg/cfg.creator";
+import Dt0Creator from "@/components/features/question/dt-0/dt-0.creator";
+import Dt1Creator from "@/components/features/question/dt-1/dt-1.creator";
+
+// Abstract mapping of question types to their creator components
+const creators: Partial<
+  Record<QuestionTypeEnum, React.ComponentType<BaseCreatorProps>>
+> = {
+  cfg: CfgCreator,
+  "decision-tree": Dt0Creator,
+  "decision-tree-2": Dt1Creator,
+};
 
 // Error boundary for creator components
 class CreatorErrorBoundary extends React.Component<
@@ -61,42 +72,13 @@ class CreatorErrorBoundary extends React.Component<
   }
 }
 
-// Import creators for different question types
-import CfgCreator from "@/components/creators/cfg-creator";
-import DecisionTreeCreator from "@/components/creators/decision-tree-creator";
-import DecisionTree2Creator from "@/components/creators/decision-tree-2-creator";
-import CipherNCreator from "@/components/creators/cipherN-creator";
-import RingCipherCreator from "@/components/creators/ring-cipher-creator";
-
-const creators: Partial<
-  Record<QuestionType, React.ComponentType<BaseCreatorProps>>
-> = {
-  "cfg": CfgCreator,
-  "decision-tree": DecisionTreeCreator,
-  "decision-tree-2": DecisionTree2Creator,
-  "cipher-n": CipherNCreator,
-  "ring-cipher": RingCipherCreator,
-};
-
-const transformInitialData = (data: QuestionInfo | null) => {
-  if (!data) return undefined;
-  return {
-    title: data.title,
-    description: data.description,
-    difficulty: data.difficulty,
-    category: "",
-    points: data.points,
-    estimatedTime: data.estimatedTime,
-    author: data.author,
-  };
-};
-
 export default function CreateQuestionPage() {
   const params = useParams();
-  const type = params?.type as QuestionType;
+  const type = params?.type as QuestionTypeEnum;
   const id = params?.id as string;
-  const [initialData, setInitialData] = useState<QuestionInfo | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [initialData, setInitialData] =
+    React.useState<BaseCreatorProps["initialData"]>(undefined);
+  const [mounted, setMounted] = React.useState(false);
 
   // Extract initial data on client side only
   React.useEffect(() => {
@@ -108,10 +90,6 @@ export default function CreateQuestionPage() {
 
       const title = urlParams.get("title");
       const description = urlParams.get("description");
-      const difficulty = urlParams.get("difficulty") as
-        | "Easy"
-        | "Medium"
-        | "Hard";
       const category = urlParams.get("category");
       const points = urlParams.get("points");
       const estimatedTime = urlParams.get("estimatedTime");
@@ -123,17 +101,16 @@ export default function CreateQuestionPage() {
             type,
             title,
             description: description || "",
-            difficulty: difficulty || "Easy",
             category: category || "",
             points: points ? parseInt(points) : 100,
             estimatedTime: estimatedTime ? parseInt(estimatedTime) : 30,
             author: author || "",
           }
-        : null;
+        : undefined;
 
       setInitialData(extractedData);
     } else {
-      setInitialData(null);
+      setInitialData(undefined);
     }
   }, [id]);
 
@@ -150,30 +127,40 @@ export default function CreateQuestionPage() {
     );
   }
 
-  const Creator = creators[type];
-  if (!Creator) {
-    const DefaultCreator = creators["cfg"];
-    if (!DefaultCreator) {
-      return (
-        <CreatorErrorBoundary questionId={id} type={type}>
-          <div className="flex flex-col min-h-screen bg-yellow-400">
-            <div className="flex-1 flex justify-center items-center">
-              <p className="text-lg">Unsupported question type: {type}</p>
-            </div>
-          </div>
-        </CreatorErrorBoundary>
-      );
-    }
+  // Get the appropriate creator component for this question type
+  const CreatorComponent = creators[type];
+
+  if (!CreatorComponent) {
     return (
       <CreatorErrorBoundary questionId={id} type={type}>
-        <DefaultCreator questionId={id} initialData={transformInitialData(initialData)} />
+        <div className="flex flex-col min-h-screen bg-yellow-400">
+          <div className="flex-1 flex justify-center items-center">
+            <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
+              <h2 className="text-xl font-bold text-orange-600 mb-4">
+                Not Implemented
+              </h2>
+              <p className="text-gray-700 mb-4">
+                Question type &quot;{type}&quot; is not yet implemented.
+              </p>
+              <p className="text-gray-600 mb-4">
+                Please check the available question types.
+              </p>
+              <button
+                onClick={() => (window.location.href = "/add-problem")}
+                className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
+              >
+                Back to Add Problem
+              </button>
+            </div>
+          </div>
+        </div>
       </CreatorErrorBoundary>
     );
   }
 
   return (
     <CreatorErrorBoundary questionId={id} type={type}>
-      <Creator questionId={id} initialData={transformInitialData(initialData)} />
+      <CreatorComponent questionId={id} initialData={initialData} />
     </CreatorErrorBoundary>
   );
 }

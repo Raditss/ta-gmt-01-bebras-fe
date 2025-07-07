@@ -6,11 +6,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MainNavbar } from "@/components/main-navbar"
-import { useAuth } from "@/lib/auth"
+import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import {useAuth} from "@/hooks/useAuth";
 
 export default function EditProfilePage() {
   const [mounted, setMounted] = useState(false)

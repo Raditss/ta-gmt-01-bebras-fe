@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Leaf } from "lucide-react";
 import Image from "next/image";
-import { MainNavbar } from "@/components/main-navbar";
+import { MainNavbar } from "@/components/layout/Nav/main-navbar";
 
 export default function LandingPage() {
   return (

@@ -25,7 +25,7 @@ export function usePageNavigationGuard({ hasUnsavedChanges, onSave }: UsePageNav
     // Handle browser back button
     const handlePopState = (e: PopStateEvent) => {
       if (hasUnsavedChanges) {
-        // Prevent the navigation
+        // Prevent the Nav
         e.preventDefault()
         // Show confirmation dialog
         setShowDialog(true)
@@ -46,7 +46,7 @@ export function usePageNavigationGuard({ hasUnsavedChanges, onSave }: UsePageNav
     }
   }, [hasUnsavedChanges])
 
-  // Handle Next.js navigation attempts
+  // Handle Next.js Nav attempts
   const handleNavigationAttempt = useCallback((url: string) => {
     if (hasUnsavedChanges) {
       pendingNavigation.current = url

@@ -2,21 +2,23 @@
 
 import { useEffect, useState, ComponentType } from "react";
 import { useParams } from "next/navigation";
-import { questionService } from "@/services/questionService";
-import { QuestionType } from "@/constants/questionTypes";
+import { questionService } from "@/lib/services/question.service";
+import {getQuestionTypeByName, QuestionTypeEnum} from "@/types/question-type.type";
 import dynamic from "next/dynamic";
-import { MainNavbar } from "@/components/main-navbar";
-import { BaseSolverProps } from "@/components/solvers/base-solver";
-import DecisionTreeSolver from "@/components/solvers/decision-tree";
+import { MainNavbar } from "@/components/layout/Nav/main-navbar";
+import { BaseSolverProps } from "@/components/features/bases/base.solver";
+import DecisionTreeSolver from "@/components/features/question/dt-0/solver";
+import CfgSolver from "@/components/features/question/cfg/cfg.solver";
+import { NotImplemented } from "@/components/features/fallbacks/not-implemented.solver";
 
-const solvers: Record<QuestionType, ComponentType<BaseSolverProps>> = {
-  "cfg": dynamic(() => import("@/components/solvers/cfg-solver")),
-  "decision-tree": DecisionTreeSolver,
-  "decision-tree-2": dynamic(
-    () => import("@/components/solvers/decision-tree-2")
+const solvers: Record<QuestionTypeEnum, ComponentType<BaseSolverProps>> = {
+  [QuestionTypeEnum.CFG]: CfgSolver,
+  [QuestionTypeEnum.DECISION_TREE] : DecisionTreeSolver,
+  [QuestionTypeEnum.DECISION_TREE_2]: dynamic(
+    () => import("@/components/features/question/dt-1/dt-1.solver")
   ),
-  "cipher-n": dynamic(() => import("@/components/solvers/cipherN-solver")),
-  "ring-cipher": dynamic(() => import("@/components/solvers/ring-cipher-solver")),
+  [QuestionTypeEnum.CIPHER_N]: NotImplemented,
+  [QuestionTypeEnum.RING_CIPHER]: NotImplemented,
 };
 
 export default function SolvePage() {
@@ -24,13 +26,14 @@ export default function SolvePage() {
   const id = params?.id as string;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [questionType, setQuestionType] = useState<QuestionType | null>(null);
+  const [questionType, setQuestionType] = useState<QuestionTypeEnum | null>(null);
 
   useEffect(() => {
     const loadQuestionType = async () => {
       try {
-        const info = await questionService.getQuestionInfo(id);
-        setQuestionType(info.type);
+        const question = await questionService.getQuestionById(id);
+        console.log("Loaded question:", question);
+        setQuestionType(getQuestionTypeByName(question.questionType.name));
       } catch (err) {
         console.error(err);
         setError("Failed to load question information");

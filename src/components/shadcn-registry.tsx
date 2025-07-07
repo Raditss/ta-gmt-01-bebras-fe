@@ -20,7 +20,7 @@ export const shadcnComponents = [
   "Progress",
   "Table, TableBody, TableCell, TableHead, TableHeader, TableRow",
 
-  // Navigation
+  // Nav
   "Tabs, TabsContent, TabsList, TabsTrigger",
 
   // Overlay

@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { MainNavbar } from "@/components/main-navbar"
-import { useAuth } from "@/lib/auth"
+import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
+import {useAuth} from "@/hooks/useAuth";
 
 // Mock leaderboard data
 const MOCK_LEADERBOARD = [
