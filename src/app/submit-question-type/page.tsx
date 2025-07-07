@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { MainNavbar } from "@/components/main-navbar"
-import { useAuth } from "@/lib/auth"
+import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Label } from "@/components/ui/label"
+import {useAuth} from "@/hooks/useAuth";
 
 export default function SubmitQuestionTypePage() {
   const [mounted, setMounted] = useState(false)

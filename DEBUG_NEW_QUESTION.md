@@ -37,7 +37,7 @@ if (questionId === 'new') {
 
 ### 2. Navigate to New Question Creation
 ```
-http://localhost:3100/add-problem/create/cfg/new?title=test&description=test&difficulty=Easy&category=Context-Free+Grammar&points=100&estimatedTime=30&author=Teacher+Hosea
+http://localhost:3100/add-problem/create/cfg/new?title=test&description=test&category=Context-Free+Grammar&points=100&estimatedTime=30&author=Teacher+Hosea
 ```
 
 ### 3. Expected Console Output

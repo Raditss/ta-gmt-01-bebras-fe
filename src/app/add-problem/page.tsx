@@ -1,8 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { MainNavbar } from "@/components/main-navbar"
-import { useAuth } from "@/lib/auth"
+import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import {useAuth} from "@/hooks/useAuth";
 
 // Mock question types - in a real app, these would come from an API
 const questionTypes = [

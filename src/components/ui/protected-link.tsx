@@ -25,7 +25,7 @@ export function ProtectedLink({
   const [pendingHref, setPendingHref] = useState<string | null>(null)
 
   const handleClick = useCallback(async (e: React.MouseEvent) => {
-    // If no protection is needed, proceed with navigation
+    // If no protection is needed, proceed with Nav
     if (!onBeforeNavigate) return
 
     e.preventDefault()

@@ -8,10 +8,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { MainNavbar } from "@/components/main-navbar"
-import { useAuth } from "@/lib/auth"
+import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import {useAuth} from "@/hooks/useAuth";
 
 export default function ProfilePage() {
   const [mounted, setMounted] = useState(false)
@@ -20,13 +20,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setMounted(true)
-    // If not authenticated, redirect to login
     if (mounted && !isAuthenticated) {
       router.push("/login")
     }
   }, [isAuthenticated, mounted, router])
 
-  // Show nothing during SSR or if not authenticated
   if (!mounted || !isAuthenticated || !user) {
     return null
   }
@@ -176,7 +174,7 @@ export default function ProfilePage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Achievements</CardTitle>
-                    <CardDescription>Badges and achievements you've earned</CardDescription>
+                    <CardDescription>Badges and achievements you&apos;ve earned</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -257,7 +255,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="font-medium">Earned 5 points</p>
-                        <p className="text-sm text-gray-600">Solved "Binary Tree Traversal" problem</p>
+                        <p className="text-sm text-gray-600">Solved &quot;Binary Tree Traversal&quot; problem</p>
                         <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
                       </div>
                     </div>
@@ -267,7 +265,7 @@ export default function ProfilePage() {
                       </div>
                       <div>
                         <p className="font-medium">Earned badge</p>
-                        <p className="text-sm text-gray-600">Achieved "Streak Master" for 10 day streak</p>
+                        <p className="text-sm text-gray-600">Achieved &quot;Streak Master&quot; for 10 day streak</p>
                         <p className="text-xs text-gray-500 mt-1">1 day ago</p>
                       </div>
                     </div>

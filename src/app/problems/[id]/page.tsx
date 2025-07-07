@@ -1,62 +1,62 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { MainNavbar } from "@/components/main-navbar"
-import { useAuth } from "@/lib/auth"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Clock, Award, User } from "lucide-react"
-import Link from "next/link"
-import { questionService } from "@/services/questionService"
-import { QuestionType, QUESTION_TYPES } from "@/constants/questionTypes"
+import { useEffect, useState } from "react";
+import { MainNavbar } from "@/components/layout/Nav/main-navbar";
+import { useRouter } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Clock, Award, User } from "lucide-react";
+import Link from "next/link";
+import { questionService } from "@/lib/services/question.service";
+import {useAuth} from "@/hooks/useAuth";
+import {Question} from "@/types/question.type";
 
-interface QuestionInfo {
-  id: string;
-  title: string;
-  description: string;
-  type: QuestionType;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
-  author: string;
-  estimatedTime: number;
-  points: number;
-}
-
-export default function ProblemDetailPage({ params }: { params: { id: string } }) {
-  const [mounted, setMounted] = useState(false)
-  const { isAuthenticated } = useAuth()
-  const router = useRouter()
-  const { id } = params
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [questionInfo, setQuestionInfo] = useState<QuestionInfo | null>(null)
+export default function ProblemDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const [mounted, setMounted] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { id } = params;
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [question, setQuestion] = useState<Question | null>(null);
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
     // If not authenticated, redirect to login
     if (mounted && !isAuthenticated) {
-      router.push("/login")
+      router.push("/login");
     }
-  }, [isAuthenticated, mounted, router])
+  }, [isAuthenticated, mounted, router]);
 
   // Fetch question info
   useEffect(() => {
     const fetchQuestionInfo = async () => {
       try {
-        const info = await questionService.getQuestionInfo(id)
-        setQuestionInfo(info)
-      } catch (err) {
-        setError('Failed to load question information')
+        const question = await questionService.getQuestionById(id);
+        setQuestion(question);
+      } catch (_err) {
+        console.error("Error fetching question info:", _err);
+        setError("Failed to load question information");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (mounted && isAuthenticated) {
-      fetchQuestionInfo()
+      fetchQuestionInfo();
     }
-  }, [id, mounted, isAuthenticated])
+  }, [id, mounted, isAuthenticated]);
 
   // Show nothing during SSR or if not authenticated
   if (!mounted || !isAuthenticated) {
@@ -64,14 +64,20 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
   }
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
-  if (error || !questionInfo) {
-    return <div className="flex justify-center items-center min-h-screen">Error loading question</div>;
+  if (error || !question) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Error loading question
+      </div>
+    );
   }
-
-  const questionTypeInfo = QUESTION_TYPES.find(qt => qt.type === questionInfo.type);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -92,43 +98,39 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
             <CardHeader>
               <div className="flex flex-wrap gap-2 mb-2">
                 <Badge variant="outline" className="bg-gray-100">
-                  {questionTypeInfo?.label || questionInfo.type}
-                </Badge>
-                <Badge 
-                  className={`${
-                    questionInfo.difficulty === 'Easy' 
-                      ? 'bg-green-100 text-green-800' 
-                      : questionInfo.difficulty === 'Medium'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
-                  {questionInfo.difficulty}
+                  {question.questionType.name}
                 </Badge>
               </div>
-              <CardTitle className="text-2xl">Problem #{id}: {questionInfo.title}</CardTitle>
+              <CardTitle className="text-2xl">
+                Problem #{id}: {question.title}
+              </CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-4 mt-2">
                 <div className="flex items-center">
                   <User className="mr-1 h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{questionInfo.author}</span>
+                  <span className="text-sm">{question.teacher.name}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="mr-1 h-4 w-4 text-gray-500" />
-                  <span className="text-sm">Estimated time: {questionInfo.estimatedTime} mins</span>
+                  <span className="text-sm">
+                    Estimated time: {question.estimatedTime} mins
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <Award className="mr-1 h-4 w-4 text-gray-500" />
-                  <span className="text-sm">{questionInfo.points} points</span>
+                  <span className="text-sm">{question.points} points</span>
                 </div>
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
                 <h3>Problem Description</h3>
-                <p>{questionInfo.description}</p>
+                <p>{question.description}</p>
 
                 <Link href={`/problems/${id}/solve`}>
-                  <Button variant="default" className="w-full mt-6 bg-yellow-400 hover:bg-yellow-500 text-black">
+                  <Button
+                    variant="default"
+                    className="w-full mt-6 bg-yellow-400 hover:bg-yellow-500 text-black"
+                  >
                     Solve!
                   </Button>
                 </Link>
@@ -144,5 +146,5 @@ export default function ProblemDetailPage({ params }: { params: { id: string } }
         </div>
       </footer>
     </div>
-  )
+  );
 }

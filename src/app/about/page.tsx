@@ -1,4 +1,4 @@
-import { MainNavbar } from "@/components/main-navbar"
+import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { Code, Users, Award, BookOpen } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
