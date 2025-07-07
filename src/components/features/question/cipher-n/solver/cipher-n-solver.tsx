@@ -2,62 +2,18 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { CipherQuestion } from '@/model/cipher/question/model';
-import { MainNavbar } from '@/components/main-navbar';
-import { questionService } from '@/services/questionService';
-import { useAuth } from '@/lib/auth';
-import { BaseSolverProps, SolverWrapper } from './base-solver';
+import { CipherNQuestionModel } from '@/models/cipher-n/cipher-n.question.model';
+import { questionService } from '@/lib/services/question.service';
+import { useAuth } from '@/hooks/useAuth';
+import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
-import { SubmissionModal } from './submission-modal';
+import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
 import { Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
-// Custom hook for cipher question attempts
-const useCipherQuestionAttempt = (questionId: string) => {
-  const { user } = useAuth();
-  const [question, setQuestion] = useState<CipherQuestion | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [startTime] = useState<Date>(new Date());
-
-  useEffect(() => {
-    const fetchQuestion = async () => {
-      try {
-        setLoading(true);
-        const questionData = await questionService.getQuestionById(questionId);
-        const q = new CipherQuestion(
-          questionData.id,
-          questionData.title,
-          questionData.isGenerated,
-          questionData.duration,
-          new Date()
-        );
-        q.populateQuestionFromString(questionData.content);
-        setQuestion(q);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch question:', err);
-        setError('Failed to fetch question');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestion();
-  }, [questionId]);
-
-  return {
-    question,
-    loading,
-    error,
-    currentDuration: () => {
-      return Math.floor((new Date().getTime() - startTime.getTime()) / 1000);
-    }
-  };
-};
+import { useQuestionAttempt } from '@/hooks/useQuestionAttempt';
 
 interface PolygonProps {
   vertices: Array<{ pos: number; letters: string }>;
@@ -175,21 +131,23 @@ function OctagonVisualization({ vertices, currentVertex, targetVertex, highlight
   );
 }
 
-export default function CipherSolver({ questionId }: BaseSolverProps) {
+export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  // const { user } = useAuth();
+  const { question, loading, error, currentDuration } = useQuestionAttempt<CipherNQuestionModel>(
+    questionId,
+    CipherNQuestionModel
+  );
+  const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
+
   const [rotationValue, setRotationValue] = useState<string>("");
   const [positionValue, setPositionValue] = useState<string>("");
-  const [finalAnswer, setFinalAnswer] = useState<string>("");
+  const [answerArr, setAnswerArr] = useState<[number, number][]>([]);
   const [currentVertex, setCurrentVertex] = useState<number>(0);
   const [targetVertex, setTargetVertex] = useState<number>(0);
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
-
-  // Setup hooks for question functionality
-  const { question, loading, error, currentDuration } = useCipherQuestionAttempt(questionId);
-  const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
 
   const content = question?.getContent();
   const vertices = content?.vertices || [];
@@ -222,6 +180,7 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
     if (question && content) {
       const state = question.getCurrentState();
       setCurrentVertex(state.currentVertex);
+      setAnswerArr(state.encryptedMessage);
     }
   }, [question, content]);
 
@@ -250,13 +209,7 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
     const targetLetters = vertices[targetVertex]?.letters || "";
     if (position < 1 || position > targetLetters.length) return;
 
-    const code = `${rotation}${position}`;
-    
-    if (finalAnswer === "") {
-      setFinalAnswer(code);
-    } else {
-      setFinalAnswer(prev => `${prev}-${code}`);
-    }
+    setAnswerArr(prev => [...prev, [rotation, position]]);
     
     // Update current vertex to target vertex for next encryption
     setCurrentVertex(targetVertex);
@@ -264,32 +217,37 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
     // Clear inputs
     setRotationValue("");
     setPositionValue("");
-  }, [rotationValue, positionValue, finalAnswer, targetVertex, vertices, maxRotation]);
+  }, [rotationValue, positionValue, targetVertex, vertices, maxRotation]);
 
   const handleClearAnswer = useCallback(() => {
-    setFinalAnswer("");
+    setAnswerArr([]);
     setCurrentVertex(content?.config.startingVertex || 0);
     setRotationValue("");
     setPositionValue("");
   }, [content]);
 
-  const handleSubmit = async () => {
-    if (!question) return;
+  const handleSubmit = useCallback(() => {
     setIsSubmitting(true);
-  };
+  }, []);
 
-  const handleConfirmSubmit = async () => {
-    if (!question || !user?.id) return;
+  const handleConfirmSubmit = useCallback(async () => {
+    if (!question) return;
     
     try {
+      // Set the model's encryptedMessage to the current answer array
+      question.getCurrentState().encryptedMessage = answerArr;
       const duration = getCurrentDuration();
       
-      question.setAttemptData(String(user.id), duration, 'completed');
-      await questionService.submitAttempt(question.getAttemptData());
+      question.setAttemptData(duration, false);
+      const attemptData = question.getAttemptData();
+      await questionService.submitAttempt({
+        ...attemptData,
+        answer: JSON.parse(attemptData.answer),
+      });
 
       // Check if answer matches expected format and content
-      const expectedAnswer = content?.answer.encrypted || "";
-      const isCorrect = finalAnswer === expectedAnswer;
+      const expectedAnswer = content?.answer.encrypted || [];
+      const isCorrect = answerArr.length === expectedAnswer.length && answerArr.every((pair, i) => pair[0] === expectedAnswer[i][0] && pair[1] === expectedAnswer[i][1]);
       
       const points = isCorrect ? Math.max(100 - Math.floor(duration / 10), 10) : 0;
       const streak = isCorrect ? 1 : 0;
@@ -303,13 +261,13 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
     } catch (err) {
       console.error('Failed to submit answer:', err);
     }
-  };
+  }, [question, getCurrentDuration, content, answerArr]);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setIsSubmitting(false);
     setSubmissionResult(null);
     router.push('/problems');
-  };
+  }, [router]);
 
   const isValidInputs = () => {
     const rotation = parseInt(rotationValue);
@@ -323,6 +281,9 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
            position >= 1 && 
            position <= targetLetters.length;
   };
+
+  // For display: join as '23-34-45'
+  const finalAnswerDisplay = answerArr.map(([r, p]) => `${r}${p}`).join("-");
 
   return (
     <SolverWrapper loading={loading} error={error}>
@@ -431,7 +392,7 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
                   <div className="border-t pt-4">
                     <label className="block text-sm font-medium mb-2">Final Answer:</label>
                     <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
-                      {finalAnswer || "No codes added yet"}
+                      {finalAnswerDisplay || "No codes added yet"}
                     </div>
                     <Button 
                       onClick={handleClearAnswer}
@@ -444,7 +405,7 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
 
                   <Button 
                     onClick={handleSubmit}
-                    disabled={!finalAnswer}
+                    disabled={answerArr.length === 0}
                     className="w-full bg-green-600 hover:bg-green-700"
                   >
                     Submit Answer
@@ -455,7 +416,7 @@ export default function CipherSolver({ questionId }: BaseSolverProps) {
           </div>
 
           {/* Submission Modal */}
-          <SubmissionModal
+          <SubmissionModalSolver
             isOpen={isSubmitting || !!submissionResult}
             isConfirming={isSubmitting && !submissionResult}
             result={submissionResult}

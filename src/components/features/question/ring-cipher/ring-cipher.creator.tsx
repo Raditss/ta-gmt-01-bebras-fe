@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreateRingCipherQuestion } from '@/model/ring-cipher/create-question/model';
+import { CreateRingCipherQuestion } from '@/models/ring-cipher/create-question/ring-cipher.create.model';
 import { useCreation } from '@/hooks/useCreation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, AlertCircle, Save, Settings, Eye, Plus, Trash2, RotateCw } from 'lucide-react';

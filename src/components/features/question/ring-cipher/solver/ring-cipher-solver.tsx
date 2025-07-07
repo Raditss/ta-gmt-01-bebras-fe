@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { RingCipherQuestion } from '@/model/ring-cipher/question/model';
+import { RingCipherQuestion } from '@/models/ring-cipher/question/ring-cipher.question.model';
 import { MainNavbar } from '@/components/main-navbar';
 import { questionService } from '@/services/questionService';
 import { useAuth } from '@/lib/auth';

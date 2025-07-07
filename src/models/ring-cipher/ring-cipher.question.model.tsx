@@ -1,15 +1,16 @@
-import { IQuestion, IAttempt, AttemptData } from "../../interfaces/question";
-import { QuestionType } from "@/constants/questionTypes";
+import { QuestionTypeEnum } from "@/types/question-type.type";
+import { IAttempt, IQuestion } from "@/models/interfaces/question";
+import { QuestionAttemptData } from "@/types/question-attempt.type";
 
 interface RingCipherRing {
     id: number;
     letters: string[];
-    currentPosition: number; // Current rotation position (0 = first letter at marker)
+    currentPosition: number;
 }
 
 interface RingCipherConfig {
     ringCount: number;
-    markerPosition: number; // Always at 12 o'clock (position 0)
+    markerPosition: number;
 }
 
 interface RingCipherContent {
@@ -40,60 +41,66 @@ interface RingCipherContent {
     };
 }
 
-export class RingCipherQuestion extends IQuestion implements IAttempt {
-    private content: RingCipherContent;
-    private currentState: {
-        ringPositions: number[]; // Current position of each ring
-        encryptedMessage: string;
-        steps: Array<{
-            letter: string;
-            ringId: number;
-            initialPosition: number;
-            stepsToRotate: number;
-            finalPosition: number;
-            code: string;
-        }>;
-    };
-    private history: Array<typeof this.currentState>;
-    private historyIndex: number;
-    private userId: string | undefined;
-    private attemptDuration: number;
-    private attemptStatus: 'paused' | 'completed';
+interface RingCipherSolutionState {
+    ringPositions: number[];
+    encryptedMessage: string;
+    steps: Array<{
+        letter: string;
+        ringId: number;
+        initialPosition: number;
+        stepsToRotate: number;
+        finalPosition: number;
+        code: string;
+    }>;
+}
 
-    constructor(id: string, title: string, isGenerated: boolean, duration: number, startTime: Date) {
-        super(id, title, isGenerated, 'ring-cipher', duration, startTime);
-        this.history = [];
-        this.historyIndex = -1;
-        this.attemptDuration = 0;
-        this.attemptStatus = 'paused';
+export class RingCipherQuestionModel extends IQuestion implements IAttempt {
+    private content: RingCipherContent;
+    private currentState: RingCipherSolutionState;
+    private undoStack: RingCipherSolutionState[];
+    private redoStack: RingCipherSolutionState[];
+    private attemptDuration: number;
+    private attemptIsDraft: boolean;
+
+    constructor(
+        id: number,
+        title: string,
+        duration: number,
+        startTime: Date
+    ) {
+        super(id, title, QuestionTypeEnum.RING_CIPHER, duration, startTime);
         this.content = {
             problemType: '',
             config: {
                 ringCount: 3,
-                markerPosition: 0
+                markerPosition: 0,
             },
             rings: [],
             instructions: [],
             example: {
                 plaintext: '',
                 encrypted: '',
-                explanation: ''
+                explanation: '',
             },
             question: {
                 task: '',
                 plaintext: '',
-                prompt: ''
+                prompt: '',
             },
             answer: {
                 encrypted: '',
-                steps: []
-            }
+                steps: [],
+            },
         };
         this.currentState = {
             ringPositions: [],
-            encryptedMessage: "",
-            steps: []
+            encryptedMessage: '',
+            steps: [],
         };
+        this.undoStack = [];
+        this.redoStack = [];
+        this.attemptDuration = 0;
+        this.attemptIsDraft = true;
     }
 
     populateQuestionFromString(questionString: string): void {
@@ -109,24 +116,37 @@ export class RingCipherQuestion extends IQuestion implements IAttempt {
         return JSON.stringify(this.content);
     }
 
-    private resetToInitialState(): void {
-        // All rings start with their first letter at the marker (position 0)
-        this.currentState = {
-            ringPositions: this.content.rings.map(() => 0),
-            encryptedMessage: "",
-            steps: []
-        };
-        this.history = [JSON.parse(JSON.stringify(this.currentState))];
-        this.historyIndex = 0;
+    undo(): boolean {
+        if (this.undoStack.length === 0) return false;
+        const currentState: RingCipherSolutionState = JSON.parse(JSON.stringify(this.currentState));
+        this.redoStack.push(currentState);
+        const previousState = this.undoStack.pop()!;
+        this.currentState = JSON.parse(JSON.stringify(previousState));
+        return true;
     }
 
-    getCurrentState() {
-        return this.currentState;
+    redo(): boolean {
+        if (this.redoStack.length === 0) return false;
+        const currentState: RingCipherSolutionState = JSON.parse(JSON.stringify(this.currentState));
+        this.undoStack.push(currentState);
+        const nextState = this.redoStack.pop()!;
+        this.currentState = JSON.parse(JSON.stringify(nextState));
+        return true;
+    }
+
+    resetToInitialState(): void {
+        this.currentState = {
+            ringPositions: this.content.rings.map(() => 0),
+            encryptedMessage: '',
+            steps: [],
+        };
+        this.undoStack = [];
+        this.redoStack = [];
     }
 
     // Ring cipher specific methods
     findLetterRing(letter: string): number {
-        return this.content.rings.findIndex(ring => 
+        return this.content.rings.findIndex(ring =>
             ring.letters.includes(letter.toUpperCase())
         );
     }
@@ -139,11 +159,8 @@ export class RingCipherQuestion extends IQuestion implements IAttempt {
     calculateStepsToRotate(ringId: number, letterPosition: number): number {
         const currentPosition = this.currentState.ringPositions[ringId];
         const targetPosition = letterPosition;
-        
-        // Calculate clockwise steps needed
         const ring = this.content.rings[ringId];
         const ringSize = ring.letters.length;
-        
         return (targetPosition - currentPosition + ringSize) % ringSize;
     }
 
@@ -156,19 +173,18 @@ export class RingCipherQuestion extends IQuestion implements IAttempt {
     encryptLetter(letter: string): string | null {
         const ringId = this.findLetterRing(letter);
         if (ringId === -1) return null;
-
         const letterPosition = this.getLetterPositionInRing(ringId, letter);
         if (letterPosition === -1) return null;
-
         const stepsToRotate = this.calculateStepsToRotate(ringId, letterPosition);
         const initialPosition = this.currentState.ringPositions[ringId];
-        
+        // Save current state for undo
+        const prevState: RingCipherSolutionState = JSON.parse(JSON.stringify(this.currentState));
+        this.undoStack.push(prevState);
+        this.redoStack = [];
         // Rotate the ring
         this.rotateRing(ringId, stepsToRotate);
         const finalPosition = this.currentState.ringPositions[ringId];
-
         const code = `${ringId + 1}${stepsToRotate}`;
-        
         // Record the step
         const step = {
             letter: letter.toUpperCase(),
@@ -176,63 +192,55 @@ export class RingCipherQuestion extends IQuestion implements IAttempt {
             initialPosition,
             stepsToRotate,
             finalPosition,
-            code
+            code,
         };
-        
         this.currentState.steps.push(step);
-        
+        this.currentState.encryptedMessage = this.currentState.encryptedMessage
+            ? `${this.currentState.encryptedMessage}-${code}`
+            : code;
         return code;
     }
 
-    // Navigation methods
-    goBack(): boolean {
-        if (this.historyIndex > 0) {
-            this.historyIndex--;
-            this.currentState = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
-            return true;
-        }
-        return false;
+    getCurrentState(): RingCipherSolutionState {
+        return this.currentState;
     }
 
-    goForward(): boolean {
-        if (this.historyIndex < this.history.length - 1) {
-            this.historyIndex++;
-            this.currentState = JSON.parse(JSON.stringify(this.history[this.historyIndex]));
-            return true;
-        }
-        return false;
-    }
-
-    reset(): void {
-        this.resetToInitialState();
-    }
-
-    saveState(): void {
-        // Remove any future history when saving a new state
-        this.history = this.history.slice(0, this.historyIndex + 1);
-        this.history.push(JSON.parse(JSON.stringify(this.currentState)));
-        this.historyIndex = this.history.length - 1;
+    getContent(): RingCipherContent {
+        return this.content;
     }
 
     // IAttempt implementation
-    setAttemptData(userId: string, duration: number, status: 'paused' | 'completed'): void {
-        this.userId = userId;
+    setAttemptData(duration: number, isDraft: boolean = true): void {
         this.attemptDuration = duration;
-        this.attemptStatus = status;
+        this.attemptIsDraft = isDraft;
     }
 
-    getAttemptData(): AttemptData {
+    getAttemptData(): QuestionAttemptData {
         return {
-            userId: this.userId || '',
-            questionId: this.id,
+            questionId: this.getId(),
             duration: this.attemptDuration,
-            status: this.attemptStatus,
-            answer: this.currentState.encryptedMessage,
-            steps: this.currentState.steps
+            isDraft: this.attemptIsDraft,
+            answer: this.toJSON(),
         };
     }
 
-    getContent() {
-        return this.content;
+    toJSON(): string {
+        const solution = {
+            currentState: this.currentState,
+            undoStack: this.undoStack,
+            redoStack: this.redoStack,
+        };
+        return JSON.stringify(solution);
+    }
+
+    loadAnswer(json: string): void {
+        try {
+            const solution = JSON.parse(json);
+            this.currentState = solution.currentState;
+            this.undoStack = solution.undoStack || [];
+            this.redoStack = solution.redoStack || [];
+        } catch (error) {
+            console.error('Error loading solution:', error);
+        }
     }
 } 
