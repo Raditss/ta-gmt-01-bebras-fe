@@ -1,18 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Search, Trophy, Filter } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { MainNavbar } from "@/components/layout/Nav/main-navbar"
-import { useRouter } from "next/navigation"
 
-import {useAuthStore} from "@/store/auth.store";
 
-// Mock leaderboard data
 const MOCK_LEADERBOARD = [
   { rank: 1, name: "AlgoMaster", solved: 145, points: 2350, badges: 12 },
   { rank: 2, name: "CodeWizard", solved: 132, points: 2120, badges: 10 },
@@ -29,24 +25,10 @@ const MOCK_LEADERBOARD = [
 export default function LeaderboardPage() {
   const [leaderboardView, setLeaderboardView] = useState("global")
   const [viewTitle, setViewTitle] = useState("Showing top performers worldwide")
-  const [mounted, setMounted] = useState(false)
-  const { isAuthenticated } = useAuthStore()
-  const router = useRouter()
-
-  useEffect(() => {
-    setMounted(true)
-    // If not authenticated, redirect to login
-    if (mounted && !isAuthenticated) {
-      router.push("/login")
-    }
-  }, [isAuthenticated, mounted, router])
 
   const handleViewChange = (value: string) => {
-    if (!mounted) return
-
     setLeaderboardView(value)
 
-    // Update the title based on the selected view
     switch (value) {
       case "global":
         setViewTitle("Showing top performers worldwide")
@@ -65,16 +47,8 @@ export default function LeaderboardPage() {
     }
   }
 
-  // Show nothing during SSR or if not authenticated
-  if (!mounted || !isAuthenticated) {
-    return null
-  }
-
   return (
     <div className="flex flex-col min-h-screen">
-      <MainNavbar />
-
-      {/* Main content */}
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
@@ -173,15 +147,12 @@ export default function LeaderboardPage() {
             <div className="p-4 bg-gray-50 border-t">
               <div className="flex items-center gap-4">
                 <div className="text-sm">
-                  {/* TODO: user rank */}
                   <span className="font-medium">Your rank:</span> {/*user?.rank*/}  #-
                 </div>
                 <div className="text-sm">
-                  {/* TODO: user points */}
                   <span className="font-medium">Points:</span> {/* user?.points */} 0
                 </div>
                 <div className="text-sm">
-                  {/* TODO: user problems solved */}
                   <span className="font-medium">Problems solved:</span> {/* user?.problemsSolved */} 0
                 </div>
               </div>
@@ -190,7 +161,6 @@ export default function LeaderboardPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="bg-gray-100 py-6 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-gray-600">
           <p>© {new Date().getFullYear()} Solvio. All rights reserved.</p>
