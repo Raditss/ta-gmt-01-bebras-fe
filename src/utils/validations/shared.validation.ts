@@ -1,4 +1,5 @@
 import {z} from "zod";
+import dayjs from "dayjs";
 
 export const jsonStringSchema = z.string().refine((str) => {
   try {
@@ -10,3 +11,12 @@ export const jsonStringSchema = z.string().refine((str) => {
 }, {
   message: 'Invalid JSON string',
 });
+
+export const dayJsSchema = z.union([
+  z.string().refine((val) => {
+    return !isNaN(Date.parse(val));
+  }, {
+    message: 'Invalid date string',
+  }),
+  z.date(),
+]).transform((val) => dayjs(val));

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { BaseCreatorProps } from "../features/bases/base.creator";
+import { BaseCreatorProps } from "@/components/features/bases/base.creator";
 
 export default function NotImplementedCreator({
   questionId,

@@ -6,7 +6,7 @@ import {
   MonsterPartType,
 } from "@/components/features/question/dt-0/solver/types";
 import { Stage } from "@pixi/react";
-import { calculateCanvasSize } from "@/utils/helpers/common";
+import { calculateCanvasSize } from "@/utils/helpers/canvas.helper";
 import MainContainer from "./main-container";
 
 interface MonsterCharacterProps {

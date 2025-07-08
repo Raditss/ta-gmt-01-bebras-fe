@@ -1,4 +1,4 @@
-import { spritesheetParser } from "@/lib/spritesheet-parser";
+import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   ColorOptions,
   EyeNumberOptions,

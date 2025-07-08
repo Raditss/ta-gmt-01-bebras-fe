@@ -1,25 +1,21 @@
-import { RuleModalCreate } from "@/components/features/cfg/create/rule-modal.create";
-import { RulesSection } from "@/components/features/cfg/create/rule-section.create";
-import { StateCreationPopupCreate } from "@/components/features/cfg/create/state-creation-popup.create";
-import { StateDisplaySolve } from "@/components/features/cfg/solve/state-display.solve";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { useCreation } from "@/hooks/useCreation";
-import { usePageNavigationGuard } from "@/hooks/usePageNavigationGuard";
-import { CfgCreateQuestion, Rule, State } from "@/models/cfg/cfg.create.model";
-import { CreationData } from "@/lib/services/creation.service";
-import { AlertCircle, CheckCircle2, Save } from "lucide-react";
-import { nanoid } from "nanoid";
-import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  CreateQuestionDraftRequest,
-  CreateQuestionDraftRequest as CreateQuestionDraft
-} from "@/utils/validations/question.validation";
+import {RuleModalCreate} from "@/components/features/question/cfg/create/rule-modal.create";
+import {RulesSection} from "@/components/features/question/cfg/create/rule-section.create";
+import {StateCreationPopupCreate} from "@/components/features/question/cfg/create/state-creation-popup.create";
+import {StateDisplaySolve} from "@/components/features/question/cfg/solve/state-display.solve";
+import {Alert, AlertDescription} from "@/components/ui/alert";
+import {Button} from "@/components/ui/button";
+import {useCreateQuestion} from "@/hooks/useCreateQuestion";
+import {usePageNavigationGuard} from "@/hooks/usePageNavigationGuard";
+import {CfgCreateQuestion, Rule, State} from "@/models/cfg/cfg.create.model";
+import {AlertCircle, CheckCircle2, Save} from "lucide-react";
+import {nanoid} from "nanoid";
+import {useRouter} from "next/navigation";
+import React, {useCallback, useEffect, useState} from "react";
+import {CreateQuestionDraftRequest} from "@/utils/validations/question.validation";
 
-import { BaseCreatorProps, CreatorWrapper } from "../../bases/base.creator";
-import { CreationSubmissionModal } from "../submission-modal.creator";
-import {useAuth} from "@/hooks/useAuth";
+import {BaseCreatorProps, CreatorWrapper} from "../../bases/base.creator";
+import {CreationSubmissionModal} from "../submission-modal.creator";
+import {QuestionTypeEnum} from "@/types/question-type.type";
 
 // Available shapes for creating rules and states
 const availableShapes = [
@@ -64,21 +60,8 @@ export default function CfgCreator({
   questionId,
   initialData,
 }: BaseCreatorProps) {
-  // ====== ALL HOOKS MUST BE AT THE TOP - NEVER CONDITIONAL ======
-
-  // Router and auth hooks
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
 
-  // IMPORTANT: All hooks must be called at the top level to avoid React error #310
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, authLoading, router]);
-
-  // useCreation hook - MUST be called at top level
   const {
     question,
     loading,
@@ -89,9 +72,9 @@ export default function CfgCreator({
     saveDraft,
     submitCreation,
     markAsChanged,
-  } = useCreation({
+  } = useCreateQuestion({
     questionId: questionId || "new", // Provide fallback to prevent undefined
-    questionType: "cfg",
+    questionType: QuestionTypeEnum.CFG,
     initialData,
     createQuestionInstance,
   });
@@ -413,35 +396,6 @@ export default function CfgCreator({
             >
               Back to Add Problem
             </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle loading states AFTER hooks are called
-  if (authLoading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle unauthenticated state AFTER hooks are called
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg mb-4">
-              Authentication required to create questions
-            </p>
-            <Button onClick={() => router.push("/login")}>Go to Login</Button>
           </div>
         </div>
       </div>

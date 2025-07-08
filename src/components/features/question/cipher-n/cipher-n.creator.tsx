@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateCipherQuestion } from '@/models/cipher-n/cipher-n.create.model';
-import { useCreation } from '@/hooks/useCreation';
+import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, AlertCircle, Save, Settings, Eye, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,10 +13,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
-import { CreationSubmissionModal } from './submission-modal';
-import { BaseCreatorProps, CreatorWrapper } from './base-creator';
+import { CreationSubmissionModal } from '@/components/features/question/submission-modal.creator';
+import { BaseCreatorProps, CreatorWrapper } from '@/components/features/bases/base.creator';
 import { CreationData } from '@/services/creationService';
-import { useAuth } from '@/lib/auth';
 import { Badge } from '@/components/ui/badge';
 
 // Polygon configuration options
@@ -168,16 +167,8 @@ function PolygonVisualization({ vertices, vertexCount, currentVertex, highlighte
 
 export default function CipherCreator({ questionId, initialData }: BaseCreatorProps) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
 
-  // Always call useCreation hook
+  // Always call useCreateQuestion hook
   const {
     question,
     loading,
@@ -187,7 +178,7 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
     saveDraft,
     submitCreation,
     markAsChanged
-  } = useCreation({
+  } = useCreateQuestion({
     questionId,
     questionType: 'cipher-n',
     initialData,

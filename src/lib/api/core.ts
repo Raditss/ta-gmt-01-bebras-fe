@@ -1,5 +1,7 @@
 import axios from "axios";
 
+import {useAuthStore} from "@/store/auth.store";
+
 export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export const axiosInstance = axios.create({
@@ -31,6 +33,9 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      const logout = useAuthStore.getState().logout;
+      logout();
+
       console.error("Unauthorized access - redirecting to login");
     }
     return Promise.reject(error);

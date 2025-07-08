@@ -1,33 +1,32 @@
 import type React from "react";
-import type { Metadata } from "next/types";
-/* 
-  TODO: revert back to use next/font/google
-*/
+import {Inter} from "next/font/google";
 import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import {TooltipProvider} from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner"
 
-export const metadata: Metadata = {
-  title: "Solvio - Coding Challenge Platform",
-  description: "Explore and solve coding challenges to improve your skills",
-  generator: "v0.dev",
-};
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({children,}: Readonly<{ children: React.ReactNode; }>) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        />
-      </head>
-      <body data-gptw="" cz-shortcut-listen="true">
-        <TooltipProvider>{children}</TooltipProvider>
-      </body>
+    <html lang="id" className={inter.className}>
+    <head/>
+    <body data-gptw="" cz-shortcut-listen="true">
+    {/*<ThemeProvider*/}
+    {/*  attribute="class"*/}
+    {/*  defaultTheme="system"*/}
+    {/*  enableSystem*/}
+    {/*  disableTransitionOnChange*/}
+    {/*>*/}
+    <main>
+      <TooltipProvider>{children}</TooltipProvider>
+    </main>
+    <Toaster />
+    {/*</ThemeProvider>*/}
+    </body>
     </html>
   );
 }

@@ -1,22 +1,21 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect, type FormEvent } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Leaf } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MainNavbar } from "@/components/layout/Nav/main-navbar"
-import {useAuth} from "@/hooks/useAuth";
 
-export default function LoginPage() {
+import { useAuthStore } from "@/store/auth.store";
+
+const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { login, isAuthenticated, user } = useAuth()
+  const { login, isAuthenticated, user } = useAuthStore()
 
   useEffect(() => {
     setMounted(true)
@@ -30,7 +29,7 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!mounted) return
 
@@ -141,3 +140,5 @@ export default function LoginPage() {
     </div>
   )
 }
+
+export default LoginPage

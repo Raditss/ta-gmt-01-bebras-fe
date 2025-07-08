@@ -13,7 +13,6 @@ interface SubmissionResult {
   points: number;
   streak: number;
   timeTaken: number;
-  // Add other statistics as needed
 }
 
 interface SubmissionModalProps {

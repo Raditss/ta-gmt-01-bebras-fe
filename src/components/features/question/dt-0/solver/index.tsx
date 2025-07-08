@@ -8,7 +8,7 @@ import { DecisionTree } from "@/components/features/question/dt-0/shared/tree";
 import MonsterCharacter from "@/components/features/question/dt-0/shared/monster-character";
 import { BaseSolverProps, SolverWrapper } from "../../../bases/base.solver";
 import { useDuration } from "@/hooks/useDuration";
-import { spritesheetParser } from "@/lib/spritesheet-parser";
+import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
@@ -25,15 +25,15 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
-import {useAuth} from "@/hooks/useAuth";
-import {useQuestionAttempt} from "@/hooks/useQuestionAttempt";
-import {DecisionTreeQuestionModel} from "@/models/dt-0/dt-0.question.model";
+import {useSolveQuestion} from "@/hooks/useSolveQuestion";
+import {DecisionTreeQuestionModel} from "@/models/dt-0/dt-0.solve.model";
+import {useAuthStore} from "@/store/auth.store";
 
 export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const router = useRouter();
   const { question, loading, error, currentDuration } =
-    useQuestionAttempt<DecisionTreeQuestionModel>(questionId, DecisionTreeQuestionModel);
+    useSolveQuestion<DecisionTreeQuestionModel>(questionId, DecisionTreeQuestionModel);
   const [selections, setSelections] = useState<
     Record<string, MonsterPartOptionType>
   >({});
@@ -171,7 +171,8 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
             </div>
 
             <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-              {question.getTitle()}
+              {/*TODO: */}
+              {/*{question.getTitle()}*/}
             </h1>
 
             <div className="mb-6 p-4 bg-white rounded-lg shadow-lg max-w-2xl mx-auto text-center">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { RingCipherQuestionModel } from '@/models/ring-cipher/ring-cipher.question.model';
+import { RingCipherSolveModel } from '@/models/ring-cipher/ring-cipher.solve.model';
 import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
 import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useQuestionAttempt } from '@/hooks/useQuestionAttempt';
+import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 import { questionService } from '@/lib/services/question.service';
 
 interface RingVisualizationProps {
@@ -118,9 +118,9 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
 
 export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   const router = useRouter();
-  const { question, loading, error, currentDuration } = useQuestionAttempt<RingCipherQuestionModel>(
+  const { question, loading, error, currentDuration } = useSolveQuestion<RingCipherSolveModel>(
     questionId,
-    RingCipherQuestionModel
+    RingCipherSolveModel
 
   );
   const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());

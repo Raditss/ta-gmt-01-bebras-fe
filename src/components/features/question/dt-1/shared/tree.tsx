@@ -1,4 +1,4 @@
-import { Rule, Finish } from "@/models/dt-1/dt-1.question.model";
+import { Rule, Finish } from "@/models/dt-1/dt-1.solve.model";
 import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 

@@ -1,4 +1,4 @@
-import { ICreateQuestion } from "../interfaces/create-question";
+import { ICreateQuestion } from "../interfaces/create-question.model";
 
 export interface Condition {
   attribute: string;
@@ -22,7 +22,7 @@ export class DecisionTreeCreateQuestion extends ICreateQuestion {
 
   constructor(
     questionTypeId: number,
-    content: string,
+    content: string = "{}",
     isPublished: boolean = false,
     title: string = "New Question",
     points: number = 0,

@@ -7,9 +7,8 @@ import { Leaf, Menu, LogOut } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useEffect, useState } from "react"
-import type { User as AuthUser } from "@/store/auth-store"
+import {useAuthStore, User as AuthUser} from "@/store/auth.store"
 import { RoleNav } from "@/components/layout/Nav/role-nav"
-import {useAuth} from "@/hooks/useAuth";
 
 interface MainNavbarProps {
   user?: AuthUser | null;
@@ -21,7 +20,7 @@ interface MainNavbarProps {
 export function MainNavbar({ user: propUser, isAuthenticated: propIsAuthenticated, logout: propLogout }: MainNavbarProps = {}) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  const auth = useAuth()
+  const auth = useAuthStore()
   const user = propUser !== undefined ? propUser : auth.user
   const isAuthenticated = propIsAuthenticated !== undefined ? propIsAuthenticated : auth.isAuthenticated
   const logout = propLogout !== undefined ? propLogout : auth.logout

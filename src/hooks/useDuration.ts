@@ -5,7 +5,6 @@ export function useDuration(initialDuration: number = 0) {
   const lastUpdateRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    // Reset the last update time whenever initial duration changes
     lastUpdateRef.current = Date.now();
     setDuration(initialDuration);
 

@@ -3,7 +3,7 @@
 import {RulesTableShared} from "@/components/features/question/cfg/shared/rules-table.shared";
 import {StateDrawerSolve} from "@/components/features/question/cfg/solve/state-drawer.solve";
 import {useDuration} from "@/hooks/useDuration";
-import {useQuestionAttempt} from "@/hooks/useQuestionAttempt";
+import {useSolveQuestion} from "@/hooks/useSolveQuestion";
 import {Rule, State} from "@/models/cfg/cfg.create.model";
 import {questionService} from "@/lib/services/question.service";
 import {Clock} from "lucide-react";
@@ -12,12 +12,12 @@ import {useCallback, useEffect, useState} from "react";
 
 import {BaseSolverProps, SolverWrapper} from "../../bases/base.solver";
 import {SubmissionModalSolver} from "../submission-modal.solver";
-import {useAuth} from "@/hooks/useAuth";
-import {CfgQuestionModel} from "@/models/cfg/cfg.question.model";
+import {CfgSolveModel} from "@/models/cfg/cfg.solve.model";
+import {useAuthStore} from "@/store/auth.store";
 
 export default function CfgSolver({ questionId }: BaseSolverProps) {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
@@ -26,7 +26,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
 
   // Setup hooks for question functionality
   const { question, loading, error, currentDuration } =
-    useQuestionAttempt<CfgQuestionModel>(questionId, CfgQuestionModel);
+    useSolveQuestion<CfgSolveModel>(questionId, CfgSolveModel);
   const { formattedDuration, getCurrentDuration } = useDuration(
     currentDuration()
   );

@@ -1,23 +1,6 @@
-import { QuestionTypeEnum } from "@/types/question-type.type";
 import {questionsApi} from "@/lib/api";
 import {Question} from "@/types/question.type";
 import {CreateQuestionDraftRequest, CreateQuestionSubmitRequest} from "@/utils/validations/question.validation";
-
-export interface CreationData {
-  questionId: string;
-  creatorId: number;
-  title: string;
-  description: string;
-  category: string;
-  points: number;
-  estimatedTime: number;
-  author: string;
-  questionType: QuestionTypeEnum;
-  content: string;
-  isPublished: boolean;
-  lastModified: Date;
-  hasContent?: boolean;
-}
 
 
 export const creationService = {

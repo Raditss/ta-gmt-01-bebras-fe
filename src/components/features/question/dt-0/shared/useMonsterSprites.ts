@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Assets, Spritesheet, Texture } from "pixi.js";
-import { spritesheetParser } from "@/lib/spritesheet-parser";
+import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   MonsterPartType,
   defaultColor,

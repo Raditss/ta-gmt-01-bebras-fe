@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { CipherNQuestionModel } from '@/models/cipher-n/cipher-n.question.model';
+import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
 import { questionService } from '@/lib/services/question.service';
-import { useAuth } from '@/hooks/useAuth';
 import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
 import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
@@ -13,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useQuestionAttempt } from '@/hooks/useQuestionAttempt';
+import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 
 interface PolygonProps {
   vertices: Array<{ pos: number; letters: string }>;
@@ -134,9 +133,9 @@ function OctagonVisualization({ vertices, currentVertex, targetVertex, highlight
 export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const router = useRouter();
   // const { user } = useAuth();
-  const { question, loading, error, currentDuration } = useQuestionAttempt<CipherNQuestionModel>(
+  const { question, loading, error, currentDuration } = useSolveQuestion<CipherNSolveModel>(
     questionId,
-    CipherNQuestionModel
+    CipherNSolveModel
   );
   const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
 

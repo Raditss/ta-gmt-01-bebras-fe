@@ -1,4 +1,4 @@
-import { ICreateQuestion } from "../interfaces/create-question";
+import { ICreateQuestion } from "../interfaces/create-question.model";
 
 interface CipherVertex {
     pos: number;

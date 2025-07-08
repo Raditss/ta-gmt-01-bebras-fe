@@ -7,7 +7,7 @@ import { Clock, Target, Plus, Trash2 } from "lucide-react";
 import MonsterCharacter from "@/components/features/question/dt-0/shared/monster-character";
 import { BaseSolverProps, SolverWrapper } from "../../bases/base.solver";
 import { useDuration } from "@/hooks/useDuration";
-import { spritesheetParser } from "@/lib/spritesheet-parser";
+import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
@@ -27,9 +27,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DecisionTree2 } from "@/components/features/question/dt-1/shared/tree";
-import {CombinationAnswer, DecisionTree2QuestionModel} from "@/models/dt-1/dt-1.question.model";
-import {useAuth} from "@/hooks/useAuth";
-import {useQuestionAttempt} from "@/hooks/useQuestionAttempt";
+import {CombinationAnswer, DecisionTree2QuestionModel} from "@/models/dt-1/dt-1.solve.model";
+import {useSolveQuestion} from "@/hooks/useSolveQuestion";
+import {useAuthStore} from "@/store/auth.store";
 
 // Local interface for UI state management
 interface UICombination extends CombinationAnswer {
@@ -37,10 +37,10 @@ interface UICombination extends CombinationAnswer {
 }
 
 export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const router = useRouter();
   const { question, loading, error, currentDuration } =
-    useQuestionAttempt<DecisionTree2QuestionModel>(questionId, DecisionTree2QuestionModel);
+    useSolveQuestion<DecisionTree2QuestionModel>(questionId, DecisionTree2QuestionModel);
   const [selections, setSelections] = useState<
     Record<string, MonsterPartOptionType>
   >({});
@@ -333,7 +333,8 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
             </div>
 
             <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-              {question.getTitle()}
+              {/* TODO */}
+              {/*{question.getTitle()}*/}
             </h1>
 
             <div className="mb-6 p-4 bg-white rounded-lg shadow-lg max-w-2xl mx-auto text-center">

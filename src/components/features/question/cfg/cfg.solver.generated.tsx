@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { CfgQuestionModel } from "@/models/cfg/cfg.question.model";
+import { CfgSolveModel } from "@/models/cfg/cfg.solve.model";
 import { State, Rule } from "@/models/cfg/cfg.create.model";
 import { StateDrawerSolve } from "@/components/features/question/cfg/solve/state-drawer.solve";
 import { RulesTableShared } from "@/components/features/question/cfg/shared/rules-table.shared";
@@ -21,7 +21,7 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [question, setQuestion] = useState<CfgQuestionModel | null>(null);
+  const [question, setQuestion] = useState<CfgSolveModel | null>(null);
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
@@ -34,11 +34,10 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     const fetchGeneratedQuestion = async () => {
       try {
         const data = await questionsApi.generateQuestion(type);
-        const q = new CfgQuestionModel(
-          String(data.id),
+        const q = new CfgSolveModel(
+          data.id,
           data.title,
           getQuestionTypeByName(data.type),
-          true,
           data.duration
         );
         q.populateQuestionFromString(data.content);
@@ -148,8 +147,8 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
 
       // Call the check endpoint instead of submitting an attempt
       const response = await questionService.checkGeneratedAnswer({
-        questionId: question.getId(),
         type: question.getQuestionType(),
+        questionId: question.getId().toString(),
         duration,
         solution: question.toJSON(),
       });
@@ -160,7 +159,7 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
         streak: response.streak || 0,
         timeTaken: duration,
       });
-    } catch (err) {
+    } catch (_err) {
       setError("Failed to check your answer. Please try again.");
     }
   };

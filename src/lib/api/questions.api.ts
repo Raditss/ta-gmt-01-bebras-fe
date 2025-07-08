@@ -1,7 +1,7 @@
 import {API_URL, apiCore} from "./core";
 import {QuestionTypeEnum} from "@/types/question-type.type";
 import {
-  CreateQuestionDraftRequest, CreateQuestionSubmitRequest,
+  CreateQuestionDraftRequest, CreateQuestionMetadataRequest, CreateQuestionSubmitRequest,
   GeneratedQuestionResponse,
   QuestionResponse, UpdateQuestionRequest
 } from "@/utils/validations/question.validation";
@@ -27,6 +27,18 @@ export const questionsApi = {
         }
     );
     return response.data;
+  },
+
+  async createQuestionMetadata(createQuestionMetadataPayload: CreateQuestionMetadataRequest): Promise<QuestionResponse> {
+    try {
+      const response = await apiCore.post<QuestionResponse>(
+          `/questions/metadata`,
+          createQuestionMetadataPayload
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   },
 
   async createQuestionDraft(createQuestionDraftPayload: CreateQuestionDraftRequest): Promise<QuestionResponse> {

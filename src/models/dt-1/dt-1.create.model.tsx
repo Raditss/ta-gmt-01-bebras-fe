@@ -1,4 +1,4 @@
-import { ICreateQuestion } from "@/models/interfaces/create-question";
+import { ICreateQuestion } from "@/models/interfaces/create-question.model";
 
 export interface Condition {
   attribute: string;

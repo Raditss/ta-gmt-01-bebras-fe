@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {QuestionTypeEnum} from "@/types/question-type.type";
+import {dayJsSchema} from "@/utils/validations/shared.validation";
 
 export const saveDraftRequestSchema = z.object({
   questionId: z.number().positive("Question ID must be positive"),
@@ -27,8 +28,8 @@ export const saveDraftResponseSchema = z.object({
   answer: z.object({}).passthrough(),
   isCompleted: z.boolean(),
   isDraft: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dayJsSchema,
+  updatedAt: dayJsSchema,
 })
 
 export const submitAnswerResponseSchema = z.object({
@@ -50,8 +51,8 @@ export const questionAttemptResponseSchema = z.object({
   answer: z.object({}).passthrough(),
   isCompleted: z.boolean(),
   isDraft: z.boolean(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: dayJsSchema,
+  updatedAt: dayJsSchema,
 });
 
 export const generatedQuestionAttemptResponseSchema = z.object({

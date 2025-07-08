@@ -1,4 +1,4 @@
-import { Shape, ShapeContainer } from "@/components/features/cfg/shared/shape";
+import { Shape, ShapeContainer } from "@/components/features/question/cfg/shared/shape";
 import { State } from "@/models/cfg/cfg.create.model";
 import { useEffect, useState } from "react";
 

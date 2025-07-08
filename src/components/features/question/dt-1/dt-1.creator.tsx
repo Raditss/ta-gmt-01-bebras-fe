@@ -37,16 +37,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCreation } from "@/hooks/useCreation";
+import {useCreateQuestion} from "@/hooks/useCreateQuestion";
 import { usePageNavigationGuard } from "@/hooks/usePageNavigationGuard";
-import { spritesheetParser } from "@/lib/spritesheet-parser";
+import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   Condition,
   DecisionTree2CreateQuestion,
   Finish,
   Rule,
 } from "@/models/dt-1/dt-1.create.model";
-import { CreationData } from "@/lib/services/creation.service";
 import {
   AlertCircle,
   CheckCircle2,
@@ -62,7 +61,9 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { BaseCreatorProps, CreatorWrapper } from "../../bases/base.creator";
 import { CreationSubmissionModal } from "../submission-modal.creator";
-import {useAuth} from "@/hooks/useAuth";
+
+import {useAuthStore} from "@/store/auth.store";
+import {QuestionCreation} from "@/types/question.type";
 
 const attributeLabels = {
   body: "Body",
@@ -74,7 +75,7 @@ const attributeLabels = {
 
 // Helper function to create question instance
 const createQuestionInstance = (
-  data: CreationData
+  data: QuestionCreation
 ): DecisionTree2CreateQuestion => {
   try {
     const instance = new DecisionTree2CreateQuestion(
@@ -100,7 +101,7 @@ export default function Dt1Creator({
   initialData,
 }: BaseCreatorProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -119,7 +120,7 @@ export default function Dt1Creator({
     saveDraft,
     submitCreation,
     markAsChanged,
-  } = useCreation({
+  } = useCreateQuestion({
     questionId,
     questionType: "decision-tree-2",
     initialData,

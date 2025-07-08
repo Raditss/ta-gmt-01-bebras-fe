@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateRingCipherQuestion } from '@/models/ring-cipher/create-question/ring-cipher.create.model';
-import { useCreation } from '@/hooks/useCreation';
+import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, AlertCircle, Save, Settings, Eye, Plus, Trash2, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -174,7 +174,7 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // Always call useCreation hook
+  // Always call useCreateQuestion hook
   const {
     question,
     loading,
@@ -184,7 +184,7 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
     saveDraft,
     submitCreation,
     markAsChanged
-  } = useCreation({
+  } = useCreateQuestion({
     questionId,
     questionType: 'ring-cipher',
     initialData,

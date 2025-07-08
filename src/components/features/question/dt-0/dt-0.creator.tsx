@@ -19,15 +19,14 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useCreation } from "@/hooks/useCreation";
+import {useCreateQuestion} from "@/hooks/useCreateQuestion";
 import { usePageNavigationGuard } from "@/hooks/usePageNavigationGuard";
-import { spritesheetParser } from "@/lib/spritesheet-parser";
+import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   Condition,
   DecisionTreeCreateQuestion,
   Rule,
 } from "@/models/dt-0/dt-0.create.model";
-import { CreationData } from "@/lib/services/creation.service";
 import {
   AlertCircle,
   CheckCircle2,
@@ -41,7 +40,8 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { BaseCreatorProps, CreatorWrapper } from "../../bases/base.creator";
 import { CreationSubmissionModal } from "../submission-modal.creator";
-import {useAuth} from "@/hooks/useAuth";
+
+import {QuestionCreation} from "@/types/question.type";
 
 const attributeLabels = {
   body: "Body",
@@ -53,7 +53,7 @@ const attributeLabels = {
 
 // Helper function to create question instance
 const createQuestionInstance = (
-  data: CreationData
+  data: QuestionCreation
 ): DecisionTreeCreateQuestion => {
   try {
     const instance = new DecisionTreeCreateQuestion(
@@ -81,14 +81,6 @@ export default function Dt0Creator({
   initialData,
 }: BaseCreatorProps) {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   // Creation hook
   const {
@@ -101,7 +93,7 @@ export default function Dt0Creator({
     saveDraft,
     submitCreation,
     markAsChanged,
-  } = useCreation({
+  } = useCreateQuestion({
     questionId,
     questionType: "decision-tree",
     initialData,
@@ -537,7 +529,7 @@ export default function Dt0Creator({
   };
 
   // Handle loading states
-  if (authLoading || optionsLoading) {
+  if (optionsLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
         <div className="flex-1 flex justify-center items-center">
@@ -549,20 +541,6 @@ export default function Dt0Creator({
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg mb-4">
-              Authentication required to create questions
-            </p>
-            <Button onClick={() => router.push("/login")}>Go to Login</Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <CreatorWrapper

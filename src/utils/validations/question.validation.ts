@@ -1,12 +1,19 @@
 import {z} from "zod";
-import {jsonStringSchema} from "@/utils/validations/shared.validation";
+import {dayJsSchema, jsonStringSchema} from "@/utils/validations/shared.validation";
+
+export const createQuestionMetadataRequestSchema = z.object({
+  questionTypeId: z.number().nonnegative("Question Type ID must be positive"),
+  title: z.string().min(1, "Title is required"),
+  points: z.number().nonnegative("Points must be non-negative"),
+  estimatedTime: z.number().nonnegative("Estimated time must be non-negative"),
+})
 
 export const createQuestionDraftRequestSchema = z.object({
   id: z.union([z.string(), z.number()]).optional(),
   questionTypeId: z.number(),
+  title: z.string().default("New Question"),
   content: jsonStringSchema.default('{}'),
   isPublished: z.boolean().default(false),
-  title: z.string().default("New Question"),
   points: z.number().default(0),
   estimatedTime: z.number().default(0),
 })
@@ -14,18 +21,18 @@ export const createQuestionDraftRequestSchema = z.object({
 export const createQuestionSubmitRequestSchema = z.object({
   id: z.union([z.string(), z.number()]),
   questionTypeId: z.number(),
+  title: z.string(),
   content: jsonStringSchema,
   isPublished: z.boolean(),
-  title: z.string(),
   points: z.number(),
   estimatedTime: z.number(),
 })
 
 export const updateQuestionRequestSchema = z.object({
   questionTypeId: z.number(),
+  title: z.string(),
   content: jsonStringSchema,
   isPublished: z.boolean(),
-  title: z.string(),
   points: z.number(),
   estimatedTime: z.number(),
 })
@@ -44,11 +51,11 @@ export const questionResponseSchema = z.object({
       id: z.number(),
       name: z.string(),
       description: z.string(),
-      createdAt: z.string(),
-      updatedAt: z.string(),
+      createdAt: dayJsSchema,
+      updatedAt: dayJsSchema,
     }),
-    createdAt: z.string(),
-    updatedAt: z.string(),
+    createdAt: dayJsSchema,
+    updatedAt: dayJsSchema,
     teacher: z.object({
       id: z.number(),
       name: z.string(),
@@ -57,7 +64,7 @@ export const questionResponseSchema = z.object({
 });
 
 export const generatedQuestionResponseSchema = z.object({
-  id: z.string(),
+  id: z.number(),
   title: z.string(),
   isGenerated: z.boolean(),
   duration: z.number(),
@@ -65,6 +72,7 @@ export const generatedQuestionResponseSchema = z.object({
   content: z.string(),
 });
 
+export type CreateQuestionMetadataRequest = z.infer<typeof createQuestionMetadataRequestSchema>;
 export type CreateQuestionDraftRequest = z.infer<typeof createQuestionDraftRequestSchema>;
 export type CreateQuestionSubmitRequest = z.infer<typeof createQuestionSubmitRequestSchema>;
 export type UpdateQuestionRequest = z.infer<typeof updateQuestionRequestSchema>;

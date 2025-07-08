@@ -3,18 +3,16 @@
 import {
   GeneratedSolverProps,
   GeneratedSolverWrapper,
-} from "../features/bases/base.solver.generated";
-import { QUESTION_TYPES } from "@/types/question-type.type";
+} from "@/components/features/bases/base.solver.generated";
 
 export default function NotImplemented({ type }: GeneratedSolverProps) {
-  const questionTypeInfo = QUESTION_TYPES.find((qt) => qt.type === type);
 
   return (
     <GeneratedSolverWrapper loading={false} error={null} type={type}>
       <div className="text-center">
         <h2 className="text-2xl font-bold mb-4">Coming Soon!</h2>
         <p className="text-lg">
-          {questionTypeInfo?.title || type.toUpperCase()} generated questions
+          { type } generated questions
           are not yet implemented.
         </p>
       </div>

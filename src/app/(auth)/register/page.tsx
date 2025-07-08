@@ -11,8 +11,10 @@ import { useRouter } from "next/navigation"
 import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import {useAuth} from "@/hooks/useAuth";
 
+import {useAuthStore} from "@/store/auth.store";
+
+// TODO: use react hook form
 export default function RegisterPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
@@ -21,7 +23,7 @@ export default function RegisterPage() {
   const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT")
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
-  const { register, isAuthenticated, isLoading, error, clearError, user } = useAuth()
+  const { register, isAuthenticated, user } = useAuthStore()
 
   useEffect(() => {
     setMounted(true)
@@ -41,12 +43,10 @@ export default function RegisterPage() {
 
     // Validate form
     if (password !== confirmPassword) {
-      clearError()
       return
     }
 
-    clearError()
-    const success = await register(username, password, name, role)
+    const success = await register({username, password, name, role})
 
     if (success) {
       // Redirect to login page after successful registration
@@ -81,13 +81,6 @@ export default function RegisterPage() {
               <h1 className="text-2xl font-bold text-[#F8D15B]">Register</h1>
             </div>
 
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <label htmlFor="name" className="text-sm font-medium">
@@ -100,7 +93,6 @@ export default function RegisterPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  disabled={isLoading}
                 />
               </div>
 
@@ -115,7 +107,6 @@ export default function RegisterPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  disabled={isLoading}
                 />
               </div>
 
@@ -123,7 +114,7 @@ export default function RegisterPage() {
                 <label htmlFor="role" className="text-sm font-medium">
                   Role
                 </label>
-                <Select value={role} onValueChange={(value: "STUDENT" | "TEACHER") => setRole(value)} disabled={isLoading}>
+                <Select value={role} onValueChange={(value: "STUDENT" | "TEACHER") => setRole(value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
@@ -145,7 +136,6 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isLoading}
                 />
               </div>
 
@@ -160,12 +150,11 @@ export default function RegisterPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  disabled={isLoading}
                 />
               </div>
 
-              <Button type="submit" className="w-full bg-[#F8D15B] text-black hover:bg-[#E8C14B]" disabled={isLoading}>
-                {isLoading ? "Creating account..." : "Register"}
+              <Button type="submit" className="w-full bg-[#F8D15B] text-black hover:bg-[#E8C14B]">
+                Register
               </Button>
             </form>
 

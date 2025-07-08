@@ -1,5 +1,5 @@
 import { apiCore } from "./core";
-import { User } from "@/store/auth-store";
+import { User } from "@/store/auth.store";
 import {
   LoginRequest,
   LoginResponse,

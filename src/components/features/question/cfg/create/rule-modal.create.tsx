@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Shape, ShapeContainer } from "@/components/features/cfg/shared/shape";
+import { Shape, ShapeContainer } from "@/components/features/question/cfg/shared/shape";
 
 export function RuleModalCreate({
   availableObjects,
