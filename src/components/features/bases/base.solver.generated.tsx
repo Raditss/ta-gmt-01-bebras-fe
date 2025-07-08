@@ -2,6 +2,7 @@
 
 import { MainNavbar } from "@/components/layout/Nav/main-navbar";
 import { QuestionTypeEnum } from "@/types/question-type.type";
+import React from "react";
 
 export interface GeneratedSolverProps {
   type: QuestionTypeEnum;

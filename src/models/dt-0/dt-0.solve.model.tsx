@@ -22,7 +22,7 @@ interface DecisionTreeSolution {
   userSelections: Record<string, string>;
 }
 
-export class DecisionTreeQuestionModel extends IQuestion implements IAttempt {
+export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
   private questionSetup: DecisionTreeQuestionSetup;
   private selectedRule: number | null;
   private userSelections: Record<string, string>;

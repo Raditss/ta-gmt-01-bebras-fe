@@ -1,69 +1,34 @@
 "use client";
 
-import { DecisionTree2 } from "@/components/features/question/dt-1/shared/tree";
+import {DecisionTree2} from "@/components/features/question/dt-1/shared/tree";
 import MonsterCharacter from "@/components/features/question/dt-0/shared/monster-character";
 import MonsterPartOption from "@/components/features/question/dt-0/shared/monster-part-option";
-import { extractSpriteOptions } from "@/components/features/question/dt-0/solver/helper";
+import {extractSpriteOptions} from "@/components/features/question/dt-0/solver/helper";
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
   MonsterPartType,
 } from "@/components/features/question/dt-0/solver/types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {Alert, AlertDescription} from "@/components/ui/alert";
+import {Badge} from "@/components/ui/badge";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious,} from "@/components/ui/carousel";
+import {Checkbox} from "@/components/ui/checkbox";
+import {Dialog, DialogContent, DialogHeader, DialogTitle,} from "@/components/ui/dialog";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {useCreateQuestion} from "@/hooks/useCreateQuestion";
-import { usePageNavigationGuard } from "@/hooks/usePageNavigationGuard";
-import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
-import {
-  Condition,
-  DecisionTree2CreateQuestion,
-  Finish,
-  Rule,
-} from "@/models/dt-1/dt-1.create.model";
-import {
-  AlertCircle,
-  CheckCircle2,
-  Edit2,
-  MapPin,
-  Plus,
-  Save,
-  Target,
-  Trash2,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import {usePageNavigationGuard} from "@/hooks/usePageNavigationGuard";
+import {spritesheetParser} from "@/utils/helpers/spritesheet.helper";
+import {Condition, DecisionTree2CreateModel, Finish, Rule,} from "@/models/dt-1/dt-1.create.model";
+import {AlertCircle, CheckCircle2, Edit2, MapPin, Plus, Save, Target, Trash2,} from "lucide-react";
+import React, {useCallback, useEffect, useState} from "react";
 
-import { BaseCreatorProps, CreatorWrapper } from "../../bases/base.creator";
-import { CreationSubmissionModal } from "../submission-modal.creator";
-
-import {useAuthStore} from "@/store/auth.store";
-import {QuestionCreation} from "@/types/question.type";
+import {BaseCreatorProps, CreatorWrapper} from "../../bases/base.creator";
+import {CreationSubmissionModal} from "../submission-modal.creator";
 
 const attributeLabels = {
   body: "Body",
@@ -73,59 +38,19 @@ const attributeLabels = {
   color: "Color",
 };
 
-// Helper function to create question instance
-const createQuestionInstance = (
-  data: QuestionCreation
-): DecisionTree2CreateQuestion => {
-  try {
-    const instance = new DecisionTree2CreateQuestion(
-      data.title,
-      data.description,
-      data.difficulty,
-      data.category,
-      data.points,
-      data.estimatedTime,
-      data.author,
-      data.questionId,
-      data.creatorId
-    );
-    return instance;
-  } catch (error) {
-    console.error("Error creating Decision Tree 2 question instance:", error);
-    throw error;
-  }
-};
-
 export default function Dt1Creator({
-  questionId,
-  initialData,
+  initialDataQuestion
 }: BaseCreatorProps) {
-  const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   // Creation hook
   const {
     question,
-    loading,
-    saving,
     error: creationError,
     hasUnsavedChanges,
     saveDraft,
     submitCreation,
     markAsChanged,
-  } = useCreateQuestion({
-    questionId,
-    questionType: "decision-tree-2",
-    initialData,
-    createQuestionInstance,
-  });
+  } = useCreateQuestion<DecisionTree2CreateModel>(initialDataQuestion, DecisionTree2CreateModel);
 
   // Nav guard
   const {
@@ -200,10 +125,10 @@ export default function Dt1Creator({
   // Load existing data when question is loaded
   useEffect(() => {
     if (question) {
-      const decisionTree2Question = question as DecisionTree2CreateQuestion;
-      setRules(decisionTree2Question.rules || []);
-      setFinishes(decisionTree2Question.finishes || []);
-      setGoals(decisionTree2Question.goals || []);
+      const decisionTree2Question = question;
+      setRules(decisionTree2Question.content.rules);
+      setFinishes(decisionTree2Question.content.finishes);
+      setGoals(decisionTree2Question.content.goals);
     }
   }, [question]);
 
@@ -250,7 +175,7 @@ export default function Dt1Creator({
   const handleSaveRule = () => {
     if (!question || !isCurrentRuleValid()) return;
 
-    const decisionTree2Question = question as DecisionTree2CreateQuestion;
+    const decisionTree2Question = question;
     const conditions = createConditionsFromSelections();
 
     // Check for duplicate rules
@@ -328,8 +253,7 @@ export default function Dt1Creator({
   // Handle removing rule
   const handleRemoveRule = (ruleId: number) => {
     if (!question) return;
-    const decisionTree2Question = question as DecisionTree2CreateQuestion;
-    decisionTree2Question.removeRule(ruleId);
+    question.removeRule(ruleId);
     setRules((prev) => prev.filter((rule) => rule.id !== ruleId));
     markAsChanged();
   };
@@ -338,7 +262,7 @@ export default function Dt1Creator({
   const handleSaveFinish = () => {
     if (!question || !newFinishName.trim()) return;
 
-    const decisionTree2Question = question as DecisionTree2CreateQuestion;
+    const decisionTree2Question = question;
 
     if (editingFinishId) {
       // Update existing finish
@@ -383,8 +307,7 @@ export default function Dt1Creator({
   // Handle removing finish
   const handleRemoveFinish = (finishId: number) => {
     if (!question) return;
-    const decisionTree2Question = question as DecisionTree2CreateQuestion;
-    decisionTree2Question.removeFinish(finishId);
+    question.removeFinish(finishId);
     setFinishes((prev) => prev.filter((finish) => finish.id !== finishId));
     setGoals((prev) => prev.filter((goalId) => goalId !== finishId));
     markAsChanged();
@@ -393,8 +316,7 @@ export default function Dt1Creator({
   // Handle toggling goal
   const handleToggleGoal = (finishId: number) => {
     if (!question) return;
-    const decisionTree2Question = question as DecisionTree2CreateQuestion;
-    decisionTree2Question.toggleGoal(finishId);
+    question.toggleGoal(finishId);
 
     if (goals.includes(finishId)) {
       setGoals((prev) => prev.filter((goalId) => goalId !== finishId));
@@ -414,8 +336,7 @@ export default function Dt1Creator({
   // Handle submit
   const handleSubmit = () => {
     if (!question) return;
-    const decisionTree2Question = question as DecisionTree2CreateQuestion;
-    if (decisionTree2Question.validateQuestion()) {
+    if (question.hasRequiredContent()) {
       setShowSubmissionModal(true);
     } else {
       // Show validation errors
@@ -441,7 +362,7 @@ export default function Dt1Creator({
 
   return (
     <CreatorWrapper
-      loading={loading || authLoading || optionsLoading}
+      loading={optionsLoading}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -461,7 +382,6 @@ export default function Dt1Creator({
               <Button
                 variant="outline"
                 onClick={handleManualSave}
-                disabled={saving}
               >
                 <Save className="w-4 h-4 mr-2" />
                 Save Draft
@@ -549,7 +469,10 @@ export default function Dt1Creator({
                           id="finish-name"
                           placeholder="Enter finish name (e.g., A, B, Exit, Success)..."
                           value={newFinishName}
-                          onChange={(e) => setNewFinishName(e.target.value)}
+                          onChange={(e) => {
+                            e.preventDefault();
+                            setNewFinishName(e.target.value)
+                          }}
                         />
                         <div className="flex gap-2">
                           <Button
@@ -792,9 +715,7 @@ export default function Dt1Creator({
                             const allFinishIds = finishes.map((f) => f.id);
                             setGoals(allFinishIds);
                             if (question) {
-                              const decisionTree2Question =
-                                question as DecisionTree2CreateQuestion;
-                              decisionTree2Question.setGoals(allFinishIds);
+                              question.setGoals(allFinishIds);
                               markAsChanged();
                             }
                           }}
@@ -808,9 +729,7 @@ export default function Dt1Creator({
                           onClick={() => {
                             setGoals([]);
                             if (question) {
-                              const decisionTree2Question =
-                                question as DecisionTree2CreateQuestion;
-                              decisionTree2Question.setGoals([]);
+                              question.setGoals([]);
                               markAsChanged();
                             }
                           }}
@@ -1053,7 +972,6 @@ export default function Dt1Creator({
             </Dialog>
           )}
 
-          {/* Submission Modal */}
           <CreationSubmissionModal
             isOpen={showSubmissionModal}
             isConfirming={true}
@@ -1061,17 +979,13 @@ export default function Dt1Creator({
             onCancel={() => setShowSubmissionModal(false)}
             onConfirm={handleConfirmSubmit}
             questionData={
-              question
-                ? {
-                    title: question.getTitle(),
-                    description: question.getDescription(),
-                    difficulty: question.getDifficulty(),
-                    category: question.getCategory(),
-                    points: question.getPoints(),
-                    estimatedTime: question.getEstimatedTime(),
-                    author: question.getAuthor(),
-                  }
-                : null
+              {
+                title: question.draft.title,
+                questionType: question.draft.questionType.name,
+                points: question.draft.points,
+                estimatedTime: question.draft.estimatedTime,
+                author: question.draft.teacher.name,
+              }
             }
           />
         </div>

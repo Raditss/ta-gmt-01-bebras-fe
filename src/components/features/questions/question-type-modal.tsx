@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { QuestionTypeEnum } from "@/types/question-type.type";
 
 interface QuestionTypeModalProps {
@@ -19,6 +18,7 @@ export function QuestionTypeModal({
   onClose,
   onSelectType,
 }: QuestionTypeModalProps) {
+  console.log(onSelectType)
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">

@@ -1,36 +1,18 @@
-import { CreateQuestionDraftRequest as CreateQuestionDraft } from "@/utils/validations/question.validation";
+import {Question} from "@/types/question.type";
 
 export abstract class ICreateQuestion {
-  private _createQuestionDraft: CreateQuestionDraft;
+  private readonly _draft: Question;
 
-  protected constructor(
-    questionTypeId: number,
-    content: string = "{}",
-    isPublished: boolean = false,
-    title: string = "New Question",
-    points: number = 0,
-    estimatedTime: number = 0,
-    id?: string | number,
-  ) {
-    this._createQuestionDraft = {
-      id,
-      questionTypeId,
-      content,
-      isPublished,
-      title,
-      points,
-      estimatedTime,
-    };
+  protected constructor(question: Question) {
+    this._draft = question;
   }
 
   abstract contentToString(): string;
   abstract populateFromContentString(contentString: string): void;
+  abstract hasRequiredContent(): boolean;
+  abstract validateContent(): boolean;
 
-  get createQuestionDraft(): CreateQuestionDraft {
-    return this._createQuestionDraft;
-  }
-
-  set createQuestionDraft(value: CreateQuestionDraft) {
-    this._createQuestionDraft = value;
+  get draft(): Question {
+    return this._draft;
   }
 }

@@ -1,4 +1,5 @@
 import { ICreateQuestion } from "../interfaces/create-question.model";
+import {Question} from "@/types/question.type";
 
 export interface Rule {
   id: string;
@@ -25,7 +26,7 @@ export interface CfgCreationContent {
   steps: Step[];
 }
 
-export class CfgCreateQuestion extends ICreateQuestion {
+export class CfgCreateModel extends ICreateQuestion {
   rules: Rule[];
   startState: State[];
   endState: State[];
@@ -34,23 +35,9 @@ export class CfgCreateQuestion extends ICreateQuestion {
   private redoStack: Step[];
 
   constructor(
-    questionTypeId: number,
-    content: string,
-    isPublished: boolean = false,
-    title: string = "New Question",
-    points: number = 0,
-    estimatedTime: number = 0,
-    id?: string | number,
+    _question: Question
   ) {
-    super(
-      questionTypeId,
-      content,
-      isPublished,
-      title,
-      points,
-      estimatedTime,
-      id,
-    );
+    super(_question)
     this.rules = [];
     this.startState = [];
     this.endState = [];
@@ -174,5 +161,15 @@ export class CfgCreateQuestion extends ICreateQuestion {
     }
 
     return currentState;
+  }
+
+  // TODO
+  hasRequiredContent(): boolean {
+    return false;
+  }
+
+  // TODO
+  validateContent(): boolean {
+    return false;
   }
 }

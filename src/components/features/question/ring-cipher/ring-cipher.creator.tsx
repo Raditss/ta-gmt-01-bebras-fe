@@ -2,46 +2,23 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreateRingCipherQuestion } from '@/models/ring-cipher/create-question/ring-cipher.create.model';
+import { RingCipherCreateModel } from '@/models/ring-cipher/ring-cipher.create.model';
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, AlertCircle, Save, Settings, Eye, Plus, Trash2, RotateCw } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Save, Settings, Eye, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
-import { CreationSubmissionModal } from './submission-modal';
-import { BaseCreatorProps, CreatorWrapper } from './base-creator';
-import { CreationData } from '@/services/creationService';
-import { useAuth } from '@/lib/auth';
+import { CreationSubmissionModal } from "../submission-modal.creator";
+import { BaseCreatorProps, CreatorWrapper } from '../../bases/base.creator';
 import { Badge } from '@/components/ui/badge';
 
 // Ring configuration options
 const RING_COUNT_OPTIONS = [2, 3, 4, 5];
 
-// Helper function to create question instance
-const createQuestionInstance = (data: CreationData): CreateRingCipherQuestion => {
-  try {
-    const instance = new CreateRingCipherQuestion(
-      data.title,
-      data.description,
-      data.difficulty,
-      data.category,
-      data.points,
-      data.estimatedTime,
-      data.author,
-      data.questionId,
-      data.creatorId
-    );
-    return instance;
-  } catch (error) {
-    console.error('Error creating ring cipher question instance:', error);
-    throw error;
-  }
-};
 
 interface RingVisualizationProps {
   rings: Array<{ id: number; letters: string[]; currentPosition: number }>;
@@ -163,33 +140,18 @@ function RingVisualization({ rings, highlightedRing, ringPositions = [] }: RingV
   );
 }
 
-export default function RingCipherCreator({ questionId, initialData }: BaseCreatorProps) {
+export default function RingCipherCreator({ initialDataQuestion }: BaseCreatorProps) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, authLoading, router]);
 
   // Always call useCreateQuestion hook
   const {
     question,
-    loading,
-    saving,
     error: creationError,
     hasUnsavedChanges,
     saveDraft,
     submitCreation,
     markAsChanged
-  } = useCreateQuestion({
-    questionId,
-    questionType: 'ring-cipher',
-    initialData,
-    createQuestionInstance
-  });
+  } = useCreateQuestion<RingCipherCreateModel>(initialDataQuestion, RingCipherCreateModel);
 
   // Navigation guard
   const {
@@ -216,6 +178,7 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
     "• Second number: how many steps clockwise that ring must rotate to bring the letter to the marker",
     "After encryption, the ring stays in its new position for the next letter."
   ]);
+  const highlightedRing = undefined
   const [example, setExample] = useState({
     plaintext: '',
     encrypted: '',
@@ -227,14 +190,12 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
   });
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
-  const [previewMode, setPreviewMode] = useState<'example' | 'question'>('example');
-  const [highlightedRing, setHighlightedRing] = useState<number | undefined>(undefined);
   const [previewRingPositions, setPreviewRingPositions] = useState<number[]>([]);
 
   // Initialize state from question
   useEffect(() => {
     if (question) {
-      const ringCipherQuestion = question as CreateRingCipherQuestion;
+      const ringCipherQuestion = question as RingCipherCreateModel;
       const content = ringCipherQuestion.getContent();
       
       setRingCount(content.config.ringCount);
@@ -411,7 +372,7 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
   const updateQuestionContent = useCallback(() => {
     if (!question) return;
     
-    const ringCipherQuestion = question as CreateRingCipherQuestion;
+    const ringCipherQuestion = question as RingCipherCreateModel;
     
     // Update config
     ringCipherQuestion.setRingCount(ringCount);
@@ -483,47 +444,6 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
     }
   }, [question, submitCreation, router]);
 
-  const getQuestionMetadata = useCallback(() => {
-    if (!question) return null;
-    
-    return {
-      title: question.getTitle(),
-      description: question.getDescription(),
-      difficulty: question.getDifficulty(),
-      category: question.getCategory(),
-      points: question.getPoints(),
-      estimatedTime: question.getEstimatedTime(),
-      author: question.getAuthor()
-    };
-  }, [question]);
-
-  // Handle loading states
-  if (authLoading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg mb-4">Authentication required to create questions</p>
-            <Button onClick={() => router.push('/login')}>
-              Go to Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const isFormValid = rings.length > 0 && 
                      instructions.length > 0 && 
@@ -533,7 +453,7 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
 
   return (
     <CreatorWrapper
-      loading={loading}
+      loading={false}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -558,9 +478,9 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
                 </AlertDescription>
               </Alert>
             )}
-            <Button onClick={handleManualSave} disabled={saving} variant="outline">
+            <Button onClick={handleManualSave} variant="outline">
               <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : 'Save Draft'}
+              {'Save Draft'}
             </Button>
           </div>
         </div>
@@ -575,7 +495,7 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id as any)}
+              onClick={() => setActiveTab(id as 'config' | 'rings' | 'content' | 'preview')}
               className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
@@ -806,8 +726,14 @@ export default function RingCipherCreator({ questionId, initialData }: BaseCreat
         {/* Submission Modal */}
         <CreationSubmissionModal
           isOpen={showSubmissionModal}
-          isConfirming={!saving}
-          questionData={getQuestionMetadata()}
+          isConfirming={true}
+          questionData={{
+            title: question.draft.title,
+            questionType: question.draft.questionType.name,
+            points: question.draft.points,
+            estimatedTime: question.draft.estimatedTime,
+            author: question.draft.teacher.name,
+          }}
           onConfirm={handleConfirmSubmit}
           onCancel={() => setShowSubmissionModal(false)}
           onClose={() => {

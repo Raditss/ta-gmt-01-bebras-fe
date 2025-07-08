@@ -6,16 +6,14 @@ import {Alert, AlertDescription} from "@/components/ui/alert";
 import {Button} from "@/components/ui/button";
 import {useCreateQuestion} from "@/hooks/useCreateQuestion";
 import {usePageNavigationGuard} from "@/hooks/usePageNavigationGuard";
-import {CfgCreateQuestion, Rule, State} from "@/models/cfg/cfg.create.model";
+import {CfgCreateModel, Rule, State} from "@/models/cfg/cfg.create.model";
 import {AlertCircle, CheckCircle2, Save} from "lucide-react";
 import {nanoid} from "nanoid";
 import {useRouter} from "next/navigation";
 import React, {useCallback, useEffect, useState} from "react";
-import {CreateQuestionDraftRequest} from "@/utils/validations/question.validation";
 
 import {BaseCreatorProps, CreatorWrapper} from "../../bases/base.creator";
 import {CreationSubmissionModal} from "../submission-modal.creator";
-import {QuestionTypeEnum} from "@/types/question-type.type";
 
 // Available shapes for creating rules and states
 const availableShapes = [
@@ -32,52 +30,18 @@ interface ShapeObject {
   [key: string]: unknown;
 }
 
-const createQuestionInstance = (data: CreateQuestionDraftRequest): CfgCreateQuestion => {
-  try {
-    // Validate input data
-    if (!data) {
-      throw new Error("CreationData is null or undefined");
-    }
-
-    const instance = new CfgCreateQuestion(
-      data.questionTypeId,
-      data.content,
-      data.isPublished,
-      data.title,
-      data.points,
-      data.estimatedTime,
-      data.id,
-    );
-
-    return instance;
-  } catch (error) {
-    console.error("Error creating CFG question instance:", error);
-    throw error;
-  }
-};
-
-export default function CfgCreator({
-  questionId,
-  initialData,
-}: BaseCreatorProps) {
+export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
   const router = useRouter();
 
   const {
     question,
-    loading,
-    saving,
     error: creationError,
     hasUnsavedChanges,
     lastSavedDraft,
     saveDraft,
     submitCreation,
     markAsChanged,
-  } = useCreateQuestion({
-    questionId: questionId || "new", // Provide fallback to prevent undefined
-    questionType: QuestionTypeEnum.CFG,
-    initialData,
-    createQuestionInstance,
-  });
+  } = useCreateQuestion<CfgCreateModel>(initialDataQuestion, CfgCreateModel);
 
   // Nav guard hook - MUST be at top level
   const {
@@ -107,7 +71,7 @@ export default function CfgCreator({
 
   // Sync local state with question model
   useEffect(() => {
-    const cfgQuestion = question as CfgCreateQuestion | null;
+    const cfgQuestion = question as CfgCreateModel | null;
     if (!cfgQuestion) {
       return;
     }
@@ -127,7 +91,7 @@ export default function CfgCreator({
 
   // Initialize end state with start state when entering end state mode
   useEffect(() => {
-    const cfgQuestion = question as CfgCreateQuestion | null;
+    const cfgQuestion = question as CfgCreateModel | null;
     if (
       stateCreationMode === "end" &&
       endState.length === 0 &&
@@ -146,7 +110,7 @@ export default function CfgCreator({
   // Add a new transformation rule
   const handleAddRule = useCallback(
     (beforeObjects: ShapeObject[], afterObjects: ShapeObject[]) => {
-      const cfgQuestion = question as CfgCreateQuestion | null;
+      const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion) return;
 
       const newRuleId = nanoid();
@@ -167,7 +131,7 @@ export default function CfgCreator({
 
   const handleDeleteRule = useCallback(
     (ruleId: string) => {
-      const cfgQuestion = question as CfgCreateQuestion | null;
+      const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion) return;
 
       const updatedRules = rules.filter((rule) => rule.id !== ruleId);
@@ -188,7 +152,7 @@ export default function CfgCreator({
 
   const setStartStateAndSync = useCallback(
     (newState: State[]) => {
-      const cfgQuestion = question as CfgCreateQuestion | null;
+      const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion) return;
 
       cfgQuestion.setStartState(newState);
@@ -208,7 +172,7 @@ export default function CfgCreator({
 
   const setEndStateAndSync = useCallback(
     (newState: State[]) => {
-      const cfgQuestion = question as CfgCreateQuestion | null;
+      const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion) return;
 
       cfgQuestion.setEndState(newState);
@@ -220,7 +184,7 @@ export default function CfgCreator({
 
   // Handles undoing the last step by replaying remaining steps from initial state
   const handleUndo = useCallback(() => {
-    const cfgQuestion = question as CfgCreateQuestion | null;
+    const cfgQuestion = question as CfgCreateModel | null;
     if (!cfgQuestion) return;
     const lastStep = cfgQuestion.popStep();
     if (lastStep) {
@@ -233,7 +197,7 @@ export default function CfgCreator({
 
   // Handles redoing the last undone step by replaying all steps including the redone one
   const handleRedo = useCallback(() => {
-    const cfgQuestion = question as CfgCreateQuestion | null;
+    const cfgQuestion = question as CfgCreateModel | null;
     if (!cfgQuestion) return;
     const step = cfgQuestion.redoStep();
     if (step) {
@@ -246,7 +210,7 @@ export default function CfgCreator({
 
   // Reset entire question state
   const handleReset = useCallback(() => {
-    const cfgQuestion = question as CfgCreateQuestion | null;
+    const cfgQuestion = question as CfgCreateModel | null;
     if (!cfgQuestion) return;
 
     cfgQuestion.resetSteps();
@@ -266,7 +230,7 @@ export default function CfgCreator({
       selectedIndices: number[],
       ruleToApply: { id: string; after: ShapeObject[] }
     ) => {
-      const cfgQuestion = question as CfgCreateQuestion | null;
+      const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion || !ruleToApply || selectedIndices.length === 0) return;
 
       // Validate that the rule has proper 'after' objects
@@ -362,49 +326,10 @@ export default function CfgCreator({
     }
   }, [question, submitCreation, router]);
 
-  const getQuestionData = useCallback(() => {
-    if (!question) return null;
-
-    return {
-      title: question.getTitle(),
-      description: question.getDescription(),
-      difficulty: question.getDifficulty(),
-      category: question.getCategory(),
-      points: question.getPoints(),
-      estimatedTime: question.getEstimatedTime(),
-      author: question.getAuthor(),
-    };
-  }, [question]);
-
-  // Type-safe CFG question accessor
-
-  // ====== CONDITIONAL LOGIC AFTER ALL HOOKS ======
-
-  // Handle missing questionId AFTER hooks are called
-  if (!questionId) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center bg-white p-8 rounded-lg shadow-lg max-w-md">
-            <h2 className="text-xl font-bold text-red-600 mb-4">
-              Missing Question ID
-            </h2>
-            <p className="text-gray-700 mb-4">No question ID provided</p>
-            <button
-              onClick={() => (window.location.href = "/add-problem")}
-              className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
-            >
-              Back to Add Problem
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <CreatorWrapper
-      loading={loading}
+      loading={false}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -417,18 +342,16 @@ export default function CfgCreator({
         <>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">
-              {questionId === "new"
-                ? "Create New CFG Question"
-                : "Edit CFG Question"}
+              {"Create New CFG Question"}
             </h1>
 
             <Button
               onClick={handleManualSave}
-              disabled={saving || !hasUnsavedChanges}
+              disabled={!hasUnsavedChanges}
               className="flex items-center gap-2"
             >
               <Save className="h-4 w-4" />
-              {saving ? "Saving..." : "Save Draft"}
+              {"Save Draft"}
             </Button>
           </div>
 
@@ -452,13 +375,6 @@ export default function CfgCreator({
             </Alert>
           )}
 
-          {saving && (
-            <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>Saving draft...</AlertDescription>
-            </Alert>
-          )}
-
           {showSaveConfirmation && (
             <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
               <CheckCircle2 className="h-4 w-4" />
@@ -470,7 +386,7 @@ export default function CfgCreator({
             <Alert className="mb-4 bg-gray-50 text-gray-800 border-gray-200">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>
-                Last saved at {lastSavedDraft.toLocaleTimeString()}
+                Last saved at {lastSavedDraft.toString()}
               </AlertDescription>
             </Alert>
           )}
@@ -579,9 +495,16 @@ export default function CfgCreator({
           {/* Submission Modal */}
           <CreationSubmissionModal
             isOpen={showSubmissionModal}
-            isConfirming={!saving}
-            questionData={getQuestionData()}
-            onConfirm={handleConfirmSubmit}
+            isConfirming={true}
+            questionData={
+              {
+                title: question.draft.title,
+                questionType: question.draft.questionType.name,
+                points: question.draft.points,
+                estimatedTime: question.draft.estimatedTime,
+                author: question.draft.teacher.name,
+              }
+            }            onConfirm={handleConfirmSubmit}
             onCancel={() => setShowSubmissionModal(false)}
             onClose={() => {
               setShowSubmissionModal(false);

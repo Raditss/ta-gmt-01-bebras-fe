@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DecisionTree2 } from "@/components/features/question/dt-1/shared/tree";
-import {CombinationAnswer, DecisionTree2QuestionModel} from "@/models/dt-1/dt-1.solve.model";
+import {CombinationAnswer, DecisionTree2SolveModel} from "@/models/dt-1/dt-1.solve.model";
 import {useSolveQuestion} from "@/hooks/useSolveQuestion";
 import {useAuthStore} from "@/store/auth.store";
 
@@ -40,7 +40,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
   const { user } = useAuthStore();
   const router = useRouter();
   const { question, loading, error, currentDuration } =
-    useSolveQuestion<DecisionTree2QuestionModel>(questionId, DecisionTree2QuestionModel);
+    useSolveQuestion<DecisionTree2SolveModel>(questionId, DecisionTree2SolveModel);
   const [selections, setSelections] = useState<
     Record<string, MonsterPartOptionType>
   >({});

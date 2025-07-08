@@ -54,6 +54,7 @@ const AddProblemPage = () => {
   const addQuestion: SubmitHandler<CreateQuestionMetadataRequest> = async (data, event) => {
     event?.preventDefault();
     const question = await questionsApi.createQuestionMetadata(data)
+    console.log("New question metadata created:", question);
     if (question) {
       toast.success("You have successfully added new question", {
         duration: 2000,

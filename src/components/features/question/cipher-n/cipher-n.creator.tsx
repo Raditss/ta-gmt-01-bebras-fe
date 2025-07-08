@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreateCipherQuestion } from '@/models/cipher-n/cipher-n.create.model';
+import { CipherCreateModel } from '@/models/cipher-n/cipher-n.create.model';
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle2, AlertCircle, Save, Settings, Eye, Plus, Trash2 } from 'lucide-react';
@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
 import { CreationSubmissionModal } from '@/components/features/question/submission-modal.creator';
 import { BaseCreatorProps, CreatorWrapper } from '@/components/features/bases/base.creator';
-import { CreationData } from '@/services/creationService';
 import { Badge } from '@/components/ui/badge';
 
 // Polygon configuration options
@@ -26,27 +25,6 @@ const POLYGON_OPTIONS = [
   { vertices: 6, name: 'hexagon' },
   { vertices: 8, name: 'octagon' },
 ];
-
-// Helper function to create question instance
-const createQuestionInstance = (data: CreationData): CreateCipherQuestion => {
-  try {
-    const instance = new CreateCipherQuestion(
-      data.title,
-      data.description,
-      data.difficulty,
-      data.category,
-      data.points,
-      data.estimatedTime,
-      data.author,
-      data.questionId,
-      data.creatorId
-    );
-    return instance;
-  } catch (error) {
-    console.error('Error creating cipher question instance:', error);
-    throw error;
-  }
-};
 
 interface PolygonVisualizationProps {
   vertices: Array<{ pos: number; letters: string }>;
@@ -165,25 +143,18 @@ function PolygonVisualization({ vertices, vertexCount, currentVertex, highlighte
   );
 }
 
-export default function CipherCreator({ questionId, initialData }: BaseCreatorProps) {
+export default function CipherCreator({ initialDataQuestion }: BaseCreatorProps) {
   const router = useRouter();
 
   // Always call useCreateQuestion hook
   const {
     question,
-    loading,
-    saving,
     error: creationError,
     hasUnsavedChanges,
     saveDraft,
     submitCreation,
     markAsChanged
-  } = useCreateQuestion({
-    questionId,
-    questionType: 'cipher-n',
-    initialData,
-    createQuestionInstance
-  });
+  } = useCreateQuestion<CipherCreateModel>(initialDataQuestion, CipherCreateModel);
 
   // Navigation guard
   const {
@@ -231,7 +202,7 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
   // Initialize state from question
   useEffect(() => {
     if (question) {
-      const cipherQuestion = question as CreateCipherQuestion;
+      const cipherQuestion = question as CipherCreateModel;
       const content = cipherQuestion.getContent();
       
       setPolygonConfig(content.config);
@@ -438,7 +409,7 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
   const updateQuestionContent = useCallback(() => {
     if (!question) return;
     
-    const cipherQuestion = question as CreateCipherQuestion;
+    const cipherQuestion = question as CipherCreateModel;
     
     // Update config
     const updatedConfig = {
@@ -520,48 +491,6 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
     }
   }, [question, submitCreation, router]);
 
-  const getQuestionMetadata = useCallback(() => {
-    if (!question) return null;
-    
-    return {
-      title: question.getTitle(),
-      description: question.getDescription(),
-      difficulty: question.getDifficulty(),
-      category: question.getCategory(),
-      points: question.getPoints(),
-      estimatedTime: question.getEstimatedTime(),
-      author: question.getAuthor()
-    };
-  }, [question]);
-
-  // Handle loading states
-  if (authLoading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg mb-4">Authentication required to create questions</p>
-            <Button onClick={() => router.push('/login')}>
-              Go to Login
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   const isFormValid = vertices.length > 0 && 
                      instructions.length > 0 && 
                      questionData.plaintext.trim() && 
@@ -570,7 +499,7 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
 
   return (
     <CreatorWrapper
-      loading={loading}
+      loading={false}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -595,9 +524,9 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
                 </AlertDescription>
               </Alert>
             )}
-            <Button onClick={handleManualSave} disabled={saving} variant="outline">
+            <Button onClick={handleManualSave} variant="outline">
               <Save className="w-4 h-4 mr-2" />
-              {saving ? 'Saving...' : 'Save Draft'}
+              {'Save Draft'}
             </Button>
           </div>
         </div>
@@ -612,7 +541,7 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id as any)}
+              onClick={() => setActiveTab(id as 'config' | 'vertices' | 'content' | 'preview')}
               className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
@@ -1122,9 +1051,16 @@ export default function CipherCreator({ questionId, initialData }: BaseCreatorPr
         {/* Submission Modal */}
         <CreationSubmissionModal
           isOpen={showSubmissionModal}
-          isConfirming={!saving}
-          questionData={getQuestionMetadata()}
-          onConfirm={handleConfirmSubmit}
+          isConfirming={true}
+          questionData={
+            {
+              title: question.draft.title,
+              questionType: question.draft.questionType.name,
+              points: question.draft.points,
+              estimatedTime: question.draft.estimatedTime,
+              author: question.draft.teacher.name,
+            }
+          }          onConfirm={handleConfirmSubmit}
           onCancel={() => setShowSubmissionModal(false)}
           onClose={() => {
             setShowSubmissionModal(false);

@@ -9,11 +9,10 @@ export const createQuestionMetadataRequestSchema = z.object({
 })
 
 export const createQuestionDraftRequestSchema = z.object({
-  id: z.union([z.string(), z.number()]).optional(),
+  id: z.number(),
   questionTypeId: z.number(),
   title: z.string().default("New Question"),
   content: jsonStringSchema.default('{}'),
-  isPublished: z.boolean().default(false),
   points: z.number().default(0),
   estimatedTime: z.number().default(0),
 })
@@ -44,7 +43,6 @@ export const questionResponseSchema = z.object({
     content: z.string().min(1, "Content is required"),
     questionTypeId: z.number().positive("Question Type ID must be positive"),
     isPublished: z.boolean(),
-    description: z.string(),
     points: z.number().nonnegative(),
     estimatedTime: z.number().nonnegative(),
     questionType: z.object({
