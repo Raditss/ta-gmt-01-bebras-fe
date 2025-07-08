@@ -6,9 +6,8 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProblemCard } from "@/components/features/questions/problem-card";
 import { QuestionTypeFilter } from "@/components/features/questions/question-type-filter";
-import { MainNavbar } from "@/components/layout/Nav/main-navbar";
 import { useRouter } from "next/navigation";
-import { QuestionTypeEnum } from "@/types/question-type.type";
+import { QuestionTypeEnum, getQuestionTypeByName } from "@/types/question-type.type";
 import { QuestionTypeModal } from "@/components/features/questions/question-type-modal";
 import { questionsApi } from "@/lib/api";
 import Link from "next/link";
@@ -16,51 +15,36 @@ import { Settings } from "lucide-react";
 import {QuestionResponse} from "@/utils/validations/question.validation";
 import {QuestionTypeResponse} from "@/utils/validations/question-type.validation";
 import {questionTypeApi} from "@/lib/api/question-type.api";
-import {useAuthStore} from "@/store/auth.store";
 
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false);
   const [questions, setQuestions] = useState<QuestionResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<
-    Record<string, boolean>
-  >({});
-  const { isAuthenticated, token } = useAuthStore();
+  const [selectedCategories, setSelectedCategories] = useState<Record<QuestionTypeEnum, boolean>>({} as Record<QuestionTypeEnum, boolean>);
   const router = useRouter();
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // If not authenticated, redirect to login
-    if (mounted && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, mounted, router]);
-
-  useEffect(() => {
     const fetchData = async () => {
-      if (!isAuthenticated || !token) return;
-
       try {
         setIsLoading(true);
         setError(null);
-
         // Fetch questions and question types in parallel
         const [questionsResponse, typesResponse] = await Promise.all([
           questionsApi.getQuestions(),
           questionTypeApi.getQuestionTypes(),
         ]);
         setQuestions(questionsResponse);
-
-        // Initialize all categories as selected
+        // Initialize all categories as selected (by enum)
         const initialSelectedCategories = Object.fromEntries(
           typesResponse.map((type: QuestionTypeResponse) => [
-            type.props.name.toLowerCase().replace(/\s+/g, ""),
+            getQuestionTypeByName(type.props.name),
             true,
           ])
         );
-        setSelectedCategories(initialSelectedCategories);
+        setSelectedCategories(initialSelectedCategories as Record<QuestionTypeEnum, boolean>);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError(
@@ -70,31 +54,23 @@ export default function ProblemsPage() {
         setIsLoading(false);
       }
     };
+    fetchData();
+  }, []);
 
-    if (isAuthenticated) {
-      fetchData();
-    }
-  }, [isAuthenticated, token]);
-
-  const handleCategoryChange = (questionTypeId: number) => {
+  const handleCategoryChange = (questionTypeEnum: QuestionTypeEnum) => {
     setSelectedCategories((prev) => ({
       ...prev,
-      [questionTypeId]: !prev[questionTypeId],
+      [questionTypeEnum]: !prev[questionTypeEnum],
     }));
   };
 
   const filteredQuestions = questions.filter((question) => {
-    const categoryName = question.props.questionType.name
-      .toLowerCase()
-      .replace(/\s+/g, "");
     // If no categories are selected, show all questions
     if (Object.values(selectedCategories).every((selected) => !selected)) {
       return true;
     }
-    // Show questions that match any selected category
-    return Object.entries(selectedCategories).some(
-      ([id, selected]) => selected && id === categoryName
-    );
+    // Show questions that match any selected category (by enum)
+    return selectedCategories[getQuestionTypeByName(question.props.questionType.name)];
   });
 
   // Show loading state during initial auth check
@@ -104,11 +80,6 @@ export default function ProblemsPage() {
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
       </div>
     );
-  }
-
-  // Show nothing if not authenticated
-  if (!isAuthenticated) {
-    return null;
   }
 
   const handleGenerateQuestion = async (type: QuestionTypeEnum) => {
@@ -122,9 +93,6 @@ export default function ProblemsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header */}
-      <MainNavbar />
-
       {/* Main content */}
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="flex flex-col md:flex-row gap-8">
@@ -139,31 +107,15 @@ export default function ProblemsPage() {
               />
             </div>
 
-            <div>
-              <h3 className="font-semibold mb-2">Categories</h3>
-              <QuestionTypeFilter
-                selectedQuestionTypes={selectedCategories}
-                onQuestionTypeChange={handleCategoryChange}
-              />
-            </div>
-
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-              asChild
-            >
-              <Link href="/src/app/profile/edit">
-                <Settings className="h-4 w-4" />
-                <span>Edit Profile</span>
-              </Link>
-            </Button>
+            <QuestionTypeFilter
+              selectedQuestionTypes={selectedCategories}
+              onQuestionTypeChange={handleCategoryChange}
+            />
           </div>
 
           {/* Problem grid */}
           <div className="md:w-3/4">
-            <h1 className="text-2xl font-bold mb-6">Coding Problems</h1>
+            <h1 className="text-2xl font-bold mb-6">Problems</h1>
 
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
@@ -183,13 +135,13 @@ export default function ProblemsPage() {
               <>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredQuestions.map((question) => (
+                    console.log(question),
                     <ProblemCard
-                      key={`${question.props.id}-${question.props.questionTypeId}`}
+                      key={question.props.id}
+                      id={question.props.id.toString()}
                       title={question.props.title}
                       author={question.props.teacher.name}
-                      difficulty="Medium" // TODO: Add difficulty when available
-                      category={question.props.questionType.name}
-                      id={question.props.id.toString()}
+                      type={question.props.questionType.name as QuestionTypeEnum}
                     />
                   ))}
                 </div>
@@ -197,7 +149,7 @@ export default function ProblemsPage() {
                 <div className="mt-8 flex justify-center">
                   <Button
                     variant="default"
-                    className="bg-yellow-400 hover:bg-yellow-500 text-black"
+                    className="bg-indigo-200 hover:bg-indigo-300 text-indigo-900 shadow-lg"
                     onClick={() => setIsTypeModalOpen(true)}
                   >
                     Generate Random Question
