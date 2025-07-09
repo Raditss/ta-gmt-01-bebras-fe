@@ -28,21 +28,18 @@ interface CipherContent {
     plaintext: string;
     prompt: string;
   };
-  answer: {
-    encrypted: [number, number][];
-  };
+
 }
 
-interface CipherSolutionState {
+interface CipherNAnswer {
   currentVertex: number;
   encryptedMessage: [number, number][];
 }
 
 export class CipherNSolveModel extends IQuestion implements IAttempt {
   private content: CipherContent;
-  private currentState: CipherSolutionState;
-  private undoStack: CipherSolutionState[];
-  private redoStack: CipherSolutionState[];
+  private answer: CipherNAnswer;
+  private undoStack: CipherNAnswer[];
   private attemptDuration: number;
   private attemptIsDraft: boolean;
 
@@ -67,16 +64,12 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
         plaintext: '',
         prompt: ''
       },
-      answer: {
-        encrypted: []
-      }
     };
-    this.currentState = {
+    this.answer = {
       currentVertex: 0,
       encryptedMessage: []
     };
     this.undoStack = [];
-    this.redoStack = [];
     this.attemptDuration = 0;
     this.attemptIsDraft = true;
   }
@@ -86,53 +79,19 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
     this.resetToInitialState();
   }
 
-  checkAnswer(): boolean {
-    const a = this.currentState.encryptedMessage;
-    const b = this.content.answer.encrypted;
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if (a[i][0] !== b[i][0] || a[i][1] !== b[i][1]) return false;
-    }
-    return true;
-  }
-
   undo(): boolean {
     if (this.undoStack.length === 0) return false;
-    const currentState: CipherSolutionState = {
-      currentVertex: this.currentState.currentVertex,
-      encryptedMessage: [...this.currentState.encryptedMessage]
-    };
-    this.redoStack.push(currentState);
-    const previousState = this.undoStack.pop()!;
-    this.currentState = {
-      currentVertex: previousState.currentVertex,
-      encryptedMessage: [...previousState.encryptedMessage]
-    };
+    this.answer = this.undoStack.pop()!;
     return true;
   }
 
-  redo(): boolean {
-    if (this.redoStack.length === 0) return false;
-    const currentState: CipherSolutionState = {
-      currentVertex: this.currentState.currentVertex,
-      encryptedMessage: [...this.currentState.encryptedMessage]
-    };
-    this.undoStack.push(currentState);
-    const nextState = this.redoStack.pop()!;
-    this.currentState = {
-      currentVertex: nextState.currentVertex,
-      encryptedMessage: [...nextState.encryptedMessage]
-    };
-    return true;
-  }
 
   resetToInitialState(): void {
-    this.currentState = {
+    this.answer = {
       currentVertex: this.content.config.startingVertex,
       encryptedMessage: []
     };
     this.undoStack = [];
-    this.redoStack = [];
   }
 
   // Encryption helpers
@@ -161,30 +120,29 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
     const targetVertex = this.findVertexWithLetter(letter);
     if (targetVertex === -1) return null;
     const rotation = this.calculateRotation(
-      this.currentState.currentVertex,
+      this.answer.currentVertex,
       targetVertex
     );
     const position = this.getLetterPosition(targetVertex, letter);
     // Save current state for undo
-    const prevState: CipherSolutionState = {
-      currentVertex: this.currentState.currentVertex,
-      encryptedMessage: [...this.currentState.encryptedMessage]
+    const prevState: CipherNAnswer = {
+      currentVertex: this.answer.currentVertex,
+      encryptedMessage: [...this.answer.encryptedMessage]
     };
     this.undoStack.push(prevState);
-    this.redoStack = [];
     // Update state
-    this.currentState = {
+    this.answer = {
       currentVertex: targetVertex,
       encryptedMessage: [
-        ...this.currentState.encryptedMessage,
+        ...this.answer.encryptedMessage,
         [rotation, position]
       ]
     };
     return [rotation, position];
   }
 
-  getCurrentState(): CipherSolutionState {
-    return this.currentState;
+  getAnswer(): CipherNAnswer {
+    return this.answer;
   }
 
   getContent(): CipherContent {
@@ -207,22 +165,12 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
   }
 
   toJSON(): string {
-    const solution = {
-      currentState: this.currentState,
-      undoStack: this.undoStack,
-      redoStack: this.redoStack
-    };
-    return JSON.stringify(solution);
+    return JSON.stringify(this.answer);
   }
 
   loadAnswer(json: string): void {
-    try {
-      const solution = JSON.parse(json);
-      this.currentState = solution.currentState;
-      this.undoStack = solution.undoStack || [];
-      this.redoStack = solution.redoStack || [];
-    } catch (error) {
-      console.error('Error loading solution:', error);
-    }
+    const answer = JSON.parse(json) as CipherNAnswer;
+    this.answer.currentVertex = answer.currentVertex || this.content.config.startingVertex;
+    this.answer.encryptedMessage = answer.encryptedMessage || [];
   }
 }

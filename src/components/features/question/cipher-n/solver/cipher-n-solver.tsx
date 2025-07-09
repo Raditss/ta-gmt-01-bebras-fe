@@ -145,7 +145,6 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const [currentVertex, setCurrentVertex] = useState<number>(0);
   const [targetVertex, setTargetVertex] = useState<number>(0);
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
 
   const content = question?.getContent();
@@ -177,9 +176,9 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   // Initialize current vertex from question
   useEffect(() => {
     if (question && content) {
-      const state = question.getCurrentState();
-      setCurrentVertex(state.currentVertex);
-      setAnswerArr(state.encryptedMessage);
+      const answer = question.getAnswer();
+      setCurrentVertex(answer.currentVertex);
+      setAnswerArr(answer.encryptedMessage);
     }
   }, [question, content]);
 
@@ -225,8 +224,15 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     setPositionValue("");
   }, [content]);
 
-  const handleSubmit = useCallback(() => {
-    setIsSubmitting(true);
+  const handleSubmit = useCallback(async () => {
+    if (!question) return;
+    
+    question.setAttemptData(getCurrentDuration(), false);
+    const { ...attemptData } = question.getAttemptData();
+    await questionService.submitAttempt({
+      ...attemptData,
+      answer: JSON.parse(attemptData.answer)
+    });
   }, []);
 
   const handleConfirmSubmit = useCallback(async () => {
@@ -234,7 +240,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     
     try {
       // Set the model's encryptedMessage to the current answer array
-      question.getCurrentState().encryptedMessage = answerArr;
+      question.getAnswer().encryptedMessage = answerArr;
       const duration = getCurrentDuration();
       
       question.setAttemptData(duration, false);
@@ -244,26 +250,13 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
         answer: JSON.parse(attemptData.answer),
       });
 
-      // Check if answer matches expected format and content
-      const expectedAnswer = content?.answer.encrypted || [];
-      const isCorrect = answerArr.length === expectedAnswer.length && answerArr.every((pair, i) => pair[0] === expectedAnswer[i][0] && pair[1] === expectedAnswer[i][1]);
       
-      const points = isCorrect ? Math.max(100 - Math.floor(duration / 10), 10) : 0;
-      const streak = isCorrect ? 1 : 0;
-
-      setSubmissionResult({
-        isCorrect,
-        points,
-        streak,
-        timeTaken: duration
-      });
     } catch (err) {
       console.error('Failed to submit answer:', err);
     }
   }, [question, getCurrentDuration, content, answerArr]);
 
   const handleModalClose = useCallback(() => {
-    setIsSubmitting(false);
     setSubmissionResult(null);
     router.push('/problems');
   }, [router]);
@@ -416,11 +409,11 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
 
           {/* Submission Modal */}
           <SubmissionModalSolver
-            isOpen={isSubmitting || !!submissionResult}
-            isConfirming={isSubmitting && !submissionResult}
+            isOpen={!!submissionResult}
+            isConfirming={false}
             result={submissionResult}
             onConfirm={handleConfirmSubmit}
-            onCancel={() => setIsSubmitting(false)}
+            onCancel={handleModalClose}
             onClose={handleModalClose}
           />
         </>

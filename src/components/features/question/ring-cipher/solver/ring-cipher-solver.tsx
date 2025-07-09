@@ -121,31 +121,25 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   const { question, loading, error, currentDuration } = useSolveQuestion<RingCipherSolveModel>(
     questionId,
     RingCipherSolveModel
-
   );
   const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
 
+  // UI state only
   const [ringValue, setRingValue] = useState<string>("");
   const [stepsValue, setStepsValue] = useState<string>("");
-  const [answerArr, setAnswerArr] = useState<[number, number][]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
-  const [ringPositions, setRingPositions] = useState<number[]>([]);
   const [highlightedRing, setHighlightedRing] = useState<number | undefined>(undefined);
   const [highlightedLetter, setHighlightedLetter] = useState<{ ring: number; letter: string } | undefined>(undefined);
   const [previewPositions, setPreviewPositions] = useState<number[]>([]);
 
   const content = question?.getContent();
   const rings = content?.rings || [];
+  const answer = question?.getAnswer();
+  const ringPositions = answer?.ringPositions || rings.map(() => 0);
+  const answerArr = answer?.encryptedMessage || [];
 
-  useEffect(() => {
-    if (question && content) {
-      const state = question.getCurrentState();
-      setAnswerArr(state.encryptedMessage);
-      setRingPositions(state.ringPositions || []);
-    }
-  }, [question, content]);
-
+  // Keep preview in sync with input
   useEffect(() => {
     const ring = parseInt(ringValue);
     const steps = parseInt(stepsValue);
@@ -170,6 +164,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
     }
   }, [ringValue, stepsValue, rings, ringPositions]);
 
+  // Input handlers
   const handleRingChange = useCallback((value: string) => {
     if (value === "" || (/^\d+$/.test(value) && parseInt(value) >= 1 && parseInt(value) <= rings.length)) {
       setRingValue(value);
@@ -187,7 +182,9 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
     }
   }, [ringValue, rings]);
 
+  // Add to answer using model
   const handleAddToAnswer = useCallback(() => {
+    if (!question) return;
     const ring = parseInt(ringValue);
     const steps = parseInt(stepsValue);
     if (isNaN(ring) || isNaN(steps)) return;
@@ -195,32 +192,35 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
     const ringIndex = ring - 1;
     const maxSteps = rings[ringIndex].letters.length;
     if (steps < 0 || steps >= maxSteps) return;
-    setAnswerArr(prev => [...prev, [ring, steps]]);
-    // Update ringPositions to reflect the rotation
-    setRingPositions(prev => {
-      const newPositions = [...prev];
-      newPositions[ringIndex] = ((newPositions[ringIndex] || 0) + steps) % maxSteps;
-      return newPositions;
-    });
+    // Save state for undo
+    question.encryptLetter(rings[ringIndex].letters[(ringPositions[ringIndex] + steps) % maxSteps]);
     setRingValue("");
     setStepsValue("");
-  }, [ringValue, stepsValue, rings]);
+  }, [question, ringValue, stepsValue, rings, ringPositions]);
 
+  // Undo last step
+  const handleUndo = useCallback(() => {
+    if (!question) return;
+    question.undo();
+  }, [question]);
+
+  // Clear all (reset)
   const handleClearAnswer = useCallback(() => {
-    setAnswerArr([]);
-    setRingPositions(rings.map(() => 0)); // Reset all rings to position 0
+    if (!question) return;
+    question.resetToInitialState();
     setRingValue("");
     setStepsValue("");
-  }, [rings]);
+  }, [question]);
 
+  // Submit modal
   const handleSubmit = useCallback(() => {
     setIsSubmitting(true);
   }, []);
 
+  // Confirm submit
   const handleConfirmSubmit = useCallback(async () => {
     if (!question) return;
     try {
-      question.getCurrentState().encryptedMessage = answerArr;
       const duration = getCurrentDuration();
       question.setAttemptData(duration, false);
       const attemptData = question.getAttemptData();
@@ -228,8 +228,11 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
         ...attemptData,
         answer: JSON.parse(attemptData.answer),
       });
-      const expectedAnswer = content?.answer.encrypted || [];
-      const isCorrect = answerArr.length === expectedAnswer.length && answerArr.every((pair, i) => pair[0] === expectedAnswer[i][0] && pair[1] === expectedAnswer[i][1]);
+      // Check correctness (compare to content.example.encrypted if available)
+      const expectedAnswer = content?.example?.encrypted
+        ? content.example.encrypted.split('-').map((pair: string) => [parseInt(pair[0]), parseInt(pair[1])])
+        : [];
+      const isCorrect = expectedAnswer.length > 0 && answerArr.length === expectedAnswer.length && answerArr.every((pair, i) => pair[0] === expectedAnswer[i][0] && pair[1] === expectedAnswer[i][1]);
       const points = isCorrect ? Math.max(100 - Math.floor(duration / 10), 10) : 0;
       const streak = isCorrect ? 1 : 0;
       setSubmissionResult({
@@ -361,13 +364,23 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                     <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
                       {finalAnswerDisplay || "No codes added yet"}
                     </div>
-                    <Button 
-                      onClick={handleClearAnswer}
-                      variant="outline"
-                      className="w-full mt-2"
-                    >
-                      Clear Answer
-                    </Button>
+                    <div className="flex gap-2 mt-2">
+                      <Button 
+                        onClick={handleUndo}
+                        variant="outline"
+                        className="w-1/2"
+                        disabled={answerArr.length === 0}
+                      >
+                        Undo
+                      </Button>
+                      <Button 
+                        onClick={handleClearAnswer}
+                        variant="outline"
+                        className="w-1/2"
+                      >
+                        Clear Answer
+                      </Button>
+                    </div>
                   </div>
                   <Button 
                     onClick={handleSubmit}
