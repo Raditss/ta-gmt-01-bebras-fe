@@ -1,4 +1,4 @@
-import { MainNavbar } from "@/components/layout/Nav/main-navbar"
+
 import { Code, Users, Award, BookOpen } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -7,7 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <MainNavbar />
 
       {/* Main content */}
       <main className="flex-1 container mx-auto py-8 px-4">

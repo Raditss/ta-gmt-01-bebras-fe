@@ -1,14 +1,14 @@
 "use client";
 
 import {DecisionTree2} from "@/components/features/question/dt-1/shared/tree";
-import MonsterCharacter from "@/components/features/question/dt-0/shared/monster-character";
-import MonsterPartOption from "@/components/features/question/dt-0/shared/monster-part-option";
-import {extractSpriteOptions} from "@/components/features/question/dt-0/solver/helper";
+import MonsterCharacter from "@/components/features/question/dt-1/shared/monster-character";
+import MonsterPartOption from "@/components/features/question/dt-1/shared/monster-part-option";
+import {extractSpriteOptions} from "@/components/features/question/dt-1/solver/helper";
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
   MonsterPartType,
-} from "@/components/features/question/dt-0/solver/types";
+  } from "@/components/features/question/dt-1/solver/types";
 import {Alert, AlertDescription} from "@/components/ui/alert";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";

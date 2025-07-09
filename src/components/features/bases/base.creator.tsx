@@ -1,6 +1,5 @@
 "use client"
 
-import { MainNavbar } from '@/components/layout/Nav/main-navbar';
 import { NavigationAlertDialog } from '@/components/ui/navigation-alert-dialog';
 import {Question} from "@/types/question.type";
 import { ReactNode } from "react";
@@ -34,7 +33,6 @@ export function CreatorWrapper({
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg">Loading question...</p>
         </div>
@@ -45,7 +43,6 @@ export function CreatorWrapper({
   if (error) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg text-red-600">{error}</p>
         </div>
@@ -62,8 +59,6 @@ export function CreatorWrapper({
         onLeaveWithoutSaving={onLeaveWithoutSaving}
         onCancel={onStayOnPage}
       />
-      
-      <MainNavbar />
       
       <main className="flex-1 container mx-auto px-4 py-6">
         {children}

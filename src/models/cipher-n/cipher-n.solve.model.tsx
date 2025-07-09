@@ -103,7 +103,7 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
 
   private getLetterPosition(vertex: number, letter: string): number {
     return (
-      this.content.vertices[vertex].letters.indexOf(letter.toUpperCase()) + 1
+      this.content.vertices[vertex].letters.indexOf(letter.toUpperCase()) - 1
     );
   }
 
@@ -131,6 +131,31 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
     };
     this.undoStack.push(prevState);
     // Update state
+    this.answer = {
+      currentVertex: targetVertex,
+      encryptedMessage: [
+        ...this.answer.encryptedMessage,
+        [rotation, position]
+      ]
+    };
+    return [rotation, position];
+  }
+
+  // New method to use user's direct rotation and position inputs
+  encryptWithUserInputs(rotation: number, position: number): [number, number] | null {
+    const targetVertex = (this.answer.currentVertex + rotation) % this.content.config.vertexCount;
+    const targetLetters = this.content.vertices[targetVertex]?.letters || "";
+    
+    if (position < 1 || position > targetLetters.length) return null;
+    
+    // Save current state for undo
+    const prevState: CipherNAnswer = {
+      currentVertex: this.answer.currentVertex,
+      encryptedMessage: [...this.answer.encryptedMessage]
+    };
+    this.undoStack.push(prevState);
+    
+    // Update state with user's exact inputs
     this.answer = {
       currentVertex: targetVertex,
       encryptedMessage: [
