@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -29,7 +28,6 @@ export default function AdminPanelPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <MainNavbar />
       <main className="flex-1 container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>

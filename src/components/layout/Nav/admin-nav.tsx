@@ -12,18 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Shield, Users, BookOpen, BarChart3, Settings, LogOut, Bell, Search } from "lucide-react"
+import { Shield, Users, BookOpen, Settings, LogOut, Bell, Search } from "lucide-react"
+import { useAuthStore } from "@/store/auth.store"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: Shield },
-  { href: "/admin/questions", label: "Questions", icon: BookOpen },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/manage-user", label: "Users", icon: Users },
+  { href: "/manage-question", label: "Questions", icon: BookOpen },
 ]
 
 export function AdminNav() {
   const pathname = usePathname()
-
+  const { logout } = useAuthStore()
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -93,7 +93,7 @@ export function AdminNav() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/" className="flex items-center">
+                  <Link href="/" className="flex items-center" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </Link>

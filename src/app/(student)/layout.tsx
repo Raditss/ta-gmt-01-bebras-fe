@@ -23,9 +23,7 @@ export default function StudentLayout({
   return (
     <>
       <StudentNav />
-      <div className="min-h-screen bg-gray-100">
         <main>{children}</main>
-      </div>
     </>
   );
 }

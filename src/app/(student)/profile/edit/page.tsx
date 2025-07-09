@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -59,8 +58,6 @@ export default function EditProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <MainNavbar />
-
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <div className="mb-6">
