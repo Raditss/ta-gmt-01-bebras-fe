@@ -19,9 +19,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <StudentNav />
-      <div className="flex flex-row min-h-screen bg-gray-100">
         <main>{children}</main>
-      </div>
     </>
   )
 }

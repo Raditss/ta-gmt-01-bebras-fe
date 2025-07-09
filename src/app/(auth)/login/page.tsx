@@ -14,6 +14,7 @@ import { loginRequestSchema } from "@/utils/validations/auth.validation"
 import { toast } from "sonner"
 import { useAuthStore } from "@/store/auth.store";
 import { z } from "zod";
+import { UserRole } from "@/types/user-role"
 
 // Infer the form type from the zod schema
 type LoginFormValues = z.infer<typeof loginRequestSchema>
@@ -42,10 +43,15 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     setMounted(true)
     if (isAuthenticated) {
-      if (user?.role === "ADMIN") {
+      if (user?.role === UserRole.ADMIN) {
         router.push("/admin")
-      } else {
+      } else if (user?.role === UserRole.TEACHER) {
         router.push("/problems")
+      } else if (user?.role === UserRole.STUDENT) {
+        router.push("/dashboard")
+      }
+      else {
+        router.push("/login")
       }
     }
   }, [isAuthenticated, router, user])
