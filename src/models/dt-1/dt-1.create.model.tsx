@@ -1,4 +1,6 @@
 import { ICreateQuestion } from "@/models/interfaces/create-question.model";
+import {Question} from "@/types/question.type";
+import {isPresent} from "@/utils/helpers/common.helper";
 
 export interface Condition {
   attribute: string;
@@ -23,236 +25,118 @@ export interface DecisionTree2CreationContent {
   goals: number[];
 }
 
-export class DecisionTree2CreateQuestion extends ICreateQuestion {
-  rules: Rule[];
-  finishes: Finish[];
-  goals: number[];
-  private steps: string[];
-  private redoStack: string[];
+export class DecisionTree2CreateModel extends ICreateQuestion {
+  private _content: DecisionTree2CreationContent;
 
-  constructor(
-    title: string,
-    description: string = "",
-    category: string = "Decision Tree 2",
-    points: number = 100,
-    estimatedTime: number = 30,
-    author: string = "",
-    id?: string,
-    creatorId?: string
-  ) {
-    super(
-      title,
-      description,
-      category,
-      points,
-      estimatedTime,
-      author,
-      id,
-      creatorId
-    );
-    this.rules = [];
-    this.finishes = [];
-    this.goals = [];
-    this.steps = [];
-    this.redoStack = [];
+  constructor(_question: Question) {
+    super(_question);
+    this._content = {
+      rules: [],
+      finishes: [],
+      goals: [],
+    };
   }
 
-  // Implementation of abstract methods
+  get content(): DecisionTree2CreationContent {
+    return this._content
+  }
+
+  set content(value: DecisionTree2CreationContent) {
+    this._content = value;
+  }
+
   contentToString(): string {
-    const content: DecisionTree2CreationContent = {
-      rules: this.rules,
-      finishes: this.finishes,
-      goals: this.goals,
-    };
-    return JSON.stringify(content);
+    return JSON.stringify(this.content);
   }
 
   populateFromContentString(contentString: string): void {
     try {
-      const content = JSON.parse(contentString) as DecisionTree2CreationContent;
-      this.rules = content.rules || [];
-      this.finishes = content.finishes || [];
-      this.goals = content.goals || [];
-      this.steps = [];
-      this.redoStack = [];
+      this.content = JSON.parse(contentString) as DecisionTree2CreationContent;
     } catch (error) {
       console.error("Error parsing Decision Tree 2 creation content:", error);
       throw new Error("Invalid Decision Tree 2 creation content format");
     }
   }
 
-  // Rule management methods
-  setRules(rules: Rule[]): void {
-    this.rules = rules;
-    this.steps.push("setRules");
-    this.redoStack = [];
+  hasRequiredContent(): boolean {
+    return Object.values(this.content).every(isPresent);
   }
 
+  // Rule management methods
   addRule(rule: Rule): void {
-    this.rules.push(rule);
-    this.steps.push(`addRule:${rule.id}`);
-    this.redoStack = [];
+    this.content.rules.push(rule);
   }
 
   removeRule(ruleId: number): void {
-    const index = this.rules.findIndex((rule) => rule.id === ruleId);
+    const index = this.content.rules.findIndex((rule) => rule.id === ruleId);
     if (index !== -1) {
-      this.rules.splice(index, 1);
-      this.steps.push(`removeRule:${ruleId}`);
-      this.redoStack = [];
+      this.content.rules.splice(index, 1);
     }
   }
 
   updateRule(ruleId: number, updatedRule: Rule): void {
-    const index = this.rules.findIndex((rule) => rule.id === ruleId);
+    const index = this.content.rules.findIndex((rule) => rule.id === ruleId);
     if (index !== -1) {
-      this.rules[index] = updatedRule;
-      this.steps.push(`updateRule:${ruleId}`);
-      this.redoStack = [];
+      this.content.rules[index] = updatedRule;
     }
   }
 
   // Finish management methods
-  setFinishes(finishes: Finish[]): void {
-    this.finishes = finishes;
-    this.steps.push("setFinishes");
-    this.redoStack = [];
-  }
-
   addFinish(finish: Finish): void {
-    this.finishes.push(finish);
-    this.steps.push(`addFinish:${finish.id}`);
-    this.redoStack = [];
+    this.content.finishes.push(finish);
   }
 
   removeFinish(finishId: number): void {
-    const index = this.finishes.findIndex((finish) => finish.id === finishId);
+    const index = this.content.finishes.findIndex((finish) => finish.id === finishId);
     if (index !== -1) {
-      this.finishes.splice(index, 1);
+      this.content.finishes.splice(index, 1);
       // Remove finish from goals if it exists there
-      this.goals = this.goals.filter((goalId) => goalId !== finishId);
+      this.content.goals = this.content.goals.filter((goalId) => goalId !== finishId);
       // Remove or update rules that reference this finish
-      this.rules = this.rules.filter((rule) => rule.finish !== finishId);
-      this.steps.push(`removeFinish:${finishId}`);
-      this.redoStack = [];
+      this.content.rules = this.content.rules.filter((rule) => rule.finish !== finishId);
     }
   }
 
   updateFinish(finishId: number, updatedFinish: Finish): void {
-    const index = this.finishes.findIndex((finish) => finish.id === finishId);
+    const index = this.content.finishes.findIndex((finish) => finish.id === finishId);
     if (index !== -1) {
-      this.finishes[index] = updatedFinish;
-      this.steps.push(`updateFinish:${finishId}`);
-      this.redoStack = [];
+      this.content.finishes[index] = updatedFinish;
     }
   }
 
   // Goal management methods
   setGoals(goals: number[]): void {
-    this.goals = goals;
-    this.steps.push("setGoals");
-    this.redoStack = [];
+    this.content.goals = goals;
   }
 
   addGoal(finishId: number): void {
     if (
-      !this.goals.includes(finishId) &&
-      this.finishes.some((f) => f.id === finishId)
+      !this.content.goals.includes(finishId) &&
+      this.content.finishes.some((f) => f.id === finishId)
     ) {
-      this.goals.push(finishId);
-      this.steps.push(`addGoal:${finishId}`);
-      this.redoStack = [];
+      this.content.goals.push(finishId);
     }
   }
 
   removeGoal(finishId: number): void {
-    const index = this.goals.indexOf(finishId);
+    const index = this.content.goals.indexOf(finishId);
     if (index !== -1) {
-      this.goals.splice(index, 1);
-      this.steps.push(`removeGoal:${finishId}`);
-      this.redoStack = [];
+      this.content.goals.splice(index, 1);
     }
   }
 
   toggleGoal(finishId: number): void {
-    if (this.goals.includes(finishId)) {
+    if (this.content.goals.includes(finishId)) {
       this.removeGoal(finishId);
     } else {
       this.addGoal(finishId);
     }
   }
 
-  // Condition management methods
-  addCondition(ruleId: number, condition: Condition): void {
-    const rule = this.rules.find((r) => r.id === ruleId);
-    if (rule) {
-      rule.conditions.push(condition);
-      this.steps.push(`addCondition:${ruleId}:${condition.attribute}`);
-      this.redoStack = [];
-    }
-  }
-
-  removeCondition(ruleId: number, attribute: string): void {
-    const rule = this.rules.find((r) => r.id === ruleId);
-    if (rule) {
-      rule.conditions = rule.conditions.filter(
-        (c) => c.attribute !== attribute
-      );
-      this.steps.push(`removeCondition:${ruleId}:${attribute}`);
-      this.redoStack = [];
-    }
-  }
-
-  updateCondition(
-    ruleId: number,
-    attribute: string,
-    updatedCondition: Condition
-  ): void {
-    const rule = this.rules.find((r) => r.id === ruleId);
-    if (rule) {
-      const index = rule.conditions.findIndex((c) => c.attribute === attribute);
-      if (index !== -1) {
-        rule.conditions[index] = updatedCondition;
-        this.steps.push(`updateCondition:${ruleId}:${attribute}`);
-        this.redoStack = [];
-      }
-    }
-  }
-
-  // Undo/Redo functionality
-  getSteps(): string[] {
-    return this.steps;
-  }
-
-  resetSteps(): void {
-    this.steps = [];
-    this.redoStack = [];
-  }
-
-  undo(): boolean {
-    if (this.steps.length === 0) return false;
-
-    const lastStep = this.steps.pop();
-    if (!lastStep) return false;
-
-    this.redoStack.push(lastStep);
-    return true;
-  }
-
-  redo(): boolean {
-    if (this.redoStack.length === 0) return false;
-
-    const nextStep = this.redoStack.pop();
-    if (!nextStep) return false;
-
-    this.steps.push(nextStep);
-    return true;
-  }
-
   // Validation methods
   validateRule(rule: Rule): boolean {
     // Check if rule ID is unique
-    if (this.rules.some((r) => r.id === rule.id && r !== rule)) {
+    if (this.content.rules.some((r) => r.id === rule.id && r !== rule)) {
       return false;
     }
 
@@ -263,14 +147,14 @@ export class DecisionTree2CreateQuestion extends ICreateQuestion {
     );
 
     // Check if finish exists
-    const finishExists = this.finishes.some((f) => f.id === rule.finish);
+    const finishExists = this.content.finishes.some((f) => f.id === rule.finish);
 
     return conditionsValid && finishExists;
   }
 
   validateFinish(finish: Finish): boolean {
     // Check if finish ID is unique
-    if (this.finishes.some((f) => f.id === finish.id && f !== finish)) {
+    if (this.content.finishes.some((f) => f.id === finish.id && f !== finish)) {
       return false;
     }
 
@@ -278,60 +162,34 @@ export class DecisionTree2CreateQuestion extends ICreateQuestion {
     return Boolean(finish.name && finish.name.trim().length > 0);
   }
 
-  validateQuestion(): boolean {
-    // Check if there are any rules
-    if (this.rules.length === 0) {
-      return false;
-    }
-
-    // Check if there are any finishes
-    if (this.finishes.length === 0) {
-      return false;
-    }
-
-    // Check if there are any goals
-    if (this.goals.length === 0) {
-      return false;
-    }
-
-    // Check if all rules are valid
-    if (!this.rules.every((rule) => this.validateRule(rule))) {
-      return false;
-    }
-
-    // Check if all finishes are valid
-    if (!this.finishes.every((finish) => this.validateFinish(finish))) {
-      return false;
-    }
-
-    // Check if all goals reference existing finishes
-    if (
-      !this.goals.every((goalId) => this.finishes.some((f) => f.id === goalId))
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-
   // Helper methods
   getNextRuleId(): number {
-    return this.rules.length > 0
-      ? Math.max(...this.rules.map((r) => r.id)) + 1
+    return this.content.rules.length > 0
+      ? Math.max(...this.content.rules.map((r) => r.id)) + 1
       : 1;
   }
 
   getNextFinishId(): number {
-    return this.finishes.length > 0
-      ? Math.max(...this.finishes.map((f) => f.id)) + 1
+    return this.content.finishes.length > 0
+      ? Math.max(...this.content.finishes.map((f) => f.id)) + 1
       : 1;
   }
 
   getGoalFinishes(): Finish[] {
-    return this.finishes.filter((finish) => this.goals.includes(finish.id));
+    return this.content.finishes.filter((finish) => this.content.goals.includes(finish.id));
   }
 
   getRulesForFinish(finishId: number): Rule[] {
-    return this.rules.filter((rule) => rule.finish === finishId);
+    return this.content.rules.filter((rule) => rule.finish === finishId);
+  }
+
+  validateContent(): boolean {
+    if (!this.hasRequiredContent()) return false;
+
+    if (!this.content.rules.every((rule) => this.validateRule(rule))) return false;
+
+    if (!this.content.finishes.every((finish) => this.validateFinish(finish))) return false;
+
+    return this.content.goals.every((goalId) => this.content.finishes.some((f) => f.id === goalId));
   }
 }

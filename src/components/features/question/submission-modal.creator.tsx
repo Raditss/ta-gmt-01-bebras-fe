@@ -17,9 +17,7 @@ export interface CreationSubmissionModalProps {
   isConfirming: boolean;
   questionData?: {
     title: string;
-    description: string;
-    difficulty: 'Easy' | 'Medium' | 'Hard';
-    category: string;
+    questionType: string;
     points: number;
     estimatedTime: number;
     author: string;
@@ -100,17 +98,13 @@ export function CreationSubmissionModal({
                   <User className="w-4 h-4 text-gray-500" />
                   <span>Author: {questionData.author}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-gray-500" />
-                  <span>Category: {questionData.category}</span>
+                  <span>Category: {questionData.questionType}</span>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-gray-500" />
-                  <span>Difficulty: {questionData.difficulty}</span>
-                </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-gray-500" />
                   <span>Points: {questionData.points}</span>
@@ -121,14 +115,6 @@ export function CreationSubmissionModal({
                   <span>Estimated Time: {questionData.estimatedTime} minutes</span>
                 </div>
               </div>
-
-              {questionData.description && (
-                <div className="pt-2 border-t">
-                  <p className="text-sm text-gray-700">
-                    <strong>Description:</strong> {questionData.description}
-                  </p>
-                </div>
-              )}
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">

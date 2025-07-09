@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { MainNavbar } from "@/components/layout/Nav/main-navbar";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -16,28 +15,16 @@ import { ArrowLeft, Clock, Award, User } from "lucide-react";
 import Link from "next/link";
 import { questionService } from "@/lib/services/question.service";
 import {Question} from "@/types/question.type";
-import {useAuthStore} from "@/store/auth.store";
 
 export default function ProblemDetailPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const [mounted, setMounted] = useState(false);
-  const { isAuthenticated } = useAuthStore();
-  const router = useRouter();
   const { id } = params;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState<Question | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-    // If not authenticated, redirect to login
-    if (mounted && !isAuthenticated) {
-      router.push("/login");
-    }
-  }, [isAuthenticated, mounted, router]);
 
   // Fetch question info
   useEffect(() => {
@@ -53,15 +40,8 @@ export default function ProblemDetailPage({
       }
     };
 
-    if (mounted && isAuthenticated) {
-      fetchQuestionInfo();
-    }
-  }, [id, mounted, isAuthenticated]);
-
-  // Show nothing during SSR or if not authenticated
-  if (!mounted || !isAuthenticated) {
-    return null;
-  }
+    fetchQuestionInfo();
+  }, [id]);
 
   if (loading) {
     return (
@@ -124,7 +104,7 @@ export default function ProblemDetailPage({
             <CardContent>
               <div className="prose max-w-none">
                 <h3>Problem Description</h3>
-                <p>{question.description}</p>
+                <p>{question.questionType.description}</p>
 
                 <Link href={`/problems/${id}/solve`}>
                   <Button

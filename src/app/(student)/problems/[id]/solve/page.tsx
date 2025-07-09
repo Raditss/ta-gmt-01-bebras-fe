@@ -1,24 +1,11 @@
 "use client";
 
-import { useEffect, useState, ComponentType } from "react";
-import { useParams } from "next/navigation";
-import { questionService } from "@/lib/services/question.service";
+import {useEffect, useState} from "react";
+import {useParams} from "next/navigation";
+import {questionService} from "@/lib/services/question.service";
 import {getQuestionTypeByName, QuestionTypeEnum} from "@/types/question-type.type";
-import { MainNavbar } from "@/components/layout/Nav/main-navbar";
-import { BaseSolverProps } from "@/components/features/bases/base.solver";
-import DecisionTreeSolver from "@/components/features/question/dt-0/solver";
-import CfgSolver from "@/components/features/question/cfg/cfg.solver";
-import RingCipherSolver from "@/components/features/question/ring-cipher/solver/ring-cipher-solver";
-import CipherNSolver from "@/components/features/question/cipher-n/solver/cipher-n-solver";
-import DecisionTree2Solver from "@/components/features/question/dt-1/dt-1.solver";
-
-const solvers: Record<QuestionTypeEnum, ComponentType<BaseSolverProps>> = {
-  [QuestionTypeEnum.CFG]: CfgSolver,
-  [QuestionTypeEnum.CIPHER_N]: CipherNSolver,
-  [QuestionTypeEnum.RING_CIPHER]: RingCipherSolver,
-  [QuestionTypeEnum.DECISION_TREE] : DecisionTreeSolver,
-  [QuestionTypeEnum.DECISION_TREE_2]: DecisionTree2Solver,
-};
+import {MainNavbar} from "@/components/layout/Nav/main-navbar";
+import {solveQuestionComponent} from "@/components/features/question";
 
 export default function SolvePage() {
   const params = useParams();
@@ -68,7 +55,7 @@ export default function SolvePage() {
     );
   }
 
-  const Solver = solvers[questionType];
+  const Solver = solveQuestionComponent[questionType];
   if (!Solver) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">

@@ -1,4 +1,5 @@
 import { ICreateQuestion } from "../interfaces/create-question.model";
+import {Question} from "@/types/question.type";
 
 interface CipherVertex {
     pos: number;
@@ -40,21 +41,13 @@ interface CipherContent {
     };
 }
 
-export class CreateCipherQuestion extends ICreateQuestion {
+export class CipherCreateModel extends ICreateQuestion {
     private content: CipherContent;
 
     constructor(
-        title: string,
-        description: string = '',
-        difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy',
-        category: string = '',
-        points: number = 0,
-        estimatedTime: number = 0,
-        author: string = '',
-        id?: string,
-        creatorId?: string
+      _question: Question
     ) {
-        super(title, description, difficulty, category, points, estimatedTime, author, id, creatorId);
+        super(_question);
         this.content = {
             problemType: 'polygon_cipher',
             config: {
@@ -124,5 +117,15 @@ export class CreateCipherQuestion extends ICreateQuestion {
 
     getContent(): CipherContent {
         return this.content;
+    }
+
+    // TODO
+    hasRequiredContent(): boolean {
+        return false;
+    }
+
+    // TODO
+    validateContent(): boolean {
+        return false;
     }
 }

@@ -1,23 +1,12 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { QuestionTypeEnum } from "@/types/question-type.type";
-import { BaseCreatorProps } from "@/components/features/bases/base.creator";
-import {Component, ComponentType, ErrorInfo, ReactNode, useEffect, useState} from "react";
-import CfgCreator from "@/components/features/question/cfg/cfg.creator";
-import Dt0Creator from "@/components/features/question/dt-0/dt-0.creator";
-import Dt1Creator from "@/components/features/question/dt-1/dt-1.creator";
+import {useParams} from "next/navigation";
+import {QuestionTypeEnum} from "@/types/question-type.type";
+import {Component, ReactNode, useEffect, useState} from "react";
+import {Question} from "@/types/question.type";
+import {creationService} from "@/lib/services/creation.service";
+import {createQuestionComponent} from "@/components/features/question";
 
-// Abstract mapping of question types to their creator components
-const creators: Partial<
-  Record<QuestionTypeEnum, ComponentType<BaseCreatorProps>>
-> = {
-  [QuestionTypeEnum.CFG]: CfgCreator,
-  [QuestionTypeEnum.DECISION_TREE]: Dt0Creator,
-  [QuestionTypeEnum.DECISION_TREE_2]: Dt1Creator,
-};
-
-// Error boundary for creator components
 class CreatorErrorBoundary extends Component<
   { children: ReactNode; questionId: string; type: string },
   { hasError: boolean; error?: Error }
@@ -29,15 +18,6 @@ class CreatorErrorBoundary extends Component<
   }) {
     super(props);
     this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    console.error("Creator Error Boundary caught error:", error);
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Creator Error Boundary details:", error, errorInfo);
   }
 
   render() {
@@ -76,61 +56,23 @@ export default function CreateQuestionPage() {
   const params = useParams();
   const type = params?.type as QuestionTypeEnum;
   const id = params?.id as string;
-  const [initialData, setInitialData] =
-    useState<BaseCreatorProps["initialData"]>(undefined);
-  const [mounted, setMounted] = useState(false);
+  const [question, setQuestion] = useState<Question | null>(null);
 
-  // Extract initial data on client side only
+  const CreatorComponent = createQuestionComponent[type];
+
   useEffect(() => {
-    setMounted(true);
-
-    // Only extract data for new questions (id === 'new')
-    if (id === "new") {
-      const urlParams = new URLSearchParams(window.location.search);
-
-      const title = urlParams.get("title");
-      const description = urlParams.get("description");
-      const category = urlParams.get("category");
-      const points = urlParams.get("points");
-      const estimatedTime = urlParams.get("estimatedTime");
-      const author = urlParams.get("author");
-
-      const extractedData = title
-        ? {
-            id,
-            type,
-            title,
-            description: description || "",
-            category: category || "",
-            points: points ? parseInt(points) : 100,
-            estimatedTime: estimatedTime ? parseInt(estimatedTime) : 30,
-            author: author || "",
-          }
-        : undefined;
-
-      setInitialData(extractedData);
-    } else {
-      setInitialData(undefined);
+    const loadQuestion = async () => {
+      try {
+        const _question = await creationService.getCreateQuestionData(id);
+        setQuestion(_question);
+      } catch (error) {
+        console.error("Failed to load question data:", error);
+      }
     }
-  }, [id]);
+    loadQuestion()
+  }, []);
 
-  // Don't render until mounted to avoid hydration issues
-  if (!mounted) {
-    return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <div className="flex-1 flex justify-center items-center">
-          <div className="text-center">
-            <p className="text-lg">Loading...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Get the appropriate creator component for this question type
-  const CreatorComponent = creators[type];
-
-  if (!CreatorComponent) {
+  if (!CreatorComponent && !question) {
     return (
       <CreatorErrorBoundary questionId={id} type={type}>
         <div className="flex flex-col min-h-screen bg-yellow-400">
@@ -160,7 +102,7 @@ export default function CreateQuestionPage() {
 
   return (
     <CreatorErrorBoundary questionId={id} type={type}>
-      <CreatorComponent questionId={id} initialData={initialData} />
+      { question && <CreatorComponent initialDataQuestion={question}/>}
     </CreatorErrorBoundary>
   );
 }

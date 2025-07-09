@@ -1,7 +1,7 @@
-import {API_URL, apiCore} from "./core";
+import {apiCore} from "./core";
 import {QuestionTypeEnum} from "@/types/question-type.type";
 import {
-  CreateQuestionDraftRequest, CreateQuestionMetadataRequest, CreateQuestionSubmitRequest,
+  CreateQuestionMetadataRequest, CreateQuestionSubmitRequest,
   GeneratedQuestionResponse,
   QuestionResponse, UpdateQuestionRequest
 } from "@/utils/validations/question.validation";
@@ -41,19 +41,6 @@ export const questionsApi = {
     }
   },
 
-  async createQuestionDraft(createQuestionDraftPayload: CreateQuestionDraftRequest): Promise<QuestionResponse> {
-    try {
-      const { id: _id, ...payload } = createQuestionDraftPayload;
-      const response = await apiCore.post<QuestionResponse>(
-          `/questions`,
-          payload
-      );
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-
   async updateQuestion(updateQuestionPayload: UpdateQuestionRequest, id: number): Promise<QuestionResponse> {
     try {
       const response = await apiCore.patch<QuestionResponse>(
@@ -63,18 +50,6 @@ export const questionsApi = {
       return response.data;
     } catch (error) {
       throw error;
-    }
-  },
-
-  updateQuestionSync(updateQuestionPayload: UpdateQuestionRequest, id: number): void {
-    try {
-      if (!navigator.sendBeacon) throw new Error("sendBeacon is not supported in this browser");
-      navigator.sendBeacon(
-          `${API_URL}/api/questions/${id}`,
-          JSON.stringify(updateQuestionPayload)
-      );
-    } catch (error) {
-      throw new Error(`Failed to update question synchronously: ${error}`);
     }
   },
 

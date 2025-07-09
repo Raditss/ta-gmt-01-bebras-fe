@@ -26,14 +26,14 @@ import {
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import {useSolveQuestion} from "@/hooks/useSolveQuestion";
-import {DecisionTreeQuestionModel} from "@/models/dt-0/dt-0.solve.model";
+import {DecisionTreeSolveModel} from "@/models/dt-0/dt-0.solve.model";
 import {useAuthStore} from "@/store/auth.store";
 
 export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
   const { user } = useAuthStore();
   const router = useRouter();
   const { question, loading, error, currentDuration } =
-    useSolveQuestion<DecisionTreeQuestionModel>(questionId, DecisionTreeQuestionModel);
+    useSolveQuestion<DecisionTreeSolveModel>(questionId, DecisionTreeSolveModel);
   const [selections, setSelections] = useState<
     Record<string, MonsterPartOptionType>
   >({});

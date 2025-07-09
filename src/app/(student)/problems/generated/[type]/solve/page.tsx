@@ -5,7 +5,7 @@ import { QuestionTypeEnum } from "@/types/question-type.type";
 import { GeneratedSolverProps } from "@/components/features/bases/base.solver.generated";
 import GeneratedCfgSolver from "@/components/features/question/cfg/cfg.solver.generated";
 import {ComponentType} from "react";
-import NotImplemented from "@/components/features/fallbacks/not-implemented.solver.generated";
+import NotImplemented from "@/components/features/question/fallbacks/not-implemented.solver.generated";
 
 // Dynamically import solver for different question types
 const solvers: Record<

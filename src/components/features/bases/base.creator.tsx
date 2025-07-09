@@ -2,29 +2,14 @@
 
 import { MainNavbar } from '@/components/layout/Nav/main-navbar';
 import { NavigationAlertDialog } from '@/components/ui/navigation-alert-dialog';
+import {Question} from "@/types/question.type";
+import { ReactNode } from "react";
 
 export interface BaseCreatorProps {
-  questionId: string;
-  initialData?: {
-    title: string;
-    description: string;
-    category: string;
-    points: number;
-    estimatedTime: number;
-    author: string;
-  };
+  initialDataQuestion: Question
 }
-
-export interface BaseCreator {
-  loading: boolean;
-  error: string | null;
-  hasUnsavedChanges: boolean;
-  onSave: () => Promise<void>;
-  onSubmit: () => Promise<void>;
-}
-
 export interface CreatorWrapperProps {
-  children: React.ReactNode;
+  children: ReactNode;
   loading: boolean;
   error: string | null;
   hasUnsavedChanges: boolean;

@@ -37,7 +37,7 @@ interface DecisionTree2Solution {
   currentSelection?: Record<string, string>;
 }
 
-export class DecisionTree2QuestionModel extends IQuestion implements IAttempt {
+export class DecisionTree2SolveModel extends IQuestion implements IAttempt {
   private questionSetup: DecisionTree2QuestionSetup;
   private selectedRules: number[];
   private userSelections: Record<string, string>;

@@ -3,7 +3,7 @@ import {
   SolverWrapper,
 } from "@/components/features/bases/base.solver";
 
-export function NotImplemented({ questionId }: BaseSolverProps) {
+function NotImplemented({ questionId }: BaseSolverProps) {
   return (
     <SolverWrapper loading={false} error={null}>
       <div className="text-center">
@@ -14,3 +14,5 @@ export function NotImplemented({ questionId }: BaseSolverProps) {
     </SolverWrapper>
   );
 }
+
+export default NotImplemented;

@@ -1,4 +1,5 @@
-import { ICreateQuestion } from "../../interfaces/create-question";
+import { ICreateQuestion } from "../interfaces/create-question.model";
+import {Question} from "@/types/question.type";
 
 interface RingCipherRing {
     id: number;
@@ -39,21 +40,13 @@ interface RingCipherContent {
     };
 }
 
-export class CreateRingCipherQuestion extends ICreateQuestion {
+export class RingCipherCreateModel extends ICreateQuestion {
     private content: RingCipherContent;
 
     constructor(
-        title: string,
-        description: string = '',
-        difficulty: 'Easy' | 'Medium' | 'Hard' = 'Easy',
-        category: string = '',
-        points: number = 0,
-        estimatedTime: number = 0,
-        author: string = '',
-        id?: string,
-        creatorId?: string
+      _question: Question
     ) {
-        super(title, description, difficulty, category, points, estimatedTime, author, id, creatorId);
+        super(_question);
         this.content = {
             problemType: 'ring_cipher',
             config: {
@@ -253,5 +246,15 @@ export class CreateRingCipherQuestion extends ICreateQuestion {
 
     getContent(): RingCipherContent {
         return this.content;
+    }
+
+    // TODO
+    hasRequiredContent(): boolean {
+        return false;
+    }
+
+    // TODO
+    validateContent(): boolean {
+        return false;
     }
 } 

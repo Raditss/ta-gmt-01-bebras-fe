@@ -24,7 +24,7 @@ import { usePageNavigationGuard } from "@/hooks/usePageNavigationGuard";
 import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
 import {
   Condition,
-  DecisionTreeCreateQuestion,
+  DecisionTreeCreateModel,
   Rule,
 } from "@/models/dt-0/dt-0.create.model";
 import {
@@ -41,8 +41,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { BaseCreatorProps, CreatorWrapper } from "../../bases/base.creator";
 import { CreationSubmissionModal } from "../submission-modal.creator";
 
-import {QuestionCreation} from "@/types/question.type";
-
 const attributeLabels = {
   body: "Body",
   arms: "Arms",
@@ -51,54 +49,23 @@ const attributeLabels = {
   color: "Color",
 };
 
-// Helper function to create question instance
-const createQuestionInstance = (
-  data: QuestionCreation
-): DecisionTreeCreateQuestion => {
-  try {
-    const instance = new DecisionTreeCreateQuestion(
-      data.title,
-      data.description,
-      data.difficulty,
-      data.category,
-      data.points,
-      data.estimatedTime,
-      data.author,
-      data.questionId,
-      data.creatorId
-    );
-    return instance;
-  } catch (error) {
-    console.error("Error creating Decision Tree question instance:", error);
-    throw error;
-  }
-};
 
 // Removed old RuleFormData interface - now using MonsterPartOptionType selections
-
 export default function Dt0Creator({
-  questionId,
-  initialData,
+   initialDataQuestion
 }: BaseCreatorProps) {
   const router = useRouter();
 
   // Creation hook
   const {
     question,
-    loading,
-    saving,
     error: creationError,
     hasUnsavedChanges,
     lastSavedDraft,
     saveDraft,
     submitCreation,
     markAsChanged,
-  } = useCreateQuestion({
-    questionId,
-    questionType: "decision-tree",
-    initialData,
-    createQuestionInstance,
-  });
+  } = useCreateQuestion<DecisionTreeCreateModel>(initialDataQuestion, DecisionTreeCreateModel);
 
   // Nav guard
   const {
@@ -166,8 +133,8 @@ export default function Dt0Creator({
   // Load existing rules when question is loaded
   useEffect(() => {
     if (question) {
-      const decisionTreeQuestion = question as DecisionTreeCreateQuestion;
-      setRules(decisionTreeQuestion.rules || []);
+      const decisionTreeQuestion = question as DecisionTreeCreateModel;
+      setRules(decisionTreeQuestion.content.rules);
     }
   }, [question]);
 
@@ -309,9 +276,9 @@ export default function Dt0Creator({
       return;
     }
 
-    const decisionTreeQuestion = question as DecisionTreeCreateQuestion;
+    const decisionTreeQuestion = question as DecisionTreeCreateModel;
     const newRule: Rule = {
-      id: Date.now(), // Simple ID generation
+      id: Date.now(),
       conditions,
     };
 
@@ -396,7 +363,7 @@ export default function Dt0Creator({
       return;
     }
 
-    const decisionTreeQuestion = question as DecisionTreeCreateQuestion;
+    const decisionTreeQuestion = question as DecisionTreeCreateModel;
     const updatedRule: Rule = {
       id: editingRuleId,
       conditions,
@@ -427,7 +394,7 @@ export default function Dt0Creator({
     (ruleId: number) => {
       if (!question) return;
 
-      const decisionTreeQuestion = question as DecisionTreeCreateQuestion;
+      const decisionTreeQuestion = question as DecisionTreeCreateModel;
       const updatedRules = rules.filter((rule) => rule.id !== ruleId);
 
       decisionTreeQuestion.setRules(updatedRules);
@@ -463,21 +430,6 @@ export default function Dt0Creator({
 
   const handleConfirmSubmit = async () => {
     await submitCreation();
-  };
-
-  const getQuestionData = () => {
-    if (!question) return null;
-    return {
-      title: question.getTitle(),
-      description: question.getDescription(),
-      difficulty: question.getDifficulty(),
-      category: question.getCategory(),
-      points: question.getPoints(),
-      estimatedTime: question.getEstimatedTime(),
-      author: question.getAuthor(),
-      type: "Decision Tree",
-      rulesCount: rules.length,
-    };
   };
 
   // Handle rule selection from tree visualization
@@ -544,7 +496,7 @@ export default function Dt0Creator({
 
   return (
     <CreatorWrapper
-      loading={loading}
+      loading={optionsLoading}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -557,28 +509,19 @@ export default function Dt0Creator({
         <>
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-bold">
-              {questionId === "new"
-                ? "Create New Decision Tree Question"
-                : "Edit Decision Tree Question"}
+              Create Decision Tree 1 Question
             </h1>
 
             <Button
               onClick={handleManualSave}
-              disabled={saving || !hasUnsavedChanges}
+              disabled={!hasUnsavedChanges}
               className="flex items-center gap-2"
             >
               <Save className="h-4 w-4" />
-              {saving ? "Saving..." : "Save Draft"}
+              Save Draft
             </Button>
           </div>
 
-          {/* Status Messages */}
-          {saving && (
-            <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>Saving draft...</AlertDescription>
-            </Alert>
-          )}
 
           {showSaveConfirmation && (
             <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
@@ -591,7 +534,7 @@ export default function Dt0Creator({
             <Alert className="mb-4 bg-gray-50 text-gray-800 border-gray-200">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>
-                Last saved at {lastSavedDraft.toLocaleTimeString()}
+                Last saved at {lastSavedDraft.toString()}
               </AlertDescription>
             </Alert>
           )}
@@ -599,10 +542,7 @@ export default function Dt0Creator({
           {/* Description */}
           <div className="mb-6 p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto text-center">
             <p className="text-gray-700">
-              Create decision tree rules by dressing up monsters! Use the
-              wardrobe below to select different monster parts, then add each
-              complete combination as a rule. Students will use these rules to
-              solve decision tree challenges.
+              { initialDataQuestion.questionType.description }
             </p>
           </div>
 
@@ -1096,8 +1036,16 @@ export default function Dt0Creator({
           {/* Submission Modal */}
           <CreationSubmissionModal
             isOpen={showSubmissionModal}
-            isConfirming={!saving}
-            questionData={getQuestionData()}
+            isConfirming={true}
+            questionData={
+              {
+                title: question.draft.title,
+                questionType: question.draft.questionType.name,
+                points: question.draft.points,
+                estimatedTime: question.draft.estimatedTime,
+                author: question.draft.teacher.name,
+              }
+            }
             onConfirm={handleConfirmSubmit}
             onCancel={() => setShowSubmissionModal(false)}
             onClose={() => {

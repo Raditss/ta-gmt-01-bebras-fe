@@ -1,4 +1,6 @@
 import { ICreateQuestion } from "../interfaces/create-question.model";
+import {Question} from "@/types/question.type";
+import {isPresent} from "@/utils/helpers/common.helper";
 
 export interface Condition {
   attribute: string;
@@ -15,175 +17,63 @@ export interface DecisionTreeCreationContent {
   rules: Rule[];
 }
 
-export class DecisionTreeCreateQuestion extends ICreateQuestion {
-  rules: Rule[];
-  private steps: Rule[];
-  private redoStack: Rule[];
+export class DecisionTreeCreateModel extends ICreateQuestion {
+  private _content: DecisionTreeCreationContent;
 
   constructor(
-    questionTypeId: number,
-    content: string = "{}",
-    isPublished: boolean = false,
-    title: string = "New Question",
-    points: number = 0,
-    estimatedTime: number = 0,
-    id?: string | number,
+    _question: Question
   ) {
-    super(
-      questionTypeId,
-      content,
-      isPublished,
-      title,
-      points,
-      estimatedTime,
-      id,
-    );
-    this.rules = [];
-    this.steps = [];
-    this.redoStack = [];
+    super(_question);
+    this._content = {
+      rules: [],
+    };
+    this.populateFromContentString(_question.content);
   }
 
-  // Implementation of abstract methods
+  get content(): DecisionTreeCreationContent {
+    return this._content;
+  }
+
+  set content(value: DecisionTreeCreationContent) {
+    this._content = value;
+  }
+
   contentToString(): string {
-    const content: DecisionTreeCreationContent = {
-      rules: this.rules,
-    };
-    return JSON.stringify(content);
+    return JSON.stringify(this.content);
   }
 
   populateFromContentString(contentString: string): void {
     try {
       const content = JSON.parse(contentString) as DecisionTreeCreationContent;
-      this.rules = content.rules || [];
-      this.steps = [];
-      this.redoStack = [];
+      this.content = content || { rules: [] };
     } catch (error) {
       console.error("Error parsing Decision Tree creation content:", error);
       throw new Error("Invalid Decision Tree creation content format");
     }
   }
 
-  // Rule management methods
   setRules(rules: Rule[]): void {
-    this.rules = rules;
+    this.content.rules = rules;
   }
 
-  addRule(rule: Rule): void {
-    this.rules.push(rule);
-    this.steps.push(rule);
-    this.redoStack = [];
+  validateContent(): boolean {
+    if (!this.hasRequiredContent()) return false;
+
+    return this.content.rules.every((rule) => this.validateRule(rule));
   }
 
-  removeRule(ruleId: number): void {
-    const index = this.rules.findIndex((rule) => rule.id === ruleId);
-    if (index !== -1) {
-      const removedRule = this.rules.splice(index, 1)[0];
-      this.steps.push(removedRule);
-      this.redoStack = [];
-    }
+  hasRequiredContent(): boolean {
+    return Object.values(this.content).every(isPresent)
   }
 
-  updateRule(ruleId: number, updatedRule: Rule): void {
-    const index = this.rules.findIndex((rule) => rule.id === ruleId);
-    if (index !== -1) {
-      const oldRule = this.rules[index];
-      this.rules[index] = updatedRule;
-      this.steps.push(oldRule);
-      this.redoStack = [];
-    }
-  }
-
-  // Condition management methods
-  addCondition(ruleId: number, condition: Condition): void {
-    const rule = this.rules.find((r) => r.id === ruleId);
-    if (rule) {
-      const oldRule = { ...rule };
-      rule.conditions.push(condition);
-      this.steps.push(oldRule);
-      this.redoStack = [];
-    }
-  }
-
-  removeCondition(ruleId: number, attribute: string): void {
-    const rule = this.rules.find((r) => r.id === ruleId);
-    if (rule) {
-      const oldRule = { ...rule };
-      rule.conditions = rule.conditions.filter(
-        (c) => c.attribute !== attribute
-      );
-      this.steps.push(oldRule);
-      this.redoStack = [];
-    }
-  }
-
-  updateCondition(
-    ruleId: number,
-    attribute: string,
-    updatedCondition: Condition
-  ): void {
-    const rule = this.rules.find((r) => r.id === ruleId);
-    if (rule) {
-      const oldRule = { ...rule };
-      const index = rule.conditions.findIndex((c) => c.attribute === attribute);
-      if (index !== -1) {
-        rule.conditions[index] = updatedCondition;
-        this.steps.push(oldRule);
-        this.redoStack = [];
-      }
-    }
-  }
-
-  // Undo/Redo functionality
-  getSteps(): Rule[] {
-    return this.steps;
-  }
-
-  resetSteps(): void {
-    this.steps = [];
-    this.redoStack = [];
-  }
-
-  undo(): boolean {
-    if (this.steps.length === 0) return false;
-
-    const lastStep = this.steps.pop();
-    if (!lastStep) return false;
-
-    this.redoStack.push(lastStep);
-    return true;
-  }
-
-  redo(): boolean {
-    if (this.redoStack.length === 0) return false;
-
-    const nextStep = this.redoStack.pop();
-    if (!nextStep) return false;
-
-    this.steps.push(nextStep);
-    return true;
-  }
-
-  // Validation methods
   validateRule(rule: Rule): boolean {
-    // Check if rule ID is unique
-    if (this.rules.some((r) => r.id === rule.id)) {
+    if (this.content.rules.some((r) => r.id === rule.id)) {
       return false;
     }
 
-    // Check if all conditions have required fields
     return rule.conditions.every(
       (condition) =>
         condition.attribute && condition.operator && condition.value
     );
-  }
-
-  validateQuestion(): boolean {
-    // Check if there are any rules
-    if (this.rules.length === 0) {
-      return false;
-    }
-
-    // Check if all rules are valid
-    return this.rules.every((rule) => this.validateRule(rule));
   }
 }

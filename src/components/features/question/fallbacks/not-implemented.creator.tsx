@@ -4,8 +4,7 @@ import React from "react";
 import { BaseCreatorProps } from "@/components/features/bases/base.creator";
 
 export default function NotImplementedCreator({
-  questionId,
-  initialData,
+  initialDataQuestion,
 }: BaseCreatorProps) {
   return (
     <div className="flex flex-col min-h-screen bg-yellow-400">
@@ -18,15 +17,15 @@ export default function NotImplementedCreator({
             This question type is not yet supported.
           </p>
           <p className="text-sm text-gray-600 mb-4">
-            Question ID: {questionId}
+            Question ID: {initialDataQuestion.id}
           </p>
-          {initialData && (
+          {initialDataQuestion && (
             <details className="text-left">
               <summary className="cursor-pointer font-medium">
                 Initial Data
               </summary>
               <pre className="bg-gray-100 p-2 mt-2 rounded text-xs overflow-auto">
-                {JSON.stringify(initialData, null, 2)}
+                {JSON.stringify(initialDataQuestion, null, 2)}
               </pre>
             </details>
           )}
