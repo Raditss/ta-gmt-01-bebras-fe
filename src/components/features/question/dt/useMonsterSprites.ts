@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { Assets, Spritesheet, Texture } from "pixi.js";
-import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
+import { useEffect, useState } from 'react';
+import { Assets, Spritesheet, Texture } from 'pixi.js';
+import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
 import {
-  MonsterPartType,
   defaultColor,
   monsterAssetUrl,
-} from "@/components/features/question/dt-0/solver/types";
+  MonsterPartType
+} from '@/components/features/question/dt/types';
 
 interface UseMonsterSpritesReturn {
   spritesheet: Spritesheet | null;
@@ -44,7 +44,7 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
         setSpritesheet(newSpritesheet);
         setIsLoading(false);
       } catch (error) {
-        console.error("Error loading spritesheet:", error);
+        console.error('Error loading spritesheet:', error);
         setIsLoading(false);
       }
     };
@@ -67,7 +67,7 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
       case MonsterPartType.ARM:
         return `arm_${currentColor}_${value}.png`;
       case MonsterPartType.HORN:
-        return value === "none" ? null : `horn_${currentColor}_${value}.png`;
+        return value === 'none' ? null : `horn_${currentColor}_${value}.png`;
       default:
         return null;
     }
@@ -96,6 +96,6 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
     isLoading,
     getTexture,
     getStaticTexture,
-    getTextureName,
+    getTextureName
   };
 }

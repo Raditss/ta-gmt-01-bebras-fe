@@ -1,59 +1,56 @@
-import MonsterCharacter from "@/components/features/question/dt-0/shared/monster-character";
-import MonsterPartOption from "@/components/features/question/dt-0/shared/monster-part-option";
-import { DecisionTree } from "@/components/features/question/dt-0/shared/tree";
-import { extractSpriteOptions } from "@/components/features/question/dt-0/solver/helper";
+import MonsterCharacter from '@/components/features/question/dt/monster-character';
+import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
+import { DecisionTree } from '@/components/features/question/dt/dt-0/tree';
+import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/solver/helper';
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
-  MonsterPartType,
-} from "@/components/features/question/dt-0/solver/types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+  MonsterPartType
+} from '@/components/features/question/dt/types';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {useCreateQuestion} from "@/hooks/useCreateQuestion";
-import { usePageNavigationGuard } from "@/hooks/usePageNavigationGuard";
-import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
+  CarouselPrevious
+} from '@/components/ui/carousel';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useCreateQuestion } from '@/hooks/useCreateQuestion';
+import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
+import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
 import {
   Condition,
   DecisionTreeCreateModel,
-  Rule,
-} from "@/models/dt-0/dt-0.create.model";
+  Rule
+} from '@/models/dt-0/dt-0.create.model';
 import {
   AlertCircle,
   CheckCircle2,
   Edit2,
   Plus,
   Save,
-  Trash2,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+  Trash2
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { BaseCreatorProps, CreatorWrapper } from "../../bases/base.creator";
-import { CreationSubmissionModal } from "../submission-modal.creator";
+import { BaseCreatorProps, CreatorWrapper } from '../../../bases/base.creator';
+import { CreationSubmissionModal } from '../../submission-modal.creator';
 
 const attributeLabels = {
-  body: "Body",
-  arms: "Arms",
-  legs: "Legs",
-  horns: "Horns",
-  color: "Color",
+  body: 'Body',
+  arms: 'Arms',
+  legs: 'Legs',
+  horns: 'Horns',
+  color: 'Color'
 };
 
-
 // Removed old RuleFormData interface - now using MonsterPartOptionType selections
-export default function Dt0Creator({
-   initialDataQuestion
-}: BaseCreatorProps) {
+export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
   const router = useRouter();
 
   // Creation hook
@@ -64,8 +61,11 @@ export default function Dt0Creator({
     lastSavedDraft,
     saveDraft,
     submitCreation,
-    markAsChanged,
-  } = useCreateQuestion<DecisionTreeCreateModel>(initialDataQuestion, DecisionTreeCreateModel);
+    markAsChanged
+  } = useCreateQuestion<DecisionTreeCreateModel>(
+    initialDataQuestion,
+    DecisionTreeCreateModel
+  );
 
   // Nav guard
   const {
@@ -73,10 +73,10 @@ export default function Dt0Creator({
     onSaveAndLeave: handleSaveAndLeave,
     onLeaveWithoutSaving: handleLeaveWithoutSaving,
     onStayOnPage: handleStayOnPage,
-    setShowDialog,
+    setShowDialog
   } = usePageNavigationGuard({
     hasUnsavedChanges,
-    onSave: saveDraft,
+    onSave: saveDraft
   });
 
   // Component state
@@ -116,12 +116,12 @@ export default function Dt0Creator({
           [MonsterPartType.HORN]: options.horns,
           [MonsterPartType.BODY]: options.body,
           [MonsterPartType.ARM]: options.arms,
-          [MonsterPartType.LEG]: options.legs,
+          [MonsterPartType.LEG]: options.legs
         };
 
         setMonsterParts(parts);
       } catch (error) {
-        console.error("Failed to load monster options:", error);
+        console.error('Failed to load monster options:', error);
       } finally {
         setOptionsLoading(false);
       }
@@ -143,7 +143,7 @@ export default function Dt0Creator({
     (category: MonsterPartType, value: MonsterPartOptionType) => {
       setCurrentRuleSelections((prev) => ({
         ...prev,
-        [category]: value,
+        [category]: value
       }));
       // Clear duplicate error when selections change
       setDuplicateRuleError(null);
@@ -169,7 +169,7 @@ export default function Dt0Creator({
       MonsterPartType.ARM,
       MonsterPartType.LEG,
       MonsterPartType.HORN,
-      MonsterPartType.COLOR,
+      MonsterPartType.COLOR
     ];
     return requiredParts.every((part) => currentRuleSelections[part]);
   };
@@ -178,34 +178,34 @@ export default function Dt0Creator({
   const createConditionsFromSelections = (): Condition[] => {
     const conditions = [
       {
-        attribute: "body",
-        operator: "=",
-        value: currentRuleSelections[MonsterPartType.BODY]?.value || "",
+        attribute: 'body',
+        operator: '=',
+        value: currentRuleSelections[MonsterPartType.BODY]?.value || ''
       },
       {
-        attribute: "arms",
-        operator: "=",
-        value: currentRuleSelections[MonsterPartType.ARM]?.value || "",
+        attribute: 'arms',
+        operator: '=',
+        value: currentRuleSelections[MonsterPartType.ARM]?.value || ''
       },
       {
-        attribute: "legs",
-        operator: "=",
-        value: currentRuleSelections[MonsterPartType.LEG]?.value || "",
+        attribute: 'legs',
+        operator: '=',
+        value: currentRuleSelections[MonsterPartType.LEG]?.value || ''
       },
       {
-        attribute: "horns",
-        operator: "=",
-        value: currentRuleSelections[MonsterPartType.HORN]?.value || "",
+        attribute: 'horns',
+        operator: '=',
+        value: currentRuleSelections[MonsterPartType.HORN]?.value || ''
       },
       {
-        attribute: "color",
-        operator: "=",
-        value: currentRuleSelections[MonsterPartType.COLOR]?.value || "",
-      },
+        attribute: 'color',
+        operator: '=',
+        value: currentRuleSelections[MonsterPartType.COLOR]?.value || ''
+      }
     ];
 
-    console.log("Created conditions from selections:", conditions);
-    console.log("Current rule selections:", currentRuleSelections);
+    console.log('Created conditions from selections:', conditions);
+    console.log('Current rule selections:', currentRuleSelections);
 
     return conditions;
   };
@@ -240,7 +240,7 @@ export default function Dt0Creator({
           console.log(`Comparing condition ${index}:`, {
             existing: existingCondition,
             new: newCondition,
-            match,
+            match
           });
           return match;
         });
@@ -258,15 +258,15 @@ export default function Dt0Creator({
     const conditions = createConditionsFromSelections();
 
     // Debug logging
-    console.log("Creating new rule with conditions:", conditions);
+    console.log('Creating new rule with conditions:', conditions);
     console.log(
-      "Existing rules:",
+      'Existing rules:',
       rules.map((r) => ({ id: r.id, conditions: r.conditions }))
     );
 
     const duplicateRuleId = checkForDuplicateRule(conditions);
 
-    console.log("Duplicate rule check result:", duplicateRuleId);
+    console.log('Duplicate rule check result:', duplicateRuleId);
 
     if (duplicateRuleId) {
       const ruleIndex = rules.findIndex((r) => r.id === duplicateRuleId) + 1;
@@ -279,7 +279,7 @@ export default function Dt0Creator({
     const decisionTreeQuestion = question as DecisionTreeCreateModel;
     const newRule: Rule = {
       id: Date.now(),
-      conditions,
+      conditions
     };
 
     const updatedRules = [...rules, newRule];
@@ -294,7 +294,7 @@ export default function Dt0Creator({
     rules,
     currentRuleSelections,
     markAsChanged,
-    checkForDuplicateRule,
+    checkForDuplicateRule
   ]);
 
   // Edit existing rule
@@ -311,23 +311,23 @@ export default function Dt0Creator({
         let parts: MonsterPartOptionType[];
 
         switch (condition.attribute) {
-          case "body":
+          case 'body':
             partType = MonsterPartType.BODY;
             parts = monsterParts[MonsterPartType.BODY];
             break;
-          case "arms":
+          case 'arms':
             partType = MonsterPartType.ARM;
             parts = monsterParts[MonsterPartType.ARM];
             break;
-          case "legs":
+          case 'legs':
             partType = MonsterPartType.LEG;
             parts = monsterParts[MonsterPartType.LEG];
             break;
-          case "horns":
+          case 'horns':
             partType = MonsterPartType.HORN;
             parts = monsterParts[MonsterPartType.HORN];
             break;
-          case "color":
+          case 'color':
             partType = MonsterPartType.COLOR;
             parts = monsterParts[MonsterPartType.COLOR];
             break;
@@ -366,7 +366,7 @@ export default function Dt0Creator({
     const decisionTreeQuestion = question as DecisionTreeCreateModel;
     const updatedRule: Rule = {
       id: editingRuleId,
-      conditions,
+      conditions
     };
 
     const updatedRules = rules.map((rule) =>
@@ -386,7 +386,7 @@ export default function Dt0Creator({
     currentRuleSelections,
     editingRuleId,
     markAsChanged,
-    checkForDuplicateRule,
+    checkForDuplicateRule
   ]);
 
   // Delete rule
@@ -422,7 +422,7 @@ export default function Dt0Creator({
   // Submit creation
   const handleSubmit = () => {
     if (rules.length === 0) {
-      alert("Please add at least one rule before submitting.");
+      alert('Please add at least one rule before submitting.');
       return;
     }
     setShowSubmissionModal(true);
@@ -433,18 +433,17 @@ export default function Dt0Creator({
   };
 
   // Handle rule selection from tree visualization
-  const handleRuleSelection = useCallback((ruleId: number) => {
+  useCallback((ruleId: number) => {
     setSelectedRuleId(ruleId);
   }, []);
-
   // Convert current selections to format expected by DecisionTree
   const getTreeSelections = (): Record<string, string> => {
     return {
-      body: currentRuleSelections[MonsterPartType.BODY]?.value || "",
-      arms: currentRuleSelections[MonsterPartType.ARM]?.value || "",
-      legs: currentRuleSelections[MonsterPartType.LEG]?.value || "",
-      horns: currentRuleSelections[MonsterPartType.HORN]?.value || "",
-      color: currentRuleSelections[MonsterPartType.COLOR]?.value || "",
+      body: currentRuleSelections[MonsterPartType.BODY]?.value || '',
+      arms: currentRuleSelections[MonsterPartType.ARM]?.value || '',
+      legs: currentRuleSelections[MonsterPartType.LEG]?.value || '',
+      horns: currentRuleSelections[MonsterPartType.HORN]?.value || '',
+      color: currentRuleSelections[MonsterPartType.COLOR]?.value || ''
     };
   };
 
@@ -454,19 +453,19 @@ export default function Dt0Creator({
 
     let partType: MonsterPartType;
     switch (attribute) {
-      case "body":
+      case 'body':
         partType = MonsterPartType.BODY;
         break;
-      case "arms":
+      case 'arms':
         partType = MonsterPartType.ARM;
         break;
-      case "legs":
+      case 'legs':
         partType = MonsterPartType.LEG;
         break;
-      case "horns":
+      case 'horns':
         partType = MonsterPartType.HORN;
         break;
-      case "color":
+      case 'color':
         partType = MonsterPartType.COLOR;
         break;
       default:
@@ -492,7 +491,6 @@ export default function Dt0Creator({
       </div>
     );
   }
-
 
   return (
     <CreatorWrapper
@@ -522,7 +520,6 @@ export default function Dt0Creator({
             </Button>
           </div>
 
-
           {showSaveConfirmation && (
             <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
               <CheckCircle2 className="h-4 w-4" />
@@ -542,7 +539,7 @@ export default function Dt0Creator({
           {/* Description */}
           <div className="mb-6 p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto text-center">
             <p className="text-gray-700">
-              { initialDataQuestion.questionType.description }
+              {initialDataQuestion.questionType.description}
             </p>
           </div>
 
@@ -569,7 +566,7 @@ export default function Dt0Creator({
                         value={part}
                         className="capitalize"
                       >
-                        {part.replace(/_/g, " ")}
+                        {part.replace(/_/g, ' ')}
                       </TabsTrigger>
                     ))}
                   </TabsList>
@@ -615,7 +612,7 @@ export default function Dt0Creator({
                                 length: Math.ceil(
                                   monsterParts[part as MonsterPartType].length /
                                     4
-                                ),
+                                )
                               }).map((_, pageIndex) => (
                                 <CarouselItem key={pageIndex}>
                                   <div className="grid grid-cols-2 gap-2">
@@ -663,7 +660,7 @@ export default function Dt0Creator({
               <div className="p-6 rounded-lg shadow-lg">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold">
-                    {editingRuleId ? "Edit Rule" : "Rule Creation"}
+                    {editingRuleId ? 'Edit Rule' : 'Rule Creation'}
                   </h2>
                   {isCreatingRule && (
                     <Button
@@ -680,8 +677,8 @@ export default function Dt0Creator({
                   <div className="space-y-4">
                     <p className="text-gray-600">
                       {editingRuleId
-                        ? "Modify the monster characteristics using the wardrobe on the left."
-                        : "Select monster characteristics using the wardrobe on the left to create a new rule."}
+                        ? 'Modify the monster characteristics using the wardrobe on the left.'
+                        : 'Select monster characteristics using the wardrobe on the left to create a new rule.'}
                     </p>
 
                     <div className="p-4 bg-gray-50 rounded-lg">
@@ -689,15 +686,15 @@ export default function Dt0Creator({
                       <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                         {Object.entries(attributeLabels).map(([key, label]) => {
                           const partType =
-                            key === "arms"
+                            key === 'arms'
                               ? MonsterPartType.ARM
-                              : key === "legs"
-                              ? MonsterPartType.LEG
-                              : key === "horns"
-                              ? MonsterPartType.HORN
-                              : key === "color"
-                              ? MonsterPartType.COLOR
-                              : MonsterPartType.BODY;
+                              : key === 'legs'
+                                ? MonsterPartType.LEG
+                                : key === 'horns'
+                                  ? MonsterPartType.HORN
+                                  : key === 'color'
+                                    ? MonsterPartType.COLOR
+                                    : MonsterPartType.BODY;
                           const selection = currentRuleSelections[partType];
 
                           return (
@@ -706,9 +703,9 @@ export default function Dt0Creator({
                                 {label}
                               </p>
                               <Badge
-                                variant={selection ? "default" : "secondary"}
+                                variant={selection ? 'default' : 'secondary'}
                               >
-                                {selection ? selection.label : "Not selected"}
+                                {selection ? selection.label : 'Not selected'}
                               </Badge>
                             </div>
                           );
@@ -733,7 +730,7 @@ export default function Dt0Creator({
                         disabled={!isCurrentRuleValid()}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
                       >
-                        {editingRuleId ? "Update Rule" : "Add Rule"}
+                        {editingRuleId ? 'Update Rule' : 'Add Rule'}
                       </Button>
                     </div>
                   </div>
@@ -741,9 +738,9 @@ export default function Dt0Creator({
                   <div className="text-center space-y-4">
                     <p className="text-gray-600">
                       {rules.length === 0
-                        ? "Start creating your first monster rule using the wardrobe."
+                        ? 'Start creating your first monster rule using the wardrobe.'
                         : `You have created ${rules.length} rule${
-                            rules.length === 1 ? "" : "s"
+                            rules.length === 1 ? '' : 's'
                           }. Create more rules or finish your question.`}
                     </p>
                     <Button
@@ -752,8 +749,8 @@ export default function Dt0Creator({
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       {rules.length === 0
-                        ? "Create First Rule"
-                        : "Add Another Rule"}
+                        ? 'Create First Rule'
+                        : 'Add Another Rule'}
                     </Button>
                   </div>
                 )}
@@ -765,8 +762,6 @@ export default function Dt0Creator({
                   <DecisionTree
                     rules={rules}
                     selections={getTreeSelections()}
-                    onRuleSelect={handleRuleSelection}
-                    selectedRule={selectedRuleId}
                   />
 
                   {/* Selected Rule Actions */}
@@ -825,8 +820,8 @@ export default function Dt0Creator({
                         key={rule.id}
                         className={`border-l-4 transition-all ${
                           selectedRuleId === rule.id
-                            ? "border-l-blue-500 bg-blue-50"
-                            : "border-l-gray-300"
+                            ? 'border-l-blue-500 bg-blue-50'
+                            : 'border-l-gray-300'
                         }`}
                       >
                         <CardContent className="pt-4">
@@ -851,7 +846,7 @@ export default function Dt0Creator({
                                         condition.attribute as keyof typeof attributeLabels
                                       ]
                                     }
-                                    :{" "}
+                                    :{' '}
                                     {getDisplayValue(
                                       condition.attribute,
                                       condition.value
@@ -989,7 +984,7 @@ export default function Dt0Creator({
                     </h3>
                     <p className="text-gray-600">
                       You have created {rules.length} rule
-                      {rules.length === 1 ? "" : "s"}. Click &quot;Finish
+                      {rules.length === 1 ? '' : 's'}. Click &quot;Finish
                       Question&quot; to save and submit your decision tree
                       question.
                     </p>
@@ -1037,20 +1032,18 @@ export default function Dt0Creator({
           <CreationSubmissionModal
             isOpen={showSubmissionModal}
             isConfirming={true}
-            questionData={
-              {
-                title: question.draft.title,
-                questionType: question.draft.questionType.name,
-                points: question.draft.points,
-                estimatedTime: question.draft.estimatedTime,
-                author: question.draft.teacher.name,
-              }
-            }
+            questionData={{
+              title: question.draft.title,
+              questionType: question.draft.questionType.name,
+              points: question.draft.points,
+              estimatedTime: question.draft.estimatedTime,
+              author: question.draft.teacher.name
+            }}
             onConfirm={handleConfirmSubmit}
             onCancel={() => setShowSubmissionModal(false)}
             onClose={() => {
               setShowSubmissionModal(false);
-              router.push("/add-problem");
+              router.push('/add-problem');
             }}
           />
         </>

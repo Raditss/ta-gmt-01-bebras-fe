@@ -1,23 +1,22 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { MainNavbar } from "@/components/layout/Nav/main-navbar";
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Award, User } from "lucide-react";
-import Link from "next/link";
-import { questionService } from "@/lib/services/question.service";
-import {Question} from "@/types/question.type";
+  CardTitle
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Award, Clock, User } from 'lucide-react';
+import Link from 'next/link';
+import { questionService } from '@/lib/services/question.service';
+import { Question } from '@/types/question.type';
 
 export default function ProblemDetailPage({
-  params,
+  params
 }: {
   params: { id: string };
 }) {
@@ -33,8 +32,8 @@ export default function ProblemDetailPage({
         const question = await questionService.getQuestionById(id);
         setQuestion(question);
       } catch (_err) {
-        console.error("Error fetching question info:", _err);
-        setError("Failed to load question information");
+        console.error('Error fetching question info:', _err);
+        setError('Failed to load question information');
       } finally {
         setLoading(false);
       }
@@ -61,8 +60,6 @@ export default function ProblemDetailPage({
 
   return (
     <div className="flex flex-col min-h-screen">
-      <MainNavbar />
-
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6 flex justify-between items-center">

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react';
 import {
   MonsterPartOptionType,
-  MonsterPartType,
-} from "@/components/features/question/dt-0/solver/types";
-import { Stage } from "@pixi/react";
-import { calculateCanvasSize } from "@/utils/helpers/canvas.helper";
-import MainContainer from "./main-container";
+  MonsterPartType
+} from '@/components/features/question/dt/types';
+import { Stage } from '@pixi/react';
+import { calculateCanvasSize } from '@/utils/helpers/canvas.helper';
+import MonsterContainer from './monster-container';
 
 interface MonsterCharacterProps {
   selections: Record<string, MonsterPartOptionType>;
@@ -19,7 +19,7 @@ interface MonsterCharacterProps {
 
 export default function MonsterCharacter({
   selections,
-  hovered,
+  hovered
 }: MonsterCharacterProps) {
   const [canvasSize, setCanvasSize] = useState(calculateCanvasSize());
 
@@ -28,13 +28,13 @@ export default function MonsterCharacter({
   }, []);
 
   useEffect(() => {
-    window.addEventListener("resize", updateCanvasSize);
-    return () => window.removeEventListener("resize", updateCanvasSize);
+    window.addEventListener('resize', updateCanvasSize);
+    return () => window.removeEventListener('resize', updateCanvasSize);
   }, [updateCanvasSize]);
 
   return (
     <Stage width={canvasSize.width} height={canvasSize.height}>
-      <MainContainer
+      <MonsterContainer
         canvasSize={canvasSize}
         selections={selections}
         hovered={hovered}

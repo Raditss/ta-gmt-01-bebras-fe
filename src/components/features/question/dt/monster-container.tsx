@@ -1,18 +1,18 @@
-import { Container } from "@pixi/react";
-import { PropsWithChildren } from "react";
+import { Container } from '@pixi/react';
+import { PropsWithChildren } from 'react';
 import {
   MonsterPartOptionType,
-  MonsterPartType,
-} from "@/components/features/question/dt-0/solver/types";
-import { useMonsterSprites } from "./useMonsterSprites";
+  MonsterPartType
+} from '@/components/features/question/dt/types';
+import { useMonsterSprites } from './useMonsterSprites';
 import {
-  MonsterLeg,
   MonsterArm,
   MonsterBody,
   MonsterEye,
-  MonsterMouth,
   MonsterHorn,
-} from "./monster-parts";
+  MonsterLeg,
+  MonsterMouth
+} from './monster-parts';
 
 interface IMainContainerProps {
   canvasSize: { width: number; height: number };
@@ -23,11 +23,11 @@ interface IMainContainerProps {
   } | null;
 }
 
-const MainContainer = ({
+const MonsterContainer = ({
   canvasSize,
-  selections = {},
+  selections,
   hovered,
-  children,
+  children
 }: PropsWithChildren<IMainContainerProps>) => {
   const { isLoading, getTexture, getStaticTexture } = useMonsterSprites();
 
@@ -43,14 +43,16 @@ const MainContainer = ({
 
     // Provide default values if no selection is available
     const defaultValues = {
-      [MonsterPartType.COLOR]: "white",
-      [MonsterPartType.BODY]: "A",
-      [MonsterPartType.LEG]: "A",
-      [MonsterPartType.ARM]: "A",
-      [MonsterPartType.HORN]: "none",
+      [MonsterPartType.COLOR]: 'white',
+      [MonsterPartType.BODY]: 'A',
+      [MonsterPartType.LEG]: 'A',
+      [MonsterPartType.ARM]: 'A',
+      [MonsterPartType.HORN]: 'none'
     };
 
-    return selections[category]?.value || defaultValues[category];
+    return (
+      (selections && selections[category]?.value) || defaultValues[category]
+    );
   };
 
   if (isLoading) {
@@ -135,7 +137,7 @@ const MainContainer = ({
 
       {/* Eyes */}
       <MonsterEye
-        texture={getStaticTexture("eye_human")}
+        texture={getStaticTexture('eye_human')}
         x={centerX}
         y={centerY - 20 * scaleFactor}
         scaleX={0.4 * scaleFactor}
@@ -144,7 +146,7 @@ const MainContainer = ({
 
       {/* Mouth */}
       <MonsterMouth
-        texture={getStaticTexture("mouth_openToothless")}
+        texture={getStaticTexture('mouth_openToothless')}
         x={centerX}
         y={centerY + 20 * scaleFactor}
         scaleX={0.5 * scaleFactor}
@@ -156,4 +158,4 @@ const MainContainer = ({
   );
 };
 
-export default MainContainer;
+export default MonsterContainer;

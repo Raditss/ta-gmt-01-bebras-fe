@@ -1,45 +1,34 @@
-import {QuestionTypeEnum} from "@/types/question-type.type";
-import {QuestionAttemptData} from "@/types/question-attempt.type";
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { QuestionAttemptData } from '@/types/question-attempt.type';
 
 export interface IAttempt {
-  setAttemptData(
-    duration: number,
-    isDraft: boolean
-  ): void;
+  setAttemptData(duration: number, isDraft: boolean): void;
+
   getAttemptData(): QuestionAttemptData;
+
   toJSON(): string;
+
   loadAnswer(json: string): void;
 }
 
 export abstract class IQuestion {
-  private id: number;
-  private type: QuestionTypeEnum;
+  private readonly _id: number;
+  private readonly _type: QuestionTypeEnum;
 
-  protected constructor(
-    id: number,
-    questionType: QuestionTypeEnum,
-  ) {
-    this.id = id;
-    this.type = questionType;
+  protected constructor(id: number, questionType: QuestionTypeEnum) {
+    this._id = id;
+    this._type = questionType;
   }
 
   abstract populateQuestionFromString(questionString: string): void;
 
-  abstract checkAnswer(): boolean;
-
-  abstract questionToString(): string;
-
-  abstract undo(): boolean;
-
-  abstract redo(): boolean;
-
   abstract resetToInitialState(): void;
 
-  getId() {
-    return this.id;
+  get id() {
+    return this._id;
   }
 
   getQuestionType() {
-    return this.type;
+    return this._type;
   }
 }

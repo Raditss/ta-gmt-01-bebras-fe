@@ -1,5 +1,5 @@
-import { Sprite } from "@pixi/react";
-import { Texture } from "pixi.js";
+import { Sprite } from '@pixi/react';
+import { Texture } from 'pixi.js';
 
 interface MonsterPartProps {
   texture: Texture | null;
@@ -18,7 +18,7 @@ export const MonsterLeg = ({
   scaleX = 0.4,
   scaleY = 0.4,
   anchorX = 0.5,
-  anchorY = 0,
+  anchorY = 0
 }: MonsterPartProps) => {
   if (!texture) return null;
 
@@ -40,7 +40,7 @@ export const MonsterArm = ({
   scaleX = 0.3,
   scaleY = 0.3,
   anchorX = 0.5,
-  anchorY = 0.3,
+  anchorY = 0.3
 }: MonsterPartProps) => {
   if (!texture) return null;
 
@@ -62,7 +62,7 @@ export const MonsterBody = ({
   scaleX = 0.5,
   scaleY = 0.5,
   anchorX = 0.5,
-  anchorY = 0.5,
+  anchorY = 0.5
 }: MonsterPartProps) => {
   if (!texture) return null;
 
@@ -84,7 +84,7 @@ export const MonsterEye = ({
   scaleX = 0.4,
   scaleY = 0.4,
   anchorX = 0.5,
-  anchorY = 0.5,
+  anchorY = 0.5
 }: MonsterPartProps) => {
   if (!texture) return null;
 
@@ -106,7 +106,7 @@ export const MonsterMouth = ({
   scaleX = 0.5,
   scaleY = 0.5,
   anchorX = 0.5,
-  anchorY = 0.5,
+  anchorY = 0.5
 }: MonsterPartProps) => {
   if (!texture) return null;
 
@@ -128,7 +128,7 @@ export const MonsterHorn = ({
   scaleX = 0.4,
   scaleY = 0.4,
   anchorX = 0.5,
-  anchorY = 1,
+  anchorY = 1
 }: MonsterPartProps) => {
   if (!texture) return null;
 

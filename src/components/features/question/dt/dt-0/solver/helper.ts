@@ -1,10 +1,10 @@
-import { spritesheetParser } from "@/utils/helpers/spritesheet.helper";
+import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
 import {
   ColorOptions,
-  EyeNumberOptions,
-  MonsterPartOptionType,
   defaultColor,
-} from "./types";
+  EyeNumberOptions,
+  MonsterPartOptionType
+} from '../../types';
 
 export const extractOptions = (
   sprites: { name: string }[],
@@ -17,7 +17,7 @@ export const extractOptions = (
       options.add({
         label: match[1],
         source: match.input!,
-        value: match[1],
+        value: match[1]
       });
   });
   return Array.from(options);
@@ -43,10 +43,10 @@ export const extractSpriteOptions = () => {
 
   return {
     body: bodyOptions,
-    horns: [{ label: "None", value: "none" }, ...hornOptions],
+    horns: [{ label: 'None', value: 'none' }, ...hornOptions],
     legs: legOptions,
     arms: armOptions,
     colors: ColorOptions,
-    eye_numbers: EyeNumberOptions,
+    eye_numbers: EyeNumberOptions
   };
 };
