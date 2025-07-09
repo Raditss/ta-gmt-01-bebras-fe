@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
       if (user?.role === UserRole.ADMIN) {
         router.push("/admin")
       } else if (user?.role === UserRole.TEACHER) {
-        router.push("/problems")
+        router.push("/my-problem")
       } else if (user?.role === UserRole.STUDENT) {
         router.push("/dashboard")
       }

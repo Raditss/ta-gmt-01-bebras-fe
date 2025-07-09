@@ -4,7 +4,6 @@ import {useEffect, useState} from "react";
 import {useParams} from "next/navigation";
 import {questionService} from "@/lib/services/question.service";
 import {getQuestionTypeByName, QuestionTypeEnum} from "@/types/question-type.type";
-import {MainNavbar} from "@/components/layout/Nav/main-navbar";
 import {solveQuestionComponent} from "@/components/features/question";
 
 export default function SolvePage() {
@@ -33,8 +32,7 @@ export default function SolvePage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
+      <div className="flex flex-col min-h-screen bg-grey-50">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg">Loading question...</p>
         </div>
@@ -44,8 +42,7 @@ export default function SolvePage() {
 
   if (error || !questionType) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
+      <div className="flex flex-col min-h-screen bg-grey-50">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg text-red-600">
             {error || "Failed to load question"}
@@ -58,8 +55,7 @@ export default function SolvePage() {
   const Solver = solveQuestionComponent[questionType];
   if (!Solver) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
+      <div className="flex flex-col min-h-screen bg-grey-50">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg">This question type is not yet implemented.</p>
         </div>

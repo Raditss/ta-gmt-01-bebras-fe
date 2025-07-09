@@ -12,17 +12,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BookOpen, BarChart3, Users, Settings, LogOut, Bell, Search, GraduationCap } from "lucide-react"
+import { BookOpen, Users, Settings, LogOut, Bell, Search, GraduationCap, Plus } from "lucide-react"
+import { useAuthStore } from "@/store/auth.store"
 
 const navItems = [
-  { href: "/teacher", label: "Dashboard", icon: BookOpen },
-  { href: "/teacher/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/teacher/students", label: "Students", icon: Users },
+  { href: "/my-problem", label: "My Problems", icon: BookOpen },
+  { href: "/add-problem", label: "Add Problem", icon: Plus },
 ]
 
 export function TeacherNav() {
   const pathname = usePathname()
-
+  const { logout } = useAuthStore()
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -92,7 +92,7 @@ export function TeacherNav() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/" className="flex items-center">
+                  <Link href="/" className="flex items-center" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </Link>
