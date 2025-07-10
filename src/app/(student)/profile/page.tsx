@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
-import { MainNavbar } from "@/components/layout/Nav/main-navbar"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -33,7 +32,6 @@ export default function ProfilePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <MainNavbar />
 
       {/* Main content */}
       <main className="flex-1 container mx-auto py-8 px-4">

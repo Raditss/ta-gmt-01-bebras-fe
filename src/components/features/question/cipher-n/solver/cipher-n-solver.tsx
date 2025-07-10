@@ -132,17 +132,15 @@ function OctagonVisualization({ vertices, currentVertex, targetVertex, highlight
 
 export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const router = useRouter();
-  // const { user } = useAuth();
   const { question, loading, error, currentDuration } = useSolveQuestion<CipherNSolveModel>(
     questionId,
     CipherNSolveModel
   );
   const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
 
+  // UI state only
   const [rotationValue, setRotationValue] = useState<string>("");
   const [positionValue, setPositionValue] = useState<string>("");
-  const [answerArr, setAnswerArr] = useState<[number, number][]>([]);
-  const [currentVertex, setCurrentVertex] = useState<number>(0);
   const [targetVertex, setTargetVertex] = useState<number>(0);
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,6 +149,9 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const content = question?.getContent();
   const vertices = content?.vertices || [];
   const maxRotation = vertices.length - 1;
+  const answer = question?.getAnswer();
+  const currentVertex = answer?.currentVertex || 0;
+  const answerArr = answer?.encryptedMessage || [];
 
   // Update states when rotation value changes
   useEffect(() => {
@@ -174,15 +175,6 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     }
   }, [positionValue, targetVertex, vertices]);
 
-  // Initialize current vertex from question
-  useEffect(() => {
-    if (question && content) {
-      const state = question.getCurrentState();
-      setCurrentVertex(state.currentVertex);
-      setAnswerArr(state.encryptedMessage);
-    }
-  }, [question, content]);
-
   const handleRotationChange = useCallback((value: string) => {
     // Only allow numbers and validate range
     if (value === "" || (/^\d+$/.test(value) && parseInt(value) <= maxRotation)) {
@@ -198,7 +190,9 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     }
   }, [vertices, targetVertex]);
 
+  // Add to answer using model
   const handleAddToAnswer = useCallback(() => {
+    if (!question) return;
     const rotation = parseInt(rotationValue);
     const position = parseInt(positionValue);
     
@@ -208,35 +202,41 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     const targetLetters = vertices[targetVertex]?.letters || "";
     if (position < 1 || position > targetLetters.length) return;
 
-    setAnswerArr(prev => [...prev, [rotation, position]]);
-    
-    // Update current vertex to target vertex for next encryption
-    setCurrentVertex(targetVertex);
+    // Use user's exact inputs instead of calculating from letter
+    question.encryptWithUserInputs(rotation, position);
     
     // Clear inputs
     setRotationValue("");
     setPositionValue("");
-  }, [rotationValue, positionValue, targetVertex, vertices, maxRotation]);
+  }, [question, rotationValue, positionValue, targetVertex, vertices, maxRotation]);
 
-  const handleClearAnswer = useCallback(() => {
-    setAnswerArr([]);
-    setCurrentVertex(content?.config.startingVertex || 0);
+  // Undo last step
+  const handleUndo = useCallback(() => {
+    if (!question) return;
+    question.undo();
     setRotationValue("");
     setPositionValue("");
-  }, [content]);
+  }, [question]);
 
+  // Clear all (reset)
+  const handleClearAnswer = useCallback(() => {
+    if (!question) return;
+    question.resetToInitialState();
+    setRotationValue("");
+    setPositionValue("");
+  }, [question]);
+
+  // Submit modal
   const handleSubmit = useCallback(() => {
     setIsSubmitting(true);
   }, []);
 
+  // Confirm submit
   const handleConfirmSubmit = useCallback(async () => {
     if (!question) return;
     
     try {
-      // Set the model's encryptedMessage to the current answer array
-      question.getCurrentState().encryptedMessage = answerArr;
       const duration = getCurrentDuration();
-      
       question.setAttemptData(duration, false);
       const attemptData = question.getAttemptData();
       await questionService.submitAttempt({
@@ -244,13 +244,18 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
         answer: JSON.parse(attemptData.answer),
       });
 
-      // Check if answer matches expected format and content
-      const expectedAnswer = content?.answer.encrypted || [];
-      const isCorrect = answerArr.length === expectedAnswer.length && answerArr.every((pair, i) => pair[0] === expectedAnswer[i][0] && pair[1] === expectedAnswer[i][1]);
+      // Check correctness (compare to content.example.encrypted if available)
+      const expectedAnswer = content?.example?.encrypted
+        ? content.example.encrypted.split('-').map((pair: string) => [parseInt(pair[0]), parseInt(pair[1])])
+        : [];
+      
+      const isCorrect = expectedAnswer.length > 0 && 
+                       answerArr.length === expectedAnswer.length && 
+                       answerArr.every((pair, i) => pair[0] === expectedAnswer[i][0] && pair[1] === expectedAnswer[i][1]);
       
       const points = isCorrect ? Math.max(100 - Math.floor(duration / 10), 10) : 0;
       const streak = isCorrect ? 1 : 0;
-
+      
       setSubmissionResult({
         isCorrect,
         points,
@@ -393,13 +398,23 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                     <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
                       {finalAnswerDisplay || "No codes added yet"}
                     </div>
-                    <Button 
-                      onClick={handleClearAnswer}
-                      variant="outline"
-                      className="w-full mt-2"
-                    >
-                      Clear Answer
-                    </Button>
+                    <div className="flex gap-2 mt-2">
+                      <Button 
+                        onClick={handleUndo}
+                        variant="outline"
+                        className="w-1/2"
+                        disabled={answerArr.length === 0}
+                      >
+                        Undo
+                      </Button>
+                      <Button 
+                        onClick={handleClearAnswer}
+                        variant="outline"
+                        className="w-1/2"
+                      >
+                        Clear Answer
+                      </Button>
+                    </div>
                   </div>
 
                   <Button 
