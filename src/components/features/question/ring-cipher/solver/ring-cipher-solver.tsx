@@ -1,8 +1,11 @@
-"use client"
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { RingCipherSolveModel } from '@/models/ring-cipher/ring-cipher.solve.model';
-import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
+import {
+  BaseSolverProps,
+  SolverWrapper
+} from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
 import { TimeProgressBar } from '@/components/ui/time-progress-bar';
@@ -18,16 +21,37 @@ interface RingVisualizationProps {
   highlightedLetter?: { ring: number; letter: string };
 }
 
-function RingVisualization({ rings, ringPositions, highlightedRing, highlightedLetter }: RingVisualizationProps) {
+function RingVisualization({
+  rings,
+  ringPositions,
+  highlightedRing,
+  highlightedLetter
+}: RingVisualizationProps) {
   const centerX = 250;
   const centerY = 250;
-  const maxRadius = 200;
-  const minRadius = 75;
+  // Dynamic spacing based on ring count for better visual balance
+  const ringCount = rings.length;
+  let minRadius, maxRadius;
+
+  if (ringCount === 2) {
+    // For 2 rings: give more space around center
+    minRadius = 100;
+    maxRadius = 200;
+  } else if (ringCount === 3) {
+    // For 3 rings: balanced spacing
+    minRadius = 80;
+    maxRadius = 210;
+  } else {
+    // For 4+ rings: tighter inner spacing, extended outer
+    minRadius = 60;
+    maxRadius = 220;
+  }
+
   const ringColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
   return (
     <div className="flex flex-col items-center w-full">
-      <svg 
-        viewBox="0 0 500 500" 
+      <svg
+        viewBox="0 0 500 500"
         className="border-2 border-gray-300 rounded-lg bg-white w-full max-w-[500px] h-auto aspect-square"
       >
         <polygon
@@ -35,66 +59,95 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
           fill="red"
           className="drop-shadow"
         />
-        {rings.slice().reverse().map((ring, reverseIndex) => {
-          const ringIndex = rings.length - 1 - reverseIndex;
-          const radius = minRadius + (maxRadius - minRadius) * (ringIndex + 1) / rings.length;
-          const isHighlighted = ringIndex === highlightedRing;
-          const currentPosition = ringPositions[ringIndex] || 0;
-          const angleStep = (2 * Math.PI) / ring.letters.length;
-          const rotationAngle = -(currentPosition * angleStep * 180) / Math.PI;
-          return (
-            <g key={ring.id}>
-              <circle
-                cx={centerX}
-                cy={centerY}
-                r={radius}
-                fill="none"
-                stroke={isHighlighted ? ringColors[ringIndex % ringColors.length] : '#D1D5DB'}
-                strokeWidth={isHighlighted ? "4" : "2"}
-                className="transition-all duration-500"
-              />
-              <g 
-                transform={`rotate(${rotationAngle} ${centerX} ${centerY})`}
-                className="transition-all duration-500 ease-in-out"
-              >
-                {ring.letters.map((letter, letterIndex) => {
-                  const angle = letterIndex * angleStep - Math.PI / 2;
-                  const x = centerX + radius * Math.cos(angle);
-                  const y = centerY + radius * Math.sin(angle);
-                  const isAtMarker = letterIndex === currentPosition;
-                  const isTargetLetter = highlightedLetter && 
-                                       highlightedLetter.ring === ringIndex && 
-                                       highlightedLetter.letter === letter;
-                  return (
-                    <g key={letterIndex}>
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="18"
-                        fill={isTargetLetter ? '#FDE68A' : isAtMarker ? '#FEF3C7' : 'white'}
-                        stroke={isTargetLetter ? '#D97706' : isAtMarker ? '#F59E0B' : ringColors[ringIndex % ringColors.length]}
-                        strokeWidth={isTargetLetter ? "3" : isAtMarker ? "3" : "2"}
-                        className="transition-all duration-300"
-                      />
-                      <text
-                        x={x}
-                        y={y + 6}
-                        textAnchor="middle"
-                        transform={`rotate(${-rotationAngle} ${x} ${y})`}
-                        className={`text-base font-bold transition-all duration-300 ${
-                          isTargetLetter ? 'fill-white' : 
-                          isAtMarker ? 'fill-orange-700' : 'fill-gray-700'
-                        }`}
-                      >
-                        {letter}
-                      </text>
-                    </g>
-                  );
-                })}
+        {rings
+          .slice()
+          .reverse()
+          .map((ring, reverseIndex) => {
+            const ringIndex = rings.length - 1 - reverseIndex;
+            // Better spacing calculation for multiple rings
+            const radiusStep =
+              (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
+            const radius = minRadius + radiusStep * ringIndex;
+            const isHighlighted = ringIndex === highlightedRing;
+            const currentPosition = ringPositions[ringIndex] || 0;
+            const angleStep = (2 * Math.PI) / ring.letters.length;
+            const rotationAngle =
+              -(currentPosition * angleStep * 180) / Math.PI;
+            return (
+              <g key={ring.id}>
+                <circle
+                  cx={centerX}
+                  cy={centerY}
+                  r={radius}
+                  fill="none"
+                  stroke={
+                    isHighlighted
+                      ? ringColors[ringIndex % ringColors.length]
+                      : '#D1D5DB'
+                  }
+                  strokeWidth={isHighlighted ? '4' : '2'}
+                  className="transition-all duration-500"
+                />
+                <g
+                  transform={`rotate(${rotationAngle} ${centerX} ${centerY})`}
+                  className="transition-all duration-500 ease-in-out"
+                >
+                  {ring.letters.map((letter, letterIndex) => {
+                    const angle = letterIndex * angleStep - Math.PI / 2;
+                    const x = centerX + radius * Math.cos(angle);
+                    const y = centerY + radius * Math.sin(angle);
+                    const isAtMarker = letterIndex === currentPosition;
+                    const isTargetLetter =
+                      highlightedLetter &&
+                      highlightedLetter.ring === ringIndex &&
+                      highlightedLetter.letter === letter;
+                    return (
+                      <g key={letterIndex}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="15" // Reduced from 18 to prevent crowding
+                          fill={
+                            isTargetLetter
+                              ? '#FDE68A'
+                              : isAtMarker
+                                ? '#FEF3C7'
+                                : 'white'
+                          }
+                          stroke={
+                            isTargetLetter
+                              ? '#D97706'
+                              : isAtMarker
+                                ? '#F59E0B'
+                                : ringColors[ringIndex % ringColors.length]
+                          }
+                          strokeWidth={
+                            isTargetLetter ? '3' : isAtMarker ? '3' : '2'
+                          }
+                          className="transition-all duration-300"
+                        />
+                        <text
+                          x={x}
+                          y={y + 5} // Adjusted for smaller circle
+                          textAnchor="middle"
+                          transform={`rotate(${-rotationAngle} ${x} ${y})`}
+                          className={`text-sm font-bold transition-all duration-300 ${
+                            isTargetLetter
+                              ? 'fill-white'
+                              : isAtMarker
+                                ? 'fill-orange-700'
+                                : 'fill-gray-700'
+                          }`}
+                        >
+                          {letter}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </g>
               </g>
-            </g>
-          );
-        })}
+            );
+          })}
         <circle cx={centerX} cy={centerY} r="5" fill="black" />
       </svg>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -105,7 +158,10 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
             className={`text-sm px-3 py-1 ${index === highlightedRing ? 'border-2' : 'border'}`}
             style={{
               borderColor: ringColors[index % ringColors.length],
-              backgroundColor: index === highlightedRing ? `${ringColors[index % ringColors.length]}20` : 'white'
+              backgroundColor:
+                index === highlightedRing
+                  ? `${ringColors[index % ringColors.length]}20`
+                  : 'white'
             }}
           >
             Ring {ring.id}: Position {ringPositions[index] || 0}
@@ -117,17 +173,20 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
 }
 
 export default function RingCipherSolver({ questionId }: BaseSolverProps) {
-  const { question, loading, error, currentDuration } = useSolveQuestion<RingCipherSolveModel>(
-    questionId,
-    RingCipherSolveModel
-  );
-  const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
+  const { question, loading, error, currentDuration } =
+    useSolveQuestion<RingCipherSolveModel>(questionId, RingCipherSolveModel);
+  const { formattedDuration, getCurrentDuration } =
+    useDuration(currentDuration());
 
   // UI state only
-  const [ringValue, setRingValue] = useState<string>("");
-  const [stepsValue, setStepsValue] = useState<string>("");
-  const [highlightedRing, setHighlightedRing] = useState<number | undefined>(undefined);
-  const [highlightedLetter, setHighlightedLetter] = useState<{ ring: number; letter: string } | undefined>(undefined);
+  const [ringValue, setRingValue] = useState<string>('');
+  const [stepsValue, setStepsValue] = useState<string>('');
+  const [highlightedRing, setHighlightedRing] = useState<number | undefined>(
+    undefined
+  );
+  const [highlightedLetter, setHighlightedLetter] = useState<
+    { ring: number; letter: string } | undefined
+  >(undefined);
   const [previewPositions, setPreviewPositions] = useState<number[]>([]);
 
   const content = question?.getContent();
@@ -145,11 +204,15 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
       if (!isNaN(steps)) {
         const ringIndex = ring - 1;
         const basePosition = ringPositions[ringIndex] || 0;
-        const previewPosition = (basePosition + steps) % rings[ringIndex].letters.length;
+        const previewPosition =
+          (basePosition + steps) % rings[ringIndex].letters.length;
         const newPreview = [...ringPositions];
         newPreview[ringIndex] = previewPosition;
         setPreviewPositions(newPreview);
-        setHighlightedLetter({ ring: ringIndex, letter: rings[ringIndex].letters[previewPosition] });
+        setHighlightedLetter({
+          ring: ringIndex,
+          letter: rings[ringIndex].letters[previewPosition]
+        });
       } else {
         setPreviewPositions([...ringPositions]);
         setHighlightedLetter(undefined);
@@ -162,22 +225,38 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   }, [ringValue, stepsValue, rings, ringPositions]);
 
   // Input handlers
-  const handleRingChange = useCallback((value: string) => {
-    if (value === "" || (/^\d+$/.test(value) && parseInt(value) >= 1 && parseInt(value) <= rings.length)) {
-      setRingValue(value);
-    }
-  }, [rings.length]);
+  const handleRingChange = useCallback(
+    (value: string) => {
+      if (
+        value === '' ||
+        (/^\d+$/.test(value) &&
+          parseInt(value) >= 1 &&
+          parseInt(value) <= rings.length)
+      ) {
+        setRingValue(value);
+      }
+    },
+    [rings.length]
+  );
 
-  const handleStepsChange = useCallback((value: string) => {
-    const ring = parseInt(ringValue);
-    if (isNaN(ring) || ring < 1 || ring > rings.length) {
-      return;
-    }
-    const maxSteps = rings[ring - 1].letters.length;
-    if (value === "" || (/^\d+$/.test(value) && parseInt(value) >= 0 && parseInt(value) < maxSteps)) {
-      setStepsValue(value);
-    }
-  }, [ringValue, rings]);
+  const handleStepsChange = useCallback(
+    (value: string) => {
+      const ring = parseInt(ringValue);
+      if (isNaN(ring) || ring < 1 || ring > rings.length) {
+        return;
+      }
+      const maxSteps = rings[ring - 1].letters.length;
+      if (
+        value === '' ||
+        (/^\d+$/.test(value) &&
+          parseInt(value) >= 0 &&
+          parseInt(value) < maxSteps)
+      ) {
+        setStepsValue(value);
+      }
+    },
+    [ringValue, rings]
+  );
 
   // Add to answer using model
   const handleAddToAnswer = useCallback(() => {
@@ -190,9 +269,11 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
     const maxSteps = rings[ringIndex].letters.length;
     if (steps < 0 || steps >= maxSteps) return;
     // Save state for undo
-    question.encryptLetter(rings[ringIndex].letters[(ringPositions[ringIndex] + steps) % maxSteps]);
-    setRingValue("");
-    setStepsValue("");
+    question.encryptLetter(
+      rings[ringIndex].letters[(ringPositions[ringIndex] + steps) % maxSteps]
+    );
+    setRingValue('');
+    setStepsValue('');
   }, [question, ringValue, stepsValue, rings, ringPositions]);
 
   // Undo last step
@@ -205,22 +286,24 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   const handleClearAnswer = useCallback(() => {
     if (!question) return;
     question.resetToInitialState();
-    setRingValue("");
-    setStepsValue("");
+    setRingValue('');
+    setStepsValue('');
   }, [question]);
 
   // For display: join as '12-34-56'
-  const finalAnswerDisplay = answerArr.map(([r, s]) => `${r}${s}`).join("-");
+  const finalAnswerDisplay = answerArr.map(([r, s]) => `${r}${s}`).join('-');
 
   const isValidInputs = () => {
     const ring = parseInt(ringValue);
     const steps = parseInt(stepsValue);
-    return !isNaN(ring) && 
-           !isNaN(steps) && 
-           ring >= 1 && 
-           ring <= rings.length &&
-           steps >= 0 && 
-           steps < (rings[ring - 1]?.letters.length || 1);
+    return (
+      !isNaN(ring) &&
+      !isNaN(steps) &&
+      ring >= 1 &&
+      ring <= rings.length &&
+      steps >= 0 &&
+      steps < (rings[ring - 1]?.letters.length || 1)
+    );
   };
 
   return (
@@ -229,9 +312,9 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
         <div className="min-h-screen bg-gray-100 p-8">
           {/* Time Progress Bar */}
           <div className="max-w-7xl mx-auto mb-8">
-            <TimeProgressBar 
-              duration={currentDuration()} 
-              formattedTime={formattedDuration} 
+            <TimeProgressBar
+              duration={currentDuration()}
+              formattedTime={formattedDuration}
             />
           </div>
 
@@ -250,16 +333,24 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <RingVisualization
                   rings={rings}
-                  ringPositions={previewPositions.length ? previewPositions : ringPositions}
+                  ringPositions={
+                    previewPositions.length ? previewPositions : ringPositions
+                  }
                   highlightedRing={highlightedRing}
                   highlightedLetter={highlightedLetter}
                 />
                 <div className="mt-6 flex justify-center space-x-6">
-                  <Badge variant="outline" className="bg-yellow-100 text-sm px-3 py-1">
+                  <Badge
+                    variant="outline"
+                    className="bg-yellow-100 text-sm px-3 py-1"
+                  >
                     <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                     Marker Position
                   </Badge>
-                  <Badge variant="outline" className="bg-orange-100 text-sm px-3 py-1">
+                  <Badge
+                    variant="outline"
+                    className="bg-orange-100 text-sm px-3 py-1"
+                  >
                     <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
                     Target Letter
                   </Badge>
@@ -268,8 +359,10 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
 
               {/* Right Side - Encryption Controls */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-semibold mb-8">Encryption Controls</h2>
-                
+                <h2 className="text-2xl font-semibold mb-8">
+                  Encryption Controls
+                </h2>
+
                 <div className="space-y-6">
                   {/* Ring Input */}
                   <div>
@@ -284,11 +377,13 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       className="w-full text-lg py-3 px-4"
                     />
                   </div>
-                  
+
                   {/* Steps Input */}
                   <div>
                     <label className="block text-base font-medium mb-3">
-                      Rotation Steps (0-{rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}):
+                      Rotation Steps (0-
+                      {rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}
+                      ):
                     </label>
                     <Input
                       type="text"
@@ -301,7 +396,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                   </div>
 
                   {/* Add to Final Answer Button */}
-                  <Button 
+                  <Button
                     onClick={handleAddToAnswer}
                     disabled={!isValidInputs()}
                     className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
@@ -311,21 +406,23 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
 
                   {/* Final Answer Section */}
                   <div className="mt-8">
-                    <label className="block text-base font-medium mb-3">Final Answer:</label>
+                    <label className="block text-base font-medium mb-3">
+                      Final Answer:
+                    </label>
                     <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
-                      {finalAnswerDisplay || ""}
+                      {finalAnswerDisplay || ''}
                     </div>
-                    
+
                     {/* Undo and Clear Buttons */}
                     <div className="flex gap-4 mt-4">
-                      <Button 
+                      <Button
                         onClick={handleUndo}
                         className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
                         disabled={answerArr.length === 0}
                       >
                         Undo
                       </Button>
-                      <Button 
+                      <Button
                         onClick={handleClearAnswer}
                         className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
                       >
@@ -350,4 +447,4 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
       )}
     </SolverWrapper>
   );
-} 
+}
