@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 import {
   GeneratedSolverProps,
   GeneratedSolverWrapper
@@ -15,21 +14,13 @@ import {
   Shape,
   ShapeContainer
 } from '@/components/features/question/cfg/shared/shape';
-import { questionAttemptApi } from '@/lib/api/question-attempt.api';
-import {
-  SubmissionModalSolver,
-  SubmissionResult
-} from '@/components/features/question/submission-modal.solver';
+import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
 export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
-  const router = useRouter();
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] =
-    useState<SubmissionResult | null>(null);
 
   // Use the new hook for generated questions
   const { question, questionContent, loading, error, regenerate } =
@@ -39,10 +30,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   useEffect(() => {
     if (question) {
       const questionState = question.getCurrentState();
-      console.log(
-        '🔄 Syncing state from question model:',
-        questionState.map((obj, i) => `${i}: ${obj.type}`)
-      );
       setCurrentState(questionState);
     }
   }, [question]);
@@ -56,14 +43,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
 
       if (localStateStr !== questionStateStr) {
         console.log('⚠️ State mismatch detected! Syncing...');
-        console.log(
-          'Local:',
-          currentState.map((obj, i) => `${i}: ${obj.type}`)
-        );
-        console.log(
-          'Question:',
-          questionState.map((obj, i) => `${i}: ${obj.type}`)
-        );
         setCurrentState(questionState);
       }
     }
@@ -186,34 +165,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     setSelectedIndices([]);
   };
 
-  const handleConfirmSubmit = async () => {
-    if (!question) return;
-
-    try {
-      setIsSubmitting(true);
-
-      const response = await questionAttemptApi.checkGeneratedAnswer({
-        type,
-        questionContent,
-        answer: JSON.stringify(question.toJSON())
-      });
-
-      setSubmissionResult({
-        isCorrect: response.isCorrect
-      });
-    } catch (error) {
-      console.error('❌ Error submitting answer:', error);
-      alert('Failed to submit answer. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCloseSubmissionModal = () => {
-    setSubmissionResult(null);
-    router.push('/problems');
-  };
-
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && (
@@ -315,51 +266,43 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
             <Button
               onClick={handleUndo}
               variant="outline"
-              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
               Undo
             </Button>
             <Button
               onClick={handleRedo}
               variant="outline"
-              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
               Redo
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
-              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30"
+              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
             >
               Reset
             </Button>
             <Button
               onClick={regenerate}
               variant="outline"
-              className="bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue border-brand-blue/30"
+              className="bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue border-brand-blue/30 px-4 py-2 h-10"
             >
               New Question
             </Button>
-            <Button
-              onClick={handleConfirmSubmit}
-              disabled={isSubmitting}
-              className="bg-brand-green hover:bg-brand-green-dark text-white shadow-sm"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Answer'}
-            </Button>
+            <GeneratedSubmitSection
+              question={question}
+              answerArr={currentState}
+              type={type}
+              questionContent={questionContent}
+              onRegenerate={regenerate}
+              submitButtonClassName="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
+              renderButtonOnly={true}
+            />
           </div>
         </div>
       )}
-
-      {/* Submission result modal */}
-      <SubmissionModalSolver
-        isOpen={isSubmitting || !!submissionResult}
-        isConfirming={isSubmitting && !submissionResult}
-        result={submissionResult}
-        onConfirm={handleConfirmSubmit}
-        onCancel={() => setIsSubmitting(false)}
-        onClose={handleCloseSubmissionModal}
-      />
     </GeneratedSolverWrapper>
   );
 }

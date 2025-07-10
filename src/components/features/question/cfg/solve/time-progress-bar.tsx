@@ -19,29 +19,32 @@ export function TimeProgressBar({
     100
   );
 
-  // Calculate color based on progress
-  // Green (0-60%), Yellow (60-80%), Orange (80-90%), Red (90%+)
+  // Calculate color based on progress - Green to Blue transition
   const getBarColor = () => {
-    if (progressPercentage < 60) {
-      return 'from-blue-500 to-blue-300';
-    } else if (progressPercentage < 80) {
-      return 'from-yellow-500 to-yellow-300';
-    } else if (progressPercentage < 90) {
-      return 'from-orange-500 to-orange-300';
+    if (progressPercentage < 25) {
+      // 0-25%: Pure green
+      return 'from-green-500 to-green-300';
+    } else if (progressPercentage < 50) {
+      // 25-50%: Green to teal transition
+      return 'from-green-500 to-teal-400';
+    } else if (progressPercentage < 75) {
+      // 50-75%: Teal to cyan transition
+      return 'from-teal-400 to-cyan-400';
     } else {
-      return 'from-red-500 to-red-300';
+      // 75-100%: Cyan to blue transition
+      return 'from-cyan-400 to-blue-500';
     }
   };
 
   const getTimeColor = () => {
-    if (progressPercentage < 60) {
-      return 'text-blue-600';
-    } else if (progressPercentage < 80) {
-      return 'text-yellow-600';
-    } else if (progressPercentage < 90) {
-      return 'text-orange-600';
+    if (progressPercentage < 25) {
+      return 'text-green-600';
+    } else if (progressPercentage < 50) {
+      return 'text-teal-600';
+    } else if (progressPercentage < 75) {
+      return 'text-cyan-600';
     } else {
-      return 'text-red-600';
+      return 'text-blue-600';
     }
   };
 

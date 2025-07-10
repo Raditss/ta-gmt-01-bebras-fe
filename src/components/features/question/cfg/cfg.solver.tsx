@@ -3,11 +3,10 @@
 import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
 import { StateDisplaySolve } from '@/components/features/question/cfg/solve/state-display.solve';
 import { TimeProgressBar } from '@/components/features/question/cfg/solve/time-progress-bar';
+import { SubmitSection } from '@/components/features/question/shared/submit-section';
 import { useDuration } from '@/hooks/useDuration';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 import { Rule, State } from '@/types/cfg.type';
-import { questionService } from '@/lib/services/question.service';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,23 +15,12 @@ import {
 } from '@/components/features/question/cfg/shared/shape';
 
 import { BaseSolverProps, SolverWrapper } from '../../bases/base.solver';
-import { SubmissionModalSolver } from '../submission-modal.solver';
 import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
-import { useAuthStore } from '@/store/auth.store';
 
 export default function CfgSolver({ questionId }: BaseSolverProps) {
-  const router = useRouter();
-  const { user } = useAuthStore();
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<{
-    isCorrect: boolean;
-    points: number;
-    streak: number;
-    timeTaken: number;
-  } | null>(null);
 
   // Setup hooks for question functionality
   const { question, questionMetadata, loading, error, currentDuration } =
@@ -136,64 +124,6 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
     setCurrentState(question.getCurrentState());
     setSelectedIndices([]);
   }, [question]);
-
-  // Handle submitting the attempt
-  const handleSubmit = async () => {
-    if (!question) return;
-    setIsSubmitting(true);
-  };
-
-  const handleConfirmSubmit = async () => {
-    if (!question || !user?.id) return;
-
-    try {
-      // Calculate duration
-      const duration = getCurrentDuration();
-
-      // Set attempt data and submit
-      question.setAttemptData(duration, false);
-      const attemptData = question.getAttemptData();
-
-      const submissionData = {
-        questionId: attemptData.questionId,
-        duration: attemptData.duration,
-        answer: JSON.parse(attemptData.answer)
-      };
-
-      console.log('📤 Submitting answer with data:', submissionData);
-
-      await questionService.submitAttempt(submissionData);
-
-      // Check answer using Question class's method
-      const isCorrect = question.checkAnswer();
-      console.log('✅ Answer check result:', isCorrect);
-
-      // Calculate points based on correctness and time
-      const points = isCorrect
-        ? Math.max(100 - Math.floor(duration / 10), 10)
-        : 0;
-
-      // For now, use a simple streak system
-      const streak = isCorrect ? 1 : 0;
-
-      setSubmissionResult({
-        isCorrect,
-        points,
-        streak,
-        timeTaken: duration
-      });
-
-      console.log('📤 Submission completed successfully');
-    } catch (err) {
-      console.error('📤 Failed to submit answer:', err);
-    }
-  };
-
-  const handleModalClose = () => {
-    setIsSubmitting(false);
-    setSubmissionResult(null);
-    router.push('/problems');
-  };
 
   return (
     <SolverWrapper loading={loading} error={error}>
@@ -303,42 +233,32 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
             <Button
               onClick={handleUndo}
               variant="outline"
-              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
               Undo
             </Button>
             <Button
               onClick={handleRedo}
               variant="outline"
-              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
               Redo
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
-              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30"
+              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
             >
               Reset
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="bg-brand-green hover:bg-brand-green-dark text-white shadow-sm"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Answer'}
-            </Button>
+            <SubmitSection
+              question={question}
+              getCurrentDuration={getCurrentDuration}
+              answerArr={currentState}
+              className="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
+              buttonText="Submit Answer"
+            />
           </div>
-
-          {/* Submission Modal */}
-          <SubmissionModalSolver
-            isOpen={isSubmitting || !!submissionResult}
-            isConfirming={isSubmitting && !submissionResult}
-            result={submissionResult}
-            onConfirm={handleConfirmSubmit}
-            onCancel={() => setIsSubmitting(false)}
-            onClose={handleModalClose}
-          />
         </div>
       )}
     </SolverWrapper>

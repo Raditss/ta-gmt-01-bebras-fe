@@ -24,16 +24,18 @@ export function RulesTableShared({
   );
 
   return (
-    <div className="bg-white rounded-md shadow-md overflow-hidden">
+    <div className="bg-white rounded-md shadow-md overflow-hidden border-2 border-gray-400">
       <div
         className={`grid ${
           showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
-        } border-b`}
+        } border-b-2 border-gray-400`}
       >
-        <div className="p-4 text-center font-medium border-r">Before</div>
+        <div className="p-4 text-center font-medium border-r-2 border-gray-400">
+          Before
+        </div>
         <div
           className={`p-4 text-center font-medium ${
-            showActions ? 'border-r' : ''
+            showActions ? 'border-r-2 border-gray-400' : ''
           }`}
         >
           After
@@ -48,9 +50,9 @@ export function RulesTableShared({
           key={rule.id}
           className={`grid ${
             showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
-          } border-b last:border-b-0`}
+          } border-b-2 border-gray-400 last:border-b-0`}
         >
-          <div className="p-6 flex justify-center items-center border-r">
+          <div className="p-6 flex justify-center items-center border-r-2 border-gray-400">
             <div className="flex flex-wrap justify-center gap-2 max-w-full">
               {rule.before.map((obj, idx) => (
                 <RuleShape key={idx} type={obj.type} />
@@ -59,7 +61,7 @@ export function RulesTableShared({
           </div>
           <div
             className={`p-6 flex justify-center items-center ${
-              showActions ? 'border-r' : ''
+              showActions ? 'border-r-2 border-gray-400' : ''
             }`}
           >
             <div className="flex flex-wrap justify-center gap-2 max-w-full">
