@@ -1,27 +1,30 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { ProblemCard } from "@/components/features/questions/problem-card";
-import { QuestionTypeFilter } from "@/components/features/questions/question-type-filter";
-import { useRouter } from "next/navigation";
-import { QuestionTypeEnum, getQuestionTypeByName } from "@/types/question-type.type";
-import { QuestionTypeModal } from "@/components/features/questions/question-type-modal";
-import { questionsApi } from "@/lib/api";
-import Link from "next/link";
-import { Settings } from "lucide-react";
-import {QuestionResponse} from "@/utils/validations/question.validation";
-import {QuestionTypeResponse} from "@/utils/validations/question-type.validation";
-import {questionTypeApi} from "@/lib/api/question-type.api";
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ProblemCard } from '@/components/features/questions/problem-card';
+import { QuestionTypeFilter } from '@/components/features/questions/question-type-filter';
+import { useRouter } from 'next/navigation';
+import {
+  QuestionTypeEnum,
+  getQuestionTypeByName
+} from '@/types/question-type.type';
+import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
+import { questionsApi } from '@/lib/api';
+import { QuestionResponse } from '@/utils/validations/question.validation';
+import { QuestionTypeResponse } from '@/utils/validations/question-type.validation';
+import { questionTypeApi } from '@/lib/api/question-type.api';
 
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false);
   const [questions, setQuestions] = useState<QuestionResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<Record<QuestionTypeEnum, boolean>>({} as Record<QuestionTypeEnum, boolean>);
+  const [selectedCategories, setSelectedCategories] = useState<
+    Record<QuestionTypeEnum, boolean>
+  >({} as Record<QuestionTypeEnum, boolean>);
   const router = useRouter();
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
 
@@ -34,21 +37,23 @@ export default function ProblemsPage() {
         // Fetch questions and question types in parallel
         const [questionsResponse, typesResponse] = await Promise.all([
           questionsApi.getQuestions(),
-          questionTypeApi.getQuestionTypes(),
+          questionTypeApi.getQuestionTypes()
         ]);
         setQuestions(questionsResponse);
         // Initialize all categories as selected (by enum)
         const initialSelectedCategories = Object.fromEntries(
           typesResponse.map((type: QuestionTypeResponse) => [
             getQuestionTypeByName(type.props.name),
-            true,
+            true
           ])
         );
-        setSelectedCategories(initialSelectedCategories as Record<QuestionTypeEnum, boolean>);
+        setSelectedCategories(
+          initialSelectedCategories as Record<QuestionTypeEnum, boolean>
+        );
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error('Error fetching data:', error);
         setError(
-          error instanceof Error ? error.message : "Failed to fetch data"
+          error instanceof Error ? error.message : 'Failed to fetch data'
         );
       } finally {
         setIsLoading(false);
@@ -60,7 +65,7 @@ export default function ProblemsPage() {
   const handleCategoryChange = (questionTypeEnum: QuestionTypeEnum) => {
     setSelectedCategories((prev) => ({
       ...prev,
-      [questionTypeEnum]: !prev[questionTypeEnum],
+      [questionTypeEnum]: !prev[questionTypeEnum]
     }));
   };
 
@@ -70,7 +75,9 @@ export default function ProblemsPage() {
       return true;
     }
     // Show questions that match any selected category (by enum)
-    return selectedCategories[getQuestionTypeByName(question.props.questionType.name)];
+    return selectedCategories[
+      getQuestionTypeByName(question.props.questionType.name)
+    ];
   });
 
   // Show loading state during initial auth check
@@ -87,8 +94,12 @@ export default function ProblemsPage() {
       setIsTypeModalOpen(false);
       router.push(`/problems/generated/${type}/solve`);
     } catch (error) {
-      console.error("Failed to navigate to generated question:", error);
+      console.error('Failed to navigate to generated question:', error);
     }
+  };
+
+  const handleOpenGenerateModal = () => {
+    setIsTypeModalOpen(true);
   };
 
   return (
@@ -111,6 +122,17 @@ export default function ProblemsPage() {
               selectedQuestionTypes={selectedCategories}
               onQuestionTypeChange={handleCategoryChange}
             />
+
+            {/* Generate Random Question Button - Outside filter box */}
+            <div className="w-full max-w-xs mx-auto">
+              <Button
+                variant="default"
+                className="w-full bg-indigo-200 hover:bg-indigo-300 text-indigo-900 shadow-lg"
+                onClick={handleOpenGenerateModal}
+              >
+                Generate Random Question
+              </Button>
+            </div>
           </div>
 
           {/* Problem grid */}
@@ -132,30 +154,24 @@ export default function ProblemsPage() {
                 </Button>
               </div>
             ) : (
-              <>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredQuestions.map((question) => (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredQuestions.map(
+                  (question) => (
                     console.log(question),
-                    <ProblemCard
-                      key={question.props.id}
-                      id={question.props.id.toString()}
-                      title={question.props.title}
-                      author={question.props.teacher.name}
-                      type={question.props.questionType.name as QuestionTypeEnum}
-                    />
-                  ))}
-                </div>
-
-                <div className="mt-8 flex justify-center">
-                  <Button
-                    variant="default"
-                    className="bg-indigo-200 hover:bg-indigo-300 text-indigo-900 shadow-lg"
-                    onClick={() => setIsTypeModalOpen(true)}
-                  >
-                    Generate Random Question
-                  </Button>
-                </div>
-              </>
+                    (
+                      <ProblemCard
+                        key={question.props.id}
+                        id={question.props.id.toString()}
+                        title={question.props.title}
+                        author={question.props.teacher.name}
+                        type={
+                          question.props.questionType.name as QuestionTypeEnum
+                        }
+                      />
+                    )
+                  )
+                )}
+              </div>
             )}
           </div>
         </div>
