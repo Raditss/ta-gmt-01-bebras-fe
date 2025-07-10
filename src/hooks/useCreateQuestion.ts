@@ -1,24 +1,21 @@
-import {creationService} from "@/lib/services/creation.service";
-import {useCallback, useMemo, useRef, useState} from "react";
-import {Question} from "@/types/question.type";
-import {ICreateQuestion} from "@/models/interfaces/create-question.model";
-import {Dayjs} from "dayjs";
+import { creationService } from '@/lib/services/creation.service';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Question } from '@/types/question.type';
+import { ICreateQuestion } from '@/models/interfaces/create-question.model';
+import { Dayjs } from 'dayjs';
 
-/*
-* 1. id new di problem hapus aja karena dia create dari form dlu jadi gaperlu lagi
-* 2. jadi kirim dulu datanya ke server terus baru redirect ke edit page pake id yang didapet
-* 3. karena gitu jadinya content-nya kosongan aja
-* */
-
-type CreateQuestionConstructionModel<CreateQuestionModel extends ICreateQuestion> = new (
-  question: Question
-) => CreateQuestionModel;
+type CreateQuestionConstructionModel<
+  CreateQuestionModel extends ICreateQuestion
+> = new (question: Question) => CreateQuestionModel;
 
 export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
   _question: Question,
-  createQuestionModel: CreateQuestionConstructionModel<CreateQuestionModel>,
+  createQuestionModel: CreateQuestionConstructionModel<CreateQuestionModel>
 ) => {
-  const question = useMemo(() => new createQuestionModel({ ..._question }), [_question]);
+  const question = useMemo(
+    () => new createQuestionModel({ ..._question }),
+    [_question]
+  );
   const [error, setError] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSavedDraft, setLastSavedDraft] = useState<Dayjs | null>(null);
@@ -26,8 +23,8 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
 
   const saveDraft = useCallback(async (): Promise<void> => {
     try {
-      console.log("Saving draft...", question);
-      if (!question.validateContent()) throw new Error("Invalid question data");
+      console.log('Saving draft...', question);
+      if (!question.validateContent()) throw new Error('Invalid question data');
 
       const updatedCreationData = await creationService.updateCreateQuestion(
         question.draft.id,
@@ -37,21 +34,21 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
           content: question.contentToString(),
           isPublished: false,
           points: question.draft.points,
-          estimatedTime: question.draft.estimatedTime,
+          estimatedTime: question.draft.estimatedTime
         }
-        );
-      
+      );
+
       setLastSavedDraft(updatedCreationData.updatedAt);
       setHasUnsavedChanges(false);
     } catch (err) {
-      console.error("❌ HOOK - Failed to save draft:", err);
-      setError("Failed to save draft");
+      console.error('❌ HOOK - Failed to save draft:', err);
+      setError('Failed to save draft');
     }
   }, [question]);
 
   const submitCreation = useCallback(async (): Promise<void> => {
     try {
-      if (!question.validateContent()) throw new Error("Invalid question data");
+      if (!question.validateContent()) throw new Error('Invalid question data');
 
       const updatedCreationData = await creationService.updateCreateQuestion(
         question.draft.id,
@@ -61,14 +58,14 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
           content: question.contentToString(),
           isPublished: true,
           points: question.draft.points,
-          estimatedTime: question.draft.estimatedTime,
+          estimatedTime: question.draft.estimatedTime
         }
       );
 
       setLastSavedDraft(updatedCreationData.updatedAt);
       setHasUnsavedChanges(false);
     } catch (err) {
-      console.error("Failed to submit creation:", err);
+      console.error('Failed to submit creation:', err);
       shouldSaveCreation.current = true; // Re-enable auto-save on error
       throw err;
     }
@@ -85,6 +82,6 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
     lastSavedDraft,
     saveDraft,
     submitCreation,
-    markAsChanged,
+    markAsChanged
   };
 };

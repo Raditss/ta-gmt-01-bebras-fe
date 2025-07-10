@@ -1,21 +1,23 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { CfgSolveModel } from "@/models/cfg/cfg.solve.model";
-import { State, Rule } from "@/models/cfg/cfg.create.model";
-import { StateDrawerSolve } from "@/components/features/question/cfg/solve/state-drawer.solve";
-import { RulesTableShared } from "@/components/features/question/cfg/shared/rules-table.shared";
-import { questionService } from "@/lib/services/question.service";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
+import { Rule, State } from '@/models/cfg/cfg.create.model';
+import { StateDrawerSolve } from '@/components/features/question/cfg/solve/state-drawer.solve';
+import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
+import { questionService } from '@/lib/services/question.service';
 import {
   GeneratedSolverProps,
-  GeneratedSolverWrapper,
-} from "@/components/features/bases/base.solver.generated";
-import { useDuration } from "@/hooks/useDuration";
-import { SubmissionModalSolver } from "@/components/features/question/submission-modal.solver";
-import { Clock } from "lucide-react";
-import {questionsApi} from "@/lib/api";
-import {getQuestionTypeByName} from "@/types/question-type.type";
+  GeneratedSolverWrapper
+} from '@/components/features/bases/base.solver.generated';
+import { useDuration } from '@/hooks/useDuration';
+import {
+  SubmissionModalSolver,
+  SubmissionResult
+} from '@/components/features/question/submission-modal.solver';
+import { Clock } from 'lucide-react';
+import { questionsApi } from '@/lib/api';
 
 export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   const router = useRouter();
@@ -26,7 +28,8 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] =
+    useState<SubmissionResult | null>(null);
   const { formattedDuration, getCurrentDuration } = useDuration();
 
   // Fetch generated question on mount
@@ -34,18 +37,13 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     const fetchGeneratedQuestion = async () => {
       try {
         const data = await questionsApi.generateQuestion(type);
-        const q = new CfgSolveModel(
-          data.id,
-          data.title,
-          getQuestionTypeByName(data.type),
-          data.duration
-        );
+        const q = new CfgSolveModel(data.id);
         q.populateQuestionFromString(data.content);
         setQuestion(q);
         setCurrentState(q.getCurrentState());
       } catch (err) {
-        console.error("Error fetching generated question:", err);
-        setError("Failed to generate question");
+        console.error('Error fetching generated question:', err);
+        setError('Failed to generate question');
       } finally {
         setLoading(false);
       }
@@ -147,27 +145,27 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
 
       // Call the check endpoint instead of submitting an attempt
       const response = await questionService.checkGeneratedAnswer({
-        type: question.getQuestionType(),
-        questionId: question.getId().toString(),
+        type: question.questionType,
+        questionId: question.id.toString(),
         duration,
-        solution: question.toJSON(),
+        solution: question.toJSON()
       });
 
       setSubmissionResult({
         isCorrect: response.isCorrect,
         points: response.points || 0,
         streak: response.streak || 0,
-        timeTaken: duration,
+        timeTaken: duration
       });
     } catch (_err) {
-      setError("Failed to check your answer. Please try again.");
+      setError('Failed to check your answer. Please try again.');
     }
   };
 
   const handleModalClose = () => {
     setIsSubmitting(false);
     setSubmissionResult(null);
-    router.push("/problems");
+    router.push('/problems');
   };
 
   return (

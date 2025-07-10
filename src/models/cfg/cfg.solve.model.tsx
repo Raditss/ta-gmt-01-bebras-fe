@@ -1,13 +1,13 @@
-import { QuestionTypeEnum } from "@/types/question-type.type";
-import { IQuestion, IAttempt } from "@/models/interfaces/question.model";
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { IAttempt, IQuestion } from '@/models/interfaces/question.model';
 import {
-  State,
-  Rule,
-  Step,
   CfgQuestionSetup,
   CfgSolution,
-} from "@/types/cfg.type";
-import {QuestionAttemptData} from "@/types/question-attempt.type";
+  Rule,
+  State,
+  Step
+} from '@/types/cfg.type';
+import { QuestionAttemptData } from '@/types/question-attempt.type';
 
 export class CfgSolveModel extends IQuestion implements IAttempt {
   private questionSetup: CfgQuestionSetup;
@@ -18,14 +18,14 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
   private attemptDuration: number;
   private attemptIsDraft: boolean;
 
-  constructor(id: number,) {
+  constructor(id: number) {
     super(id, QuestionTypeEnum.CFG);
 
     this.questionSetup = {
       startState: [],
       endState: [],
       rules: [],
-      steps: [],
+      steps: []
     };
     this.currentState = [];
     this.rules = [];
@@ -35,27 +35,24 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
     this.attemptIsDraft = true;
   }
 
-  setAttemptData(
-    duration: number,
-    isDraft: boolean = true,
-  ) {
+  setAttemptData(duration: number, isDraft: boolean = true) {
     this.attemptDuration = duration;
     this.attemptIsDraft = isDraft;
   }
 
   getAttemptData(): QuestionAttemptData {
     return {
-      questionId: this.getId(),
+      questionId: this.id,
       duration: this.attemptDuration,
       isDraft: this.attemptIsDraft,
-      answer: this.toJSON(),
+      answer: this.toJSON()
     };
   }
 
   toJSON(): string {
     const solution: CfgSolution = {
       currentState: this.currentState,
-      steps: this.steps,
+      steps: this.steps
     };
     return JSON.stringify(solution);
   }
@@ -72,34 +69,30 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
     try {
       const questionData = JSON.parse(questionString) as CfgQuestionSetup;
 
-      if (!questionData || typeof questionData !== "object") {
-        throw new Error("Invalid question data structure");
+      if (!questionData || typeof questionData !== 'object') {
+        throw new Error('Invalid question data structure');
       }
 
       this.questionSetup = {
         startState: questionData.startState || [],
         endState: questionData.endState || [],
         rules: questionData.rules || [],
-        steps: questionData.steps || [],
+        steps: questionData.steps || []
       };
 
       this.resetToInitialState();
     } catch (error) {
-      console.error("Error parsing question data:", error);
-      console.error("Question string:", questionString);
+      console.error('Error parsing question data:', error);
+      console.error('Question string:', questionString);
 
       this.questionSetup = {
         startState: [],
         endState: [],
         rules: [],
-        steps: [],
+        steps: []
       };
       this.resetToInitialState();
     }
-  }
-
-  questionToString(): string {
-    return JSON.stringify(this.questionSetup);
   }
 
   checkAnswer(): boolean {
@@ -178,7 +171,7 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
       ruleId,
       index,
       replacedCount: count,
-      endState: newState,
+      endState: newState
     };
 
     this.steps.push(step);

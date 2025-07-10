@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {useEffect, useState} from "react";
 import {useParams} from "next/navigation";
@@ -11,17 +11,18 @@ export default function SolvePage() {
   const id = params?.id as string;
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [questionType, setQuestionType] = useState<QuestionTypeEnum | null>(null);
+  const [questionType, setQuestionType] = useState<QuestionTypeEnum | null>(
+    null
+  );
 
   useEffect(() => {
     const loadQuestionType = async () => {
       try {
         const question = await questionService.getQuestionById(id);
-        console.log("Loaded question:", question);
         setQuestionType(getQuestionTypeByName(question.questionType.name));
       } catch (err) {
         console.error(err);
-        setError("Failed to load question information");
+        setError('Failed to load question information');
       } finally {
         setLoading(false);
       }
@@ -45,7 +46,7 @@ export default function SolvePage() {
       <div className="flex flex-col min-h-screen bg-grey-50">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg text-red-600">
-            {error || "Failed to load question"}
+            {error || 'Failed to load question'}
           </p>
         </div>
       </div>

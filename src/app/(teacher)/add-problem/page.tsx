@@ -1,31 +1,46 @@
-"use client"
+'use client';
 
-import {useEffect, useState} from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import {
   Form,
-  FormControl, FormDescription,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { toast } from "sonner";
-import {SubmitHandler, useForm} from "react-hook-form";
-import {CreateQuestionMetadataRequest, createQuestionMetadataRequestSchema} from "@/utils/validations/question.validation";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {questionsApi} from "@/lib/api";
-import {QuestionTypeResponse} from "@/utils/validations/question-type.validation";
-import {questionTypeApi} from "@/lib/api/question-type.api";
-
+  FormMessage
+} from '@/components/ui/form';
+import { toast } from 'sonner';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import {
+  CreateQuestionMetadataRequest,
+  createQuestionMetadataRequestSchema
+} from '@/utils/validations/question.validation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { questionsApi } from '@/lib/api';
+import { QuestionTypeResponse } from '@/utils/validations/question-type.validation';
+import { questionTypeApi } from '@/lib/api/question-type.api';
 
 const AddProblemPage = () => {
-  const [questionTypes, setQuestionTypes] = useState<QuestionTypeResponse[]>()
-  const router = useRouter()
+  const [questionTypes, setQuestionTypes] = useState<QuestionTypeResponse[]>();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchQuestionTypes = async () => {
@@ -33,40 +48,44 @@ const AddProblemPage = () => {
         const types = await questionTypeApi.getQuestionTypes();
         setQuestionTypes(types);
       } catch (error) {
-        console.error("Failed to fetch question types:", error);
-        toast.error("Failed to load question types. Please try again later.");
+        console.error('Failed to fetch question types:', error);
+        toast.error('Failed to load question types. Please try again later.');
       }
     };
     fetchQuestionTypes();
   }, []);
 
   const newQuestionForm = useForm<CreateQuestionMetadataRequest>({
-    mode: "onSubmit",
+    mode: 'onSubmit',
     resolver: zodResolver(createQuestionMetadataRequestSchema),
     defaultValues: {
-      title: "",
+      title: '',
       points: 100,
-      estimatedTime: 30,
+      estimatedTime: 30
     }
   });
 
-  const addQuestion: SubmitHandler<CreateQuestionMetadataRequest> = async (data, event) => {
+  const addQuestion: SubmitHandler<CreateQuestionMetadataRequest> = async (
+    data,
+    event
+  ) => {
     event?.preventDefault();
-    const question = await questionsApi.createQuestionMetadata(data)
-    console.log("New question metadata created:", question);
+    const question = await questionsApi.createQuestionMetadata(data);
     if (question) {
-      toast.success("You have successfully added new question", {
-        duration: 2000,
+      toast.success('You have successfully added new question', {
+        duration: 2000
       });
-        router.push(`/add-problem/create/${question.props.questionType.name}/${question.props.id}`);
+      router.push(
+        `/add-problem/create/${question.props.questionType.name}/${question.props.id}`
+      );
       newQuestionForm.reset();
     } else {
-      newQuestionForm.setError("root", {
-        type: "manual",
-        message: "Failed to create question metadata. Please try again later."
-      })
+      newQuestionForm.setError('root', {
+        type: 'manual',
+        message: 'Failed to create question metadata. Please try again later.'
+      });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -80,7 +99,10 @@ const AddProblemPage = () => {
           </CardHeader>
           <CardContent>
             <Form {...newQuestionForm}>
-              <form onSubmit={newQuestionForm.handleSubmit(addQuestion)} className="space-y-6">
+              <form
+                onSubmit={newQuestionForm.handleSubmit(addQuestion)}
+                className="space-y-6"
+              >
                 <div className="space-y-2">
                   <FormField
                     control={newQuestionForm.control}
@@ -96,11 +118,12 @@ const AddProblemPage = () => {
                           />
                         </FormControl>
                         <FormDescription>
-                          This title will be used to identify the problem in the system.
+                          This title will be used to identify the problem in the
+                          system.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
-                  )}
+                    )}
                   />
                 </div>
 
@@ -112,16 +135,24 @@ const AddProblemPage = () => {
                       <FormItem>
                         <FormLabel>Question Type</FormLabel>
                         <FormControl>
-                          <Select onValueChange={(value) => field.onChange(Number(value))}>
+                          <Select
+                            onValueChange={(value) =>
+                              field.onChange(Number(value))
+                            }
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select a question type" />
                             </SelectTrigger>
                             <SelectContent>
-                              {questionTypes && questionTypes.map((type) => (
-                                <SelectItem key={type.props.id} value={String(type.props.id)}>
-                                  {type.props.name}
-                                </SelectItem>
-                              ))}
+                              {questionTypes &&
+                                questionTypes.map((type) => (
+                                  <SelectItem
+                                    key={type.props.id}
+                                    value={String(type.props.id)}
+                                  >
+                                    {type.props.name}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -140,24 +171,23 @@ const AddProblemPage = () => {
                       control={newQuestionForm.control}
                       name={'points'}
                       render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Points</FormLabel>
-                        <FormControl
-                          >
-                          <Input
-                            {...field}
-                            type="number"
-                            min="1"
-                            max="100"
-                            placeholder="100"
-                            required
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          Assign points to this question. Default is 100.
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
+                        <FormItem>
+                          <FormLabel>Points</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="number"
+                              min="1"
+                              max="100"
+                              placeholder="100"
+                              required
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Assign points to this question. Default is 100.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                   </div>
@@ -179,7 +209,8 @@ const AddProblemPage = () => {
                             />
                           </FormControl>
                           <FormDescription>
-                            Estimated time to solve this question in minutes. Default is 30.
+                            Estimated time to solve this question in minutes.
+                            Default is 30.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -188,7 +219,7 @@ const AddProblemPage = () => {
                   </div>
                 </div>
 
-                { newQuestionForm.formState.errors.root && (
+                {newQuestionForm.formState.errors.root && (
                   <div className="text-red-500 text-sm">
                     {newQuestionForm.formState.errors.root.message}
                   </div>
@@ -203,7 +234,7 @@ const AddProblemPage = () => {
         </Card>
       </main>
     </div>
-  )
-}
+  );
+};
 
 export default AddProblemPage;
