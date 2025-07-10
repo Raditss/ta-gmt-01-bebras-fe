@@ -23,7 +23,7 @@ export default function StudentLayout({
   return (
     <>
       <StudentNav />
-        <main>{children}</main>
+      <main>{children}</main>
     </>
   );
 }

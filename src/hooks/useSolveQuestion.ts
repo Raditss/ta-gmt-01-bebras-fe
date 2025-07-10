@@ -1,5 +1,5 @@
 import { questionService } from '@/lib/services/question.service';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { IAttempt, IQuestion } from '@/models/interfaces/question.model';
 import dayjs, { Dayjs } from 'dayjs';
 
@@ -19,9 +19,12 @@ export const useSolveQuestion = <
   const startTimeRef = useRef<Dayjs>(dayjs());
   const durationRef = useRef<number>(0);
 
-  const initializeAttemptData = (q: SolveQuestionModel, duration: number) => {
-    q.setAttemptData(duration, true);
-  };
+  const initializeAttemptData = useCallback(
+    (q: SolveQuestionModel, duration: number) => {
+      q.setAttemptData(duration, true);
+    },
+    []
+  );
 
   useEffect(() => {
     const fetchQuestionAndAttempt = async () => {
@@ -106,7 +109,7 @@ export const useSolveQuestion = <
         }
       }
     };
-  }, [question, questionId]);
+  }, [initializeAttemptData, question, questionId]);
 
   return {
     question,

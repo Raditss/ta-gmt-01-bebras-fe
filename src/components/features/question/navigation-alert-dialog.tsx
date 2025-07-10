@@ -1,16 +1,23 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import * as React from 'react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface NavigationAlertDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSaveAndLeave: () => Promise<void>
-  onLeaveWithoutSaving: () => void
-  onCancel: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSaveAndLeave: () => Promise<void>;
+  onLeaveWithoutSaving: () => void;
+  onCancel: () => void;
 }
 
 export function NavigationAlertDialog({
@@ -18,20 +25,20 @@ export function NavigationAlertDialog({
   onOpenChange,
   onSaveAndLeave,
   onLeaveWithoutSaving,
-  onCancel,
+  onCancel
 }: NavigationAlertDialogProps) {
-  const [isSaving, setIsSaving] = React.useState(false)
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const handleSaveAndLeave = async () => {
     try {
-      setIsSaving(true)
-      await onSaveAndLeave()
+      setIsSaving(true);
+      await onSaveAndLeave();
     } catch (error) {
-      console.error('Failed to save:', error)
+      console.error('Failed to save:', error);
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -49,25 +56,17 @@ export function NavigationAlertDialog({
             disabled={isSaving}
             className="relative"
           >
-            {isSaving && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Draft & Leave
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onLeaveWithoutSaving}
-          >
+          <Button variant="destructive" onClick={onLeaveWithoutSaving}>
             Leave Without Saving
           </Button>
-          <Button
-            variant="outline"
-            onClick={onCancel}
-          >
+          <Button variant="outline" onClick={onCancel}>
             Stay on Page
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
-} 
+  );
+}

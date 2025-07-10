@@ -1,13 +1,13 @@
-"use client"
+'use client';
 
-import { MainNavbar } from '@/components/layout/Nav/main-navbar';
-import { NavigationAlertDialog } from '@/components/ui/navigation-alert-dialog';
-import {Question} from "@/types/question.type";
-import { ReactNode } from "react";
+import { NavigationAlertDialog } from '@/components/features/question/navigation-alert-dialog';
+import { Question } from '@/types/question.type';
+import { ReactNode } from 'react';
 
 export interface BaseCreatorProps {
-  initialDataQuestion: Question
+  initialDataQuestion: Question;
 }
+
 export interface CreatorWrapperProps {
   children: ReactNode;
   loading: boolean;
@@ -20,9 +20,9 @@ export interface CreatorWrapperProps {
   onSetShowDialog: (show: boolean) => void;
 }
 
-export function CreatorWrapper({ 
-  children, 
-  loading, 
+export function CreatorWrapper({
+  children,
+  loading,
   error,
   hasUnsavedChanges,
   showNavigationDialog,
@@ -31,10 +31,10 @@ export function CreatorWrapper({
   onStayOnPage,
   onSetShowDialog
 }: CreatorWrapperProps) {
+  console.log('hasUnsavedChanges', hasUnsavedChanges);
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg">Loading question...</p>
         </div>
@@ -45,7 +45,6 @@ export function CreatorWrapper({
   if (error) {
     return (
       <div className="flex flex-col min-h-screen bg-yellow-400">
-        <MainNavbar />
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg text-red-600">{error}</p>
         </div>
@@ -62,12 +61,8 @@ export function CreatorWrapper({
         onLeaveWithoutSaving={onLeaveWithoutSaving}
         onCancel={onStayOnPage}
       />
-      
-      <MainNavbar />
-      
-      <main className="flex-1 container mx-auto px-4 py-6">
-        {children}
-      </main>
+
+      <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
     </div>
   );
-} 
+}

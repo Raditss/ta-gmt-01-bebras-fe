@@ -38,7 +38,7 @@ export class SpritesheetHelper {
       this.sprites.clear();
       this.parseXML();
     } catch (error) {
-      console.error("Failed to load XML:", error);
+      console.error('Failed to load XML:', error);
       throw error;
     }
   }
@@ -47,15 +47,15 @@ export class SpritesheetHelper {
     if (!this.xmlData) return;
 
     const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(this.xmlData, "text/xml");
-    const subtextures = xmlDoc.querySelectorAll("SubTexture");
+    const xmlDoc = parser.parseFromString(this.xmlData, 'text/xml');
+    const subtextures = xmlDoc.querySelectorAll('SubTexture');
 
     subtextures.forEach((subtexture) => {
-      const name = subtexture.getAttribute("name");
-      const x = parseInt(subtexture.getAttribute("x") || "0");
-      const y = parseInt(subtexture.getAttribute("y") || "0");
-      const width = parseInt(subtexture.getAttribute("width") || "0");
-      const height = parseInt(subtexture.getAttribute("height") || "0");
+      const name = subtexture.getAttribute('name');
+      const x = parseInt(subtexture.getAttribute('x') || '0');
+      const y = parseInt(subtexture.getAttribute('y') || '0');
+      const width = parseInt(subtexture.getAttribute('width') || '0');
+      const height = parseInt(subtexture.getAttribute('height') || '0');
 
       if (name) {
         this.sprites.set(name, { x, y, width, height });
@@ -70,7 +70,7 @@ export class SpritesheetHelper {
   getAllSprites(): ParsedSprite[] {
     return Array.from(this.sprites.entries()).map(([name, frame]) => ({
       name,
-      frame,
+      frame
     }));
   }
 
@@ -91,7 +91,7 @@ export class SpritesheetHelper {
 
     this.sprites.forEach((frame, name) => {
       frames[name] = {
-        frame: { x: frame.x, y: frame.y, w: frame.width, h: frame.height },
+        frame: { x: frame.x, y: frame.y, w: frame.width, h: frame.height }
       };
     });
 
@@ -99,10 +99,10 @@ export class SpritesheetHelper {
       frames,
       meta: {
         image: imagePath,
-        format: "RGBA8888",
+        format: 'RGBA8888',
         size: { w: 2958, h: 2958 },
-        scale: 1,
-      },
+        scale: 1
+      }
     };
   }
 }
