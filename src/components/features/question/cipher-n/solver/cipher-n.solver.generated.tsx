@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
-import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
-import { useDuration } from '@/hooks/useDuration';
-import { SubmitSection } from '@/components/features/question/shared/submit-section';
-import { TimeProgressBar } from '@/components/ui/time-progress-bar';
+import { GeneratedSolverProps, GeneratedSolverWrapper } from '@/components/features/bases/base.solver.generated';
+import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useSolveQuestion } from '@/hooks/useSolveQuestion';
+import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
 interface PolygonProps {
   vertices: Array<{ pos: number; letters: string }>;
@@ -42,7 +40,7 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
         viewBox="0 0 500 500" 
         className="border-2 border-gray-300 rounded-lg bg-white w-full max-w-[500px] h-auto aspect-square"
       >
-        {/* Draw octagon */}
+        {/* Draw polygon */}
         <polygon
           points={vertices.map((_, i) => {
             const pos = getVertexPosition(i);
@@ -129,12 +127,10 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
   );
 }
 
-export default function CipherNSolver({ questionId }: BaseSolverProps) {
-  const { question, loading, error, currentDuration } = useSolveQuestion<CipherNSolveModel>(
-    questionId,
-    CipherNSolveModel
-  );
-  const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
+export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
+  // Use the generated question hook
+  const { question, questionContent, loading, error, regenerate } =
+    useGeneratedQuestion<CipherNSolveModel>(type, CipherNSolveModel);
 
   // UI state only
   const [rotationValue, setRotationValue] = useState<string>("");
@@ -222,9 +218,6 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     setPositionValue("");
   }, [question]);
 
-  // For display: join as '23-34-45'
-  const finalAnswerDisplay = answerArr.map(([r, p]) => `${r}${p}`).join("-");
-
   const isValidInputs = () => {
     const rotation = parseInt(rotationValue);
     const position = parseInt(positionValue);
@@ -238,18 +231,13 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
            position <= targetLetters.length;
   };
 
+  // For display: join as '23-34-45'
+  const finalAnswerDisplay = answerArr.map(([r, p]) => `${r}${p}`).join("-");
+
   return (
-    <SolverWrapper loading={loading} error={error}>
+    <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && content && (
         <div className="min-h-screen bg-gray-100 p-8">
-          {/* Time Progress Bar */}
-          <div className="max-w-7xl mx-auto mb-8">
-            <TimeProgressBar 
-              duration={currentDuration()} 
-              formattedTime={formattedDuration} 
-            />
-          </div>
-
           {/* Main Content */}
           <div className="max-w-7xl mx-auto">
             {/* Question Title */}
@@ -257,6 +245,9 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
               <h1 className="text-3xl font-bold text-gray-800">
                 {content.question.prompt}
               </h1>
+              <p className="text-lg text-gray-600 mt-2">
+                <strong>Message to encrypt:</strong> {content.question.plaintext}
+              </p>
             </div>
 
             {/* Main Grid Layout */}
@@ -309,7 +300,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                       type="text"
                       value={positionValue}
                       onChange={(e) => handlePositionChange(e.target.value)}
-                      placeholder={`Enter 0-${vertices[targetVertex]?.letters.length || 0}`}
+                      placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
                       className="w-full text-lg py-3 px-4"
                       disabled={!vertices[targetVertex]}
                     />
@@ -350,12 +341,12 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                   </div>
 
                   {/* Submit Section */}
-                  <SubmitSection
+                  <GeneratedSubmitSection
                     question={question}
-                    getCurrentDuration={getCurrentDuration}
-                    content={content}
                     answerArr={answerArr}
-                    isDisabled={false}
+                    type={type}
+                    questionContent={questionContent}
+                    onRegenerate={regenerate}
                   />
                 </div>
               </div>
@@ -363,6 +354,6 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
           </div>
         </div>
       )}
-    </SolverWrapper>
+    </GeneratedSolverWrapper>
   );
 }

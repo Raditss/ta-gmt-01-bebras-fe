@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { QuestionTypeEnum } from "@/types/question-type.type";
 import { GeneratedSolverProps } from "@/components/features/bases/base.solver.generated";
 import GeneratedCfgSolver from "@/components/features/question/cfg/cfg.solver.generated";
+import GeneratedCipherNSolver from "@/components/features/question/cipher-n/solver/cipher-n.solver.generated";
+import GeneratedRingCipherSolver from "@/components/features/question/ring-cipher/solver/ring-cipher.solver.generated";
 import {ComponentType} from "react";
 import NotImplemented from "@/components/features/question/fallbacks/not-implemented.solver.generated";
 
@@ -13,8 +15,8 @@ const solvers: Record<
   ComponentType<GeneratedSolverProps>
 > = {
   [QuestionTypeEnum.CFG]: GeneratedCfgSolver,
-  [QuestionTypeEnum.CIPHER_N]: NotImplemented,
-  [QuestionTypeEnum.RING_CIPHER]: NotImplemented,
+  [QuestionTypeEnum.CIPHER_N]: GeneratedCipherNSolver,
+  [QuestionTypeEnum.RING_CIPHER]: GeneratedRingCipherSolver,
   [QuestionTypeEnum.DECISION_TREE] : NotImplemented,
   [QuestionTypeEnum.DECISION_TREE_2]: NotImplemented,
 };
