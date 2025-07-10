@@ -3,16 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
-import { questionService } from '@/lib/services/question.service';
-import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
-import { useDuration } from '@/hooks/useDuration';
-import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
-import { Clock } from 'lucide-react';
+import { questionAttemptApi } from '@/lib/api/question-attempt.api';
+import { GeneratedSolverProps, GeneratedSolverWrapper } from '@/components/features/bases/base.solver.generated';
+import { SubmissionModalSolver, SubmissionResult } from '@/components/features/question/submission-modal.solver';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useSolveQuestion } from '@/hooks/useSolveQuestion';
+import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
 interface PolygonProps {
   vertices: Array<{ pos: number; letters: string }>;
@@ -38,7 +36,6 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
 
   // Calculate arrow position
   const currentPos = getVertexPosition(currentVertex);
-  const targetPos = getVertexPosition(targetVertex);
 
   return (
     <div className="flex flex-col items-center">
@@ -130,13 +127,12 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
   );
 }
 
-export default function CipherNSolver({ questionId }: BaseSolverProps) {
+export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   const router = useRouter();
-  const { question, loading, error, currentDuration } = useSolveQuestion<CipherNSolveModel>(
-    questionId,
-    CipherNSolveModel
-  );
-  const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
+  
+  // Use the generated question hook
+  const { question, questionContent, loading, error, regenerate } =
+    useGeneratedQuestion<CipherNSolveModel>(type, CipherNSolveModel);
 
   // UI state only
   const [rotationValue, setRotationValue] = useState<string>("");
@@ -144,7 +140,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const [targetVertex, setTargetVertex] = useState<number>(0);
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
 
   const content = question?.getContent();
   const vertices = content?.vertices || [];
@@ -226,40 +222,31 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     setPositionValue("");
   }, [question]);
 
-  // Submit modal
-  const handleSubmit = useCallback(() => {
-    setIsSubmitting(true);
-  }, []);
-
-  // Confirm submit
+  // Submit answer
   const handleConfirmSubmit = useCallback(async () => {
     if (!question) return;
     
     try {
-      const duration = getCurrentDuration();
-      question.setAttemptData(duration, false);
-      const attemptData = question.getAttemptData();
-      const response = await questionService.submitAttempt({
-        ...attemptData,
-        answer: JSON.parse(attemptData.answer),
+      setIsSubmitting(true);
+
+      const response = await questionAttemptApi.checkGeneratedAnswer({
+        type,
+        questionContent,
+        answer: JSON.stringify(question.toJSON())
       });
 
-      const isCorrect = response.isCorrect;
-      const points = response.points;
-
-      
       setSubmissionResult({
-        isCorrect,
-        points,
-        timeTaken: duration
+        isCorrect: response.isCorrect
       });
-    } catch (err) {
-      console.error('Failed to submit answer:', err);
+    } catch (error) {
+      console.error('❌ Error submitting answer:', error);
+      alert('Failed to submit answer. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [question, getCurrentDuration, content, answerArr]);
+  }, [question, type, questionContent]);
 
-  const handleModalClose = useCallback(() => {
-    setIsSubmitting(false);
+  const handleCloseSubmissionModal = useCallback(() => {
     setSubmissionResult(null);
     router.push('/problems');
   }, [router]);
@@ -281,15 +268,9 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const finalAnswerDisplay = answerArr.map(([r, p]) => `${r}${p}`).join("-");
 
   return (
-    <SolverWrapper loading={loading} error={error}>
+    <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && content && (
         <>
-          {/* Duration display */}
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2 z-10">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
-          </div>
-
           <div className="max-w-6xl mx-auto space-y-6">
             {/* Problem Description */}
             <Card>
@@ -393,30 +374,36 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                       </Button>
                     </div>
                   </div>
-
-                  <Button 
-                    onClick={handleSubmit}
-                    disabled={answerArr.length === 0}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    Submit Answer
-                  </Button>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-4 justify-center mt-8">
+              <Button onClick={regenerate} variant="outline">
+                New Question
+              </Button>
+              <Button
+                onClick={handleConfirmSubmit}
+                disabled={isSubmitting || answerArr.length === 0}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+              </Button>
+            </div>
           </div>
 
-          {/* Submission Modal */}
+          {/* Submission result modal */}
           <SubmissionModalSolver
             isOpen={isSubmitting || !!submissionResult}
             isConfirming={isSubmitting && !submissionResult}
             result={submissionResult}
             onConfirm={handleConfirmSubmit}
             onCancel={() => setIsSubmitting(false)}
-            onClose={handleModalClose}
+            onClose={handleCloseSubmissionModal}
           />
         </>
       )}
-    </SolverWrapper>
+    </GeneratedSolverWrapper>
   );
 }

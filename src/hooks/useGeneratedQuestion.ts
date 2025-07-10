@@ -30,10 +30,15 @@ export const useGeneratedQuestion = <GeneratedQuestionModel extends IQuestion>(
       const q = new generatedQuestionModel(0); // Generated questions use ID 0
 
       // Store original question content for API submission
-      setQuestionContent(JSON.stringify(questionData.content));
+      // Handle content that might already be a string (from backend) or an object
+      const contentString = typeof questionData.content === 'string' 
+        ? questionData.content 
+        : JSON.stringify(questionData.content);
+      
+      setQuestionContent(contentString);
 
       // Populate question with generated content
-      q.populateQuestionFromString(JSON.stringify(questionData.content));
+      q.populateQuestionFromString(contentString);
 
       setQuestion(q);
       setError(null);

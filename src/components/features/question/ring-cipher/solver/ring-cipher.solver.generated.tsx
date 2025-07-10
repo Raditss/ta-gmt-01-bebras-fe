@@ -3,16 +3,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { RingCipherSolveModel } from '@/models/ring-cipher/ring-cipher.solve.model';
-import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
-import { useDuration } from '@/hooks/useDuration';
-import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
-import { Clock } from 'lucide-react';
+import { questionAttemptApi } from '@/lib/api/question-attempt.api';
+import { GeneratedSolverProps, GeneratedSolverWrapper } from '@/components/features/bases/base.solver.generated';
+import { SubmissionModalSolver, SubmissionResult } from '@/components/features/question/submission-modal.solver';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useSolveQuestion } from '@/hooks/useSolveQuestion';
-import { questionService } from '@/lib/services/question.service';
+import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
 interface RingVisualizationProps {
   rings: Array<{ id: number; letters: string[]; currentPosition: number }>;
@@ -116,19 +114,18 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
   );
 }
 
-export default function RingCipherSolver({ questionId }: BaseSolverProps) {
+export default function GeneratedRingCipherSolver({ type }: GeneratedSolverProps) {
   const router = useRouter();
-  const { question, loading, error, currentDuration } = useSolveQuestion<RingCipherSolveModel>(
-    questionId,
-    RingCipherSolveModel
-  );
-  const { formattedDuration, getCurrentDuration } = useDuration(currentDuration());
+  
+  // Use the generated question hook
+  const { question, questionContent, loading, error, regenerate } =
+    useGeneratedQuestion<RingCipherSolveModel>(type, RingCipherSolveModel);
 
   // UI state only
   const [ringValue, setRingValue] = useState<string>("");
   const [stepsValue, setStepsValue] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
   const [highlightedRing, setHighlightedRing] = useState<number | undefined>(undefined);
   const [highlightedLetter, setHighlightedLetter] = useState<{ ring: number; letter: string } | undefined>(undefined);
   const [previewPositions, setPreviewPositions] = useState<number[]>([]);
@@ -212,37 +209,31 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
     setStepsValue("");
   }, [question]);
 
-  // Submit modal
-  const handleSubmit = useCallback(() => {
-    setIsSubmitting(true);
-  }, []);
-
-  // Confirm submit
+  // Submit answer
   const handleConfirmSubmit = useCallback(async () => {
     if (!question) return;
+    
     try {
-      const duration = getCurrentDuration();
-      question.setAttemptData(duration, false);
-      const attemptData = question.getAttemptData();
-      const response = await questionService.submitAttempt({
-        ...attemptData,
-        answer: JSON.parse(attemptData.answer),
+      setIsSubmitting(true);
+
+      const response = await questionAttemptApi.checkGeneratedAnswer({
+        type,
+        questionContent,
+        answer: JSON.stringify(question.toJSON())
       });
-      const isCorrect = response.isCorrect;
-      const points = response.points;
 
       setSubmissionResult({
-        isCorrect,
-        points,
-        timeTaken: duration
+        isCorrect: response.isCorrect
       });
-    } catch (err) {
-      console.error('Failed to submit answer:', err);
+    } catch (error) {
+      console.error('❌ Error submitting answer:', error);
+      alert('Failed to submit answer. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [question, getCurrentDuration, content, answerArr]);
+  }, [question, type, questionContent]);
 
-  const handleModalClose = useCallback(() => {
-    setIsSubmitting(false);
+  const handleCloseSubmissionModal = useCallback(() => {
     setSubmissionResult(null);
     router.push('/problems');
   }, [router]);
@@ -261,14 +252,11 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   const finalAnswerDisplay = answerArr.map(([r, s]) => `${r}${s}`).join("-");
 
   return (
-    <SolverWrapper loading={loading} error={error}>
+    <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && content && (
         <>
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2 z-10">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
-          </div>
           <div className="max-w-6xl mx-auto space-y-6">
+            {/* Problem Description */}
             <Card>
               <CardHeader>
                 <CardTitle>{content.question.prompt}</CardTitle>
@@ -279,7 +267,9 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                 </div>
               </CardContent>
             </Card>
+
             <div className="grid md:grid-cols-2 gap-6">
+              {/* Ring Visualization */}
               <Card>
                 <CardHeader>
                   <CardTitle>Ring Cipher</CardTitle>
@@ -303,6 +293,8 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Controls */}
               <Card>
                 <CardHeader>
                   <CardTitle>Encryption Controls</CardTitle>
@@ -320,6 +312,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       className="w-full"
                     />
                   </div>
+                  
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Rotation Steps (0-{rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}):
@@ -333,6 +326,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       disabled={!rings[parseInt(ringValue) - 1]}
                     />
                   </div>
+
                   <Button 
                     onClick={handleAddToAnswer}
                     disabled={!isValidInputs()}
@@ -340,6 +334,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                   >
                     Add to Final Answer
                   </Button>
+
                   <div className="border-t pt-4">
                     <label className="block text-sm font-medium mb-2">Final Answer:</label>
                     <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
@@ -363,27 +358,36 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       </Button>
                     </div>
                   </div>
-                  <Button 
-                    onClick={handleSubmit}
-                    disabled={answerArr.length === 0}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    Submit Answer
-                  </Button>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-4 justify-center mt-8">
+              <Button onClick={regenerate} variant="outline">
+                New Question
+              </Button>
+              <Button
+                onClick={handleConfirmSubmit}
+                disabled={isSubmitting || answerArr.length === 0}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+              </Button>
+            </div>
           </div>
+
+          {/* Submission result modal */}
           <SubmissionModalSolver
             isOpen={isSubmitting || !!submissionResult}
             isConfirming={isSubmitting && !submissionResult}
             result={submissionResult}
             onConfirm={handleConfirmSubmit}
             onCancel={() => setIsSubmitting(false)}
-            onClose={handleModalClose}
+            onClose={handleCloseSubmissionModal}
           />
         </>
       )}
-    </SolverWrapper>
+    </GeneratedSolverWrapper>
   );
-} 
+}

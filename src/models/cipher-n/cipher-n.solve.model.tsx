@@ -17,12 +17,6 @@ interface CipherConfig {
 interface CipherContent {
   config: CipherConfig;
   vertices: CipherVertex[];
-  instructions: string[];
-  example: {
-    plaintext: string;
-    encrypted: string;
-    explanation: string;
-  };
   question: {
     task: string;
     plaintext: string;
@@ -53,12 +47,6 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
         isClockwise: true
       },
       vertices: [],
-      instructions: [],
-      example: {
-        plaintext: '',
-        encrypted: '',
-        explanation: ''
-      },
       question: {
         task: '',
         plaintext: '',
