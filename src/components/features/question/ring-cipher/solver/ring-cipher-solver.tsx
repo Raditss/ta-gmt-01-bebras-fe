@@ -1,18 +1,15 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { RingCipherSolveModel } from '@/models/ring-cipher/ring-cipher.solve.model';
 import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
-import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
-import { Clock } from 'lucide-react';
+import { SubmitSection } from '@/components/features/question/shared/submit-section';
+import { TimeProgressBar } from '@/components/ui/time-progress-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
-import { questionService } from '@/lib/services/question.service';
 
 interface RingVisualizationProps {
   rings: Array<{ id: number; letters: string[]; currentPosition: number }>;
@@ -22,14 +19,17 @@ interface RingVisualizationProps {
 }
 
 function RingVisualization({ rings, ringPositions, highlightedRing, highlightedLetter }: RingVisualizationProps) {
-  const centerX = 200;
-  const centerY = 200;
-  const maxRadius = 160;
-  const minRadius = 60;
+  const centerX = 250;
+  const centerY = 250;
+  const maxRadius = 200;
+  const minRadius = 75;
   const ringColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
   return (
-    <div className="flex flex-col items-center">
-      <svg width="400" height="400" className="border-2 border-gray-300 rounded-lg bg-white">
+    <div className="flex flex-col items-center w-full">
+      <svg 
+        viewBox="0 0 500 500" 
+        className="border-2 border-gray-300 rounded-lg bg-white w-full max-w-[500px] h-auto aspect-square"
+      >
         <polygon
           points={`${centerX},15 ${centerX - 8},5 ${centerX + 8},5`}
           fill="red"
@@ -70,19 +70,19 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
                       <circle
                         cx={x}
                         cy={y}
-                        r="15"
+                        r="18"
                         fill={isTargetLetter ? '#FDE68A' : isAtMarker ? '#FEF3C7' : 'white'}
                         stroke={isTargetLetter ? '#D97706' : isAtMarker ? '#F59E0B' : ringColors[ringIndex % ringColors.length]}
-                        strokeWidth={isTargetLetter ? "3" : isAtMarker ? "3" : "1"}
+                        strokeWidth={isTargetLetter ? "3" : isAtMarker ? "3" : "2"}
                         className="transition-all duration-300"
                       />
                       <text
                         x={x}
-                        y={y + 5}
+                        y={y + 6}
                         textAnchor="middle"
                         transform={`rotate(${-rotationAngle} ${x} ${y})`}
-                        className={`text-sm font-bold transition-all duration-300 ${
-                          isTargetLetter ? 'fill-yellow-800' : 
+                        className={`text-base font-bold transition-all duration-300 ${
+                          isTargetLetter ? 'fill-white' : 
                           isAtMarker ? 'fill-orange-700' : 'fill-gray-700'
                         }`}
                       >
@@ -97,12 +97,12 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
         })}
         <circle cx={centerX} cy={centerY} r="5" fill="black" />
       </svg>
-      <div className="mt-4 flex flex-wrap justify-center gap-2">
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
         {rings.map((ring, index) => (
           <Badge
             key={ring.id}
             variant="outline"
-            className={`${index === highlightedRing ? 'border-2' : 'border'}`}
+            className={`text-sm px-3 py-1 ${index === highlightedRing ? 'border-2' : 'border'}`}
             style={{
               borderColor: ringColors[index % ringColors.length],
               backgroundColor: index === highlightedRing ? `${ringColors[index % ringColors.length]}20` : 'white'
@@ -117,7 +117,6 @@ function RingVisualization({ rings, ringPositions, highlightedRing, highlightedL
 }
 
 export default function RingCipherSolver({ questionId }: BaseSolverProps) {
-  const router = useRouter();
   const { question, loading, error, currentDuration } = useSolveQuestion<RingCipherSolveModel>(
     questionId,
     RingCipherSolveModel
@@ -127,8 +126,6 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   // UI state only
   const [ringValue, setRingValue] = useState<string>("");
   const [stepsValue, setStepsValue] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [highlightedRing, setHighlightedRing] = useState<number | undefined>(undefined);
   const [highlightedLetter, setHighlightedLetter] = useState<{ ring: number; letter: string } | undefined>(undefined);
   const [previewPositions, setPreviewPositions] = useState<number[]>([]);
@@ -212,40 +209,8 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
     setStepsValue("");
   }, [question]);
 
-  // Submit modal
-  const handleSubmit = useCallback(() => {
-    setIsSubmitting(true);
-  }, []);
-
-  // Confirm submit
-  const handleConfirmSubmit = useCallback(async () => {
-    if (!question) return;
-    try {
-      const duration = getCurrentDuration();
-      question.setAttemptData(duration, false);
-      const attemptData = question.getAttemptData();
-      const response = await questionService.submitAttempt({
-        ...attemptData,
-        answer: JSON.parse(attemptData.answer),
-      });
-      const isCorrect = response.isCorrect;
-      const points = response.points;
-
-      setSubmissionResult({
-        isCorrect,
-        points,
-        timeTaken: duration
-      });
-    } catch (err) {
-      console.error('Failed to submit answer:', err);
-    }
-  }, [question, getCurrentDuration, content, answerArr]);
-
-  const handleModalClose = useCallback(() => {
-    setIsSubmitting(false);
-    setSubmissionResult(null);
-    router.push('/problems');
-  }, [router]);
+  // For display: join as '12-34-56'
+  const finalAnswerDisplay = answerArr.map(([r, s]) => `${r}${s}`).join("-");
 
   const isValidInputs = () => {
     const ring = parseInt(ringValue);
@@ -258,58 +223,57 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
            steps < (rings[ring - 1]?.letters.length || 1);
   };
 
-  const finalAnswerDisplay = answerArr.map(([r, s]) => `${r}${s}`).join("-");
-
   return (
     <SolverWrapper loading={loading} error={error}>
       {question && content && (
-        <>
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2 z-10">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
+        <div className="min-h-screen bg-gray-100 p-8">
+          {/* Time Progress Bar */}
+          <div className="max-w-7xl mx-auto mb-8">
+            <TimeProgressBar 
+              duration={currentDuration()} 
+              formattedTime={formattedDuration} 
+            />
           </div>
-          <div className="max-w-6xl mx-auto space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{content.question.prompt}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p><strong>Message to encrypt:</strong> {content.question.plaintext}</p>
+
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto">
+            {/* Question Title */}
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-bold text-gray-800">
+                {content.question.prompt}
+              </h1>
+            </div>
+
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Left Side - Ring Cipher */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <RingVisualization
+                  rings={rings}
+                  ringPositions={previewPositions.length ? previewPositions : ringPositions}
+                  highlightedRing={highlightedRing}
+                  highlightedLetter={highlightedLetter}
+                />
+                <div className="mt-6 flex justify-center space-x-6">
+                  <Badge variant="outline" className="bg-yellow-100 text-sm px-3 py-1">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    Marker Position
+                  </Badge>
+                  <Badge variant="outline" className="bg-orange-100 text-sm px-3 py-1">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                    Target Letter
+                  </Badge>
                 </div>
-              </CardContent>
-            </Card>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ring Cipher</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RingVisualization
-                    rings={rings}
-                    ringPositions={previewPositions.length ? previewPositions : ringPositions}
-                    highlightedRing={highlightedRing}
-                    highlightedLetter={highlightedLetter}
-                  />
-                  <div className="mt-4 flex justify-center space-x-4">
-                    <Badge variant="outline" className="bg-yellow-100">
-                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                      Marker Position
-                    </Badge>
-                    <Badge variant="outline" className="bg-orange-100">
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                      Target Letter
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Encryption Controls</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              </div>
+
+              {/* Right Side - Encryption Controls */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <h2 className="text-2xl font-semibold mb-8">Encryption Controls</h2>
+                
+                <div className="space-y-6">
+                  {/* Ring Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-base font-medium mb-3">
                       Ring Number (1-{rings.length}):
                     </label>
                     <Input
@@ -317,11 +281,13 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       value={ringValue}
                       onChange={(e) => handleRingChange(e.target.value)}
                       placeholder={`Enter 1-${rings.length}`}
-                      className="w-full"
+                      className="w-full text-lg py-3 px-4"
                     />
                   </div>
+                  
+                  {/* Steps Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-base font-medium mb-3">
                       Rotation Steps (0-{rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}):
                     </label>
                     <Input
@@ -329,60 +295,58 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       value={stepsValue}
                       onChange={(e) => handleStepsChange(e.target.value)}
                       placeholder={`Enter 0-${rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}`}
-                      className="w-full"
+                      className="w-full text-lg py-3 px-4"
                       disabled={!rings[parseInt(ringValue) - 1]}
                     />
                   </div>
+
+                  {/* Add to Final Answer Button */}
                   <Button 
                     onClick={handleAddToAnswer}
                     disabled={!isValidInputs()}
-                    className="w-full"
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                   >
                     Add to Final Answer
                   </Button>
-                  <div className="border-t pt-4">
-                    <label className="block text-sm font-medium mb-2">Final Answer:</label>
-                    <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
-                      {finalAnswerDisplay || "No codes added yet"}
+
+                  {/* Final Answer Section */}
+                  <div className="mt-8">
+                    <label className="block text-base font-medium mb-3">Final Answer:</label>
+                    <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
+                      {finalAnswerDisplay || ""}
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    
+                    {/* Undo and Clear Buttons */}
+                    <div className="flex gap-4 mt-4">
                       <Button 
                         onClick={handleUndo}
-                        variant="outline"
-                        className="w-1/2"
+                        className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
                         disabled={answerArr.length === 0}
                       >
                         Undo
                       </Button>
                       <Button 
                         onClick={handleClearAnswer}
-                        variant="outline"
-                        className="w-1/2"
+                        className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
                       >
-                        Clear Answer
+                        Clear
                       </Button>
                     </div>
                   </div>
-                  <Button 
-                    onClick={handleSubmit}
-                    disabled={answerArr.length === 0}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    Submit Answer
-                  </Button>
-                </CardContent>
-              </Card>
+
+                  {/* Submit Section */}
+                  <SubmitSection
+                    question={question}
+                    getCurrentDuration={getCurrentDuration}
+                    content={content}
+                    answerArr={answerArr}
+                    isDisabled={false}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <SubmissionModalSolver
-            isOpen={isSubmitting || !!submissionResult}
-            isConfirming={isSubmitting && !submissionResult}
-            result={submissionResult}
-            onConfirm={handleConfirmSubmit}
-            onCancel={() => setIsSubmitting(false)}
-            onClose={handleModalClose}
-          />
-        </>
+        </div>
       )}
     </SolverWrapper>
   );

@@ -8,7 +8,7 @@ import CfgSolver from '@/components/features/question/cfg/cfg.solver';
 import CipherNSolver from '@/components/features/question/cipher-n/solver/cipher-n-solver';
 import RingCipherSolver from '@/components/features/question/ring-cipher/solver/ring-cipher-solver';
 import DecisionTreeSolver from '@/components/features/question/dt/dt-0/solver';
-import DecisionTree2Solver from '@/components/features/question/dt-1/dt-1.solver';
+import DecisionTree2Solver from '@/components/features/question/dt/dt-1/dt-1.solver';
 import NotImplementedCreator from '@/components/features/question/fallbacks/not-implemented.creator';
 import NotImplementedSolver from '@/components/features/question/fallbacks/not-implemented.solver';
 
@@ -30,6 +30,6 @@ export const solveQuestionComponent: Record<
   [QuestionTypeEnum.CFG]: CfgSolver,
   [QuestionTypeEnum.CIPHER_N]: CipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherSolver,
-  [QuestionTypeEnum.DECISION_TREE]: NotImplementedSolver,
-  [QuestionTypeEnum.DECISION_TREE_2]: NotImplementedSolver
+  [QuestionTypeEnum.DECISION_TREE]: DecisionTreeSolver,
+  [QuestionTypeEnum.DECISION_TREE_2]: DecisionTree2Solver
 };

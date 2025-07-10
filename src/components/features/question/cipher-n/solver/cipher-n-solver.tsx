@@ -1,16 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
-import { questionService } from '@/lib/services/question.service';
 import { BaseSolverProps, SolverWrapper } from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
-import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
-import { Clock } from 'lucide-react';
+import { SubmitSection } from '@/components/features/question/shared/submit-section';
+import { TimeProgressBar } from '@/components/ui/time-progress-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 
@@ -41,9 +38,12 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
   const targetPos = getVertexPosition(targetVertex);
 
   return (
-    <div className="flex flex-col items-center">
-      <svg width="400" height="400" className="border-2 border-gray-300 rounded-lg bg-white">
-        {/* Draw polygon */}
+    <div className="flex flex-col items-center w-full">
+      <svg 
+        viewBox="0 0 500 500" 
+        className="border-2 border-gray-300 rounded-lg bg-white w-full max-w-[500px] h-auto aspect-square"
+      >
+        {/* Draw octagon */}
         <polygon
           points={vertices.map((_, i) => {
             const pos = getVertexPosition(i);
@@ -66,7 +66,7 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
               <circle
                 cx={pos.x}
                 cy={pos.y}
-                r="25"
+                r="30"
                 fill={isTarget ? "rgb(239, 68, 68)" : isCurrent ? "rgb(34, 197, 94)" : "white"}
                 stroke={isTarget ? "rgb(185, 28, 28)" : isCurrent ? "rgb(21, 128, 61)" : "rgb(107, 114, 128)"}
                 strokeWidth="2"
@@ -76,9 +76,9 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
               {/* Letters */}
               <text
                 x={pos.x}
-                y={pos.y - 35}
+                y={pos.y - 40}
                 textAnchor="middle"
-                className="text-sm font-bold fill-gray-700"
+                className="text-base font-bold fill-gray-700"
               >
                 {vertex.letters}
               </text>
@@ -87,9 +87,9 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
               {isTarget && highlightedPosition > 0 && highlightedPosition <= vertex.letters.length && (
                 <text
                   x={pos.x}
-                  y={pos.y + 5}
+                  y={pos.y + 6}
                   textAnchor="middle"
-                  className="text-lg font-bold fill-yellow-600"
+                  className="text-xl font-bold fill-white"
                 >
                   {vertex.letters[highlightedPosition - 1]}
                 </text>
@@ -98,7 +98,7 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
           );
         })}
         
-        {/* Arrow from center to current vertex */}
+        {/* Arrow from center to target vertex */}
         <defs>
           <marker
             id="arrowhead"
@@ -115,8 +115,8 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
         <line
           x1={centerX}
           y1={centerY}
-          x2={currentPos.x - 25 * Math.cos(Math.atan2(currentPos.y - centerY, currentPos.x - centerX))}
-          y2={currentPos.y - 25 * Math.sin(Math.atan2(currentPos.y - centerY, currentPos.x - centerX))}
+          x2={targetPos.x - 30 * Math.cos(Math.atan2(targetPos.y - centerY, targetPos.x - centerX))}
+          y2={targetPos.y - 30 * Math.sin(Math.atan2(targetPos.y - centerY, targetPos.x - centerX))}
           stroke="black"
           strokeWidth="3"
           markerEnd="url(#arrowhead)"
@@ -131,7 +131,6 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
 }
 
 export default function CipherNSolver({ questionId }: BaseSolverProps) {
-  const router = useRouter();
   const { question, loading, error, currentDuration } = useSolveQuestion<CipherNSolveModel>(
     questionId,
     CipherNSolveModel
@@ -143,8 +142,6 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const [positionValue, setPositionValue] = useState<string>("");
   const [targetVertex, setTargetVertex] = useState<number>(0);
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
 
   const content = question?.getContent();
   const vertices = content?.vertices || [];
@@ -226,43 +223,8 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
     setPositionValue("");
   }, [question]);
 
-  // Submit modal
-  const handleSubmit = useCallback(() => {
-    setIsSubmitting(true);
-  }, []);
-
-  // Confirm submit
-  const handleConfirmSubmit = useCallback(async () => {
-    if (!question) return;
-    
-    try {
-      const duration = getCurrentDuration();
-      question.setAttemptData(duration, false);
-      const attemptData = question.getAttemptData();
-      const response = await questionService.submitAttempt({
-        ...attemptData,
-        answer: JSON.parse(attemptData.answer),
-      });
-
-      const isCorrect = response.isCorrect;
-      const points = response.points;
-
-      
-      setSubmissionResult({
-        isCorrect,
-        points,
-        timeTaken: duration
-      });
-    } catch (err) {
-      console.error('Failed to submit answer:', err);
-    }
-  }, [question, getCurrentDuration, content, answerArr]);
-
-  const handleModalClose = useCallback(() => {
-    setIsSubmitting(false);
-    setSubmissionResult(null);
-    router.push('/problems');
-  }, [router]);
+  // For display: join as '23-34-45'
+  const finalAnswerDisplay = answerArr.map(([r, p]) => `${r}${p}`).join("-");
 
   const isValidInputs = () => {
     const rotation = parseInt(rotationValue);
@@ -277,66 +239,57 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
            position <= targetLetters.length;
   };
 
-  // For display: join as '23-34-45'
-  const finalAnswerDisplay = answerArr.map(([r, p]) => `${r}${p}`).join("-");
-
   return (
     <SolverWrapper loading={loading} error={error}>
       {question && content && (
-        <>
-          {/* Duration display */}
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2 z-10">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
+        <div className="min-h-screen bg-gray-100 p-8">
+          {/* Time Progress Bar */}
+          <div className="max-w-7xl mx-auto mb-8">
+            <TimeProgressBar 
+              duration={currentDuration()} 
+              formattedTime={formattedDuration} 
+            />
           </div>
 
-          <div className="max-w-6xl mx-auto space-y-6">
-            {/* Problem Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{content.question.prompt}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p><strong>Message to encrypt:</strong> {content.question.plaintext}</p>
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto">
+            {/* Question Title */}
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-bold text-gray-800">
+                {content.question.prompt}
+              </h1>
+            </div>
+
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Left Side - Cipher Wheel */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <PolygonVisualization
+                  vertices={vertices}
+                  currentVertex={currentVertex}
+                  targetVertex={targetVertex}
+                  highlightedPosition={highlightedPosition}
+                />
+                <div className="mt-6 flex justify-center space-x-6">
+                  <Badge variant="outline" className="bg-green-100 text-sm px-3 py-1">
+                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                    Current Position
+                  </Badge>
+                  <Badge variant="outline" className="bg-red-100 text-sm px-3 py-1">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    Target Position
+                  </Badge>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Interactive Polygon */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cipher Wheel</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <PolygonVisualization
-                    vertices={vertices}
-                    currentVertex={currentVertex}
-                    targetVertex={targetVertex}
-                    highlightedPosition={highlightedPosition}
-                  />
-                  <div className="mt-4 flex justify-center space-x-4">
-                    <Badge variant="outline" className="bg-green-100">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                      Current Position
-                    </Badge>
-                    <Badge variant="outline" className="bg-red-100">
-                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                      Target Position
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Controls */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Encryption Controls</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              {/* Right Side - Encryption Controls */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <h2 className="text-2xl font-semibold mb-8">Encryption Controls</h2>
+                
+                <div className="space-y-6">
+                  {/* Rotation Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-base font-medium mb-3">
                       Rotation (0-{maxRotation}):
                     </label>
                     <Input
@@ -344,78 +297,72 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                       value={rotationValue}
                       onChange={(e) => handleRotationChange(e.target.value)}
                       placeholder={`Enter 0-${maxRotation}`}
-                      className="w-full"
+                      className="w-full text-lg py-3 px-4"
                     />
                   </div>
                   
+                  {/* Position Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-base font-medium mb-3">
                       Position (1-{vertices[targetVertex]?.letters.length || 0}):
                     </label>
                     <Input
                       type="text"
                       value={positionValue}
                       onChange={(e) => handlePositionChange(e.target.value)}
-                      placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
-                      className="w-full"
+                      placeholder={`Enter 0-${vertices[targetVertex]?.letters.length || 0}`}
+                      className="w-full text-lg py-3 px-4"
                       disabled={!vertices[targetVertex]}
                     />
                   </div>
 
+                  {/* Add to Final Answer Button */}
                   <Button 
                     onClick={handleAddToAnswer}
                     disabled={!isValidInputs()}
-                    className="w-full"
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                   >
                     Add to Final Answer
                   </Button>
 
-                  <div className="border-t pt-4">
-                    <label className="block text-sm font-medium mb-2">Final Answer:</label>
-                    <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
-                      {finalAnswerDisplay || "No codes added yet"}
+                  {/* Final Answer Section */}
+                  <div className="mt-8">
+                    <label className="block text-base font-medium mb-3">Final Answer:</label>
+                    <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
+                      {finalAnswerDisplay || ""}
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    
+                    {/* Undo and Clear Buttons */}
+                    <div className="flex gap-4 mt-4">
                       <Button 
                         onClick={handleUndo}
-                        variant="outline"
-                        className="w-1/2"
+                        className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
                         disabled={answerArr.length === 0}
                       >
                         Undo
                       </Button>
                       <Button 
                         onClick={handleClearAnswer}
-                        variant="outline"
-                        className="w-1/2"
+                        className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
                       >
-                        Clear Answer
+                        Clear
                       </Button>
                     </div>
                   </div>
 
-                  <Button 
-                    onClick={handleSubmit}
-                    disabled={answerArr.length === 0}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    Submit Answer
-                  </Button>
-                </CardContent>
-              </Card>
+                  {/* Submit Section */}
+                  <SubmitSection
+                    question={question}
+                    getCurrentDuration={getCurrentDuration}
+                    content={content}
+                    answerArr={answerArr}
+                    isDisabled={false}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Submission Modal */}
-          <SubmissionModalSolver
-            isOpen={isSubmitting || !!submissionResult}
-            isConfirming={isSubmitting && !submissionResult}
-            result={submissionResult}
-            onConfirm={handleConfirmSubmit}
-            onCancel={() => setIsSubmitting(false)}
-            onClose={handleModalClose}
-          />
-        </>
+        </div>
       )}
     </SolverWrapper>
   );
