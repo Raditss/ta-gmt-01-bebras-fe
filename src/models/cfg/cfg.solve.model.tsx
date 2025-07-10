@@ -181,23 +181,40 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
     return this.questionSetup;
   }
 
-  applyRule(ruleId: string, index: number, count: number): boolean {
+  applyRule(ruleId: string, index: number, _count: number): boolean {
     const rule = this.rules.find((r) => r.id === ruleId);
     if (!rule) return false;
 
     const newState = [...this.currentState];
-    newState.splice(index, count, ...rule.after);
+
+    // Remove the matched elements (should be rule.before.length, not count)
+    newState.splice(index, rule.before.length);
+
+    // Create replacement elements with proper structure
+    const replacements = rule.after.map((item, i) => ({
+      id: index + i + 1,
+      type: item.type
+    }));
+
+    // Insert the replacement elements
+    newState.splice(index, 0, ...replacements);
+
+    // Re-index the entire state to match backend behavior
+    const reindexedState = newState.map((item, i) => ({
+      id: i + 1,
+      type: item.type
+    }));
 
     const step: Step = {
       ruleId,
       index,
-      replacedCount: count,
-      endState: newState
+      replacedCount: rule.before.length, // Use rule.before.length instead of count
+      endState: reindexedState
     };
 
     this.steps.push(step);
     this.redoStack = [];
-    this.currentState = newState;
+    this.currentState = reindexedState;
 
     this.answer = {
       currentState: [...this.currentState],

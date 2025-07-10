@@ -40,11 +40,6 @@ export function useQuestionsWithSearch({
     setCurrentPage(1);
   }, [debouncedSearchTerm, selectedCategories]);
 
-  // Fetch questions when page, search term, or categories change
-  useEffect(() => {
-    fetchQuestions();
-  }, [fetchQuestions]);
-
   const fetchQuestions = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -69,6 +64,11 @@ export function useQuestionsWithSearch({
       setIsLoading(false);
     }
   }, [currentPage, debouncedSearchTerm]);
+
+  // Fetch questions when page, search term, or categories change
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   // Filter questions by selected categories
   const filteredQuestions = questions.filter((question) => {

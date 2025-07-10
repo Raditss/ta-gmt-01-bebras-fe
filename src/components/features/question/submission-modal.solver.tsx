@@ -10,9 +10,8 @@ import {
 
 export interface SubmissionResult {
   isCorrect: boolean;
-  points: number;
-  streak: number;
-  timeTaken: number;
+  points?: number;
+  streak?: number;
 }
 
 interface SubmissionModalProps {
@@ -60,26 +59,32 @@ export function SubmissionModalSolver({
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Points Earned
-                </p>
-                <p className="text-lg font-semibold">{result.points}</p>
+            {result.points !== undefined && result.streak !== undefined ? (
+              // Regular question display with points and streak
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Points Earned
+                  </p>
+                  <p className="text-lg font-semibold">{result.points}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-500">
+                    Current Streak
+                  </p>
+                  <p className="text-lg font-semibold">{result.streak}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">
-                  Current Streak
-                </p>
-                <p className="text-lg font-semibold">{result.streak}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Time Taken</p>
-                <p className="text-lg font-semibold">
-                  {Math.floor(result.timeTaken / 60)}m {result.timeTaken % 60}s
+            ) : (
+              // Generated question display - simple feedback only
+              <div className="text-center">
+                <p className="text-lg">
+                  {result.isCorrect
+                    ? 'Great job! You solved the problem correctly.'
+                    : 'Not quite right. Try reviewing the rules and try again.'}
                 </p>
               </div>
-            </div>
+            )}
           </div>
           <DialogFooter>
             <Button onClick={onClose}>Close</Button>

@@ -14,6 +14,7 @@ import {
 import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
 import { QuestionTypeResponse } from '@/utils/validations/question-type.validation';
 import { questionTypeApi } from '@/lib/api/question-type.api';
+import { questionsApi } from '@/lib/api/questions.api';
 import { useQuestionsWithSearch } from '@/hooks/useQuestionsWithSearch';
 import { Pagination } from '@/components/ui/pagination';
 
@@ -79,11 +80,39 @@ export default function ProblemsPage() {
   }
 
   const handleGenerateQuestion = async (type: QuestionTypeEnum) => {
+    console.log('handleGenerateQuestion called with type:', type);
+
     try {
       setIsTypeModalOpen(false);
-      router.push(`/problems/generated/${type}/solve`);
+
+      // Show loading state while generating
+      console.log('Generating question for type:', type);
+
+      // Call backend to generate the question
+      console.log('Calling questionsApi.generateQuestion...');
+      const generatedQuestion = await questionsApi.generateQuestion(type);
+      console.log('Generated question received:', generatedQuestion);
+
+      // Store the generated question in sessionStorage for the solve page
+      sessionStorage.setItem(
+        'generatedQuestion',
+        JSON.stringify(generatedQuestion)
+      );
+      console.log('Question stored in sessionStorage');
+
+      // Navigate to the generated question solver
+      const targetUrl = `/problems/generated/${type}/solve`;
+      console.log('Navigating to:', targetUrl);
+      router.push(targetUrl);
     } catch (error) {
-      console.error('Failed to navigate to generated question:', error);
+      console.error('Failed to generate question:', error);
+      console.error('Error details:', error);
+      // Reopen modal on error
+      setIsTypeModalOpen(true);
+      // You could show an error toast here
+      alert(
+        `Failed to generate question: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   };
 

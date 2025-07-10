@@ -11,12 +11,10 @@ import {
   GeneratedSolverProps,
   GeneratedSolverWrapper
 } from '@/components/features/bases/base.solver.generated';
-import { useDuration } from '@/hooks/useDuration';
 import {
   SubmissionModalSolver,
   SubmissionResult
 } from '@/components/features/question/submission-modal.solver';
-import { Clock } from 'lucide-react';
 import { questionsApi } from '@/lib/api';
 
 export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
@@ -24,32 +22,45 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState<CfgSolveModel | null>(null);
+  const [questionContent, setQuestionContent] = useState<string>(''); // Store original question content
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] =
     useState<SubmissionResult | null>(null);
-  const { formattedDuration, getCurrentDuration } = useDuration();
 
-  // Fetch generated question on mount
+  // Load generated question from storage or generate new one
   useEffect(() => {
-    const fetchGeneratedQuestion = async () => {
+    const loadGeneratedQuestion = async () => {
       try {
-        const data = await questionsApi.generateQuestion(type);
+        // First try to get the stored generated question
+        const storedQuestion = sessionStorage.getItem('generatedQuestion');
+
+        let data;
+        if (storedQuestion) {
+          // Use the stored question and clear it
+          data = JSON.parse(storedQuestion);
+          sessionStorage.removeItem('generatedQuestion');
+        } else {
+          // Fallback: generate a new question if none stored
+          data = await questionsApi.generateQuestion(type);
+        }
+
         const q = new CfgSolveModel(data.id);
         q.populateQuestionFromString(data.content);
         setQuestion(q);
+        setQuestionContent(data.content); // Store the original content
         setCurrentState(q.getCurrentState());
       } catch (err) {
-        console.error('Error fetching generated question:', err);
-        setError('Failed to generate question');
+        console.error('Error loading generated question:', err);
+        setError('Failed to load question');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGeneratedQuestion();
+    loadGeneratedQuestion();
   }, [type]);
 
   // Update applicable rules when selection changes
@@ -140,22 +151,15 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     if (!question) return;
 
     try {
-      // Calculate duration
-      const duration = getCurrentDuration();
-
-      // Call the check endpoint instead of submitting an attempt
+      // Call the check endpoint with the new format
       const response = await questionService.checkGeneratedAnswer({
         type: question.questionType,
-        questionId: question.id.toString(),
-        duration,
-        solution: question.toJSON()
+        questionContent: questionContent,
+        answer: JSON.stringify(question.toJSON())
       });
 
       setSubmissionResult({
-        isCorrect: response.isCorrect,
-        points: response.points || 0,
-        streak: response.streak || 0,
-        timeTaken: duration
+        isCorrect: response.isCorrect
       });
     } catch (_err) {
       setError('Failed to check your answer. Please try again.');
@@ -172,12 +176,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && (
         <>
-          {/* Duration display */}
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
-          </div>
-
           {/* Display all available transformation rules */}
           <div className="mb-20">
             <h2 className="text-xl font-bold mb-4">Available Rules</h2>
