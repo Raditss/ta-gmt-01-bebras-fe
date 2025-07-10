@@ -12,34 +12,39 @@ import {
   getQuestionTypeByName
 } from '@/types/question-type.type';
 import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
-import { questionsApi } from '@/lib/api';
-import { QuestionResponse } from '@/utils/validations/question.validation';
 import { QuestionTypeResponse } from '@/utils/validations/question-type.validation';
 import { questionTypeApi } from '@/lib/api/question-type.api';
+import { useQuestionsWithSearch } from '@/hooks/useQuestionsWithSearch';
+import { Pagination } from '@/components/ui/pagination';
 
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false);
-  const [questions, setQuestions] = useState<QuestionResponse[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<
     Record<QuestionTypeEnum, boolean>
   >({} as Record<QuestionTypeEnum, boolean>);
   const router = useRouter();
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
 
+  // Use the new hook for questions with search and pagination
+  const {
+    questions,
+    isLoading,
+    error,
+    searchTerm,
+    setSearchTerm,
+    currentPage,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
+    goToPage,
+    refresh
+  } = useQuestionsWithSearch({ selectedCategories });
+
   useEffect(() => {
     setMounted(true);
-    const fetchData = async () => {
+    const fetchQuestionTypes = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-        // Fetch questions and question types in parallel
-        const [questionsResponse, typesResponse] = await Promise.all([
-          questionsApi.getQuestions(),
-          questionTypeApi.getQuestionTypes()
-        ]);
-        setQuestions(questionsResponse);
+        const typesResponse = await questionTypeApi.getQuestionTypes();
         // Initialize all categories as selected (by enum)
         const initialSelectedCategories = Object.fromEntries(
           typesResponse.map((type: QuestionTypeResponse) => [
@@ -51,15 +56,10 @@ export default function ProblemsPage() {
           initialSelectedCategories as Record<QuestionTypeEnum, boolean>
         );
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError(
-          error instanceof Error ? error.message : 'Failed to fetch data'
-        );
-      } finally {
-        setIsLoading(false);
+        console.error('Error fetching question types:', error);
       }
     };
-    fetchData();
+    fetchQuestionTypes();
   }, []);
 
   const handleCategoryChange = (questionTypeEnum: QuestionTypeEnum) => {
@@ -68,17 +68,6 @@ export default function ProblemsPage() {
       [questionTypeEnum]: !prev[questionTypeEnum]
     }));
   };
-
-  const filteredQuestions = questions.filter((question) => {
-    // If no categories are selected, show all questions
-    if (Object.values(selectedCategories).every((selected) => !selected)) {
-      return true;
-    }
-    // Show questions that match any selected category (by enum)
-    return selectedCategories[
-      getQuestionTypeByName(question.props.questionType.name)
-    ];
-  });
 
   // Show loading state during initial auth check
   if (!mounted) {
@@ -108,13 +97,15 @@ export default function ProblemsPage() {
       <main className="flex-1 container mx-auto py-8 px-4">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Sidebar */}
-          <div className="md:w-1/4 space-y-6">
+          <div className="md:w-1/4 md:sticky md:top-20 md:self-start space-y-6">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
               <Input
                 type="search"
                 placeholder="Search problems..."
                 className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
@@ -137,7 +128,14 @@ export default function ProblemsPage() {
 
           {/* Problem grid */}
           <div className="md:w-3/4">
-            <h1 className="text-2xl font-bold mb-6">Problems</h1>
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-2xl font-bold">Problems</h1>
+              {totalPages > 0 && (
+                <div className="text-sm text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </div>
+              )}
+            </div>
 
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
@@ -147,31 +145,54 @@ export default function ProblemsPage() {
               <div className="text-center text-red-500 py-8">
                 <p>{error}</p>
                 <Button
-                  onClick={() => window.location.reload()}
+                  onClick={refresh}
                   className="mt-4 bg-[#F8D15B] text-black hover:bg-[#E8C14B]"
                 >
                   Try Again
                 </Button>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredQuestions.map(
-                  (question) => (
-                    console.log(question),
-                    (
-                      <ProblemCard
-                        key={question.props.id}
-                        id={question.props.id.toString()}
-                        title={question.props.title}
-                        author={question.props.teacher.name}
-                        type={
-                          question.props.questionType.name as QuestionTypeEnum
-                        }
-                      />
-                    )
-                  )
+              <>
+                {questions.length === 0 ? (
+                  <div className="text-center text-gray-500 py-8">
+                    <p>No problems found matching your search criteria.</p>
+                    {searchTerm && (
+                      <Button
+                        onClick={() => setSearchTerm('')}
+                        variant="outline"
+                        className="mt-4"
+                      >
+                        Clear Search
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {questions.map((question) => (
+                        <ProblemCard
+                          key={question.props.id}
+                          id={question.props.id.toString()}
+                          title={question.props.title}
+                          author={question.props.teacher.name}
+                          type={
+                            question.props.questionType.name as QuestionTypeEnum
+                          }
+                        />
+                      ))}
+                    </div>
+
+                    {/* Pagination Component */}
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      hasNextPage={hasNextPage}
+                      hasPreviousPage={hasPreviousPage}
+                      onPageChange={goToPage}
+                    />
+                  </>
                 )}
-              </div>
+              </>
             )}
           </div>
         </div>
