@@ -70,14 +70,7 @@ export default function ProblemsPage() {
     }));
   };
 
-  // Show loading state during initial auth check
-  if (!mounted) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  // Don't hide the entire page during initial mount - just disable controls
 
   const handleGenerateQuestion = async (type: QuestionTypeEnum) => {
     console.log('handleGenerateQuestion called with type:', type);
@@ -135,12 +128,13 @@ export default function ProblemsPage() {
                 className="pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                disabled={!mounted}
               />
             </div>
 
             <QuestionTypeFilter
               selectedQuestionTypes={selectedCategories}
-              onQuestionTypeChange={handleCategoryChange}
+              onQuestionTypeChange={!mounted ? () => {} : handleCategoryChange}
             />
 
             {/* Generate Random Question Button - Outside filter box */}
@@ -149,6 +143,7 @@ export default function ProblemsPage() {
                 variant="default"
                 className="w-full bg-indigo-200 hover:bg-indigo-300 text-indigo-900 shadow-lg"
                 onClick={handleOpenGenerateModal}
+                disabled={!mounted}
               >
                 Generate Random Question
               </Button>
@@ -156,7 +151,7 @@ export default function ProblemsPage() {
           </div>
 
           {/* Problem grid */}
-          <div className="md:w-3/4">
+          <div className="md:w-3/4 min-h-[600px]">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold">Problems</h1>
               {totalPages > 0 && (
@@ -166,12 +161,12 @@ export default function ProblemsPage() {
               )}
             </div>
 
-            {isLoading ? (
-              <div className="flex justify-center items-center h-64">
+            {!mounted || isLoading ? (
+              <div className="flex justify-center items-center min-h-[500px]">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
               </div>
             ) : error ? (
-              <div className="text-center text-red-500 py-8">
+              <div className="text-center text-red-500 py-8 min-h-[500px] flex flex-col justify-center items-center">
                 <p>{error}</p>
                 <Button
                   onClick={refresh}

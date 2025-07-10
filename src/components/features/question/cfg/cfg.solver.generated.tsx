@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
 import {
   GeneratedSolverProps,
   GeneratedSolverWrapper
@@ -15,21 +14,13 @@ import {
   Shape,
   ShapeContainer
 } from '@/components/features/question/cfg/shared/shape';
-import { questionAttemptApi } from '@/lib/api/question-attempt.api';
-import {
-  SubmissionModalSolver,
-  SubmissionResult
-} from '@/components/features/question/submission-modal.solver';
+import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
 export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
-  const router = useRouter();
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] =
-    useState<SubmissionResult | null>(null);
 
   // Use the new hook for generated questions
   const { question, questionContent, loading, error, regenerate } =
@@ -39,10 +30,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   useEffect(() => {
     if (question) {
       const questionState = question.getCurrentState();
-      console.log(
-        '🔄 Syncing state from question model:',
-        questionState.map((obj, i) => `${i}: ${obj.type}`)
-      );
       setCurrentState(questionState);
     }
   }, [question]);
@@ -56,14 +43,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
 
       if (localStateStr !== questionStateStr) {
         console.log('⚠️ State mismatch detected! Syncing...');
-        console.log(
-          'Local:',
-          currentState.map((obj, i) => `${i}: ${obj.type}`)
-        );
-        console.log(
-          'Question:',
-          questionState.map((obj, i) => `${i}: ${obj.type}`)
-        );
         setCurrentState(questionState);
       }
     }
@@ -75,17 +54,6 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
       setApplicableRules([]);
       return;
     }
-
-    // Debug: Check if our local state matches the question model state
-    const questionState = question.getCurrentState();
-    console.log(
-      '🔄 Local currentState:',
-      currentState.map((obj, i) => `${i}: ${obj.type}`)
-    );
-    console.log(
-      '🎯 Question model state:',
-      questionState.map((obj, i) => `${i}: ${obj.type}`)
-    );
 
     // Use the question model state as the source of truth
     const actualCurrentState = question.getCurrentState();
@@ -108,52 +76,25 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
       .map((index) => actualCurrentState[index]?.type)
       .filter(Boolean);
 
-    console.log('🎯 Selected indices:', sortedIndices);
-    console.log('🎯 Selected types:', selectedTypes);
-
     if (selectedTypes.length === 0) {
       setApplicableRules([]);
       return;
     }
 
     const rules = question.getAvailableRules();
-    console.log(
-      '📏 Available rules:',
-      rules.map(
-        (rule) =>
-          `${rule.id}: ${rule.before.map((obj) => obj.type).join('+')} → ${rule.after.map((obj) => obj.type).join('+')}`
-      )
-    );
 
     const applicable = rules.filter((rule) => {
       // Check if the selected objects match the rule's "before" pattern exactly
       if (rule.before.length !== selectedTypes.length) return false;
 
       // Check if the types match the rule pattern exactly (in position order)
-      const matches = rule.before.every(
-        (obj, i) => obj.type === selectedTypes[i]
-      );
-      console.log(
-        `🔍 Rule ${rule.id} (${rule.before.map((obj) => obj.type).join('+')}) matches selected (${selectedTypes.join('+')})? ${matches}`
-      );
-      return matches;
+      return rule.before.every((obj, i) => obj.type === selectedTypes[i]);
     });
 
-    console.log(
-      '✅ Applicable rules:',
-      applicable.map((rule) => rule.id)
-    );
     setApplicableRules(applicable);
   }, [selectedIndices, currentState, question]);
 
   const handleObjectClick = (index: number) => {
-    console.log('🖱️ Clicked object at index:', index);
-    console.log('🔍 Object type at index:', currentState[index]?.type);
-    console.log(
-      '📋 Current state:',
-      currentState.map((obj, i) => `${i}: ${obj.type}`)
-    );
-
     if (selectedIndices.includes(index)) {
       setSelectedIndices(selectedIndices.filter((i) => i !== index));
     } else {
@@ -224,139 +165,144 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     setSelectedIndices([]);
   };
 
-  const handleConfirmSubmit = async () => {
-    if (!question) return;
-
-    try {
-      setIsSubmitting(true);
-
-      const response = await questionAttemptApi.checkGeneratedAnswer({
-        type,
-        questionContent,
-        answer: JSON.stringify(question.toJSON())
-      });
-
-      setSubmissionResult({
-        isCorrect: response.isCorrect
-      });
-    } catch (error) {
-      console.error('❌ Error submitting answer:', error);
-      alert('Failed to submit answer. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleCloseSubmissionModal = () => {
-    setSubmissionResult(null);
-    router.push('/problems');
-  };
-
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && (
-        <>
-          {/* Display all available transformation rules */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4">Available Rules</h3>
-            <RulesTableShared rules={question.getAvailableRules()} />
-          </div>
-
-          {/* State displays */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <StateDisplaySolve
-              title="Target State"
-              state={question.getQuestionSetup().endState}
-              containerClassName="bg-yellow-50"
-            />
-            <StateDisplaySolve
-              title="Current State"
-              state={currentState}
-              isInteractive={true}
-              selectedIndices={selectedIndices}
-              onObjectClick={handleObjectClick}
-              containerClassName="bg-blue-50 border-2 border-blue-200"
-            />
-          </div>
-
-          {/* Applicable Rules */}
-          {applicableRules.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">
-                Available Transformations
-              </h3>
-              <div className="flex flex-wrap gap-4">
-                {applicableRules.map((rule) => (
-                  <Button
-                    key={rule.id}
-                    onClick={() => handleApplyRule(rule)}
-                    className="p-4 bg-green-50 hover:bg-green-100 text-black border border-green-200 flex items-center gap-3"
-                    variant="outline"
-                  >
-                    <div className="flex items-center gap-2">
-                      {/* Before shapes */}
-                      <div className="flex gap-1">
-                        {rule.before.map((obj, idx) => (
-                          <ShapeContainer key={idx}>
-                            <Shape type={obj.type} size="sm" />
-                          </ShapeContainer>
-                        ))}
-                      </div>
-
-                      {/* Arrow */}
-                      <span className="text-lg font-semibold text-gray-600">
-                        →
-                      </span>
-
-                      {/* After shapes */}
-                      <div className="flex gap-1">
-                        {rule.after.map((obj, idx) => (
-                          <ShapeContainer key={idx}>
-                            <Shape type={obj.type} size="sm" />
-                          </ShapeContainer>
-                        ))}
-                      </div>
-                    </div>
-                  </Button>
-                ))}
+        <div className="max-w-full mx-auto p-6">
+          {/* Main Layout - Flexible Grid (No time progress bar for generated questions) */}
+          <div className="grid grid-cols-4 gap-8">
+            {/* Rule Table - Left side (3 columns wide) */}
+            <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
+              <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+                Rule Table
+              </h2>
+              {/* Remove height constraints to let table flow naturally */}
+              <div className="overflow-visible">
+                <RulesTableShared rules={question.getAvailableRules()} />
               </div>
             </div>
-          )}
 
-          {/* Action buttons */}
-          <div className="flex gap-4 justify-center mt-8">
-            <Button onClick={handleUndo} variant="outline">
+            {/* Right side - Target and Current states (sticky container) */}
+            <div className="space-y-4">
+              {/* Sticky container for both target and current */}
+              <div className="sticky top-[15vh]">
+                {/* Target State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border mb-8">
+                  <StateDisplaySolve
+                    title="Target"
+                    state={question.getQuestionSetup().endState}
+                    containerClassName="bg-transparent border-none p-0"
+                  />
+                </div>
+
+                {/* Current State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border">
+                  <StateDisplaySolve
+                    title="Current"
+                    state={currentState}
+                    isInteractive={true}
+                    selectedIndices={selectedIndices}
+                    onObjectClick={handleObjectClick}
+                    containerClassName="bg-transparent border-none p-0"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Applicable Rules Section - Fixed height */}
+          <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
+            <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+              Applicable Rules
+            </h2>
+
+            <div className="flex items-center justify-center min-h-24">
+              {applicableRules.length > 0 ? (
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {applicableRules.map((rule) => (
+                    <Button
+                      key={rule.id}
+                      onClick={() => handleApplyRule(rule)}
+                      className="p-4 bg-brand-green/10 hover:bg-brand-green/20 text-foreground border border-brand-green/30 flex items-center gap-3 transition-colors"
+                      variant="outline"
+                    >
+                      <div className="flex items-center gap-2">
+                        {/* Before shapes */}
+                        <div className="flex gap-1">
+                          {rule.before.map((obj, idx) => (
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
+                          ))}
+                        </div>
+
+                        {/* Arrow */}
+                        <span className="text-lg font-semibold text-muted-foreground">
+                          →
+                        </span>
+
+                        {/* After shapes */}
+                        <div className="flex gap-1">
+                          {rule.after.map((obj, idx) => (
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
+                          ))}
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  Select objects to see applicable rules
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={handleUndo}
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
+            >
               Undo
             </Button>
-            <Button onClick={handleRedo} variant="outline">
+            <Button
+              onClick={handleRedo}
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
+            >
               Redo
             </Button>
-            <Button onClick={handleReset} variant="outline">
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
+            >
               Reset
             </Button>
-            <Button onClick={regenerate} variant="outline">
+            <Button
+              onClick={regenerate}
+              variant="outline"
+              className="bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue border-brand-blue/30 px-4 py-2 h-10"
+            >
               New Question
             </Button>
-            <Button
-              onClick={handleConfirmSubmit}
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Answer'}
-            </Button>
+            <GeneratedSubmitSection
+              question={question}
+              answerArr={currentState}
+              type={type}
+              questionContent={questionContent}
+              onRegenerate={regenerate}
+              submitButtonClassName="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
+              renderButtonOnly={true}
+            />
           </div>
-        </>
+        </div>
       )}
-
-      {/* Submission result modal */}
-      <SubmissionModalSolver
-        isOpen={isSubmitting || !!submissionResult}
-        isConfirming={isSubmitting && !submissionResult}
-        result={submissionResult}
-        onConfirm={handleConfirmSubmit}
-        onCancel={() => setIsSubmitting(false)}
-        onClose={handleCloseSubmissionModal}
-      />
     </GeneratedSolverWrapper>
   );
 }

@@ -12,6 +12,7 @@ interface GetQuestionsParams {
   skip?: number;
   take?: number;
   search?: string;
+  types?: QuestionTypeEnum[];
 }
 
 interface QuestionsApiResponse {
@@ -29,6 +30,7 @@ export const questionsApi = {
     params?: GetQuestionsParams
   ): Promise<QuestionsApiResponse> {
     const searchParams = new URLSearchParams();
+    const whereClause: Record<string, unknown> = {};
 
     if (params?.skip !== undefined) {
       searchParams.append('skip', params.skip.toString());
@@ -38,6 +40,20 @@ export const questionsApi = {
     }
     if (params?.search && params.search.trim()) {
       searchParams.append('search', params.search.trim());
+    }
+
+    // Add question type filtering to where clause
+    if (params?.types && params.types.length > 0) {
+      whereClause.questionType = {
+        name: {
+          in: params.types
+        }
+      };
+    }
+
+    // Add where clause if it has any conditions
+    if (Object.keys(whereClause).length > 0) {
+      searchParams.append('where', JSON.stringify(whereClause));
     }
 
     const queryString = searchParams.toString();
