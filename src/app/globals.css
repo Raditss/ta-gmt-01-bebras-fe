@@ -67,10 +67,26 @@
     --status-hold-bg: 48 96% 96%;
 
     /* Gradient backgrounds */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--brand-purple)) 0%, hsl(var(--brand-blue)) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(var(--brand-yellow)) 0%, hsl(var(--brand-orange)) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(var(--brand-green)) 0%, hsl(var(--brand-blue)) 100%);
-    --gradient-warning: linear-gradient(135deg, hsl(var(--brand-orange)) 0%, hsl(var(--brand-red)) 100%);
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--brand-purple)) 0%,
+      hsl(var(--brand-blue)) 100%
+    );
+    --gradient-secondary: linear-gradient(
+      135deg,
+      hsl(var(--brand-yellow)) 0%,
+      hsl(var(--brand-orange)) 100%
+    );
+    --gradient-success: linear-gradient(
+      135deg,
+      hsl(var(--brand-green)) 0%,
+      hsl(var(--brand-blue)) 100%
+    );
+    --gradient-warning: linear-gradient(
+      135deg,
+      hsl(var(--brand-orange)) 0%,
+      hsl(var(--brand-red)) 100%
+    );
 
     /* Sidebar colors */
     --sidebar-background: 0 0% 98%;
@@ -232,7 +248,9 @@
 
   /* Hover effects */
   .hover-lift {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition:
+      transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out;
   }
 
   .hover-lift:hover {
@@ -291,7 +309,11 @@
   }
 
   .card-gradient {
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--muted)) 100%
+    );
   }
 
   /* Button variants */
@@ -466,16 +488,47 @@
   color: hsl(var(--foreground));
 }
 
-
 /* ShapeShared clips for CFG */
 .clip-triangle {
   clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 
 .clip-star {
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
 }
 
 .clip-hexagon {
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.clip-pentagon {
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+.clip-octagon {
+  clip-path: polygon(
+    30% 0%,
+    70% 0%,
+    100% 30%,
+    100% 70%,
+    70% 100%,
+    30% 100%,
+    0% 70%,
+    0% 30%
+  );
+}
+
+.clip-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 }

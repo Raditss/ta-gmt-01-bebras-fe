@@ -1,56 +1,73 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
-import { Rule, State } from '@/models/cfg/cfg.create.model';
-import { StateDrawerSolve } from '@/components/features/question/cfg/solve/state-drawer.solve';
-import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
-import { questionService } from '@/lib/services/question.service';
 import {
   GeneratedSolverProps,
   GeneratedSolverWrapper
 } from '@/components/features/bases/base.solver.generated';
-import { useDuration } from '@/hooks/useDuration';
+import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
+import { Rule, State } from '@/types/cfg.type';
+import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
+import { StateDisplaySolve } from '@/components/features/question/cfg/solve/state-display.solve';
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
+import { questionAttemptApi } from '@/lib/api/question-attempt.api';
 import {
   SubmissionModalSolver,
   SubmissionResult
 } from '@/components/features/question/submission-modal.solver';
-import { Clock } from 'lucide-react';
-import { questionsApi } from '@/lib/api';
+import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
 export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [question, setQuestion] = useState<CfgSolveModel | null>(null);
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] =
     useState<SubmissionResult | null>(null);
-  const { formattedDuration, getCurrentDuration } = useDuration();
 
-  // Fetch generated question on mount
+  // Use the new hook for generated questions
+  const { question, questionContent, loading, error, regenerate } =
+    useGeneratedQuestion<CfgSolveModel>(type, CfgSolveModel);
+
+  // Initialize current state when question loads and keep it synced
   useEffect(() => {
-    const fetchGeneratedQuestion = async () => {
-      try {
-        const data = await questionsApi.generateQuestion(type);
-        const q = new CfgSolveModel(data.id);
-        q.populateQuestionFromString(data.content);
-        setQuestion(q);
-        setCurrentState(q.getCurrentState());
-      } catch (err) {
-        console.error('Error fetching generated question:', err);
-        setError('Failed to generate question');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (question) {
+      const questionState = question.getCurrentState();
+      console.log(
+        '🔄 Syncing state from question model:',
+        questionState.map((obj, i) => `${i}: ${obj.type}`)
+      );
+      setCurrentState(questionState);
+    }
+  }, [question]);
 
-    fetchGeneratedQuestion();
-  }, [type]);
+  // Sync local state with question model state periodically (in case they get out of sync)
+  useEffect(() => {
+    if (question) {
+      const questionState = question.getCurrentState();
+      const localStateStr = JSON.stringify(currentState);
+      const questionStateStr = JSON.stringify(questionState);
+
+      if (localStateStr !== questionStateStr) {
+        console.log('⚠️ State mismatch detected! Syncing...');
+        console.log(
+          'Local:',
+          currentState.map((obj, i) => `${i}: ${obj.type}`)
+        );
+        console.log(
+          'Question:',
+          questionState.map((obj, i) => `${i}: ${obj.type}`)
+        );
+        setCurrentState(questionState);
+      }
+    }
+  }, [selectedIndices, question, currentState]);
 
   // Update applicable rules when selection changes
   useEffect(() => {
@@ -59,22 +76,84 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
       return;
     }
 
-    const selectedTypes = selectedIndices.map(
-      (index) => currentState[index].type
+    // Debug: Check if our local state matches the question model state
+    const questionState = question.getCurrentState();
+    console.log(
+      '🔄 Local currentState:',
+      currentState.map((obj, i) => `${i}: ${obj.type}`)
     );
-    const rules = question.getAvailableRules();
+    console.log(
+      '🎯 Question model state:',
+      questionState.map((obj, i) => `${i}: ${obj.type}`)
+    );
 
-    // Find rules where the "before" part matches selected objects
-    const matchingRules = rules.filter((rule) => {
+    // Use the question model state as the source of truth
+    const actualCurrentState = question.getCurrentState();
+
+    // Sort selected indices to get them in positional order (not selection order)
+    const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
+
+    // Check if selected objects are consecutive (if more than one selected)
+    if (sortedIndices.length > 1) {
+      for (let i = 1; i < sortedIndices.length; i++) {
+        if (sortedIndices[i] !== sortedIndices[i - 1] + 1) {
+          setApplicableRules([]); // Not consecutive, no rules applicable
+          return;
+        }
+      }
+    }
+
+    // Get selected types from the question model state (source of truth)
+    const selectedTypes = sortedIndices
+      .map((index) => actualCurrentState[index]?.type)
+      .filter(Boolean);
+
+    console.log('🎯 Selected indices:', sortedIndices);
+    console.log('🎯 Selected types:', selectedTypes);
+
+    if (selectedTypes.length === 0) {
+      setApplicableRules([]);
+      return;
+    }
+
+    const rules = question.getAvailableRules();
+    console.log(
+      '📏 Available rules:',
+      rules.map(
+        (rule) =>
+          `${rule.id}: ${rule.before.map((obj) => obj.type).join('+')} → ${rule.after.map((obj) => obj.type).join('+')}`
+      )
+    );
+
+    const applicable = rules.filter((rule) => {
+      // Check if the selected objects match the rule's "before" pattern exactly
       if (rule.before.length !== selectedTypes.length) return false;
-      return rule.before.every((obj, i) => obj.type === selectedTypes[i]);
+
+      // Check if the types match the rule pattern exactly (in position order)
+      const matches = rule.before.every(
+        (obj, i) => obj.type === selectedTypes[i]
+      );
+      console.log(
+        `🔍 Rule ${rule.id} (${rule.before.map((obj) => obj.type).join('+')}) matches selected (${selectedTypes.join('+')})? ${matches}`
+      );
+      return matches;
     });
 
-    setApplicableRules(matchingRules);
+    console.log(
+      '✅ Applicable rules:',
+      applicable.map((rule) => rule.id)
+    );
+    setApplicableRules(applicable);
   }, [selectedIndices, currentState, question]);
 
-  // Handle clicking on objects in the current state
   const handleObjectClick = (index: number) => {
+    console.log('🖱️ Clicked object at index:', index);
+    console.log('🔍 Object type at index:', currentState[index]?.type);
+    console.log(
+      '📋 Current state:',
+      currentState.map((obj, i) => `${i}: ${obj.type}`)
+    );
+
     if (selectedIndices.includes(index)) {
       setSelectedIndices(selectedIndices.filter((i) => i !== index));
     } else {
@@ -95,75 +174,80 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     }
   };
 
-  // Apply selected rule to current state
   const handleApplyRule = (rule: Rule) => {
     if (!question || selectedIndices.length === 0) return;
 
+    // Use the lowest index as the starting position for rule application
+    const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
+    const startIndex = sortedIndices[0];
+
     const success = question.applyRule(
       rule.id,
-      selectedIndices[0],
+      startIndex,
       selectedIndices.length
     );
     if (success) {
-      setCurrentState(question.getCurrentState());
+      const newState = question.getCurrentState();
+      setCurrentState(newState);
       setSelectedIndices([]);
     }
   };
 
   const handleUndo = () => {
-    if (question?.undo()) {
-      setCurrentState(question.getCurrentState());
+    if (!question) return;
+
+    const success = question.undo();
+    if (success) {
+      const newState = question.getCurrentState();
+      setCurrentState(newState);
       setSelectedIndices([]);
     }
   };
 
   const handleRedo = () => {
-    if (question?.redo()) {
-      setCurrentState(question.getCurrentState());
+    if (!question) return;
+
+    const success = question.redo();
+    if (success) {
+      const newState = question.getCurrentState();
+      setCurrentState(newState);
       setSelectedIndices([]);
     }
   };
 
   const handleReset = () => {
     if (!question) return;
-    question.resetToInitialState();
-    setCurrentState(question.getCurrentState());
-    setSelectedIndices([]);
-  };
 
-  const handleSubmit = async () => {
-    if (!question) return;
-    setIsSubmitting(true);
+    question.resetToInitialState();
+    const newState = question.getCurrentState();
+    setCurrentState(newState);
+    setSelectedIndices([]);
   };
 
   const handleConfirmSubmit = async () => {
     if (!question) return;
 
     try {
-      // Calculate duration
-      const duration = getCurrentDuration();
+      setIsSubmitting(true);
 
-      // Call the check endpoint instead of submitting an attempt
-      const response = await questionService.checkGeneratedAnswer({
-        type: question.questionType,
-        questionId: question.id.toString(),
-        duration,
-        solution: question.toJSON()
+      const response = await questionAttemptApi.checkGeneratedAnswer({
+        type,
+        questionContent,
+        answer: JSON.stringify(question.toJSON())
       });
 
       setSubmissionResult({
-        isCorrect: response.isCorrect,
-        points: response.points || 0,
-        streak: response.streak || 0,
-        timeTaken: duration
+        isCorrect: response.isCorrect
       });
-    } catch (_err) {
-      setError('Failed to check your answer. Please try again.');
+    } catch (error) {
+      console.error('❌ Error submitting answer:', error);
+      alert('Failed to submit answer. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleModalClose = () => {
-    setIsSubmitting(false);
+  const handleCloseSubmissionModal = () => {
     setSubmissionResult(null);
     router.push('/problems');
   };
@@ -172,43 +256,107 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && (
         <>
-          {/* Duration display */}
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
-          </div>
-
           {/* Display all available transformation rules */}
-          <div className="mb-20">
-            <h2 className="text-xl font-bold mb-4">Available Rules</h2>
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Available Rules</h3>
             <RulesTableShared rules={question.getAvailableRules()} />
           </div>
 
-          {/* Interactive state manipulation drawer */}
-          <StateDrawerSolve
-            targetState={question.getQuestionSetup().endState}
-            currentState={currentState}
-            selectedIndices={selectedIndices}
-            applicableRules={applicableRules}
-            onObjectClick={handleObjectClick}
-            onApplyRule={handleApplyRule}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            onReset={handleReset}
-            onSubmit={handleSubmit}
-          />
+          {/* State displays */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <StateDisplaySolve
+              title="Target State"
+              state={question.getQuestionSetup().endState}
+              containerClassName="bg-yellow-50"
+            />
+            <StateDisplaySolve
+              title="Current State"
+              state={currentState}
+              isInteractive={true}
+              selectedIndices={selectedIndices}
+              onObjectClick={handleObjectClick}
+              containerClassName="bg-blue-50 border-2 border-blue-200"
+            />
+          </div>
 
-          {/* Submission Modal */}
-          <SubmissionModalSolver
-            isOpen={isSubmitting || !!submissionResult}
-            isConfirming={isSubmitting && !submissionResult}
-            result={submissionResult}
-            onConfirm={handleConfirmSubmit}
-            onCancel={() => setIsSubmitting(false)}
-            onClose={handleModalClose}
-          />
+          {/* Applicable Rules */}
+          {applicableRules.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4">
+                Available Transformations
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {applicableRules.map((rule) => (
+                  <Button
+                    key={rule.id}
+                    onClick={() => handleApplyRule(rule)}
+                    className="p-4 bg-green-50 hover:bg-green-100 text-black border border-green-200 flex items-center gap-3"
+                    variant="outline"
+                  >
+                    <div className="flex items-center gap-2">
+                      {/* Before shapes */}
+                      <div className="flex gap-1">
+                        {rule.before.map((obj, idx) => (
+                          <ShapeContainer key={idx}>
+                            <Shape type={obj.type} size="sm" />
+                          </ShapeContainer>
+                        ))}
+                      </div>
+
+                      {/* Arrow */}
+                      <span className="text-lg font-semibold text-gray-600">
+                        →
+                      </span>
+
+                      {/* After shapes */}
+                      <div className="flex gap-1">
+                        {rule.after.map((obj, idx) => (
+                          <ShapeContainer key={idx}>
+                            <Shape type={obj.type} size="sm" />
+                          </ShapeContainer>
+                        ))}
+                      </div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="flex gap-4 justify-center mt-8">
+            <Button onClick={handleUndo} variant="outline">
+              Undo
+            </Button>
+            <Button onClick={handleRedo} variant="outline">
+              Redo
+            </Button>
+            <Button onClick={handleReset} variant="outline">
+              Reset
+            </Button>
+            <Button onClick={regenerate} variant="outline">
+              New Question
+            </Button>
+            <Button
+              onClick={handleConfirmSubmit}
+              disabled={isSubmitting}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+            </Button>
+          </div>
         </>
       )}
+
+      {/* Submission result modal */}
+      <SubmissionModalSolver
+        isOpen={isSubmitting || !!submissionResult}
+        isConfirming={isSubmitting && !submissionResult}
+        result={submissionResult}
+        onConfirm={handleConfirmSubmit}
+        onCancel={() => setIsSubmitting(false)}
+        onClose={handleCloseSubmissionModal}
+      />
     </GeneratedSolverWrapper>
   );
 }
