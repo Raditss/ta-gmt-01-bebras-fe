@@ -37,9 +37,37 @@ export function Shape({
     lg: 'w-12 h-12'
   };
 
+  // Define shape-specific colors for better visibility and distinction
+  const getShapeColor = (shapeType: string) => {
+    switch (shapeType) {
+      case 'circle':
+        return 'bg-blue-500 border-blue-600';
+      case 'triangle':
+        return 'bg-green-500 border-green-600';
+      case 'square':
+        return 'bg-purple-500 border-purple-600';
+      case 'star':
+        return 'bg-yellow-500 border-yellow-600';
+      case 'hexagon':
+        return 'bg-orange-500 border-orange-600';
+      case 'pentagon':
+        return 'bg-pink-500 border-pink-600';
+      case 'octagon':
+        return 'bg-indigo-500 border-indigo-600';
+      case 'diamond':
+        return 'bg-red-500 border-red-600';
+      default:
+        return 'bg-gray-600 border-gray-700';
+    }
+  };
+
+  const shapeColorClasses = getShapeColor(type);
+
   const baseClasses = `
     ${sizeClasses[size]}
-    bg-gray-300
+    ${shapeColorClasses}
+    border-2
+    shadow-sm
     ${type === 'circle' ? 'rounded-full' : ''}
     ${type === 'triangle' ? 'clip-triangle' : ''}
     ${type === 'star' ? 'clip-star' : ''}
@@ -47,8 +75,8 @@ export function Shape({
     ${type === 'pentagon' ? 'clip-pentagon' : ''}
     ${type === 'octagon' ? 'clip-octagon' : ''}
     ${type === 'diamond' ? 'clip-diamond' : ''}
-    ${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''}
-    ${selected ? 'ring-2 ring-blue-500' : ''}
+    ${interactive ? 'cursor-pointer hover:scale-110 hover:shadow-md transition-all duration-200' : ''}
+    ${selected ? 'ring-2 ring-brand-purple ring-offset-2 scale-110' : ''}
     ${className}
   `
     .trim()

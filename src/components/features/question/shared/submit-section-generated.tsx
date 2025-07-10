@@ -7,14 +7,20 @@ import { SubmissionModalSolver } from '@/components/features/question/submission
 import { questionAttemptApi } from '@/lib/api/question-attempt.api';
 import { QuestionTypeEnum } from '@/types/question-type.type';
 
+interface QuestionModel {
+  toJSON: () => unknown;
+}
 
 interface GeneratedSubmitSectionProps {
-  question: any; // The question model instance
-  answerArr: any[]; // Current answer array
+  question: QuestionModel; // The question model instance
+  answerArr: unknown[]; // Current answer array
   type: string; // Question type for generation
-  questionContent: any; // Question content for checking
+  questionContent: string; // Question content for checking
   onRegenerate: () => void; // Function to regenerate question
   isDisabled?: boolean; // Whether submit should be disabled
+  regenerateButtonClassName?: string; // Custom styling for regenerate button
+  submitButtonClassName?: string; // Custom styling for submit button
+  renderButtonOnly?: boolean; // Whether to render only the submit button without container
 }
 
 export function GeneratedSubmitSection({
@@ -23,11 +29,16 @@ export function GeneratedSubmitSection({
   type,
   questionContent,
   onRegenerate,
-  isDisabled = false
+  isDisabled = false,
+  regenerateButtonClassName,
+  submitButtonClassName,
+  renderButtonOnly = false
 }: GeneratedSubmitSectionProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] = useState<{
+    isCorrect: boolean;
+  } | null>(null);
 
   // Handle submit button click
   const handleSubmit = useCallback(async () => {
@@ -67,22 +78,35 @@ export function GeneratedSubmitSection({
   return (
     <>
       {/* Action Buttons - Side by side for generated mode */}
-      <div className="flex gap-4 mt-6">
-        <Button
-          onClick={onRegenerate}
-          variant="outline"
-          className="flex-1 py-3 text-base"
-        >
-          New Question
-        </Button>
+      {renderButtonOnly ? (
         <Button
           onClick={handleSubmit}
           disabled={isDisabled || answerArr.length === 0 || isSubmitting}
-          className="flex-1 py-3 text-base bg-green-500 hover:bg-green-600 text-white"
+          className={
+            submitButtonClassName ||
+            'bg-green-500 hover:bg-green-600 text-white'
+          }
         >
           {isSubmitting ? 'Submitting...' : 'Submit Answer'}
         </Button>
-      </div>
+      ) : (
+        <div className="flex gap-4 mt-6">
+          <Button
+            onClick={onRegenerate}
+            variant="outline"
+            className={`flex-1 py-3 text-base ${regenerateButtonClassName || ''}`}
+          >
+            New Question
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={isDisabled || answerArr.length === 0 || isSubmitting}
+            className={`flex-1 py-3 text-base ${submitButtonClassName || 'bg-green-500 hover:bg-green-600 text-white'}`}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+          </Button>
+        </div>
+      )}
 
       {/* Submission Modal */}
       <SubmissionModalSolver
@@ -95,4 +119,4 @@ export function GeneratedSubmitSection({
       />
     </>
   );
-} 
+}

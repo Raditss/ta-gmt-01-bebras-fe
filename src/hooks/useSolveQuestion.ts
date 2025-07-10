@@ -14,6 +14,11 @@ export const useSolveQuestion = <
   solveQuestionModel: SolveQuestionConstructionModel<SolveQuestionModel>
 ) => {
   const [question, setQuestion] = useState<SolveQuestionModel | null>(null);
+  const [questionMetadata, setQuestionMetadata] = useState<{
+    estimatedTime: number;
+    title: string;
+    points: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const startTimeRef = useRef<Dayjs>(dayjs());
@@ -34,6 +39,13 @@ export const useSolveQuestion = <
         const q = new solveQuestionModel(questionData.id);
 
         q.populateQuestionFromString(questionData.content);
+
+        // Store question metadata
+        setQuestionMetadata({
+          estimatedTime: questionData.estimatedTime || 300, // fallback to 5 minutes
+          title: questionData.title || 'Question',
+          points: questionData.points || 100
+        });
 
         const latestAttempt =
           await questionService.getLatestAttempt(questionId);
@@ -115,6 +127,7 @@ export const useSolveQuestion = <
 
   return {
     question,
+    questionMetadata,
     loading,
     error,
     currentDuration: () => {

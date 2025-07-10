@@ -104,21 +104,23 @@ export function QuestionTypeModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Choose Question Type</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-semibold">
+            Choose Question Type
+          </DialogTitle>
+          <DialogDescription className="text-base">
             Select the type of question you want to generate and solve
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-3 py-4 max-h-[400px] overflow-y-auto">
+        <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
             </div>
           ) : error ? (
             <div className="text-center text-red-500 py-8">
-              <p>{error}</p>
+              <p className="mb-4">{error}</p>
               <Button
                 onClick={fetchQuestionTypes}
                 variant="outline"
@@ -132,11 +134,11 @@ export function QuestionTypeModal({
               <Button
                 key={qt.type}
                 variant="outline"
-                className={`w-full h-auto p-4 flex flex-col items-start space-y-2 text-left border-2 transition-colors ${qt.color}`}
+                className={`w-full h-auto p-6 flex flex-col items-start space-y-3 text-left border-2 transition-colors ${qt.color}`}
                 onClick={() => handleSelectType(qt.type)}
               >
-                <span className="font-semibold text-lg">{qt.title}</span>
-                <span className="text-sm text-gray-600 leading-relaxed">
+                <span className="font-semibold text-lg w-full">{qt.title}</span>
+                <span className="text-sm text-gray-600 leading-relaxed w-full whitespace-normal break-words">
                   {qt.description}
                 </span>
               </Button>
