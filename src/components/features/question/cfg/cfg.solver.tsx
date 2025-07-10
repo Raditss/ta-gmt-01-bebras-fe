@@ -1,14 +1,19 @@
 'use client';
 
 import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
-import { StateDrawerSolve } from '@/components/features/question/cfg/solve/state-drawer.solve';
+import { StateDisplaySolve } from '@/components/features/question/cfg/solve/state-display.solve';
+import { TimeProgressBar } from '@/components/features/question/cfg/solve/time-progress-bar';
 import { useDuration } from '@/hooks/useDuration';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 import { Rule, State } from '@/types/cfg.type';
 import { questionService } from '@/lib/services/question.service';
-import { Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
 
 import { BaseSolverProps, SolverWrapper } from '../../bases/base.solver';
 import { SubmissionModalSolver } from '../submission-modal.solver';
@@ -30,7 +35,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
   } | null>(null);
 
   // Setup hooks for question functionality
-  const { question, loading, error, currentDuration } =
+  const { question, questionMetadata, loading, error, currentDuration } =
     useSolveQuestion<CfgSolveModel>(questionId, CfgSolveModel);
   const { formattedDuration, getCurrentDuration } =
     useDuration(currentDuration());
@@ -192,33 +197,138 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
 
   return (
     <SolverWrapper loading={loading} error={error}>
-      {question && (
-        <>
-          {/* Duration display */}
-          <div className="fixed top-20 right-4 bg-white rounded-lg shadow-md p-3 flex items-center space-x-2">
-            <Clock className="w-5 h-5" />
-            <span className="font-mono">{formattedDuration}</span>
-          </div>
-
-          {/* Display all available transformation rules */}
-          <div className="mb-20">
-            <h2 className="text-xl font-bold mb-4">Available Rules</h2>
-            <RulesTableShared rules={question.getAvailableRules()} />
-          </div>
-
-          {/* Interactive state manipulation drawer */}
-          <StateDrawerSolve
-            targetState={question.getQuestionSetup().endState}
-            currentState={currentState}
-            selectedIndices={selectedIndices}
-            applicableRules={applicableRules}
-            onObjectClick={handleObjectClick}
-            onApplyRule={handleApplyRule}
-            onUndo={handleUndo}
-            onRedo={handleRedo}
-            onReset={handleReset}
-            onSubmit={handleSubmit}
+      {question && questionMetadata && (
+        <div className="max-w-full mx-auto p-6">
+          {/* Time Progress Bar */}
+          <TimeProgressBar
+            currentDuration={currentDuration()}
+            estimatedTime={questionMetadata.estimatedTime}
+            formattedDuration={formattedDuration}
           />
+
+          {/* Main Layout - Flexible Grid */}
+          <div className="grid grid-cols-4 gap-8">
+            {/* Rule Table - Left side (3 columns wide) */}
+            <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
+              <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+                Rule Table
+              </h2>
+              {/* Remove height constraints to let table flow naturally */}
+              <div className="overflow-visible">
+                <RulesTableShared rules={question.getAvailableRules()} />
+              </div>
+            </div>
+
+            {/* Right side - Target and Current states (sticky container) */}
+            <div className="space-y-4">
+              {/* Sticky container for both target and current */}
+              <div className="sticky top-[15vh]">
+                {/* Target State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border mb-8">
+                  <StateDisplaySolve
+                    title="Target"
+                    state={question.getQuestionSetup().endState}
+                    containerClassName="bg-transparent border-none p-0"
+                  />
+                </div>
+
+                {/* Current State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border">
+                  <StateDisplaySolve
+                    title="Current"
+                    state={currentState}
+                    isInteractive={true}
+                    selectedIndices={selectedIndices}
+                    onObjectClick={handleObjectClick}
+                    containerClassName="bg-transparent border-none p-0"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Applicable Rules Section - Fixed height */}
+          <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
+            <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+              Applicable Rules
+            </h2>
+
+            <div className="flex items-center justify-center min-h-24">
+              {applicableRules.length > 0 ? (
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {applicableRules.map((rule) => (
+                    <Button
+                      key={rule.id}
+                      onClick={() => handleApplyRule(rule)}
+                      className="p-4 bg-brand-green/10 hover:bg-brand-green/20 text-foreground border border-brand-green/30 flex items-center gap-3 transition-colors"
+                      variant="outline"
+                    >
+                      <div className="flex items-center gap-2">
+                        {/* Before shapes */}
+                        <div className="flex gap-1">
+                          {rule.before.map((obj, idx) => (
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
+                          ))}
+                        </div>
+
+                        {/* Arrow */}
+                        <span className="text-lg font-semibold text-muted-foreground">
+                          →
+                        </span>
+
+                        {/* After shapes */}
+                        <div className="flex gap-1">
+                          {rule.after.map((obj, idx) => (
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
+                          ))}
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  Select objects to see applicable rules
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={handleUndo}
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20"
+            >
+              Undo
+            </Button>
+            <Button
+              onClick={handleRedo}
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20"
+            >
+              Redo
+            </Button>
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30"
+            >
+              Reset
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="bg-brand-green hover:bg-brand-green-dark text-white shadow-sm"
+            >
+              {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+            </Button>
+          </div>
 
           {/* Submission Modal */}
           <SubmissionModalSolver
@@ -229,7 +339,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
             onCancel={() => setIsSubmitting(false)}
             onClose={handleModalClose}
           />
-        </>
+        </div>
       )}
     </SolverWrapper>
   );

@@ -109,9 +109,11 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
 
     if (finalState.length !== this.questionSetup.endState.length) return false;
 
-    return finalState.every(
-      (state, index) => state.type === this.questionSetup.endState[index].type
-    );
+    // Sort both states by type before comparing (order shouldn't matter in CFG)
+    const finalTypes = finalState.map((s) => s.type).sort();
+    const expectedTypes = this.questionSetup.endState.map((s) => s.type).sort();
+
+    return finalTypes.every((type, index) => type === expectedTypes[index]);
   }
 
   resetToInitialState(): void {
