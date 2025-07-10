@@ -17,7 +17,7 @@ export function SolverWrapper({
 }) {
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg">Loading question...</p>
         </div>
@@ -27,7 +27,7 @@ export function SolverWrapper({
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
+      <div className="flex flex-col min-h-screen bg-gray-50">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg text-red-600">{error}</p>
         </div>
@@ -36,8 +36,8 @@ export function SolverWrapper({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-yellow-400">
-      <main className="flex-1 container mx-auto px-4 py-6">{children}</main>
+    <div className="flex flex-col min-h-screen">
+      {children}
     </div>
   );
 }
