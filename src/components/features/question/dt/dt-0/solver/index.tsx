@@ -1,13 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { questionService } from '@/lib/services/question.service';
-import { Clock } from 'lucide-react';
 import { DecisionTree } from '@/components/features/question/dt/dt-0/tree';
 import MonsterCharacter from '@/components/features/question/dt/monster-character';
 import { BaseSolverProps, SolverWrapper } from '../../../../bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
+import { SubmitSection } from '@/components/features/question/shared/submit-section';
+import { TimeProgressBar } from '@/components/ui/time-progress-bar';
 import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
 import {
   monsterAssetUrl,
@@ -23,7 +22,6 @@ import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-
 
 export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
   const { user } = useAuthStore();
-  const router = useRouter();
   const { question, loading, error, currentDuration } =
     useSolveQuestion<DecisionTreeSolveModel>(
       questionId,
@@ -92,28 +90,13 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
     setHovered(null);
   }, []);
 
-  const handleSubmit = useCallback(async () => {
-    if (!question) return;
-
-    question.setAttemptData(getCurrentDuration(), false);
-    const { ...attemptData } = question.getAttemptData();
-    await questionService.submitAttempt({
-      ...attemptData,
-      answer: JSON.parse(attemptData.answer)
-    });
-
-    router.push(`/problems/${questionId}`);
-  }, [question, getCurrentDuration]);
-
   const handleSave = useCallback(async () => {
     if (!question || !user?.id) return;
 
     question.setAttemptData(getCurrentDuration(), true);
     const { ...attemptData } = question.getAttemptData();
-    await questionService.saveDraft({
-      ...attemptData,
-      answer: JSON.parse(attemptData.answer)
-    });
+    // TODO: Implement save draft functionality
+    console.log('Saving draft:', attemptData);
   }, [question, user?.id, getCurrentDuration]);
 
   const handleReset = useCallback(() => {
@@ -126,32 +109,36 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
 
   return (
     <SolverWrapper loading={loading} error={error}>
-      <div className="container mx-auto px-4">
-        {question && (
-          <>
-            <div className="flex items-center justify-between mb-2 float-right">
-              <div className="flex items-center space-x-4 text-gray-600">
-                <Clock className="w-5 h-5" />
-                <span>{formattedDuration}</span>
-              </div>
-            </div>
+      {question && (
+        <div className="min-h-screen bg-gray-100 p-8">
+          {/* Time Progress Bar */}
+          <div className="max-w-7xl mx-auto mb-8">
+            <TimeProgressBar 
+              duration={currentDuration()} 
+              formattedTime={formattedDuration} 
+            />
+          </div>
 
-            <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-              {/*TODO: */}
-              {/*{question.getTitle()}*/}
-            </h1>
-
-            <div className="mb-6 p-4 bg-white rounded-lg shadow-lg max-w-2xl mx-auto text-center">
-              <p className="text-gray-700">
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto">
+            {/* Question Title */}
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-bold text-gray-800">
+                Decision Tree Challenge
+              </h1>
+              <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
                 Help the monster choose the correct outfit! Select different
                 clothing items to dress up the monster, then follow the decision
                 tree to find the matching rule.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 max-w-7xl mx-auto w-full">
-              <div className="flex flex-col items-center ">
-                <div className="mb-8 p-6 w-fit h-fit rounded-lg shadow-lg flex items-center justify-center">
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+              {/* Monster Character */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <h2 className="text-2xl font-semibold mb-6 text-center">Monster Character</h2>
+                <div className="flex justify-center mb-6">
                   <MonsterCharacter selections={selections} hovered={hovered} />
                 </div>
 
@@ -166,12 +153,13 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                 )}
               </div>
 
-              <div className="xl:col-span-2">
-                <div className="p-6rounded-lg shadow-lg">
-                  <h2 className="text-xl font-semibold mb-4 text-center">
+              {/* Decision Tree */}
+              <div className="xl:col-span-2 space-y-8">
+                <div className="bg-white rounded-lg p-8 shadow-sm">
+                  <h2 className="text-2xl font-semibold mb-6 text-center">
                     Decision Tree
                   </h2>
-                  <p className="text-gray-600 text-center mb-6">
+                  <p className="text-base text-gray-600 text-center mb-6">
                     Follow the tree based on your selections. Yellow highlights
                     show your current path.
                   </p>
@@ -187,32 +175,56 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                   />
                 </div>
 
-                <div className="mt-6 flex justify-center gap-4">
-                  <Button
-                    onClick={handleReset}
-                    className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                  >
-                    Reset All
-                  </Button>
-                  <Button
-                    onClick={handleSave}
-                    className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                  >
-                    Save Progress
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    className={`px-6 py-2 rounded-lg transition-colors bg-blue-500 
-                      text-white hover:bg-blue-600'`}
-                  >
-                    Submit Answer
-                  </Button>
+                {/* Controls */}
+                <div className="bg-white rounded-lg p-8 shadow-sm">
+                  <h2 className="text-2xl font-semibold mb-8">Actions</h2>
+                  
+                  <div className="space-y-6">
+                    {/* Current Selection Status */}
+                    <div className="text-center">
+                      <h3 className="text-base font-medium mb-3">
+                        Current Selections ({Object.keys(selections).length} parts)
+                      </h3>
+                      {Object.keys(selections).length > 0 && (
+                        <div className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg">
+                          {Object.entries(selections)
+                            .map(([attr, value]) => `${attr}: ${value.label}`)
+                            .join(', ')}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-4">
+                      <Button
+                        onClick={handleReset}
+                        className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
+                      >
+                        Reset All
+                      </Button>
+                      <Button
+                        onClick={handleSave}
+                        className="flex-1 py-3 text-base bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        Save Progress
+                      </Button>
+                    </div>
+
+                    {/* Submit Section */}
+                    <SubmitSection
+                      question={question}
+                      getCurrentDuration={getCurrentDuration}
+                      content={null}
+                      answerArr={Object.keys(selections).length > 0 ? [selections] : []}
+                      isDisabled={false}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </SolverWrapper>
   );
 }
