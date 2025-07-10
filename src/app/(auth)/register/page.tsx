@@ -10,7 +10,7 @@ import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAuthStore } from "@/store/auth.store";
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 
@@ -46,6 +46,7 @@ export default function RegisterPage() {
     formState: { errors, isSubmitting },
     watch,
     setError,
+    control,
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
@@ -164,15 +165,21 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="role">Role</Label>
-                  <Select value={watch("role")} onValueChange={val => register("role").onChange({ target: { value: val } })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="STUDENT">Student</SelectItem>
-                      <SelectItem value="TEACHER">Teacher</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="role"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="STUDENT">Student</SelectItem>
+                          <SelectItem value="TEACHER">Teacher</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                   {errors.role && errors.role.message && (
                     <p className="text-xs text-red-500 mt-1">{errors.role.message}</p>
                   )}
