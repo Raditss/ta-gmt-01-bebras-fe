@@ -1,7 +1,5 @@
-import { Shape, ShapeContainer } from "@/components/features/cfg/shared/shape";
-import { Rule } from "@/models/cfg/cfg.create.model";
-
-("use client");
+import { Shape, ShapeContainer } from '@/components/features/cfg/shared/shape';
+import { Rule } from '@/types/cfg.type';
 
 interface RuleDisplayProps {
   allRules: Rule[];
@@ -35,7 +33,7 @@ const RuleButton = ({ rule, onClick }: { rule: Rule; onClick: () => void }) => (
 export function RuleDisplaySolve({
   allRules,
   applicableRules,
-  onApplyRule,
+  onApplyRule
 }: RuleDisplayProps) {
   return (
     <div className="space-y-8">

@@ -1,7 +1,10 @@
-"use client";
+'use client';
 
-import { Shape, ShapeContainer } from "@/components/features/question/cfg/shared/shape";
-import { State } from "@/models/cfg/cfg.create.model";
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
+import { State } from '@/types/cfg.type';
 
 interface StateDisplayProps {
   title: string;
@@ -18,7 +21,7 @@ export function StateDisplaySolve({
   isInteractive = false,
   selectedIndices = [],
   onObjectClick,
-  containerClassName = "",
+  containerClassName = ''
 }: StateDisplayProps) {
   return (
     <div>
@@ -32,7 +35,7 @@ export function StateDisplaySolve({
               key={idx}
               interactive={isInteractive}
               className={
-                selectedIndices.includes(idx) ? "ring-2 ring-blue-500" : ""
+                selectedIndices.includes(idx) ? 'ring-2 ring-blue-500' : ''
               }
               onClick={() => isInteractive && onObjectClick?.(idx)}
             >

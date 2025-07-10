@@ -1,7 +1,7 @@
-import { Rule, State } from "@/models/cfg/cfg.create.model";
-import { useState } from "react";
+import { Rule, State } from '@/types/cfg.type';
+import { useState } from 'react';
 
-import { StateDisplaySolve } from "./state-display.solve";
+import { StateDisplaySolve } from './state-display.solve';
 
 interface StateDrawerProps {
   targetState: State[];
@@ -26,7 +26,7 @@ export function StateDrawerSolve({
   onUndo,
   onRedo,
   onReset,
-  onSubmit,
+  onSubmit
 }: StateDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,9 +45,9 @@ export function StateDrawerSolve({
       {/* Drawer Content */}
       <div
         className={`bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-y-0" : "translate-y-full"
+          isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
-        style={{ height: "60vh" }}
+        style={{ height: '60vh' }}
       >
         <div className="container mx-auto px-4 py-6 h-full overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -99,13 +99,13 @@ export function StateDrawerSolve({
                     <div className="flex flex-wrap gap-1 max-w-[8rem]">
                       {rule.before.map((obj, idx) => (
                         <div key={idx} className="w-8 h-8">
-                          {obj.type === "circle" ? (
+                          {obj.type === 'circle' ? (
                             <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-                          ) : obj.type === "triangle" ? (
+                          ) : obj.type === 'triangle' ? (
                             <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-                          ) : obj.type === "square" ? (
+                          ) : obj.type === 'square' ? (
                             <div className="w-6 h-6 bg-gray-400"></div>
-                          ) : obj.type === "star" ? (
+                          ) : obj.type === 'star' ? (
                             <div className="w-6 h-6 bg-gray-400 clip-star"></div>
                           ) : (
                             <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
@@ -117,13 +117,13 @@ export function StateDrawerSolve({
                     <div className="flex flex-wrap gap-1 max-w-[8rem]">
                       {rule.after.map((obj, idx) => (
                         <div key={idx} className="w-8 h-8">
-                          {obj.type === "circle" ? (
+                          {obj.type === 'circle' ? (
                             <div className="w-6 h-6 bg-gray-400 rounded-full"></div>
-                          ) : obj.type === "triangle" ? (
+                          ) : obj.type === 'triangle' ? (
                             <div className="w-6 h-6 bg-gray-400 clip-triangle"></div>
-                          ) : obj.type === "square" ? (
+                          ) : obj.type === 'square' ? (
                             <div className="w-6 h-6 bg-gray-400"></div>
-                          ) : obj.type === "star" ? (
+                          ) : obj.type === 'star' ? (
                             <div className="w-6 h-6 bg-gray-400 clip-star"></div>
                           ) : (
                             <div className="w-6 h-6 bg-gray-400 clip-hexagon"></div>
@@ -152,20 +152,20 @@ export function StateDrawerSolve({
             onClick={handleSubmit}
             disabled={isSubmitting}
             className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full ${
-              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </button>
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center space-x-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-6 rounded-full"
         >
-          <span>{isOpen ? "Hide States" : "Show States"}</span>
+          <span>{isOpen ? 'Hide States' : 'Show States'}</span>
           <svg
             className={`w-5 h-5 transform transition-transform duration-300 ${
-              isOpen ? "rotate-180" : ""
+              isOpen ? 'rotate-180' : ''
             }`}
             fill="none"
             stroke="currentColor"

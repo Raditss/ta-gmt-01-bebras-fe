@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import {RulesTableShared} from "@/components/features/question/cfg/shared/rules-table.shared";
-import {StateDrawerSolve} from "@/components/features/question/cfg/solve/state-drawer.solve";
-import {useDuration} from "@/hooks/useDuration";
-import {useSolveQuestion} from "@/hooks/useSolveQuestion";
-import {Rule, State} from "@/models/cfg/cfg.create.model";
-import {questionService} from "@/lib/services/question.service";
-import {Clock} from "lucide-react";
-import {useRouter} from "next/navigation";
-import {useCallback, useEffect, useState} from "react";
+import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
+import { StateDrawerSolve } from '@/components/features/question/cfg/solve/state-drawer.solve';
+import { useDuration } from '@/hooks/useDuration';
+import { useSolveQuestion } from '@/hooks/useSolveQuestion';
+import { Rule, State } from '@/types/cfg.type';
+import { questionService } from '@/lib/services/question.service';
+import { Clock } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
-import {BaseSolverProps, SolverWrapper} from "../../bases/base.solver";
-import {SubmissionModalSolver} from "../submission-modal.solver";
-import {CfgSolveModel} from "@/models/cfg/cfg.solve.model";
-import {useAuthStore} from "@/store/auth.store";
+import { BaseSolverProps, SolverWrapper } from '../../bases/base.solver';
+import { SubmissionModalSolver } from '../submission-modal.solver';
+import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function CfgSolver({ questionId }: BaseSolverProps) {
   const router = useRouter();
@@ -22,14 +22,18 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] = useState<{
+    isCorrect: boolean;
+    points: number;
+    streak: number;
+    timeTaken: number;
+  } | null>(null);
 
   // Setup hooks for question functionality
   const { question, loading, error, currentDuration } =
     useSolveQuestion<CfgSolveModel>(questionId, CfgSolveModel);
-  const { formattedDuration, getCurrentDuration } = useDuration(
-    currentDuration()
-  );
+  const { formattedDuration, getCurrentDuration } =
+    useDuration(currentDuration());
 
   // Update local state when question is loaded
   useEffect(() => {
@@ -143,10 +147,21 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
 
       // Set attempt data and submit
       question.setAttemptData(duration, false);
-      await questionService.submitAttempt(question.getAttemptData());
+      const attemptData = question.getAttemptData();
+
+      const submissionData = {
+        questionId: attemptData.questionId,
+        duration: attemptData.duration,
+        answer: JSON.parse(attemptData.answer)
+      };
+
+      console.log('📤 Submitting answer with data:', submissionData);
+
+      await questionService.submitAttempt(submissionData);
 
       // Check answer using Question class's method
       const isCorrect = question.checkAnswer();
+      console.log('✅ Answer check result:', isCorrect);
 
       // Calculate points based on correctness and time
       const points = isCorrect
@@ -160,17 +175,19 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
         isCorrect,
         points,
         streak,
-        timeTaken: duration,
+        timeTaken: duration
       });
+
+      console.log('📤 Submission completed successfully');
     } catch (err) {
-      console.error("Failed to submit answer:", err);
+      console.error('📤 Failed to submit answer:', err);
     }
   };
 
   const handleModalClose = () => {
     setIsSubmitting(false);
     setSubmissionResult(null);
-    router.push("/problems");
+    router.push('/problems');
   };
 
   return (

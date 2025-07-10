@@ -17,6 +17,7 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
   private redoStack: Step[];
   private attemptDuration: number;
   private attemptIsDraft: boolean;
+  private answer: CfgSolution;
 
   constructor(id: number) {
     super(id, QuestionTypeEnum.CFG);
@@ -33,6 +34,10 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
     this.redoStack = [];
     this.attemptDuration = 0;
     this.attemptIsDraft = true;
+    this.answer = {
+      currentState: [],
+      steps: []
+    };
   }
 
   setAttemptData(duration: number, isDraft: boolean = true) {
@@ -50,27 +55,30 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
   }
 
   toJSON(): string {
-    const solution: CfgSolution = {
-      currentState: this.currentState,
-      steps: this.steps
-    };
-    return JSON.stringify(solution);
+    return JSON.stringify(this.answer);
   }
 
   loadAnswer(json: string) {
-    const solution = JSON.parse(json) as CfgSolution;
-    this.resetToInitialState();
-    solution.steps.forEach((step) => {
-      this.applyRule(step.ruleId, step.index, step.replacedCount);
-    });
+    try {
+      const solution = JSON.parse(json) as CfgSolution;
+      this.resetToInitialState();
+
+      if (solution.steps && Array.isArray(solution.steps)) {
+        solution.steps.forEach((step) => {
+          this.applyRule(step.ruleId, step.index, step.replacedCount);
+        });
+      }
+    } catch (error) {
+      console.error('📥 CFG loadAnswer error:', error);
+    }
   }
 
   populateQuestionFromString(questionString: string): void {
     try {
-      const questionData = JSON.parse(questionString) as CfgQuestionSetup;
-
-      if (!questionData || typeof questionData !== 'object') {
-        throw new Error('Invalid question data structure');
+      // Handle double JSON encoding - parse twice if needed
+      let questionData = JSON.parse(questionString);
+      if (typeof questionData === 'string') {
+        questionData = JSON.parse(questionData);
       }
 
       this.questionSetup = {
@@ -82,8 +90,7 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
 
       this.resetToInitialState();
     } catch (error) {
-      console.error('Error parsing question data:', error);
-      console.error('Question string:', questionString);
+      console.error('CFG Solve Model - Error parsing question data:', error);
 
       this.questionSetup = {
         startState: [],
@@ -112,6 +119,10 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
     this.rules = [...this.questionSetup.rules];
     this.steps = [];
     this.redoStack = [];
+    this.answer = {
+      currentState: [...this.currentState],
+      steps: [...this.steps]
+    };
   }
 
   undo(): boolean {
@@ -128,6 +139,11 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
       this.currentState = [...this.questionSetup.startState];
     }
 
+    this.answer = {
+      currentState: [...this.currentState],
+      steps: [...this.steps]
+    };
+
     return true;
   }
 
@@ -139,6 +155,11 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
 
     this.steps.push(nextStep);
     this.currentState = [...nextStep.endState];
+
+    this.answer = {
+      currentState: [...this.currentState],
+      steps: [...this.steps]
+    };
 
     return true;
   }
@@ -177,6 +198,11 @@ export class CfgSolveModel extends IQuestion implements IAttempt {
     this.steps.push(step);
     this.redoStack = [];
     this.currentState = newState;
+
+    this.answer = {
+      currentState: [...this.currentState],
+      steps: [...this.steps]
+    };
 
     return true;
   }
