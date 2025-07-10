@@ -19,8 +19,8 @@ interface PolygonProps {
 }
 
 function PolygonVisualization({ vertices, currentVertex, targetVertex, highlightedPosition }: PolygonProps) {
-  const centerX = 200;
-  const centerY = 200;
+  const centerX = 250;
+  const centerY = 250;
   const radius = 120;
   const vertexCount = vertices.length;
 
@@ -34,7 +34,6 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
   };
 
   // Calculate arrow position
-  const currentPos = getVertexPosition(currentVertex);
   const targetPos = getVertexPosition(targetVertex);
 
   return (

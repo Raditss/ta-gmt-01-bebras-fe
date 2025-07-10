@@ -1,14 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
-import { questionAttemptApi } from '@/lib/api/question-attempt.api';
 import { GeneratedSolverProps, GeneratedSolverWrapper } from '@/components/features/bases/base.solver.generated';
-import { SubmissionModalSolver, SubmissionResult } from '@/components/features/question/submission-modal.solver';
+import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 
@@ -20,8 +17,8 @@ interface PolygonProps {
 }
 
 function PolygonVisualization({ vertices, currentVertex, targetVertex, highlightedPosition }: PolygonProps) {
-  const centerX = 200;
-  const centerY = 200;
+  const centerX = 250;
+  const centerY = 250;
   const radius = 120;
   const vertexCount = vertices.length;
 
@@ -35,11 +32,14 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
   };
 
   // Calculate arrow position
-  const currentPos = getVertexPosition(currentVertex);
+  const targetPos = getVertexPosition(targetVertex);
 
   return (
-    <div className="flex flex-col items-center">
-      <svg width="400" height="400" className="border-2 border-gray-300 rounded-lg bg-white">
+    <div className="flex flex-col items-center w-full">
+      <svg 
+        viewBox="0 0 500 500" 
+        className="border-2 border-gray-300 rounded-lg bg-white w-full max-w-[500px] h-auto aspect-square"
+      >
         {/* Draw polygon */}
         <polygon
           points={vertices.map((_, i) => {
@@ -63,7 +63,7 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
               <circle
                 cx={pos.x}
                 cy={pos.y}
-                r="25"
+                r="30"
                 fill={isTarget ? "rgb(239, 68, 68)" : isCurrent ? "rgb(34, 197, 94)" : "white"}
                 stroke={isTarget ? "rgb(185, 28, 28)" : isCurrent ? "rgb(21, 128, 61)" : "rgb(107, 114, 128)"}
                 strokeWidth="2"
@@ -73,9 +73,9 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
               {/* Letters */}
               <text
                 x={pos.x}
-                y={pos.y - 35}
+                y={pos.y - 40}
                 textAnchor="middle"
-                className="text-sm font-bold fill-gray-700"
+                className="text-base font-bold fill-gray-700"
               >
                 {vertex.letters}
               </text>
@@ -84,9 +84,9 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
               {isTarget && highlightedPosition > 0 && highlightedPosition <= vertex.letters.length && (
                 <text
                   x={pos.x}
-                  y={pos.y + 5}
+                  y={pos.y + 6}
                   textAnchor="middle"
-                  className="text-lg font-bold fill-yellow-600"
+                  className="text-xl font-bold fill-white"
                 >
                   {vertex.letters[highlightedPosition - 1]}
                 </text>
@@ -95,7 +95,7 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
           );
         })}
         
-        {/* Arrow from center to current vertex */}
+        {/* Arrow from center to target vertex */}
         <defs>
           <marker
             id="arrowhead"
@@ -112,8 +112,8 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
         <line
           x1={centerX}
           y1={centerY}
-          x2={currentPos.x - 25 * Math.cos(Math.atan2(currentPos.y - centerY, currentPos.x - centerX))}
-          y2={currentPos.y - 25 * Math.sin(Math.atan2(currentPos.y - centerY, currentPos.x - centerX))}
+          x2={targetPos.x - 30 * Math.cos(Math.atan2(targetPos.y - centerY, targetPos.x - centerX))}
+          y2={targetPos.y - 30 * Math.sin(Math.atan2(targetPos.y - centerY, targetPos.x - centerX))}
           stroke="black"
           strokeWidth="3"
           markerEnd="url(#arrowhead)"
@@ -128,8 +128,6 @@ function PolygonVisualization({ vertices, currentVertex, targetVertex, highlight
 }
 
 export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
-  const router = useRouter();
-  
   // Use the generated question hook
   const { question, questionContent, loading, error, regenerate } =
     useGeneratedQuestion<CipherNSolveModel>(type, CipherNSolveModel);
@@ -139,8 +137,6 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   const [positionValue, setPositionValue] = useState<string>("");
   const [targetVertex, setTargetVertex] = useState<number>(0);
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
 
   const content = question?.getContent();
   const vertices = content?.vertices || [];
@@ -222,35 +218,6 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
     setPositionValue("");
   }, [question]);
 
-  // Submit answer
-  const handleConfirmSubmit = useCallback(async () => {
-    if (!question) return;
-    
-    try {
-      setIsSubmitting(true);
-
-      const response = await questionAttemptApi.checkGeneratedAnswer({
-        type,
-        questionContent,
-        answer: JSON.stringify(question.toJSON())
-      });
-
-      setSubmissionResult({
-        isCorrect: response.isCorrect
-      });
-    } catch (error) {
-      console.error('❌ Error submitting answer:', error);
-      alert('Failed to submit answer. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [question, type, questionContent]);
-
-  const handleCloseSubmissionModal = useCallback(() => {
-    setSubmissionResult(null);
-    router.push('/problems');
-  }, [router]);
-
   const isValidInputs = () => {
     const rotation = parseInt(rotationValue);
     const position = parseInt(positionValue);
@@ -270,54 +237,49 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && content && (
-        <>
-          <div className="max-w-6xl mx-auto space-y-6">
-            {/* Problem Description */}
-            <Card>
-              <CardHeader>
-                <CardTitle>{content.question.prompt}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p><strong>Message to encrypt:</strong> {content.question.plaintext}</p>
+        <div className="min-h-screen bg-gray-100 p-8">
+          {/* Main Content */}
+          <div className="max-w-7xl mx-auto">
+            {/* Question Title */}
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-bold text-gray-800">
+                {content.question.prompt}
+              </h1>
+              <p className="text-lg text-gray-600 mt-2">
+                <strong>Message to encrypt:</strong> {content.question.plaintext}
+              </p>
+            </div>
+
+            {/* Main Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+              {/* Left Side - Cipher Wheel */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <PolygonVisualization
+                  vertices={vertices}
+                  currentVertex={currentVertex}
+                  targetVertex={targetVertex}
+                  highlightedPosition={highlightedPosition}
+                />
+                <div className="mt-6 flex justify-center space-x-6">
+                  <Badge variant="outline" className="bg-green-100 text-sm px-3 py-1">
+                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                    Current Position
+                  </Badge>
+                  <Badge variant="outline" className="bg-red-100 text-sm px-3 py-1">
+                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                    Target Position
+                  </Badge>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Interactive Polygon */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cipher Wheel</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <PolygonVisualization
-                    vertices={vertices}
-                    currentVertex={currentVertex}
-                    targetVertex={targetVertex}
-                    highlightedPosition={highlightedPosition}
-                  />
-                  <div className="mt-4 flex justify-center space-x-4">
-                    <Badge variant="outline" className="bg-green-100">
-                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                      Current Position
-                    </Badge>
-                    <Badge variant="outline" className="bg-red-100">
-                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                      Target Position
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Controls */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Encryption Controls</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              {/* Right Side - Encryption Controls */}
+              <div className="bg-white rounded-lg p-8 shadow-sm">
+                <h2 className="text-2xl font-semibold mb-8">Encryption Controls</h2>
+                
+                <div className="space-y-6">
+                  {/* Rotation Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-base font-medium mb-3">
                       Rotation (0-{maxRotation}):
                     </label>
                     <Input
@@ -325,12 +287,13 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                       value={rotationValue}
                       onChange={(e) => handleRotationChange(e.target.value)}
                       placeholder={`Enter 0-${maxRotation}`}
-                      className="w-full"
+                      className="w-full text-lg py-3 px-4"
                     />
                   </div>
                   
+                  {/* Position Input */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-base font-medium mb-3">
                       Position (1-{vertices[targetVertex]?.letters.length || 0}):
                     </label>
                     <Input
@@ -338,71 +301,58 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                       value={positionValue}
                       onChange={(e) => handlePositionChange(e.target.value)}
                       placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
-                      className="w-full"
+                      className="w-full text-lg py-3 px-4"
                       disabled={!vertices[targetVertex]}
                     />
                   </div>
 
+                  {/* Add to Final Answer Button */}
                   <Button 
                     onClick={handleAddToAnswer}
                     disabled={!isValidInputs()}
-                    className="w-full"
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                   >
                     Add to Final Answer
                   </Button>
 
-                  <div className="border-t pt-4">
-                    <label className="block text-sm font-medium mb-2">Final Answer:</label>
-                    <div className="p-3 bg-gray-50 rounded border min-h-[50px] font-mono text-lg">
-                      {finalAnswerDisplay || "No codes added yet"}
+                  {/* Final Answer Section */}
+                  <div className="mt-8">
+                    <label className="block text-base font-medium mb-3">Final Answer:</label>
+                    <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
+                      {finalAnswerDisplay || ""}
                     </div>
-                    <div className="flex gap-2 mt-2">
+                    
+                    {/* Undo and Clear Buttons */}
+                    <div className="flex gap-4 mt-4">
                       <Button 
                         onClick={handleUndo}
-                        variant="outline"
-                        className="w-1/2"
+                        className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
                         disabled={answerArr.length === 0}
                       >
                         Undo
                       </Button>
                       <Button 
                         onClick={handleClearAnswer}
-                        variant="outline"
-                        className="w-1/2"
+                        className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
                       >
-                        Clear Answer
+                        Clear
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
 
-            {/* Action buttons */}
-            <div className="flex gap-4 justify-center mt-8">
-              <Button onClick={regenerate} variant="outline">
-                New Question
-              </Button>
-              <Button
-                onClick={handleConfirmSubmit}
-                disabled={isSubmitting || answerArr.length === 0}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Answer'}
-              </Button>
+                  {/* Submit Section */}
+                  <GeneratedSubmitSection
+                    question={question}
+                    answerArr={answerArr}
+                    type={type}
+                    questionContent={questionContent}
+                    onRegenerate={regenerate}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Submission result modal */}
-          <SubmissionModalSolver
-            isOpen={isSubmitting || !!submissionResult}
-            isConfirming={isSubmitting && !submissionResult}
-            result={submissionResult}
-            onConfirm={handleConfirmSubmit}
-            onCancel={() => setIsSubmitting(false)}
-            onClose={handleCloseSubmissionModal}
-          />
-        </>
+        </div>
       )}
     </GeneratedSolverWrapper>
   );
