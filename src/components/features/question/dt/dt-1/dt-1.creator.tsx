@@ -1,47 +1,75 @@
-"use client";
+'use client';
 
-import {DecisionTree2} from "@/components/features/question/dt-1/shared/tree";
-import MonsterCharacter from "@/components/features/question/dt-1/shared/monster-character";
-import MonsterPartOption from "@/components/features/question/dt-1/shared/monster-part-option";
-import {extractSpriteOptions} from "@/components/features/question/dt-1/solver/helper";
+import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
+import MonsterCharacter from '@/components/features/question/dt/monster-character';
+import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
+import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/solver/helper';
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
-  MonsterPartType,
-  } from "@/components/features/question/dt-1/solver/types";
-import {Alert, AlertDescription} from "@/components/ui/alert";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious,} from "@/components/ui/carousel";
-import {Checkbox} from "@/components/ui/checkbox";
-import {Dialog, DialogContent, DialogHeader, DialogTitle,} from "@/components/ui/dialog";
-import {Input} from "@/components/ui/input";
-import {Label} from "@/components/ui/label";
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {useCreateQuestion} from "@/hooks/useCreateQuestion";
-import {usePageNavigationGuard} from "@/hooks/usePageNavigationGuard";
-import {spritesheetParser} from "@/utils/helpers/spritesheet.helper";
-import {Condition, DecisionTree2CreateModel, Finish, Rule,} from "@/models/dt-1/dt-1.create.model";
-import {AlertCircle, CheckCircle2, Edit2, MapPin, Plus, Save, Target, Trash2,} from "lucide-react";
-import React, {useCallback, useEffect, useState} from "react";
+  MonsterPartType
+} from '@/components/features/question/dt/types';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from '@/components/ui/carousel';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useCreateQuestion } from '@/hooks/useCreateQuestion';
+import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
+import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
+import {
+  Condition,
+  DecisionTree2CreateModel,
+  Finish,
+  Rule
+} from '@/models/dt-1/dt-1.create.model';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Edit2,
+  MapPin,
+  Plus,
+  Save,
+  Target,
+  Trash2
+} from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import {BaseCreatorProps, CreatorWrapper} from "../../bases/base.creator";
-import {CreationSubmissionModal} from "../submission-modal.creator";
+import { BaseCreatorProps, CreatorWrapper } from '../../../bases/base.creator';
+import { CreationSubmissionModal } from '../../submission-modal.creator';
 
 const attributeLabels = {
-  body: "Body",
-  arms: "Arms",
-  legs: "Legs",
-  horns: "Horns",
-  color: "Color",
+  body: 'Body',
+  arms: 'Arms',
+  legs: 'Legs',
+  horns: 'Horns',
+  color: 'Color'
 };
 
-export default function Dt1Creator({
-  initialDataQuestion
-}: BaseCreatorProps) {
-
+export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Creation hook
   const {
     question,
@@ -49,8 +77,11 @@ export default function Dt1Creator({
     hasUnsavedChanges,
     saveDraft,
     submitCreation,
-    markAsChanged,
-  } = useCreateQuestion<DecisionTree2CreateModel>(initialDataQuestion, DecisionTree2CreateModel);
+    markAsChanged
+  } = useCreateQuestion<DecisionTree2CreateModel>(
+    initialDataQuestion,
+    DecisionTree2CreateModel
+  );
 
   // Nav guard
   const {
@@ -58,10 +89,10 @@ export default function Dt1Creator({
     onSaveAndLeave: handleSaveAndLeave,
     onLeaveWithoutSaving: handleLeaveWithoutSaving,
     onStayOnPage: handleStayOnPage,
-    setShowDialog,
+    setShowDialog
   } = usePageNavigationGuard({
     hasUnsavedChanges,
-    onSave: saveDraft,
+    onSave: saveDraft
   });
 
   // Component state
@@ -82,7 +113,7 @@ export default function Dt1Creator({
   const [editingRuleId, setEditingRuleId] = useState<number | null>(null);
   const [isCreatingFinish, setIsCreatingFinish] = useState(false);
   const [editingFinishId, setEditingFinishId] = useState<number | null>(null);
-  const [newFinishName, setNewFinishName] = useState("");
+  const [newFinishName, setNewFinishName] = useState('');
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [duplicateRuleError, setDuplicateRuleError] = useState<string | null>(
@@ -108,12 +139,12 @@ export default function Dt1Creator({
           [MonsterPartType.HORN]: options.horns,
           [MonsterPartType.BODY]: options.body,
           [MonsterPartType.ARM]: options.arms,
-          [MonsterPartType.LEG]: options.legs,
+          [MonsterPartType.LEG]: options.legs
         };
 
         setMonsterParts(parts);
       } catch (error) {
-        console.error("Failed to load monster options:", error);
+        console.error('Failed to load monster options:', error);
       } finally {
         setOptionsLoading(false);
       }
@@ -137,7 +168,7 @@ export default function Dt1Creator({
     (category: MonsterPartType, value: MonsterPartOptionType) => {
       setCurrentRuleSelections((prev) => ({
         ...prev,
-        [category]: value,
+        [category]: value
       }));
       setDuplicateRuleError(null);
     },
@@ -166,8 +197,8 @@ export default function Dt1Creator({
   const createConditionsFromSelections = (): Condition[] => {
     return Object.entries(currentRuleSelections).map(([attribute, option]) => ({
       attribute,
-      operator: "=",
-      value: option.value,
+      operator: '=',
+      value: option.value
     }));
   };
 
@@ -194,7 +225,7 @@ export default function Dt1Creator({
     });
 
     if (isDuplicate) {
-      setDuplicateRuleError("A rule with these conditions already exists");
+      setDuplicateRuleError('A rule with these conditions already exists');
       return;
     }
 
@@ -203,7 +234,7 @@ export default function Dt1Creator({
       const updatedRule: Rule = {
         id: editingRuleId,
         conditions,
-        finish: currentRuleFinish!,
+        finish: currentRuleFinish!
       };
       decisionTree2Question.updateRule(editingRuleId, updatedRule);
       setRules((prev) =>
@@ -214,7 +245,7 @@ export default function Dt1Creator({
       const newRule: Rule = {
         id: decisionTree2Question.getNextRuleId(),
         conditions,
-        finish: currentRuleFinish!,
+        finish: currentRuleFinish!
       };
       decisionTree2Question.addRule(newRule);
       setRules((prev) => [...prev, newRule]);
@@ -243,7 +274,7 @@ export default function Dt1Creator({
     rule.conditions.forEach((condition) => {
       selections[condition.attribute] = {
         value: condition.value,
-        label: condition.value,
+        label: condition.value
       };
     });
     setCurrentRuleSelections(selections);
@@ -268,7 +299,7 @@ export default function Dt1Creator({
       // Update existing finish
       const updatedFinish: Finish = {
         id: editingFinishId,
-        name: newFinishName.trim(),
+        name: newFinishName.trim()
       };
       decisionTree2Question.updateFinish(editingFinishId, updatedFinish);
       setFinishes((prev) =>
@@ -280,7 +311,7 @@ export default function Dt1Creator({
       // Add new finish
       const newFinish: Finish = {
         id: decisionTree2Question.getNextFinishId(),
-        name: newFinishName.trim(),
+        name: newFinishName.trim()
       };
       decisionTree2Question.addFinish(newFinish);
       setFinishes((prev) => [...prev, newFinish]);
@@ -294,7 +325,7 @@ export default function Dt1Creator({
   const handleCancelFinish = () => {
     setIsCreatingFinish(false);
     setEditingFinishId(null);
-    setNewFinishName("");
+    setNewFinishName('');
   };
 
   // Handle editing finish
@@ -341,12 +372,12 @@ export default function Dt1Creator({
     } else {
       // Show validation errors
       const errors = [];
-      if (rules.length === 0) errors.push("At least one rule is required");
-      if (finishes.length === 0) errors.push("At least one finish is required");
+      if (rules.length === 0) errors.push('At least one rule is required');
+      if (finishes.length === 0) errors.push('At least one finish is required');
       if (goals.length === 0)
-        errors.push("At least one goal finish is required");
+        errors.push('At least one goal finish is required');
 
-      alert(`Please fix the following issues:\n- ${errors.join("\n- ")}`);
+      alert(`Please fix the following issues:\n- ${errors.join('\n- ')}`);
     }
   };
 
@@ -379,10 +410,7 @@ export default function Dt1Creator({
               Create Decision Tree 2 Question
             </h1>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleManualSave}
-              >
+              <Button variant="outline" onClick={handleManualSave}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Draft
               </Button>
@@ -471,7 +499,7 @@ export default function Dt1Creator({
                           value={newFinishName}
                           onChange={(e) => {
                             e.preventDefault();
-                            setNewFinishName(e.target.value)
+                            setNewFinishName(e.target.value);
                           }}
                         />
                         <div className="flex gap-2">
@@ -480,7 +508,7 @@ export default function Dt1Creator({
                             onClick={handleSaveFinish}
                             disabled={!newFinishName.trim()}
                           >
-                            {editingFinishId ? "Update" : "Add"} Finish
+                            {editingFinishId ? 'Update' : 'Add'} Finish
                           </Button>
                           <Button
                             variant="outline"
@@ -555,8 +583,8 @@ export default function Dt1Creator({
                             key={rule.id}
                             className={`p-3 border rounded-lg ${
                               isGoal
-                                ? "bg-green-50 border-green-200"
-                                : "bg-gray-50 border-gray-200"
+                                ? 'bg-green-50 border-green-200'
+                                : 'bg-gray-50 border-gray-200'
                             }`}
                           >
                             <div className="flex justify-between items-start">
@@ -566,15 +594,15 @@ export default function Dt1Creator({
                                     Rule {rule.id}
                                   </span>
                                   <Badge
-                                    variant={isGoal ? "default" : "secondary"}
+                                    variant={isGoal ? 'default' : 'secondary'}
                                     className={
                                       isGoal
-                                        ? "bg-green-100 text-green-800"
-                                        : ""
+                                        ? 'bg-green-100 text-green-800'
+                                        : ''
                                     }
                                   >
-                                    → {finish?.name || "Unknown"}{" "}
-                                    {isGoal && "(Goal)"}
+                                    → {finish?.name || 'Unknown'}{' '}
+                                    {isGoal && '(Goal)'}
                                   </Badge>
                                 </div>
                                 <div className="text-sm text-gray-600">
@@ -585,7 +613,7 @@ export default function Dt1Creator({
                                         cond.value
                                       )
                                     )
-                                    .join(" AND ")}
+                                    .join(' AND ')}
                                 </div>
                               </div>
                               <div className="flex gap-1">
@@ -639,11 +667,6 @@ export default function Dt1Creator({
                         rules={rules}
                         finishes={finishes}
                         goals={goals}
-                        selections={{}}
-                        onRuleSelect={(ruleId) => {
-                          console.log("Rule clicked:", ruleId);
-                        }}
-                        selectedRules={[]}
                       />
                     </div>
                   ) : (
@@ -690,16 +713,16 @@ export default function Dt1Creator({
                           </div>
                           <div className="text-sm text-green-700">
                             <p>
-                              Goals: {goals.length} of {finishes.length}{" "}
+                              Goals: {goals.length} of {finishes.length}{' '}
                               finishes
                             </p>
                             <p>
-                              Goal Rules:{" "}
+                              Goal Rules:{' '}
                               {
                                 rules.filter((rule) =>
                                   goals.includes(rule.finish)
                                 ).length
-                              }{" "}
+                              }{' '}
                               of {rules.length} rules
                             </p>
                           </div>
@@ -746,8 +769,8 @@ export default function Dt1Creator({
                             key={finish.id}
                             className={`p-3 border rounded-lg ${
                               goals.includes(finish.id)
-                                ? "border-green-300 bg-green-50"
-                                : "border-gray-200"
+                                ? 'border-green-300 bg-green-50'
+                                : 'border-gray-200'
                             }`}
                           >
                             <div className="flex items-center justify-between">
@@ -773,7 +796,7 @@ export default function Dt1Creator({
                                   rules.filter(
                                     (rule) => rule.finish === finish.id
                                   ).length
-                                }{" "}
+                                }{' '}
                                 rules
                               </div>
                             </div>
@@ -814,7 +837,7 @@ export default function Dt1Creator({
                         <div className="space-y-2">
                           <Label>Select Finish</Label>
                           <Select
-                            value={currentRuleFinish?.toString() || ""}
+                            value={currentRuleFinish?.toString() || ''}
                             onValueChange={(value) =>
                               setCurrentRuleFinish(parseInt(value))
                             }
@@ -829,7 +852,7 @@ export default function Dt1Creator({
                                   value={finish.id.toString()}
                                 >
                                   {finish.name}
-                                  {goals.includes(finish.id) && " (Goal)"}
+                                  {goals.includes(finish.id) && ' (Goal)'}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -849,7 +872,7 @@ export default function Dt1Creator({
                                   value={part}
                                   className="text-xs"
                                 >
-                                  {part.replace(/_/g, " ")}
+                                  {part.replace(/_/g, ' ')}
                                 </TabsTrigger>
                               ))}
                             </TabsList>
@@ -915,7 +938,7 @@ export default function Dt1Creator({
                             onClick={handleSaveRule}
                             disabled={!isCurrentRuleValid()}
                           >
-                            {editingRuleId ? "Update" : "Add"} Rule
+                            {editingRuleId ? 'Update' : 'Add'} Rule
                           </Button>
                           <Button variant="outline" onClick={handleCancelRule}>
                             Cancel
@@ -978,15 +1001,13 @@ export default function Dt1Creator({
             onClose={() => setShowSubmissionModal(false)}
             onCancel={() => setShowSubmissionModal(false)}
             onConfirm={handleConfirmSubmit}
-            questionData={
-              {
-                title: question.draft.title,
-                questionType: question.draft.questionType.name,
-                points: question.draft.points,
-                estimatedTime: question.draft.estimatedTime,
-                author: question.draft.teacher.name,
-              }
-            }
+            questionData={{
+              title: question.draft.title,
+              questionType: question.draft.questionType.name,
+              points: question.draft.points,
+              estimatedTime: question.draft.estimatedTime,
+              author: question.draft.teacher.name
+            }}
           />
         </div>
       </div>

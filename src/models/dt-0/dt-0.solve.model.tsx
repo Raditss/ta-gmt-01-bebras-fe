@@ -13,16 +13,16 @@ export interface Rule {
   conditions: Condition[];
 }
 
-interface DecisionTreeQuestionSetup {
-  rules: Rule[];
-}
-
 interface DecisionTreeAnswer {
   selections: Record<string, string>;
 }
 
+interface DecisionTreeContent {
+  rules: Rule[];
+}
+
 export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
-  private questionSetup: DecisionTreeQuestionSetup;
+  private content: DecisionTreeContent;
   private answer: DecisionTreeAnswer;
   private attemptDuration: number;
   private attemptIsDraft: boolean;
@@ -30,7 +30,7 @@ export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
   constructor(id: number) {
     super(id, QuestionTypeEnum.DECISION_TREE);
 
-    this.questionSetup = {
+    this.content = {
       rules: []
     };
     this.answer = {
@@ -65,9 +65,7 @@ export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
 
   populateQuestionFromString(questionString: string): void {
     try {
-      this.questionSetup = JSON.parse(
-        questionString
-      ) as DecisionTreeQuestionSetup;
+      this.content = JSON.parse(questionString) as DecisionTreeContent;
 
       this.resetToInitialState();
     } catch (error) {
@@ -82,9 +80,8 @@ export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
     };
   }
 
-  // Decision Tree specific methods
   getRules(): Rule[] {
-    return this.questionSetup.rules;
+    return this.content.rules;
   }
 
   setAnswerSelections(monsterPart: string, value: string): void {

@@ -1,73 +1,78 @@
-"use client"
+'use client';
 
-import React, { useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { loginRequestSchema } from "@/utils/validations/auth.validation"
-import { toast } from "sonner"
-import { useAuthStore } from "@/store/auth.store";
-import { z } from "zod";
-import { UserRole } from "@/types/user-role"
+import React, { useEffect } from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginRequestSchema } from '@/utils/validations/auth.validation';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/auth.store';
+import { z } from 'zod';
+import { UserRole } from '@/types/user-role';
 
 // Infer the form type from the zod schema
-type LoginFormValues = z.infer<typeof loginRequestSchema>
+type LoginFormValues = z.infer<typeof loginRequestSchema>;
 
 const loginFormSchema = loginRequestSchema.extend({
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(1, 'Password is required')
 });
 
 const LoginPage: React.FC = () => {
-  const [showPassword, setShowPassword] = React.useState(false)
-  const [mounted, setMounted] = React.useState(false)
-  const [loginError, setLoginError] = React.useState(false)
-  const router = useRouter()
-  const { login, isAuthenticated, user } = useAuthStore()
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  const [loginError, setLoginError] = React.useState(false);
+  const router = useRouter();
+  const { login, isAuthenticated, user } = useAuthStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
+    setError
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
-    defaultValues: { username: "", password: "" },
-  })
+    defaultValues: { username: '', password: '' }
+  });
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
     if (isAuthenticated) {
       if (user?.role === UserRole.ADMIN) {
-        router.push("/admin")
+        router.push('/admin');
       } else if (user?.role === UserRole.TEACHER) {
-        router.push("/my-problem")
+        router.push('/my-problem');
       } else if (user?.role === UserRole.STUDENT) {
-        router.push("/dashboard")
-      }
-      else {
-        router.push("/login")
+        router.push('/dashboard');
+      } else {
+        router.push('/login');
       }
     }
-  }, [isAuthenticated, router, user])
+  }, [isAuthenticated, router, user]);
 
   const onSubmit = async (data: LoginFormValues) => {
-    if (!mounted) return
-    setLoginError(false)
-    const result = await login(data)
+    if (!mounted) return;
+    setLoginError(false);
+    const result = await login(data);
     if (result) {
-      toast.success("Login successful! Welcome back.")
+      toast.success('Login successful! Welcome back.');
     } else {
-      setLoginError(true)
-      setError("username", { message: " " }) // force error display
-      setError("password", { message: " " })
+      setLoginError(true);
+      setError('username', { message: ' ' }); // force error display
+      setError('password', { message: ' ' });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
@@ -97,7 +102,9 @@ const LoginPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Welcome Back</CardTitle>
-              <CardDescription>Enter your credentials to access your account</CardDescription>
+              <CardDescription>
+                Enter your credentials to access your account
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -110,13 +117,15 @@ const LoginPage: React.FC = () => {
                       type="text"
                       placeholder="Enter your username or email"
                       className="pl-10"
-                      {...register("username")}
+                      {...register('username')}
                       autoComplete="username"
                       disabled={isSubmitting}
                     />
                   </div>
                   {errors.username && (
-                    <p className="text-xs text-red-500 mt-1">{errors.username.message}</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.username.message}
+                    </p>
                   )}
                 </div>
 
@@ -126,10 +135,10 @@ const LoginPage: React.FC = () => {
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="password"
-                      type={showPassword ? "text" : "password"}
+                      type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
                       className="pl-10 pr-10"
-                      {...register("password")}
+                      {...register('password')}
                       autoComplete="current-password"
                       disabled={isSubmitting}
                     />
@@ -139,32 +148,51 @@ const LoginPage: React.FC = () => {
                       className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
                       tabIndex={-1}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.password && errors.password.message && (
-                    <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password.message}
+                    </p>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Link href="#" className="text-sm text-purple-600 hover:underline">
+                  <Link
+                    href="#"
+                    className="text-sm text-purple-600 hover:underline"
+                  >
                     Forgot password?
                   </Link>
                 </div>
 
-                <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                  {isSubmitting ? "Logging in..." : "Login"}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Logging in...' : 'Login'}
                 </Button>
                 {loginError && (
-                  <p className="text-xs text-red-500 mt-2 text-center">Login failed, please check your credential</p>
+                  <p className="text-xs text-red-500 mt-2 text-center">
+                    Login failed, please check your credential
+                  </p>
                 )}
               </form>
 
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-500">
-                  Don't have an account?{" "}
-                  <Link href="/register" className="text-purple-600 hover:underline">
+                  Don&apos;t have an account?{' '}
+                  <Link
+                    href="/register"
+                    className="text-purple-600 hover:underline"
+                  >
                     Register here
                   </Link>
                 </p>
@@ -176,18 +204,30 @@ const LoginPage: React.FC = () => {
                   <div className="space-y-2 text-xs text-gray-600">
                     <div>
                       <p className="font-medium">Student Account:</p>
-                      <p>Username: <span className="font-mono">johndoe</span></p>
-                      <p>Password: <span className="font-mono">password123</span></p>
+                      <p>
+                        Username: <span className="font-mono">johndoe</span>
+                      </p>
+                      <p>
+                        Password: <span className="font-mono">password123</span>
+                      </p>
                     </div>
                     <div>
                       <p className="font-medium">Teacher Account:</p>
-                      <p>Username: <span className="font-mono">teacher</span></p>
-                      <p>Password: <span className="font-mono">password123</span></p>
+                      <p>
+                        Username: <span className="font-mono">teacher</span>
+                      </p>
+                      <p>
+                        Password: <span className="font-mono">password123</span>
+                      </p>
                     </div>
                     <div>
                       <p className="font-medium">Admin Account:</p>
-                      <p>Username: <span className="font-mono">admin</span></p>
-                      <p>Password: <span className="font-mono">password123</span></p>
+                      <p>
+                        Username: <span className="font-mono">admin</span>
+                      </p>
+                      <p>
+                        Password: <span className="font-mono">password123</span>
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -197,7 +237,7 @@ const LoginPage: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

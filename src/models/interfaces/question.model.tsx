@@ -13,11 +13,11 @@ export interface IAttempt {
 
 export abstract class IQuestion {
   private readonly _id: number;
-  private readonly _type: QuestionTypeEnum;
+  private readonly _questionType: QuestionTypeEnum;
 
   protected constructor(id: number, questionType: QuestionTypeEnum) {
     this._id = id;
-    this._type = questionType;
+    this._questionType = questionType;
   }
 
   abstract populateQuestionFromString(questionString: string): void;
@@ -28,7 +28,7 @@ export abstract class IQuestion {
     return this._id;
   }
 
-  getQuestionType() {
-    return this._type;
+  get questionType() {
+    return this._questionType;
   }
 }
