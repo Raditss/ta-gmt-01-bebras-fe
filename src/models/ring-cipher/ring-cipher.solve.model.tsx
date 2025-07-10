@@ -17,12 +17,6 @@ interface RingCipherContent {
   problemType: string;
   config: RingCipherConfig;
   rings: RingCipherRing[];
-  instructions: string[];
-  example: {
-    plaintext: string;
-    encrypted: string;
-    explanation: string;
-  };
   question: {
     task: string;
     plaintext: string;
@@ -53,12 +47,6 @@ export class RingCipherSolveModel extends IQuestion implements IAttempt {
         markerPosition: 0,
       },
       rings: [],
-      instructions: [],
-      example: {
-        plaintext: '',
-        encrypted: '',
-        explanation: '',
-      },
       question: {
         task: '',
         plaintext: '',
