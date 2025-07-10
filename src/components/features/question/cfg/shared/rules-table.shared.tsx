@@ -1,7 +1,10 @@
-"use client";
+'use client';
 
-import { Shape, ShapeContainer } from "@/components/features/question/cfg/shared/shape";
-import { Rule } from "@/models/cfg/cfg.create.model";
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
+import { Rule } from '@/types/cfg.type';
 
 interface RulesTableProps {
   rules: Rule[];
@@ -12,7 +15,7 @@ interface RulesTableProps {
 export function RulesTableShared({
   rules,
   showActions = false,
-  onDeleteRule,
+  onDeleteRule
 }: RulesTableProps) {
   const RuleShape = ({ type }: { type: string }) => (
     <ShapeContainer>
@@ -24,13 +27,13 @@ export function RulesTableShared({
     <div className="bg-white rounded-md shadow-md overflow-hidden">
       <div
         className={`grid ${
-          showActions ? "grid-cols-[1fr,1fr,auto]" : "grid-cols-2"
+          showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
         } border-b`}
       >
         <div className="p-4 text-center font-medium border-r">Before</div>
         <div
           className={`p-4 text-center font-medium ${
-            showActions ? "border-r" : ""
+            showActions ? 'border-r' : ''
           }`}
         >
           After
@@ -44,7 +47,7 @@ export function RulesTableShared({
         <div
           key={rule.id}
           className={`grid ${
-            showActions ? "grid-cols-[1fr,1fr,auto]" : "grid-cols-2"
+            showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
           } border-b last:border-b-0`}
         >
           <div className="p-6 flex justify-center items-center border-r">
@@ -56,7 +59,7 @@ export function RulesTableShared({
           </div>
           <div
             className={`p-6 flex justify-center items-center ${
-              showActions ? "border-r" : ""
+              showActions ? 'border-r' : ''
             }`}
           >
             <div className="flex flex-wrap justify-center gap-2 max-w-full">

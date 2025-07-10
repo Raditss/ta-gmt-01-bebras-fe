@@ -61,23 +61,28 @@ export const useSolveQuestion = <
     };
 
     fetchQuestionAndAttempt();
-  }, [questionId]);
+  }, [questionId, solveQuestionModel, initializeAttemptData]);
 
   useEffect(() => {
     const saveDraft = async () => {
       if (!question) return;
 
-      const currentDuration =
-        durationRef.current +
-        dayjs().diff(dayjs(startTimeRef.current), 'second');
+      try {
+        const currentDuration =
+          durationRef.current +
+          dayjs().diff(dayjs(startTimeRef.current), 'second');
 
-      initializeAttemptData(question, currentDuration);
-      const attemptData = question.getAttemptData();
-      await questionService.saveDraft({
-        questionId: attemptData.questionId,
-        duration: attemptData.duration,
-        answer: JSON.parse(attemptData.answer)
-      });
+        initializeAttemptData(question, currentDuration);
+        const attemptData = question.getAttemptData();
+
+        await questionService.saveDraft({
+          questionId: attemptData.questionId,
+          duration: attemptData.duration,
+          answer: JSON.parse(attemptData.answer)
+        });
+      } catch (error) {
+        console.error('💾 Error saving draft:', error);
+      }
     };
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -103,10 +108,7 @@ export const useSolveQuestion = <
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (question) {
-        const attemptData = question.getAttemptData();
-        if (!attemptData || !attemptData.isDraft) {
-          saveDraft();
-        }
+        saveDraft();
       }
     };
   }, [initializeAttemptData, question, questionId]);
