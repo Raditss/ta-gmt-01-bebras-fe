@@ -1,6 +1,9 @@
-import { Shape, ShapeContainer } from "@/components/features/question/cfg/shared/shape";
-import { State } from "@/models/cfg/cfg.create.model";
-import { useEffect, useState } from "react";
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
+import { State } from '@/models/cfg/cfg.create.model';
+import { useEffect, useState } from 'react';
 
 // State Creation Popup Component
 export function StateCreationPopupCreate({
@@ -10,13 +13,13 @@ export function StateCreationPopupCreate({
   startState,
   endState,
   setStartState,
-  setEndState,
+  setEndState: _setEndState,
   applyRuleToEndState,
   onUndo,
   onRedo,
-  onClose,
+  onClose
 }: {
-  mode: "start" | "end" | null;
+  mode: 'start' | 'end' | null;
   availableObjects: { id: number; type: string; icon: string }[];
   rules: {
     id: string;
@@ -28,8 +31,12 @@ export function StateCreationPopupCreate({
   setStartState: (state: State[]) => void;
   setEndState: (state: State[]) => void;
   applyRuleToEndState: (
-    selectedIndices: any[],
-    ruleToApply: { id: string; after: any }
+    selectedIndices: number[],
+    ruleToApply: {
+      id: string;
+      before: { type: string }[];
+      after: { type: string }[];
+    }
   ) => void;
   onUndo: () => void;
   onRedo: () => void;
@@ -40,20 +47,26 @@ export function StateCreationPopupCreate({
     { id: string; before: { type: string }[]; after: { type: string }[] }[]
   >([]);
 
+  // Local state for start state creation (don't save until "Done" is clicked)
+  const [localStartState, setLocalStartState] = useState<State[]>(startState);
+
   // For start state creation
   const addObjectToStartState = (obj: { type: string; id?: number }) => {
-    setStartState([...startState, { ...obj, id: obj.id ?? Date.now() }]);
+    setLocalStartState([
+      ...localStartState,
+      { ...obj, id: obj.id ?? Date.now() }
+    ]);
   };
 
   const removeFromStartState = (index: number) => {
-    const newState = [...startState];
+    const newState = [...localStartState];
     newState.splice(index, 1);
-    setStartState(newState);
+    setLocalStartState(newState);
   };
 
   // Check which rules can be applied to currently selected objects
   useEffect(() => {
-    if (mode === "end" && selectedObjects.length > 0) {
+    if (mode === 'end' && selectedObjects.length > 0) {
       // Validate indices and get the actual objects from the indices
       const validSelectedObjects = selectedObjects.filter(
         (index) =>
@@ -95,7 +108,7 @@ export function StateCreationPopupCreate({
 
   // Handle selection of objects in end state
   const toggleObjectSelection = (index: number) => {
-    if (mode !== "end") return;
+    if (mode !== 'end') return;
     if (selectedObjects.includes(index)) {
       // If already selected, deselect it
       setSelectedObjects(selectedObjects.filter((i) => i !== index));
@@ -118,14 +131,14 @@ export function StateCreationPopupCreate({
     }
   };
 
-  // Get available objects based on mode
-  const getAvailableObjectsForStart = () => {
+  // Get available objects based on mode (unused but kept for potential future use)
+  const _getAvailableObjectsForStart = () => {
     if (rules.length === 0) return availableObjects;
 
     // Extract unique object types from the "before" part of rules
-    const uniqueBeforeObjects: any[] = [];
-    rules.forEach((rule: { before: { type: any }[] }) => {
-      rule.before.forEach((obj: { type: any }) => {
+    const uniqueBeforeObjects: { type: string }[] = [];
+    rules.forEach((rule: { before: { type: string }[] }) => {
+      rule.before.forEach((obj: { type: string }) => {
         if (!uniqueBeforeObjects.some((item) => item.type === obj.type)) {
           uniqueBeforeObjects.push(obj);
         }
@@ -138,38 +151,38 @@ export function StateCreationPopupCreate({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-yellow-400 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {mode === "start" ? "Create Start State" : "Create End State"}
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-card rounded-lg p-6 w-full max-w-5xl max-h-[85vh] overflow-y-auto border shadow-lg">
+        <h2 className="text-2xl font-bold mb-6 text-center text-foreground">
+          {mode === 'start' ? 'Create Start State' : 'Create End State'}
         </h2>
 
         {/* Undo/Redo/Reset Buttons */}
-        {mode === "end" && (
-          <div className="flex justify-center gap-4 mb-4">
+        {mode === 'end' && (
+          <div className="flex justify-center gap-4 mb-6">
             <button
               onClick={onUndo}
-              className="bg-gray-200 hover:bg-gray-300 text-black font-bold py-2 px-4 rounded-full"
+              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
               Undo
             </button>
             <button
               onClick={onRedo}
-              className="bg-gray-200 hover:bg-gray-300 text-black font-bold py-2 px-4 rounded-full"
+              className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
               Redo
             </button>
           </div>
         )}
 
-        <div className="bg-white p-6 rounded-md shadow-md mb-6">
-          <div className="flex flex-wrap justify-center gap-2 min-h-[8rem] max-h-[24rem] overflow-y-auto p-4">
-            {mode === "start"
-              ? startState
+        <div className="bg-background border rounded-lg p-6 shadow-sm mb-6">
+          <div className="flex flex-wrap justify-center gap-3 min-h-[10rem] max-h-[20rem] overflow-y-auto p-4">
+            {mode === 'start'
+              ? localStartState
                   .filter((obj) => obj && obj.type)
                   .map((obj, idx) => {
                     // Find the original index in the unfiltered array
-                    const originalIdx = startState.findIndex(
+                    const originalIdx = localStartState.findIndex(
                       (item) => item === obj
                     );
                     return (
@@ -195,8 +208,8 @@ export function StateCreationPopupCreate({
                         key={obj.id || idx}
                         className={`cursor-pointer ${
                           selectedObjects.includes(originalIdx)
-                            ? "ring-2 ring-blue-500"
-                            : ""
+                            ? 'ring-2 ring-blue-500'
+                            : ''
                         }`}
                         onClick={() => toggleObjectSelection(originalIdx)}
                       >
@@ -207,33 +220,35 @@ export function StateCreationPopupCreate({
           </div>
         </div>
 
-        {mode === "start" ? (
-          <div className="text-center mb-4">
-            <h3 className="font-medium mb-2">Available Objects</h3>
-            <div className="flex flex-wrap justify-center gap-4">
+        {mode === 'start' ? (
+          <div className="text-center mb-6">
+            <h3 className="font-semibold mb-4 text-foreground">
+              Available Objects
+            </h3>
+            <div className="flex flex-wrap justify-center gap-3">
               {availableObjects.map((obj, idx) => (
-                <ShapeContainer
+                <div
                   key={idx}
-                  className="bg-gray-200 rounded-md hover:bg-gray-300 cursor-pointer"
+                  className="bg-secondary hover:bg-secondary/80 rounded-lg cursor-pointer transition-colors p-3 flex items-center justify-center"
                   onClick={() => addObjectToStartState(obj)}
                 >
                   <Shape type={obj.type} size="md" />
-                </ShapeContainer>
+                </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="text-center mb-4">
-            <h3 className="font-medium mb-2">
+          <div className="text-center mb-6">
+            <h3 className="font-semibold mb-4 text-foreground">
               Available Rules for Selected Objects
             </h3>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-3">
               {applicableRules.length > 0 ? (
                 applicableRules.map((rule, idx) => (
                   <button
                     key={idx}
                     onClick={() => applyRuleToEndState(selectedObjects, rule)}
-                    className="p-4 bg-gray-100 hover:bg-gray-200 rounded-md flex items-center space-x-2"
+                    className="p-4 bg-secondary hover:bg-secondary/80 rounded-lg flex items-center space-x-3 transition-colors border"
                   >
                     <div className="flex flex-wrap gap-1 max-w-[8rem]">
                       {rule.before
@@ -244,7 +259,7 @@ export function StateCreationPopupCreate({
                           </ShapeContainer>
                         ))}
                     </div>
-                    <span>→</span>
+                    <span className="text-foreground font-medium">→</span>
                     <div className="flex flex-wrap gap-1 max-w-[8rem]">
                       {rule.after
                         .filter((obj) => obj && obj.type)
@@ -257,16 +272,24 @@ export function StateCreationPopupCreate({
                   </button>
                 ))
               ) : (
-                <p>No matching rules for selected objects</p>
+                <p className="text-muted-foreground">
+                  No matching rules for selected objects
+                </p>
               )}
             </div>
           </div>
         )}
 
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-8">
           <button
-            onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-black font-bold py-2 px-6 rounded-full"
+            onClick={() => {
+              if (mode === 'start') {
+                // Save the local start state when Done is clicked
+                setStartState(localStartState);
+              }
+              onClose();
+            }}
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-8 rounded-lg transition-colors"
           >
             Done
           </button>

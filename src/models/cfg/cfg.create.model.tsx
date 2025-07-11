@@ -1,5 +1,5 @@
-import { ICreateQuestion } from "../interfaces/create-question.model";
-import {Question} from "@/types/question.type";
+import { ICreateQuestion } from '../interfaces/create-question.model';
+import { Question } from '@/types/question.type';
 
 export interface Rule {
   id: string;
@@ -24,6 +24,7 @@ export interface CfgCreationContent {
   startState: State[];
   endState: State[];
   steps: Step[];
+  redoStack: Step[];
 }
 
 export class CfgCreateModel extends ICreateQuestion {
@@ -34,40 +35,63 @@ export class CfgCreateModel extends ICreateQuestion {
   private steps: Step[];
   private redoStack: Step[];
 
-  constructor(
-    _question: Question
-  ) {
-    super(_question)
+  constructor(_question: Question) {
+    super(_question);
     this.rules = [];
     this.startState = [];
     this.endState = [];
     this.initialEndState = [];
     this.steps = [];
     this.redoStack = [];
+
+    // Load content from draft if it exists
+    this.populateFromContentString(this.draft.content);
   }
 
-  contentToString(): string {
+  toJson(): string {
     const content: CfgCreationContent = {
       rules: this.rules,
       startState: this.startState,
       endState: this.endState,
       steps: this.steps,
+      redoStack: this.redoStack
     };
     return JSON.stringify(content);
   }
 
+  contentToString(): string {
+    return this.toJson();
+  }
+
   populateFromContentString(contentString: string): void {
     try {
+      if (!contentString || contentString === '{}') {
+        // Empty content - use defaults
+        this.rules = [];
+        this.startState = [];
+        this.endState = [];
+        this.initialEndState = [];
+        this.steps = [];
+        this.redoStack = [];
+        return;
+      }
+
       const content = JSON.parse(contentString) as CfgCreationContent;
       this.rules = content.rules || [];
       this.startState = content.startState || [];
       this.endState = content.endState || [];
-      this.initialEndState = [...this.endState];
+      this.initialEndState = content.startState ? [...content.startState] : [];
       this.steps = content.steps || [];
-      this.redoStack = [];
+      this.redoStack = content.redoStack || [];
     } catch (error) {
-      console.error("Error parsing CFG creation content:", error);
-      throw new Error("Invalid CFG creation content format");
+      console.error('Error parsing CFG creation content:', error);
+      // Don't throw error, just use defaults
+      this.rules = [];
+      this.startState = [];
+      this.endState = [];
+      this.initialEndState = [];
+      this.steps = [];
+      this.redoStack = [];
     }
   }
 
@@ -131,7 +155,7 @@ export class CfgCreateModel extends ICreateQuestion {
         0,
         ...rule.after.map((obj: State, i: number) => ({
           ...obj,
-          id: Date.now() + Math.random() + i,
+          id: Date.now() + Math.random() + i
         }))
       );
     }
@@ -154,7 +178,7 @@ export class CfgCreateModel extends ICreateQuestion {
 
       const newItems = rule.after.map((obj: State, idx: number) => ({
         ...obj,
-        id: Date.now() + Math.random() + i + idx,
+        id: Date.now() + Math.random() + i + idx
       }));
 
       currentState.splice(step.index, 0, ...newItems);
@@ -163,13 +187,22 @@ export class CfgCreateModel extends ICreateQuestion {
     return currentState;
   }
 
-  // TODO
-  hasRequiredContent(): boolean {
-    return false;
+  resetEndState(): void {
+    this.endState = [...this.startState];
+    this.initialEndState = [...this.startState];
+    this.resetSteps();
   }
 
-  // TODO
+  hasRequiredContent(): boolean {
+    return (
+      this.rules.length > 0 &&
+      this.startState.length > 0 &&
+      this.endState.length > 0
+    );
+  }
+
   validateContent(): boolean {
-    return false;
+    // Basic validation - just need at least some content to save as draft
+    return true; // Allow saving even incomplete content as draft
   }
 }
