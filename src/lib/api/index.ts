@@ -1,4 +1,5 @@
-export { apiCore, axiosInstance } from "./core";
-
-export { authApi } from "./auth.api";
-export { questionsApi } from "./questions.api";
+export * from './auth.api';
+export * from './core';
+export * from './question-type.api';
+export * from './questions.api';
+export * from './dashboard.api';
