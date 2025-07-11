@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import {useParams} from "next/navigation";
-import {QuestionTypeEnum} from "@/types/question-type.type";
-import {Component, ReactNode, useEffect, useState} from "react";
-import {Question} from "@/types/question.type";
-import {creationService} from "@/lib/services/creation.service";
-import {createQuestionComponent} from "@/components/features/question";
+import { useParams } from 'next/navigation';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { Component, ReactNode, useEffect, useState } from 'react';
+import { Question } from '@/types/question.type';
+import { creationService } from '@/lib/services/creation.service';
+import { createQuestionComponent } from '@/components/features/question';
 
 class CreatorErrorBoundary extends Component<
   { children: ReactNode; questionId: string; type: string },
@@ -37,7 +37,7 @@ class CreatorErrorBoundary extends Component<
                 Error: {this.state.error?.message}
               </p>
               <button
-                onClick={() => (window.location.href = "/add-problem")}
+                onClick={() => (window.location.href = '/add-problem')}
                 className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
               >
                 Back to Add Problem
@@ -66,11 +66,11 @@ export default function CreateQuestionPage() {
         const _question = await creationService.getCreateQuestionData(id);
         setQuestion(_question);
       } catch (error) {
-        console.error("Failed to load question data:", error);
+        console.error('Failed to load question data:', error);
       }
-    }
-    loadQuestion()
-  }, []);
+    };
+    loadQuestion();
+  }, [id]);
 
   if (!CreatorComponent && !question) {
     return (
@@ -88,7 +88,7 @@ export default function CreateQuestionPage() {
                 Please check the available question types.
               </p>
               <button
-                onClick={() => (window.location.href = "/add-problem")}
+                onClick={() => (window.location.href = '/add-problem')}
                 className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded"
               >
                 Back to Add Problem
@@ -102,7 +102,7 @@ export default function CreateQuestionPage() {
 
   return (
     <CreatorErrorBoundary questionId={id} type={type}>
-      { question && <CreatorComponent initialDataQuestion={question}/>}
+      {question && <CreatorComponent initialDataQuestion={question} />}
     </CreatorErrorBoundary>
   );
 }

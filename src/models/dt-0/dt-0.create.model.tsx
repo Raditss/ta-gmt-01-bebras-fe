@@ -1,79 +1,72 @@
-import { ICreateQuestion } from "../interfaces/create-question.model";
-import {Question} from "@/types/question.type";
-import {isPresent} from "@/utils/helpers/common.helper";
-
-export interface Condition {
-  attribute: string;
-  operator: string;
-  value: string;
-}
-
-export interface Rule {
-  id: number;
-  conditions: Condition[];
-}
-
-export interface DecisionTreeCreationContent {
-  rules: Rule[];
-}
+import { ICreateQuestion } from '../interfaces/create-question.model';
+import { DecisionTreeContent, Rule } from '@/models/dt-0/dt-0.type';
+import { MonsterPartType } from '@/components/features/question/dt/types';
+import { Question } from '@/types/question.type';
 
 export class DecisionTreeCreateModel extends ICreateQuestion {
-  private _content: DecisionTreeCreationContent;
+  private content: DecisionTreeContent;
 
-  constructor(
-    _question: Question
-  ) {
-    super(_question);
-    this._content = {
-      rules: [],
+  constructor(draft: Question) {
+    super(draft);
+    this.content = {
+      rules: []
     };
-    this.populateFromContentString(_question.content);
+    this.populateFromContentString(this.draft.content);
   }
 
-  get content(): DecisionTreeCreationContent {
-    return this._content;
+  get rules(): Rule[] {
+    return this.content.rules;
   }
 
-  set content(value: DecisionTreeCreationContent) {
-    this._content = value;
+  set rules(value: Rule[]) {
+    this.content.rules = value;
   }
 
-  contentToString(): string {
+  toJson(): string {
     return JSON.stringify(this.content);
   }
 
   populateFromContentString(contentString: string): void {
     try {
-      const content = JSON.parse(contentString) as DecisionTreeCreationContent;
-      this.content = content || { rules: [] };
+      console.log(
+        '1: ',
+        this.content,
+        contentString,
+        JSON.parse('{}'),
+        JSON.parse(contentString)
+      );
+      this.content = JSON.parse(contentString) as DecisionTreeContent;
+      console.log('2: ', this.content);
+      if (!this.hasRequiredContent()) {
+        this.content.rules = [];
+      }
+      console.log('3: ', this.content);
     } catch (error) {
-      console.error("Error parsing Decision Tree creation content:", error);
-      throw new Error("Invalid Decision Tree creation content format");
+      console.error('Error parsing Decision Tree creation content:', error);
+      throw new Error('Invalid Decision Tree creation content format');
     }
-  }
-
-  setRules(rules: Rule[]): void {
-    this.content.rules = rules;
   }
 
   validateContent(): boolean {
-    if (!this.hasRequiredContent()) return false;
-
-    return this.content.rules.every((rule) => this.validateRule(rule));
+    return (
+      this.hasRequiredContent() &&
+      this.content.rules.every((rule) => this.validateRule(rule))
+    );
   }
 
   hasRequiredContent(): boolean {
-    return Object.values(this.content).every(isPresent)
+    return this.content.rules && this.content.rules.length > 0;
   }
 
   validateRule(rule: Rule): boolean {
-    if (this.content.rules.some((r) => r.id === rule.id)) {
+    if (Object.values(MonsterPartType).length != rule.conditions.length)
       return false;
-    }
 
-    return rule.conditions.every(
-      (condition) =>
-        condition.attribute && condition.operator && condition.value
+    return Object.values(MonsterPartType).every((part) =>
+      rule.conditions.some(
+        (condition) =>
+          condition.attribute === part && condition.operator && condition.value
+      )
     );
   }
 }

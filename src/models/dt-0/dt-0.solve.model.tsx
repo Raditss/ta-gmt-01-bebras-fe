@@ -1,25 +1,11 @@
 import { QuestionTypeEnum } from '@/types/question-type.type';
 import { IAttempt, IQuestion } from '@/models/interfaces/question.model';
 import { QuestionAttemptData } from '@/types/question-attempt.type';
-
-interface Condition {
-  attribute: string;
-  operator: string;
-  value: string;
-}
-
-export interface Rule {
-  id: number;
-  conditions: Condition[];
-}
-
-interface DecisionTreeAnswer {
-  selections: Record<string, string>;
-}
-
-interface DecisionTreeContent {
-  rules: Rule[];
-}
+import {
+  DecisionTreeAnswer,
+  DecisionTreeContent,
+  Rule
+} from '@/models/dt-0/dt-0.type';
 
 export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
   private content: DecisionTreeContent;

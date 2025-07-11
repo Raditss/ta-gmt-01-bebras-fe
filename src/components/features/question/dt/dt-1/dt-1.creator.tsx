@@ -3,7 +3,7 @@
 import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
 import MonsterCharacter from '@/components/features/question/dt/monster-character';
 import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
-import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/solver/helper';
+import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/helper';
 import {
   monsterAssetUrl,
   MonsterPartOptionType,
