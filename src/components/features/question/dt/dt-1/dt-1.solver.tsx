@@ -23,7 +23,7 @@ import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 import MonsterPartWardrobe from '../monster-part-wardrobe';
 
 export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
-  const { question, loading, error, currentDuration } =
+  const { question, loading, error, currentDuration, markAsSubmitted } =
     useSolveQuestion<DecisionTree2SolveModel>(
       questionId,
       DecisionTree2SolveModel
@@ -328,6 +328,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                       content={null}
                       answerArr={question.getCombinations()}
                       isDisabled={false}
+                      onSubmissionSuccess={markAsSubmitted}
                     />
                   </div>
                 </div>
