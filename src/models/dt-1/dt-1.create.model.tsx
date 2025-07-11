@@ -1,32 +1,14 @@
 import { ICreateQuestion } from '@/models/interfaces/create-question.model';
 import { Question } from '@/types/question.type';
 import { isPresent } from '@/utils/helpers/common.helper';
-
-export interface Condition {
-  attribute: string;
-  operator: string;
-  value: string;
-}
-
-export interface Rule {
-  id: number;
-  conditions: Condition[];
-  finish: number;
-}
-
-export interface Finish {
-  id: number;
-  name: string;
-}
-
-export interface DecisionTree2CreationContent {
-  rules: Rule[];
-  finishes: Finish[];
-  goals: number[];
-}
+import {
+  DecisionTree2Content,
+  Finish,
+  Rule
+} from '@/models/dt-1/dt-1.model.type';
 
 export class DecisionTree2CreateModel extends ICreateQuestion {
-  private _content: DecisionTree2CreationContent;
+  private _content: DecisionTree2Content;
 
   constructor(_question: Question) {
     super(_question);
@@ -35,13 +17,14 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
       finishes: [],
       goals: []
     };
+    this.populateFromContentString(_question.content);
   }
 
-  get content(): DecisionTree2CreationContent {
+  get content(): DecisionTree2Content {
     return this._content;
   }
 
-  set content(value: DecisionTree2CreationContent) {
+  set content(value: DecisionTree2Content) {
     this._content = value;
   }
 
@@ -51,7 +34,7 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
 
   populateFromContentString(contentString: string): void {
     try {
-      this.content = JSON.parse(contentString) as DecisionTree2CreationContent;
+      this.content = JSON.parse(contentString) as DecisionTree2Content;
     } catch (error) {
       console.error('Error parsing Decision Tree 2 creation content:', error);
       throw new Error('Invalid Decision Tree 2 creation content format');

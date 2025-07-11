@@ -1,16 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '@/components/features/question/dt/types';
+import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
 import { Stage } from '@pixi/react';
 import { calculateCanvasSize } from '@/utils/helpers/canvas.helper';
 import MonsterContainer from './monster-container';
 
 interface MonsterCharacterProps {
-  selections: Record<string, MonsterPartOptionType>;
+  selections: Record<string, string>;
   hovered: {
     category: MonsterPartType;
     value: string;
@@ -33,7 +30,14 @@ export default function MonsterCharacter({
   }, [updateCanvasSize]);
 
   return (
-    <Stage width={canvasSize.width} height={canvasSize.height}>
+    <Stage
+      width={canvasSize.width}
+      height={canvasSize.height}
+      options={{
+        backgroundAlpha: 0,
+        antialias: true
+      }}
+    >
       <MonsterContainer
         canvasSize={canvasSize}
         selections={selections}

@@ -24,14 +24,13 @@ export function CreatorWrapper({
   children,
   loading,
   error,
-  hasUnsavedChanges,
+  hasUnsavedChanges: _,
   showNavigationDialog,
   onSaveAndLeave,
   onLeaveWithoutSaving,
   onStayOnPage,
   onSetShowDialog
 }: CreatorWrapperProps) {
-  console.log('hasUnsavedChanges', hasUnsavedChanges);
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-background">

@@ -17,7 +17,7 @@ export function SolverWrapper({
 }) {
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex flex-col bg-background">
         <div className="flex-1 flex justify-center items-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-purple mx-auto mb-4"></div>
@@ -30,7 +30,7 @@ export function SolverWrapper({
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen bg-background">
+      <div className="flex flex-col bg-background">
         <div className="flex-1 flex justify-center items-center">
           <div className="text-center p-6 bg-card rounded-lg shadow-sm border">
             <p className="text-lg text-destructive mb-2">
@@ -43,7 +43,5 @@ export function SolverWrapper({
     );
   }
 
-  return (
-    <div className="flex flex-col min-h-screen bg-background">{children}</div>
-  );
+  return <div className="flex flex-col bg-background">{children}</div>;
 }

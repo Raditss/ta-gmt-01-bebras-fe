@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Assets, Spritesheet, Texture } from 'pixi.js';
-import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
 import {
   defaultColor,
   monsterAssetUrl,
   MonsterPartType
-} from '@/components/features/question/dt/types';
+} from '@/components/features/question/dt/monster-part.type';
+import KenneyMonsterSpritesheet from '@/components/features/question/dt/kenney-monster-spritesheet';
 
 interface UseMonsterSpritesReturn {
   spritesheet: Spritesheet | null;
@@ -23,6 +23,14 @@ interface UseMonsterSpritesReturn {
   ) => string | null;
 }
 
+interface TextureData {
+  source: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export function useMonsterSprites(): UseMonsterSpritesReturn {
   const [spritesheet, setSpritesheet] = useState<Spritesheet | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,15 +40,37 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
       try {
         setIsLoading(true);
 
-        await spritesheetParser.loadXML(`${monsterAssetUrl}/spritesheet.xml`);
-
         const texture = await Assets.load(`${monsterAssetUrl}/spritesheet.png`);
 
-        const spritesheetData = spritesheetParser.toPIXIFormat(texture);
+        // Get all textures from the spritesheet
+        const allTextures = Object.values(
+          KenneyMonsterSpritesheet.textures
+        ).flatMap((typeTextures) => typeTextures as TextureData[]);
 
-        const newSpritesheet = new Spritesheet(texture, spritesheetData);
+        const newSpritesheet = new Spritesheet(texture as Texture, {
+          frames: Object.fromEntries(
+            allTextures.map((texture: TextureData) => [
+              texture.source,
+              {
+                frame: {
+                  x: texture.x,
+                  y: texture.y,
+                  w: texture.width,
+                  h: texture.height
+                }
+              }
+            ])
+          ),
+          meta: {
+            scale: '1'
+          }
+        });
+
+        if (spritesheet) {
+          spritesheet.destroy();
+        }
+
         await newSpritesheet.parse();
-
         setSpritesheet(newSpritesheet);
         setIsLoading(false);
       } catch (error) {
@@ -66,8 +96,8 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
         return `leg_${currentColor}_${value}.png`;
       case MonsterPartType.ARM:
         return `arm_${currentColor}_${value}.png`;
-      case MonsterPartType.HORN:
-        return value === 'none' ? null : `horn_${currentColor}_${value}.png`;
+      // case MonsterPartType.HORN:
+      //   return value === 'none' ? null : `horn_${currentColor}_${value}.png`;
       default:
         return null;
     }

@@ -5,7 +5,7 @@ import {
   DecisionTreeAnswer,
   DecisionTreeContent,
   Rule
-} from '@/models/dt-0/dt-0.type';
+} from '@/models/dt-0/dt-0.model.type';
 
 export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
   private content: DecisionTreeContent;
@@ -31,6 +31,10 @@ export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
     this.attemptIsDraft = isDraft;
   }
 
+  getSelection() {
+    return this.answer.selections;
+  }
+
   getAttemptData(): QuestionAttemptData {
     return {
       questionId: this.id,
@@ -46,7 +50,7 @@ export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
 
   loadAnswer(json: string) {
     const answer = JSON.parse(json) as DecisionTreeAnswer;
-    this.answer.selections = answer.selections || {};
+    this.answer = answer || {};
   }
 
   populateQuestionFromString(questionString: string): void {

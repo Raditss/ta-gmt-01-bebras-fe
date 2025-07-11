@@ -2,24 +2,15 @@
 
 import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
 import MonsterCharacter from '@/components/features/question/dt/monster-character';
-import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
-import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/helper';
+import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
 import {
-  monsterAssetUrl,
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/types';
+} from '@/components/features/question/dt/monster-part.type';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from '@/components/ui/carousel';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
@@ -27,6 +18,15 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -36,16 +36,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
-import { spritesheetParser } from '@/utils/helpers/spritesheet.helper';
-import {
-  Condition,
-  DecisionTree2CreateModel,
-  Finish,
-  Rule
-} from '@/models/dt-1/dt-1.create.model';
+import { DecisionTree2CreateModel } from '@/models/dt-1/dt-1.create.model';
 import {
   AlertCircle,
   CheckCircle2,
@@ -60,6 +53,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { BaseCreatorProps, CreatorWrapper } from '../../../bases/base.creator';
 import { CreationSubmissionModal } from '../../submission-modal.creator';
+import { Condition, Finish, Rule } from '@/models/dt-1/dt-1.model.type';
 
 const attributeLabels = {
   body: 'Body',
@@ -77,6 +71,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     hasUnsavedChanges,
     saveDraft,
     submitCreation,
+    isLoading,
     markAsChanged
   } = useCreateQuestion<DecisionTree2CreateModel>(
     initialDataQuestion,
@@ -99,9 +94,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   const [rules, setRules] = useState<Rule[]>([]);
   const [finishes, setFinishes] = useState<Finish[]>([]);
   const [goals, setGoals] = useState<number[]>([]);
-  const [currentRuleSelections, setCurrentRuleSelections] = useState<
-    Record<string, MonsterPartOptionType>
-  >({});
+  const [selections, setSelections] = useState<Record<string, string>>({});
   const [currentRuleFinish, setCurrentRuleFinish] = useState<number | null>(
     null
   );
@@ -109,7 +102,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     category: MonsterPartType;
     value: string;
   } | null>(null);
-  const [isCreatingRule, setIsCreatingRule] = useState(false);
+  const [isRuleDrawerOpen, setIsRuleDrawerOpen] = useState(false);
   const [editingRuleId, setEditingRuleId] = useState<number | null>(null);
   const [isCreatingFinish, setIsCreatingFinish] = useState(false);
   const [editingFinishId, setEditingFinishId] = useState<number | null>(null);
@@ -119,56 +112,22 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   const [duplicateRuleError, setDuplicateRuleError] = useState<string | null>(
     null
   );
-  const [monsterParts, setMonsterParts] = useState<Record<
-    MonsterPartType,
-    MonsterPartOptionType[]
-  > | null>(null);
-  const [optionsLoading, setOptionsLoading] = useState(true);
-
-  // Load monster options from sprites
-  useEffect(() => {
-    const loadOptions = async () => {
-      try {
-        setOptionsLoading(true);
-        await spritesheetParser.loadXML(`${monsterAssetUrl}/spritesheet.xml`);
-
-        const options = extractSpriteOptions();
-
-        const parts: Record<MonsterPartType, MonsterPartOptionType[]> = {
-          [MonsterPartType.COLOR]: options.colors,
-          [MonsterPartType.HORN]: options.horns,
-          [MonsterPartType.BODY]: options.body,
-          [MonsterPartType.ARM]: options.arms,
-          [MonsterPartType.LEG]: options.legs
-        };
-
-        setMonsterParts(parts);
-      } catch (error) {
-        console.error('Failed to load monster options:', error);
-      } finally {
-        setOptionsLoading(false);
-      }
-    };
-
-    loadOptions();
-  }, []);
 
   // Load existing data when question is loaded
   useEffect(() => {
     if (question) {
-      const decisionTree2Question = question;
-      setRules(decisionTree2Question.content.rules);
-      setFinishes(decisionTree2Question.content.finishes);
-      setGoals(decisionTree2Question.content.goals);
+      setRules(question.content.rules);
+      setFinishes(question.content.finishes);
+      setGoals(question.content.goals);
     }
   }, [question]);
 
   // Handle monster part selection for rule creation
   const handleSelection = useCallback(
     (category: MonsterPartType, value: MonsterPartOptionType) => {
-      setCurrentRuleSelections((prev) => ({
+      setSelections((prev) => ({
         ...prev,
-        [category]: value
+        [category]: value.value
       }));
       setDuplicateRuleError(null);
     },
@@ -188,17 +147,18 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
 
   // Check if current rule is valid
   const isCurrentRuleValid = () => {
-    const hasAllSelections = Object.keys(currentRuleSelections).length === 5;
+    const hasAllSelections =
+      Object.keys(selections).length === Object.values(MonsterPartType).length;
     const hasFinishSelected = currentRuleFinish !== null;
     return hasAllSelections && hasFinishSelected;
   };
 
   // Create conditions from current selections
   const createConditionsFromSelections = (): Condition[] => {
-    return Object.entries(currentRuleSelections).map(([attribute, option]) => ({
+    return Object.entries(selections).map(([attribute, option]) => ({
       attribute,
       operator: '=',
-      value: option.value
+      value: option
     }));
   };
 
@@ -206,7 +166,6 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   const handleSaveRule = () => {
     if (!question || !isCurrentRuleValid()) return;
 
-    const decisionTree2Question = question;
     const conditions = createConditionsFromSelections();
 
     // Check for duplicate rules
@@ -236,30 +195,32 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
         conditions,
         finish: currentRuleFinish!
       };
-      decisionTree2Question.updateRule(editingRuleId, updatedRule);
       setRules((prev) =>
         prev.map((rule) => (rule.id === editingRuleId ? updatedRule : rule))
       );
     } else {
       // Add new rule
       const newRule: Rule = {
-        id: decisionTree2Question.getNextRuleId(),
+        id: rules.length < 1 ? 1 : rules[rules.length - 1].id + 1,
         conditions,
         finish: currentRuleFinish!
       };
-      decisionTree2Question.addRule(newRule);
       setRules((prev) => [...prev, newRule]);
     }
 
     markAsChanged();
-    handleCancelRule();
+    setIsRuleDrawerOpen(false);
+    setEditingRuleId(null);
+    setSelections({});
+    setCurrentRuleFinish(null);
+    setDuplicateRuleError(null);
   };
 
   // Handle canceling rule creation/editing
   const handleCancelRule = () => {
-    setIsCreatingRule(false);
+    setIsRuleDrawerOpen(false);
     setEditingRuleId(null);
-    setCurrentRuleSelections({});
+    setSelections({});
     setCurrentRuleFinish(null);
     setDuplicateRuleError(null);
   };
@@ -267,33 +228,27 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Handle editing rule
   const handleEditRule = (rule: Rule) => {
     setEditingRuleId(rule.id);
-    setIsCreatingRule(true);
+    setIsRuleDrawerOpen(true);
 
     // Convert conditions back to selections
-    const selections: Record<string, MonsterPartOptionType> = {};
+    const selections: Record<string, string> = {};
     rule.conditions.forEach((condition) => {
-      selections[condition.attribute] = {
-        value: condition.value,
-        label: condition.value
-      };
+      selections[condition.attribute] = condition.value;
     });
-    setCurrentRuleSelections(selections);
+    setSelections(selections);
     setCurrentRuleFinish(rule.finish);
   };
 
   // Handle removing rule
   const handleRemoveRule = (ruleId: number) => {
     if (!question) return;
-    question.removeRule(ruleId);
     setRules((prev) => prev.filter((rule) => rule.id !== ruleId));
     markAsChanged();
   };
 
   // Handle adding/updating finish
-  const handleSaveFinish = () => {
+  const handleSaveFinish = useCallback(() => {
     if (!question || !newFinishName.trim()) return;
-
-    const decisionTree2Question = question;
 
     if (editingFinishId) {
       // Update existing finish
@@ -301,7 +256,6 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
         id: editingFinishId,
         name: newFinishName.trim()
       };
-      decisionTree2Question.updateFinish(editingFinishId, updatedFinish);
       setFinishes((prev) =>
         prev.map((finish) =>
           finish.id === editingFinishId ? updatedFinish : finish
@@ -310,16 +264,15 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     } else {
       // Add new finish
       const newFinish: Finish = {
-        id: decisionTree2Question.getNextFinishId(),
+        id: finishes.length < 1 ? 1 : finishes[finishes.length - 1].id + 1,
         name: newFinishName.trim()
       };
-      decisionTree2Question.addFinish(newFinish);
       setFinishes((prev) => [...prev, newFinish]);
     }
 
     markAsChanged();
     handleCancelFinish();
-  };
+  }, [editingFinishId, markAsChanged, newFinishName, question]);
 
   // Handle canceling finish creation/editing
   const handleCancelFinish = () => {
@@ -338,7 +291,6 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Handle removing finish
   const handleRemoveFinish = (finishId: number) => {
     if (!question) return;
-    question.removeFinish(finishId);
     setFinishes((prev) => prev.filter((finish) => finish.id !== finishId));
     setGoals((prev) => prev.filter((goalId) => goalId !== finishId));
     markAsChanged();
@@ -347,7 +299,6 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Handle toggling goal
   const handleToggleGoal = (finishId: number) => {
     if (!question) return;
-    question.toggleGoal(finishId);
 
     if (goals.includes(finishId)) {
       setGoals((prev) => prev.filter((goalId) => goalId !== finishId));
@@ -359,6 +310,13 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
 
   // Handle manual save
   const handleManualSave = async () => {
+    if (question) {
+      question.content = {
+        finishes: finishes,
+        goals: goals,
+        rules: rules
+      };
+    }
     await saveDraft();
     setShowSaveConfirmation(true);
     setTimeout(() => setShowSaveConfirmation(false), 2000);
@@ -367,7 +325,12 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Handle submit
   const handleSubmit = () => {
     if (!question) return;
-    if (question.hasRequiredContent()) {
+    question.content = {
+      finishes: finishes,
+      goals: goals,
+      rules: rules
+    };
+    if (question.validateContent()) {
       setShowSubmissionModal(true);
     } else {
       // Show validation errors
@@ -393,7 +356,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
 
   return (
     <CreatorWrapper
-      loading={optionsLoading}
+      loading={isLoading}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -437,8 +400,8 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
             </Alert>
           )}
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            {/* Left Column - Finishes Management */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Finishes Management and Rules List */}
             <div className="space-y-6">
               {/* Finishes Management */}
               <Card>
@@ -535,157 +498,6 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                 </CardContent>
               </Card>
 
-              {/* Rules List */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Created Rules ({rules.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {rules.length > 0 ? (
-                    <div className="space-y-3">
-                      <p className="text-sm text-gray-600 mb-4">
-                        Rules define monster combinations that lead to specific
-                        finishes. Goal rules (highlighted) are what students
-                        must reach.
-                      </p>
-
-                      {/* Rule Statistics */}
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                          <div className="text-sm font-medium text-blue-800">
-                            Total Rules
-                          </div>
-                          <div className="text-2xl font-bold text-blue-900">
-                            {rules.length}
-                          </div>
-                        </div>
-                        <div className="p-3 bg-green-50 rounded-lg border border-green-200">
-                          <div className="text-sm font-medium text-green-800">
-                            Goal Rules
-                          </div>
-                          <div className="text-2xl font-bold text-green-900">
-                            {
-                              rules.filter((rule) =>
-                                goals.includes(rule.finish)
-                              ).length
-                            }
-                          </div>
-                        </div>
-                      </div>
-
-                      {rules.map((rule) => {
-                        const finish = finishes.find(
-                          (f) => f.id === rule.finish
-                        );
-                        const isGoal = goals.includes(rule.finish);
-                        return (
-                          <div
-                            key={rule.id}
-                            className={`p-3 border rounded-lg ${
-                              isGoal
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-gray-50 border-gray-200'
-                            }`}
-                          >
-                            <div className="flex justify-between items-start">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <span className="font-medium">
-                                    Rule {rule.id}
-                                  </span>
-                                  <Badge
-                                    variant={isGoal ? 'default' : 'secondary'}
-                                    className={
-                                      isGoal
-                                        ? 'bg-green-100 text-green-800'
-                                        : ''
-                                    }
-                                  >
-                                    → {finish?.name || 'Unknown'}{' '}
-                                    {isGoal && '(Goal)'}
-                                  </Badge>
-                                </div>
-                                <div className="text-sm text-gray-600">
-                                  {rule.conditions
-                                    .map((cond) =>
-                                      getDisplayValue(
-                                        cond.attribute,
-                                        cond.value
-                                      )
-                                    )
-                                    .join(' AND ')}
-                                </div>
-                              </div>
-                              <div className="flex gap-1">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleEditRule(rule)}
-                                >
-                                  <Edit2 className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleRemoveRule(rule.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center text-gray-500 py-8">
-                      <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p className="font-medium mb-1">No Rules Created</p>
-                      <p className="text-sm">
-                        Create finishes first, then add rules that lead to them
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Middle Column - Decision Tree Visualization */}
-            <div className="space-y-6">
-              {/* Decision Tree Visualization */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    Decision Tree Preview
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {rules.length > 0 && finishes.length > 0 ? (
-                    <div className="h-96 overflow-auto">
-                      <DecisionTree2
-                        rules={rules}
-                        finishes={finishes}
-                        goals={goals}
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-96 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
-                      <div className="text-center text-gray-500">
-                        <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg font-medium mb-2">
-                          No Decision Tree Yet
-                        </p>
-                        <p className="text-sm">
-                          Create some finishes and rules to see the decision
-                          tree visualization
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
               {/* Goal Management */}
               <Card>
                 <CardHeader>
@@ -737,10 +549,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                           onClick={() => {
                             const allFinishIds = finishes.map((f) => f.id);
                             setGoals(allFinishIds);
-                            if (question) {
-                              question.setGoals(allFinishIds);
-                              markAsChanged();
-                            }
+                            markAsChanged();
                           }}
                           disabled={goals.length === finishes.length}
                         >
@@ -751,10 +560,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                           size="sm"
                           onClick={() => {
                             setGoals([]);
-                            if (question) {
-                              question.setGoals([]);
-                              markAsChanged();
-                            }
+                            markAsChanged();
                           }}
                           disabled={goals.length === 0}
                         >
@@ -814,159 +620,303 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
               </Card>
             </div>
 
-            {/* Right Column - Rule Creation */}
+            {/* Right Column - Created Rules */}
             <div className="space-y-6">
-              {/* Monster Character Preview */}
+              {/* Rules List */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Rule Creation</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="p-4 border rounded-lg bg-gray-50">
-                      <MonsterCharacter
-                        selections={currentRuleSelections}
-                        hovered={hovered}
-                      />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Created Rules ({rules.length})</CardTitle>
+                    <Drawer
+                      open={isRuleDrawerOpen}
+                      onOpenChange={setIsRuleDrawerOpen}
+                    >
+                      <DrawerTrigger asChild>
+                        <Button size="sm" disabled={finishes.length === 0}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Rule
+                        </Button>
+                      </DrawerTrigger>
+                      <DrawerContent className="max-h-[90vh]">
+                        <DrawerHeader>
+                          <DrawerTitle>
+                            {editingRuleId ? 'Edit Rule' : 'Create New Rule'}
+                          </DrawerTitle>
+                        </DrawerHeader>
 
-                    {/* Rule Form */}
-                    {(isCreatingRule || editingRuleId) && (
-                      <div className="w-full space-y-4">
-                        {/* Finish Selection */}
-                        <div className="space-y-2">
-                          <Label>Select Finish</Label>
-                          <Select
-                            value={currentRuleFinish?.toString() || ''}
-                            onValueChange={(value) =>
-                              setCurrentRuleFinish(parseInt(value))
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose a finish..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {finishes.map((finish) => (
-                                <SelectItem
-                                  key={finish.id}
-                                  value={finish.id.toString()}
-                                >
-                                  {finish.name}
-                                  {goals.includes(finish.id) && ' (Goal)'}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <div className="px-4 pb-4 overflow-y-auto">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Left Side - Monster Character */}
+                            <div className="flex flex-col items-center space-y-4">
+                              <div className="text-lg font-semibold">
+                                Monster Preview
+                              </div>
+                              <div className="p-4 border rounded-lg bg-gray-50">
+                                <MonsterCharacter
+                                  selections={selections}
+                                  hovered={hovered}
+                                />
+                              </div>
 
-                        {/* Monster part selection */}
-                        {monsterParts && (
-                          <Tabs
-                            defaultValue={Object.keys(monsterParts)[0]}
-                            className="w-full"
-                          >
-                            <TabsList className="grid w-full grid-cols-5">
-                              {Object.keys(monsterParts).map((part) => (
-                                <TabsTrigger
-                                  key={part}
-                                  value={part}
-                                  className="text-xs"
-                                >
-                                  {part.replace(/_/g, ' ')}
-                                </TabsTrigger>
-                              ))}
-                            </TabsList>
-                            {Object.keys(monsterParts).map((part) => (
-                              <TabsContent
-                                key={part}
-                                value={part}
-                                className="w-full"
-                              >
-                                <Carousel className="w-full max-w-xs mx-auto">
-                                  <CarouselContent>
-                                    {monsterParts[part as MonsterPartType].map(
-                                      (option) => (
-                                        <CarouselItem
-                                          key={option.value}
-                                          className="basis-1/3"
+                              {/* Current Selections Display */}
+                              {Object.keys(selections).length > 0 && (
+                                <div className="w-full p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                  <div className="text-sm font-medium text-blue-800 mb-2">
+                                    Current Selections:
+                                  </div>
+                                  <div className="space-y-1">
+                                    {Object.entries(selections).map(
+                                      ([attribute, value]) => (
+                                        <div
+                                          key={attribute}
+                                          className="text-sm text-blue-700"
                                         >
-                                          <MonsterPartOption
-                                            option={option}
-                                            selected={
-                                              currentRuleSelections[part]
-                                                ?.value === option.value
-                                            }
-                                            onMouseEnter={() =>
-                                              handleHover(
-                                                part as MonsterPartType,
-                                                option.value
-                                              )
-                                            }
-                                            onMouseLeave={handleMouseLeave}
-                                            onClick={() =>
-                                              handleSelection(
-                                                part as MonsterPartType,
-                                                option
-                                              )
-                                            }
-                                          />
-                                        </CarouselItem>
+                                          {getDisplayValue(attribute, value)}
+                                        </div>
                                       )
                                     )}
-                                  </CarouselContent>
-                                  <CarouselPrevious />
-                                  <CarouselNext />
-                                </Carousel>
-                              </TabsContent>
-                            ))}
-                          </Tabs>
-                        )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
 
-                        {/* Error display */}
-                        {duplicateRuleError && (
-                          <Alert>
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>
-                              {duplicateRuleError}
-                            </AlertDescription>
-                          </Alert>
-                        )}
+                            {/* Right Side - Monster Part Wardrobe */}
+                            <div className="space-y-4">
+                              <div className="text-lg font-semibold">
+                                Monster Parts
+                              </div>
 
-                        {/* Action buttons */}
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleSaveRule}
-                            disabled={!isCurrentRuleValid()}
-                          >
-                            {editingRuleId ? 'Update' : 'Add'} Rule
-                          </Button>
-                          <Button variant="outline" onClick={handleCancelRule}>
-                            Cancel
-                          </Button>
+                              {/* Finish Selection */}
+                              <div className="space-y-2">
+                                <Label>Select Finish</Label>
+                                <Select
+                                  value={currentRuleFinish?.toString() || ''}
+                                  onValueChange={(value) =>
+                                    setCurrentRuleFinish(parseInt(value))
+                                  }
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Choose a finish..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {finishes.map((finish) => (
+                                      <SelectItem
+                                        key={finish.id}
+                                        value={finish.id.toString()}
+                                      >
+                                        {finish.name}
+                                        {goals.includes(finish.id) && ' (Goal)'}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <MonsterPartWardrobe
+                                selections={selections}
+                                onSelection={handleSelection}
+                                onHover={handleHover}
+                                onMouseLeave={handleMouseLeave}
+                              />
+
+                              {/* Error display */}
+                              {duplicateRuleError && (
+                                <Alert>
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertDescription>
+                                    {duplicateRuleError}
+                                  </AlertDescription>
+                                </Alert>
+                              )}
+                            </div>
+                          </div>
                         </div>
+
+                        <DrawerFooter>
+                          <div className="flex gap-2 w-full">
+                            <Button
+                              onClick={handleSaveRule}
+                              disabled={!isCurrentRuleValid()}
+                              className="flex-1"
+                            >
+                              {editingRuleId ? 'Update' : 'Add'} Rule
+                            </Button>
+                            <DrawerClose asChild>
+                              <Button
+                                variant="outline"
+                                onClick={handleCancelRule}
+                                className="flex-1"
+                              >
+                                Cancel
+                              </Button>
+                            </DrawerClose>
+                          </div>
+                        </DrawerFooter>
+                      </DrawerContent>
+                    </Drawer>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <p className="text-sm text-gray-600 mb-4">
+                      Rules define monster combinations that lead to specific
+                      finishes. Goal rules (highlighted) are what students must
+                      reach.
+                    </p>
+
+                    {finishes.length === 0 && (
+                      <div className="text-center text-gray-500 py-4 mb-4 bg-gray-50 rounded-lg border border-dashed">
+                        <p className="text-sm">
+                          Create some finishes first before adding rules
+                        </p>
                       </div>
                     )}
 
-                    {!isCreatingRule && !editingRuleId && (
-                      <Button
-                        onClick={() => setIsCreatingRule(true)}
-                        className="w-full"
-                        disabled={finishes.length === 0}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Add Rule
-                      </Button>
-                    )}
+                    {rules.length > 0 ? (
+                      <>
+                        {/* Rule Statistics */}
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <div className="text-sm font-medium text-blue-800">
+                              Total Rules
+                            </div>
+                            <div className="text-2xl font-bold text-blue-900">
+                              {rules.length}
+                            </div>
+                          </div>
+                          <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                            <div className="text-sm font-medium text-green-800">
+                              Goal Rules
+                            </div>
+                            <div className="text-2xl font-bold text-green-900">
+                              {
+                                rules.filter((rule) =>
+                                  goals.includes(rule.finish)
+                                ).length
+                              }
+                            </div>
+                          </div>
+                        </div>
 
-                    {finishes.length === 0 && (
-                      <p className="text-sm text-gray-500 text-center">
-                        Create some finishes first before adding rules
-                      </p>
+                        {/* Scrollable Rules List */}
+                        <div className="max-h-96 overflow-y-auto space-y-3 pr-2">
+                          {rules.map((rule) => {
+                            const finish = finishes.find(
+                              (f) => f.id === rule.finish
+                            );
+                            const isGoal = goals.includes(rule.finish);
+                            return (
+                              <div
+                                key={rule.id}
+                                className={`p-3 border rounded-lg ${
+                                  isGoal
+                                    ? 'bg-green-50 border-green-200'
+                                    : 'bg-gray-50 border-gray-200'
+                                }`}
+                              >
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="font-medium">
+                                        Rule {rule.id}
+                                      </span>
+                                      <Badge
+                                        variant={
+                                          isGoal ? 'default' : 'secondary'
+                                        }
+                                        className={
+                                          isGoal
+                                            ? 'bg-green-100 text-green-800'
+                                            : ''
+                                        }
+                                      >
+                                        → {finish?.name || 'Unknown'}{' '}
+                                        {isGoal && '(Goal)'}
+                                      </Badge>
+                                    </div>
+                                    <div className="text-sm text-gray-600">
+                                      {rule.conditions
+                                        .map((cond) =>
+                                          getDisplayValue(
+                                            cond.attribute,
+                                            cond.value
+                                          )
+                                        )
+                                        .join(' AND ')}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleEditRule(rule)}
+                                    >
+                                      <Edit2 className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleRemoveRule(rule.id)}
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center text-gray-500 py-8">
+                        <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="font-medium mb-1">No Rules Created</p>
+                        <p className="text-sm">
+                          Create finishes first, then add rules that lead to
+                          them
+                        </p>
+                      </div>
                     )}
                   </div>
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Full Width Decision Tree at the Bottom */}
+          <div className="mt-8">
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Decision Tree Preview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {rules.length > 0 && finishes.length > 0 ? (
+                  <div className="w-full h-96 overflow-auto">
+                    <DecisionTree2
+                      rules={rules}
+                      finishes={finishes}
+                      goals={goals}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-96 flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg">
+                    <div className="text-center text-gray-500">
+                      <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium mb-2">
+                        No Decision Tree Yet
+                      </p>
+                      <p className="text-sm">
+                        Create some finishes and rules to see the decision tree
+                        visualization
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Nav Protection Dialog */}

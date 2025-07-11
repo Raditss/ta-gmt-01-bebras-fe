@@ -14,7 +14,7 @@ import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
 
 // Models and Types
 import { DecisionTreeCreateModel } from '@/models/dt-0/dt-0.create.model';
-import { MonsterPartType } from '@/components/features/question/dt/types';
+import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
 
 // Components
 import {
@@ -27,7 +27,6 @@ import MonsterCharacter from '@/components/features/question/dt/monster-characte
 import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
 import RuleManagement from './rule-management';
 import RulesList from './rules-list';
-import { monsterParts } from '@/components/features/question/dt/dt-0/helper';
 
 export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
   const router = useRouter();
@@ -120,7 +119,7 @@ export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
 
   const handleEditRule = useCallback(
     (ruleId: number) => {
-      editRule(ruleId, monsterParts);
+      editRule(ruleId);
     },
     [editRule]
   );
@@ -128,11 +127,11 @@ export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Convert current selections to format expected by DecisionTree
   const getTreeSelections = useCallback((): Record<string, string> => {
     return {
-      body: currentRuleSelections[MonsterPartType.BODY]?.value || '',
-      arms: currentRuleSelections[MonsterPartType.ARM]?.value || '',
-      legs: currentRuleSelections[MonsterPartType.LEG]?.value || '',
-      horns: currentRuleSelections[MonsterPartType.HORN]?.value || '',
-      color: currentRuleSelections[MonsterPartType.COLOR]?.value || ''
+      body: currentRuleSelections[MonsterPartType.BODY] || '',
+      arms: currentRuleSelections[MonsterPartType.ARM] || '',
+      legs: currentRuleSelections[MonsterPartType.LEG] || '',
+      // horns: currentRuleSelections[MonsterPartType.HORN]?.value || '',
+      color: currentRuleSelections[MonsterPartType.COLOR] || ''
     };
   }, [currentRuleSelections]);
 
