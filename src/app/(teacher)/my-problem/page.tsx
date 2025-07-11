@@ -39,7 +39,8 @@ export default function MyProblemPage() {
         setLoading(true);
         setError(null);
         // TODO
-        const allQuestions = await questionsApi.getQuestions();
+        // get question by this teacher
+        const allQuestions = await questionsApi.getQuestionsByTeacher();
         setQuestions(allQuestions.data);
       } catch (_err) {
         setError('Failed to load questions');

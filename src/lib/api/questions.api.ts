@@ -13,6 +13,8 @@ interface GetQuestionsParams {
   take?: number;
   search?: string;
   types?: QuestionTypeEnum[];
+  isActive?: boolean;
+  isPublished?: boolean;
 }
 
 interface QuestionsApiResponse {
@@ -41,7 +43,12 @@ export const questionsApi = {
     if (params?.search && params.search.trim()) {
       searchParams.append('search', params.search.trim());
     }
-
+    if (params?.isActive !== undefined) {
+      searchParams.append('isActive', params.isActive.toString());
+    }
+    if (params?.isPublished !== undefined) {
+      searchParams.append('isPublished', params.isPublished.toString());
+    }
     // Add question type filtering to where clause
     if (params?.types && params.types.length > 0) {
       whereClause.questionType = {
@@ -60,6 +67,18 @@ export const questionsApi = {
     const url = queryString ? `/questions?${queryString}` : '/questions';
 
     const response = await apiCore.get<QuestionsApiResponse>(url);
+    return response.data;
+  },
+
+  async getQuestionsByTeacher(): Promise<QuestionsApiResponse> {
+    const response =
+      await apiCore.get<QuestionsApiResponse>(`/questions/teacher`);
+    return response.data;
+  },
+
+  async getQuestionsByAdmin(): Promise<QuestionsApiResponse> {
+    const response =
+      await apiCore.get<QuestionsApiResponse>(`/questions/admin`);
     return response.data;
   },
 
@@ -96,6 +115,17 @@ export const questionsApi = {
   ): Promise<QuestionResponse> {
     const response = await apiCore.patch<QuestionResponse>(
       `/questions/${id}`,
+      updateQuestionPayload
+    );
+    return response.data;
+  },
+
+  async updateQuestionByAdmin(
+    updateQuestionPayload: UpdateQuestionRequest,
+    id: number
+  ): Promise<QuestionResponse> {
+    const response = await apiCore.patch<QuestionResponse>(
+      `/questions/admin/${id}`,
       updateQuestionPayload
     );
     return response.data;

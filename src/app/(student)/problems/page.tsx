@@ -39,7 +39,11 @@ export default function ProblemsPage() {
     hasPreviousPage,
     goToPage,
     refresh
-  } = useQuestionsWithSearch({ selectedCategories });
+  } = useQuestionsWithSearch({
+    selectedCategories,
+    isActive: true,
+    isPublished: true
+  });
 
   useEffect(() => {
     setMounted(true);

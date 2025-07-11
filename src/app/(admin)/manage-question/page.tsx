@@ -1,61 +1,96 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { BookOpen } from "lucide-react";
+import { useEffect, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { BookOpen } from 'lucide-react';
+import { questionsApi } from '@/lib/api/questions.api';
+import { QuestionResponse } from '@/utils/validations/question.validation';
 
-const MOCK_QUESTIONS = [
-  {
-    id: 1,
-    title: "CFG Transformation: 6 → 3 states",
-    author: "Teacher Alice",
-    type: "context-free-grammar",
-    status: "PENDING",
-  },
-  {
-    id: 2,
-    title: "Cipher N",
-    author: "Teacher Bob",
-    type: "cipher-n",
-    status: "APPROVED",
-  },
-  {
-    id: 3,
-    title: "Decision Tree",
-    author: "Teacher Alice",
-    type: "decision-tree",
-    status: "TAKEDOWN",
-  },
-  {
-    id: 4,
-    title: "Ring Cipher",
-    author: "Teacher Dana",
-    type: "ring-cipher",
-    status: "PENDING",
-  },
-];
-
-const STATUS_COLORS = {
-  PENDING: "bg-yellow-100 text-yellow-800",
-  APPROVED: "bg-green-100 text-green-800",
-  TAKEDOWN: "bg-red-100 text-red-800",
+// Helper function to determine question status
+const getQuestionStatus = (
+  isActive: boolean,
+  _isPublished: boolean
+): string => {
+  if (isActive) return 'ACTIVE';
+  return 'PUBLISHED';
 };
 
 export default function ManageQuestionPage() {
-  const [questions] = useState(MOCK_QUESTIONS);
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [questions, setQuestions] = useState<QuestionResponse[]>([]);
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [updatingId, setUpdatingId] = useState<number | null>(null);
 
-  const questionTypes = Array.from(new Set(questions.map(q => q.type)));
-  const statusTypes = ["PENDING", "APPROVED", "TAKEDOWN"];
+  useEffect(() => {
+    async function fetchQuestions() {
+      try {
+        const response = await questionsApi.getQuestionsByAdmin();
+        setQuestions(response.data);
+      } catch (error) {
+        console.error('Failed to fetch questions for admin:', error);
+      }
+    }
+    fetchQuestions();
+  }, []);
 
-  const filteredQuestions = questions.filter(q => {
-    const matchesTitle = q.title.toLowerCase().includes(search.toLowerCase());
-    const matchesType = typeFilter ? q.type === typeFilter : true;
-    const matchesStatus = statusFilter ? q.status === statusFilter : true;
+  const handleToggleStatus = async (question: QuestionResponse) => {
+    if (updatingId === question.props.id) return;
+
+    setUpdatingId(question.props.id);
+    try {
+      const updatedQuestion = await questionsApi.updateQuestionByAdmin(
+        {
+          questionTypeId: question.props.questionTypeId,
+          title: question.props.title,
+          content: question.props.content,
+          isPublished: question.props.isPublished,
+          isActive: !question.props.isActive,
+          points: question.props.points,
+          estimatedTime: question.props.estimatedTime
+        },
+        question.props.id
+      );
+
+      // Update the questions list with the updated question
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((q) =>
+          q.props.id === question.props.id ? updatedQuestion : q
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update question status:', error);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const questionTypes = Array.from(
+    new Set(questions.map((q) => q.props.questionType.name))
+  );
+  const statusTypes = ['PUBLISHED', 'ACTIVE'];
+
+  const filteredQuestions = questions.filter((q) => {
+    const matchesTitle = q.props.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesType = typeFilter
+      ? q.props.questionType.name === typeFilter
+      : true;
+    const questionStatus = getQuestionStatus(
+      q.props.isActive,
+      q.props.isPublished
+    );
+    const matchesStatus = statusFilter ? questionStatus === statusFilter : true;
     return matchesTitle && matchesType && matchesStatus;
   });
 
@@ -75,28 +110,32 @@ export default function ManageQuestionPage() {
               type="text"
               placeholder="Search by title..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               className="w-full md:w-1/2"
             />
             <div className="flex gap-2 w-full md:w-auto justify-end">
               <select
                 value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value)}
+                onChange={(e) => setTypeFilter(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
                 <option value="">All Types</option>
-                {questionTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
+                {questionTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </select>
               <select
                 value={statusFilter}
-                onChange={e => setStatusFilter(e.target.value)}
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
                 <option value="">All Statuses</option>
-                {statusTypes.map(status => (
-                  <option key={status} value={status}>{status}</option>
+                {statusTypes.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
                 ))}
               </select>
             </div>
@@ -113,20 +152,53 @@ export default function ManageQuestionPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredQuestions.map((q) => (
-                <TableRow key={q.id}>
-                  <TableCell>{q.title}</TableCell>
-                  <TableCell>{q.author}</TableCell>
-                  <TableCell>{q.type}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[q.status as keyof typeof STATUS_COLORS]}`}>{q.status}</span>
-                  </TableCell>
-                  <TableCell className="space-x-2">
-                    <Button size="sm" disabled>Approve</Button>
-                    <Button size="sm" variant="destructive" disabled>Takedown</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredQuestions.map((q) => {
+                const status = getQuestionStatus(
+                  q.props.isActive,
+                  q.props.isPublished
+                );
+                const getStatusColor = (status: string) => {
+                  switch (status) {
+                    case 'PUBLISHED':
+                      return 'bg-blue-100 text-blue-800';
+                    case 'ACTIVE':
+                      return 'bg-green-100 text-green-800';
+                    default:
+                      return 'bg-gray-100 text-gray-800';
+                  }
+                };
+
+                const isUpdating = updatingId === q.props.id;
+
+                return (
+                  <TableRow key={q.props.id}>
+                    <TableCell>{q.props.title}</TableCell>
+                    <TableCell>{q.props.teacher?.name || '-'}</TableCell>
+                    <TableCell>{q.props.questionType.name}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(status)}`}
+                      >
+                        {status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="space-x-2">
+                      <Button
+                        size="sm"
+                        onClick={() => handleToggleStatus(q)}
+                        disabled={isUpdating}
+                        variant={q.props.isActive ? 'destructive' : 'default'}
+                      >
+                        {isUpdating
+                          ? 'Updating...'
+                          : q.props.isActive
+                            ? 'Deactivate'
+                            : 'Activate'}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
