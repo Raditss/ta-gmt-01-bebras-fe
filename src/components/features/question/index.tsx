@@ -3,6 +3,7 @@ import { ComponentType } from 'react';
 import { BaseCreatorProps } from '@/components/features/bases/base.creator';
 import Dt0Creator from '@/components/features/question/dt/dt-0/creator/dt-0.creator';
 import Dt1Creator from '@/components/features/question/dt/dt-1/dt-1.creator';
+import CfgCreator from '@/components/features/question/cfg/cfg.creator';
 import { BaseSolverProps } from '@/components/features/bases/base.solver';
 import CfgSolver from '@/components/features/question/cfg/cfg.solver';
 import CipherNSolver from '@/components/features/question/cipher-n/solver/cipher-n-solver';
@@ -15,7 +16,7 @@ export const createQuestionComponent: Record<
   QuestionTypeEnum,
   ComponentType<BaseCreatorProps>
 > = {
-  [QuestionTypeEnum.CFG]: NotImplementedCreator, // TODO: change to CfgCreator when implemented
+  [QuestionTypeEnum.CFG]: CfgCreator,
   [QuestionTypeEnum.CIPHER_N]: NotImplementedCreator, // TODO: change to CfgCreator when implemented
   [QuestionTypeEnum.RING_CIPHER]: NotImplementedCreator, // TODO: change to CfgCreator when implemented,
   [QuestionTypeEnum.DECISION_TREE]: Dt0Creator,
