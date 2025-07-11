@@ -1,18 +1,21 @@
-import {Question} from "@/types/question.type";
+import { Question } from '@/types/question.type';
 
 export abstract class ICreateQuestion {
   private readonly _draft: Question;
 
-  protected constructor(question: Question) {
-    this._draft = question;
+  protected constructor(draft: Question) {
+    this._draft = draft;
   }
 
-  abstract contentToString(): string;
+  abstract toJson(): string;
+
   abstract populateFromContentString(contentString: string): void;
+
   abstract hasRequiredContent(): boolean;
+
   abstract validateContent(): boolean;
 
-  get draft(): Question {
+  get draft() {
     return this._draft;
   }
 }

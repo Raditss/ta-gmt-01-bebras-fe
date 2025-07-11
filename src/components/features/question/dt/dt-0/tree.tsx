@@ -1,6 +1,6 @@
-import { Rule } from '@/models/dt-0/dt-0.solve.model';
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
+import { Rule } from '@/models/dt-0/dt-0.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';

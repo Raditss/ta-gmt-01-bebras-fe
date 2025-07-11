@@ -1,8 +1,8 @@
 import { creationService } from '@/lib/services/creation.service';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Question } from '@/types/question.type';
 import { ICreateQuestion } from '@/models/interfaces/create-question.model';
-import { Dayjs } from 'dayjs';
+import { toLocalDate } from '@/utils/formatting/date.format';
 
 type CreateQuestionConstructionModel<
   CreateQuestionModel extends ICreateQuestion
@@ -14,60 +14,75 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
 ) => {
   const question = useMemo(
     () => new createQuestionModel({ ..._question }),
-    [_question]
+    [_question, createQuestionModel]
   );
+
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [lastSavedDraft, setLastSavedDraft] = useState<Dayjs | null>(null);
-  const shouldSaveCreation = useRef(true);
+  const [lastSavedDraft, setLastSavedDraft] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!question.draft.isPublished && question.draft.content !== '{}') {
+      setLastSavedDraft(toLocalDate(question.draft.updatedAt));
+    }
+  }, [question]);
 
   const saveDraft = useCallback(async (): Promise<void> => {
     try {
-      console.log('Saving draft...', question);
-      if (!question.validateContent()) throw new Error('Invalid question data');
+      setError(null);
+      setIsLoading(true);
+
+      if (!question.validateContent()) {
+        throw new Error('Invalid question data');
+      }
 
       const updatedCreationData = await creationService.updateCreateQuestion(
         question.draft.id,
         {
           questionTypeId: question.draft.questionTypeId,
           title: question.draft.title,
-          content: question.contentToString(),
+          content: question.toJson(),
           isPublished: false,
           points: question.draft.points,
           estimatedTime: question.draft.estimatedTime
         }
       );
 
-      setLastSavedDraft(updatedCreationData.updatedAt);
+      setLastSavedDraft(toLocalDate(updatedCreationData.updatedAt));
       setHasUnsavedChanges(false);
-    } catch (err) {
-      console.error('❌ HOOK - Failed to save draft:', err);
+    } catch (_err) {
       setError('Failed to save draft');
+      console.error('Save draft error:', _err);
+    } finally {
+      setIsLoading(false);
     }
   }, [question]);
 
   const submitCreation = useCallback(async (): Promise<void> => {
     try {
-      if (!question.validateContent()) throw new Error('Invalid question data');
+      setError(null);
+      setIsLoading(true);
 
-      const updatedCreationData = await creationService.updateCreateQuestion(
-        question.draft.id,
-        {
-          questionTypeId: question.draft.questionTypeId,
-          title: question.draft.title,
-          content: question.contentToString(),
-          isPublished: true,
-          points: question.draft.points,
-          estimatedTime: question.draft.estimatedTime
-        }
-      );
+      if (!question.validateContent()) {
+        throw new Error('Invalid question data');
+      }
 
-      setLastSavedDraft(updatedCreationData.updatedAt);
+      await creationService.updateCreateQuestion(question.draft.id, {
+        questionTypeId: question.draft.questionTypeId,
+        title: question.draft.title,
+        content: question.toJson(),
+        isPublished: true,
+        points: question.draft.points,
+        estimatedTime: question.draft.estimatedTime
+      });
+
       setHasUnsavedChanges(false);
-    } catch (err) {
-      console.error('Failed to submit creation:', err);
-      shouldSaveCreation.current = true; // Re-enable auto-save on error
-      throw err;
+    } catch (_err) {
+      setError('Failed to submit creation');
+      console.error('Submit creation error:', _err);
+    } finally {
+      setIsLoading(false);
     }
   }, [question]);
 
@@ -75,13 +90,19 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
     setHasUnsavedChanges(true);
   }, []);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   return {
     question,
     error,
+    isLoading,
     hasUnsavedChanges,
     lastSavedDraft,
     saveDraft,
     submitCreation,
-    markAsChanged
+    markAsChanged,
+    clearError
   };
 };

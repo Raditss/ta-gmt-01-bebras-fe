@@ -13,7 +13,7 @@ import {
   MonsterPartOptionType,
   MonsterPartType
 } from '@/components/features/question/dt/types';
-import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/solver/helper';
+import { extractSpriteOptions } from '@/components/features/question/dt/dt-0/helper';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

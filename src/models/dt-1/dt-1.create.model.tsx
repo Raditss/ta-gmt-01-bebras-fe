@@ -1,6 +1,6 @@
-import { ICreateQuestion } from "@/models/interfaces/create-question.model";
-import {Question} from "@/types/question.type";
-import {isPresent} from "@/utils/helpers/common.helper";
+import { ICreateQuestion } from '@/models/interfaces/create-question.model';
+import { Question } from '@/types/question.type';
+import { isPresent } from '@/utils/helpers/common.helper';
 
 export interface Condition {
   attribute: string;
@@ -33,19 +33,19 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
     this._content = {
       rules: [],
       finishes: [],
-      goals: [],
+      goals: []
     };
   }
 
   get content(): DecisionTree2CreationContent {
-    return this._content
+    return this._content;
   }
 
   set content(value: DecisionTree2CreationContent) {
     this._content = value;
   }
 
-  contentToString(): string {
+  toJson(): string {
     return JSON.stringify(this.content);
   }
 
@@ -53,8 +53,8 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
     try {
       this.content = JSON.parse(contentString) as DecisionTree2CreationContent;
     } catch (error) {
-      console.error("Error parsing Decision Tree 2 creation content:", error);
-      throw new Error("Invalid Decision Tree 2 creation content format");
+      console.error('Error parsing Decision Tree 2 creation content:', error);
+      throw new Error('Invalid Decision Tree 2 creation content format');
     }
   }
 
@@ -87,18 +87,26 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
   }
 
   removeFinish(finishId: number): void {
-    const index = this.content.finishes.findIndex((finish) => finish.id === finishId);
+    const index = this.content.finishes.findIndex(
+      (finish) => finish.id === finishId
+    );
     if (index !== -1) {
       this.content.finishes.splice(index, 1);
       // Remove finish from goals if it exists there
-      this.content.goals = this.content.goals.filter((goalId) => goalId !== finishId);
+      this.content.goals = this.content.goals.filter(
+        (goalId) => goalId !== finishId
+      );
       // Remove or update rules that reference this finish
-      this.content.rules = this.content.rules.filter((rule) => rule.finish !== finishId);
+      this.content.rules = this.content.rules.filter(
+        (rule) => rule.finish !== finishId
+      );
     }
   }
 
   updateFinish(finishId: number, updatedFinish: Finish): void {
-    const index = this.content.finishes.findIndex((finish) => finish.id === finishId);
+    const index = this.content.finishes.findIndex(
+      (finish) => finish.id === finishId
+    );
     if (index !== -1) {
       this.content.finishes[index] = updatedFinish;
     }
@@ -147,7 +155,9 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
     );
 
     // Check if finish exists
-    const finishExists = this.content.finishes.some((f) => f.id === rule.finish);
+    const finishExists = this.content.finishes.some(
+      (f) => f.id === rule.finish
+    );
 
     return conditionsValid && finishExists;
   }
@@ -176,7 +186,9 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
   }
 
   getGoalFinishes(): Finish[] {
-    return this.content.finishes.filter((finish) => this.content.goals.includes(finish.id));
+    return this.content.finishes.filter((finish) =>
+      this.content.goals.includes(finish.id)
+    );
   }
 
   getRulesForFinish(finishId: number): Rule[] {
@@ -186,10 +198,14 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
   validateContent(): boolean {
     if (!this.hasRequiredContent()) return false;
 
-    if (!this.content.rules.every((rule) => this.validateRule(rule))) return false;
+    if (!this.content.rules.every((rule) => this.validateRule(rule)))
+      return false;
 
-    if (!this.content.finishes.every((finish) => this.validateFinish(finish))) return false;
+    if (!this.content.finishes.every((finish) => this.validateFinish(finish)))
+      return false;
 
-    return this.content.goals.every((goalId) => this.content.finishes.some((f) => f.id === goalId));
+    return this.content.goals.every((goalId) =>
+      this.content.finishes.some((f) => f.id === goalId)
+    );
   }
 }
