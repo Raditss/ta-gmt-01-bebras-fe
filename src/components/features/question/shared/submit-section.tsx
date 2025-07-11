@@ -22,8 +22,10 @@ interface SubmissionResult {
 interface QuestionModel {
   setAttemptData: (duration: number, isDraft: boolean) => void;
   getAttemptData: () => {
+    questionId: number;
+    duration: number;
+    isDraft: boolean;
     answer: string;
-    [key: string]: unknown;
   };
 }
 
@@ -67,7 +69,8 @@ export function SubmitSection({
       question.setAttemptData(duration, false);
       const attemptData = question.getAttemptData();
       const response = await questionService.submitAttempt({
-        ...attemptData,
+        questionId: attemptData.questionId,
+        duration: attemptData.duration,
         answer: JSON.parse(attemptData.answer)
       });
 

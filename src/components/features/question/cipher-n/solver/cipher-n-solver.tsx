@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
 import {
   BaseSolverProps,
@@ -174,7 +174,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
 
   const content = question?.getContent();
-  const vertices = useMemo(() => content?.vertices || [], [content?.vertices]);
+  const vertices = content?.vertices || [];
   const maxRotation = vertices.length - 1;
   const answer = question?.getAnswer();
   const currentVertex = answer?.currentVertex || 0;
@@ -372,7 +372,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                       type="text"
                       value={positionValue}
                       onChange={(e) => handlePositionChange(e.target.value)}
-                      placeholder={`Enter 0-${vertices[targetVertex]?.letters.length || 0}`}
+                      placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
                       className="w-full text-lg py-3 px-4"
                       disabled={!vertices[targetVertex]}
                     />
@@ -418,7 +418,6 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                   <SubmitSection
                     question={question}
                     getCurrentDuration={getCurrentDuration}
-                    content={content}
                     answerArr={answerArr}
                     isDisabled={false}
                     onSubmissionSuccess={markAsSubmitted}

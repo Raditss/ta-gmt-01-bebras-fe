@@ -34,7 +34,7 @@ export function CreatorWrapper({
   console.log('hasUnsavedChanges', hasUnsavedChanges);
   if (loading) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
+      <div className="flex flex-col min-h-screen bg-gray-100">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg">Loading question...</p>
         </div>
@@ -44,7 +44,7 @@ export function CreatorWrapper({
 
   if (error) {
     return (
-      <div className="flex flex-col min-h-screen bg-yellow-400">
+      <div className="flex flex-col min-h-screen bg-gray-100">
         <div className="flex-1 flex justify-center items-center">
           <p className="text-lg text-red-600">{error}</p>
         </div>
@@ -53,7 +53,7 @@ export function CreatorWrapper({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-yellow-400">
+    <div className="flex flex-col min-h-screen bg-gray-100">
       <NavigationAlertDialog
         open={showNavigationDialog}
         onOpenChange={onSetShowDialog}

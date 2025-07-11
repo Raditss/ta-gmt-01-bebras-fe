@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RingCipherSolveModel } from '@/models/ring-cipher/ring-cipher.solve.model';
 import {
   BaseSolverProps,
@@ -29,8 +29,9 @@ function RingVisualization({
 }: RingVisualizationProps) {
   const centerX = 250;
   const centerY = 250;
-  const maxRadius = 200;
-  const minRadius = 75;
+  // Increased spacing for better visibility with multiple rings
+  const maxRadius = 220; // Increased from 200
+  const minRadius = 60; // Reduced from 75 to start closer to center
   const ringColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
   return (
     <div className="flex flex-col items-center w-full">
@@ -48,9 +49,10 @@ function RingVisualization({
           .reverse()
           .map((ring, reverseIndex) => {
             const ringIndex = rings.length - 1 - reverseIndex;
-            const radius =
-              minRadius +
-              ((maxRadius - minRadius) * (ringIndex + 1)) / rings.length;
+            // Better spacing calculation for multiple rings
+            const radiusStep =
+              (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
+            const radius = minRadius + radiusStep * ringIndex;
             const isHighlighted = ringIndex === highlightedRing;
             const currentPosition = ringPositions[ringIndex] || 0;
             const angleStep = (2 * Math.PI) / ring.letters.length;
@@ -89,7 +91,7 @@ function RingVisualization({
                         <circle
                           cx={x}
                           cy={y}
-                          r="18"
+                          r="15" // Reduced from 18 to prevent crowding
                           fill={
                             isTargetLetter
                               ? '#FDE68A'
@@ -111,10 +113,10 @@ function RingVisualization({
                         />
                         <text
                           x={x}
-                          y={y + 6}
+                          y={y + 5} // Adjusted for smaller circle
                           textAnchor="middle"
                           transform={`rotate(${-rotationAngle} ${x} ${y})`}
-                          className={`text-base font-bold transition-all duration-300 ${
+                          className={`text-sm font-bold transition-all duration-300 ${
                             isTargetLetter
                               ? 'fill-white'
                               : isAtMarker
@@ -173,7 +175,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
   const [previewPositions, setPreviewPositions] = useState<number[]>([]);
 
   const content = question?.getContent();
-  const rings = useMemo(() => content?.rings || [], [content?.rings]);
+  const rings = content?.rings || [];
   const answer = question?.getAnswer();
   const ringPositions = answer?.ringPositions || rings.map(() => 0);
   const answerArr = answer?.encryptedMessage || [];
@@ -418,7 +420,6 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                   <SubmitSection
                     question={question}
                     getCurrentDuration={getCurrentDuration}
-                    content={content}
                     answerArr={answerArr}
                     isDisabled={false}
                     onSubmissionSuccess={markAsSubmitted}
