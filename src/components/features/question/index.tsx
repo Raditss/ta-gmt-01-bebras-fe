@@ -6,7 +6,10 @@ import Dt1Creator from '@/components/features/question/dt/dt-1/dt-1.creator';
 import { BaseSolverProps } from '@/components/features/bases/base.solver';
 import CfgSolver from '@/components/features/question/cfg/cfg.solver';
 import CipherNSolver from '@/components/features/question/cipher-n/solver/cipher-n-solver';
+import CipherNCreator from '@/components/features/question/cipher-n/cipher-n.creator';
 import RingCipherSolver from '@/components/features/question/ring-cipher/solver/ring-cipher-solver';
+import RingCipherCreator from '@/components/features/question/ring-cipher/ring-cipher.creator';
+
 import DecisionTreeSolver from '@/components/features/question/dt/dt-0/dt-0.solver';
 import DecisionTree2Solver from '@/components/features/question/dt/dt-1/dt-1.solver';
 import NotImplementedCreator from '@/components/features/question/fallbacks/not-implemented.creator';
@@ -16,8 +19,8 @@ export const createQuestionComponent: Record<
   ComponentType<BaseCreatorProps>
 > = {
   [QuestionTypeEnum.CFG]: NotImplementedCreator, // TODO: change to CfgCreator when implemented
-  [QuestionTypeEnum.CIPHER_N]: NotImplementedCreator, // TODO: change to CfgCreator when implemented
-  [QuestionTypeEnum.RING_CIPHER]: NotImplementedCreator, // TODO: change to CfgCreator when implemented,
+  [QuestionTypeEnum.CIPHER_N]: CipherNCreator,
+  [QuestionTypeEnum.RING_CIPHER]: RingCipherCreator,
   [QuestionTypeEnum.DECISION_TREE]: Dt0Creator,
   [QuestionTypeEnum.DECISION_TREE_2]: Dt1Creator // TODO: change to CfgCreator when implemented,
 };
