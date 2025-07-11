@@ -1,56 +1,69 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { BookOpen, Users, Settings, LogOut, Bell, Search, GraduationCap, Plus } from "lucide-react"
-import { useAuthStore } from "@/store/auth.store"
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  BookOpen,
+  Users,
+  Settings,
+  LogOut,
+  Bell,
+  Search,
+  GraduationCap,
+  Plus
+} from 'lucide-react';
+import { useAuthStore } from '@/store/auth.store';
 
 const navItems = [
-  { href: "/my-problem", label: "My Problems", icon: BookOpen },
-  { href: "/add-problem", label: "Add Problem", icon: Plus },
-]
+  { href: '/my-problem', label: 'My Problems', icon: BookOpen },
+  { href: '/add-problem', label: 'Add Problem', icon: Plus }
+];
 
 export function TeacherNav() {
-  const pathname = usePathname()
-  const { logout } = useAuthStore()
+  const pathname = usePathname();
+  const { logout } = useAuthStore();
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/teacher" className="flex items-center space-x-2">
+          <Link href="/my-problem" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
               <GraduationCap className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xl font-bold text-gray-800">Solvio Teacher</span>
+            <span className="text-xl font-bold text-gray-800">
+              Solvio Teacher
+            </span>
           </Link>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive ? "bg-purple-100 text-purple-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    isActive
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <item.icon className="w-4 h-4" />
                   <span>{item.label}</span>
                 </Link>
-              )
+              );
             })}
           </div>
 
@@ -65,7 +78,10 @@ export function TeacherNav() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
                     <AvatarFallback>T</AvatarFallback>
@@ -75,8 +91,12 @@ export function TeacherNav() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Teacher Account</p>
-                    <p className="text-xs leading-none text-muted-foreground">teacher@example.com</p>
+                    <p className="text-sm font-medium leading-none">
+                      Teacher Account
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      teacher@example.com
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -103,29 +123,31 @@ export function TeacherNav() {
         </div>
       </div>
     </nav>
-  )
+  );
 }
 
 export function TeacherNavLinks() {
-  const pathname = usePathname()
+  const pathname = usePathname();
   return (
     <>
       {/* Navigation Links */}
       <div className="hidden md:flex items-center space-x-8">
         {navItems.map((item) => {
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}
               href={item.href}
               className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isActive ? "bg-purple-100 text-purple-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                isActive
+                  ? 'bg-purple-100 text-purple-700'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
               }`}
             >
               <item.icon className="w-4 h-4" />
               <span>{item.label}</span>
             </Link>
-          )
+          );
         })}
       </div>
       {/* Right Side */}
@@ -148,8 +170,12 @@ export function TeacherNavLinks() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Teacher Account</p>
-                <p className="text-xs leading-none text-muted-foreground">teacher@example.com</p>
+                <p className="text-sm font-medium leading-none">
+                  Teacher Account
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  teacher@example.com
+                </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -174,5 +200,5 @@ export function TeacherNavLinks() {
         </DropdownMenu>
       </div>
     </>
-  )
+  );
 }

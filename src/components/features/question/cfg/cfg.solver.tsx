@@ -2,7 +2,7 @@
 
 import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
 import { StateDisplaySolve } from '@/components/features/question/cfg/solve/state-display.solve';
-import { TimeProgressBar } from '@/components/features/question/cfg/solve/time-progress-bar';
+import { TimeProgressBar } from '@/components/features/question/shared/time-progress-bar';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
 import { useDuration } from '@/hooks/useDuration';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
