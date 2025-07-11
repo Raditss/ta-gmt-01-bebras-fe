@@ -25,8 +25,7 @@ const POLYGON_OPTIONS: PolygonOption[] = [
   { value: 7, name: 'heptagon' },
   { value: 8, name: 'octagon' },
   { value: 9, name: 'nonagon' },
-  { value: 10, name: 'decagon' },
-  { value: 12, name: 'dodecagon' }
+  { value: 10, name: 'decagon' }
 ];
 
 export const useCipherNCreator = ({
@@ -168,20 +167,32 @@ export const useCipherNCreator = ({
   const handleShuffle = useCallback(() => {
     if (!question) return;
 
-    question.shuffleLetters();
+    // Always use the full alphabet for shuffling
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+    // Shuffle the alphabet
+    for (let i = alphabet.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [alphabet[i], alphabet[j]] = [alphabet[j], alphabet[i]];
+    }
+
+    const count = question.config.vertexCount;
+    const newVertices = Array.from({ length: count }, (_, index) => ({
+      pos: index,
+      letters: ''
+    }));
+    alphabet.forEach((letter, idx) => {
+      const vIdx = idx % count;
+      newVertices[vIdx].letters += letter;
+    });
+
+    question.setVertices(newVertices);
     markAsChanged();
 
     // Update local state immediately
-    const content = question.getContent();
-    const newVertexLetters = content.vertices.map((vertex) => vertex.letters);
-    setVertexLetters(newVertexLetters);
-
-    // Force re-render by updating config trigger
+    setVertexLetters(newVertices.map((v) => v.letters));
     setConfigUpdateTrigger((prev) => prev + 1);
-
-    // Update validation immediately
     updateAlphabetValidation();
-  }, [question, markAsChanged]);
+  }, [question, markAsChanged, updateAlphabetValidation]);
 
   // Check if content is valid for submission
   const isContentValid = useCallback(() => {

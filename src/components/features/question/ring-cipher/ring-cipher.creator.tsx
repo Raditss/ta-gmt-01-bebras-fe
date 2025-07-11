@@ -12,7 +12,7 @@ import { CheckCircle2, Save, AlertCircle } from 'lucide-react';
 // Hooks
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
-import { useRingCipherCreator } from '@/hooks/useRingCipherCreator';
+import { useRingCipherCreator } from '@/components/features/question/ring-cipher/useRingCipherCreator';
 
 // Models and Types
 import { RingCipherCreateModel } from '@/models/ring-cipher/ring-cipher.create.model';
@@ -175,7 +175,7 @@ export default function RingCipherCreator({
                 <div className="space-y-2">
                   <Label>Number of Rings</Label>
                   <div className="flex gap-2">
-                    {[2, 3, 4, 5].map((count) => (
+                    {[2, 3, 4].map((count) => (
                       <Button
                         key={count}
                         variant={rings.length === count ? 'default' : 'outline'}
