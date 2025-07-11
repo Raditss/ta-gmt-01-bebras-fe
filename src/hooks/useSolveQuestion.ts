@@ -21,6 +21,7 @@ export const useSolveQuestion = <
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const startTimeRef = useRef<Dayjs>(dayjs());
   const durationRef = useRef<number>(0);
 
@@ -30,6 +31,10 @@ export const useSolveQuestion = <
     },
     []
   );
+
+  const markAsSubmitted = useCallback(() => {
+    setIsSubmitted(true);
+  }, []);
 
   useEffect(() => {
     const fetchQuestionAndAttempt = async () => {
@@ -77,7 +82,8 @@ export const useSolveQuestion = <
 
   useEffect(() => {
     const saveDraft = async () => {
-      if (!question) return;
+      // Don't save draft if question has been submitted
+      if (!question || isSubmitted) return;
 
       try {
         const currentDuration =
@@ -92,13 +98,21 @@ export const useSolveQuestion = <
           duration: attemptData.duration,
           answer: JSON.parse(attemptData.answer)
         });
-      } catch (error) {
+      } catch (error: unknown) {
+        // Ignore the error if there was a recent submission (prevents race conditions)
+        if (
+          error instanceof Error &&
+          error.message?.includes('RECENT_SUBMISSION_EXISTS')
+        ) {
+          return;
+        }
         console.error('💾 Error saving draft:', error);
       }
     };
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!question) return;
+      // Don't save draft if question has been submitted
+      if (!question || isSubmitted) return;
 
       e.preventDefault();
 
@@ -119,17 +133,19 @@ export const useSolveQuestion = <
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
-      if (question) {
+      if (question && !isSubmitted) {
         saveDraft();
       }
     };
-  }, [initializeAttemptData, question, questionId]);
+  }, [initializeAttemptData, question, questionId, isSubmitted]);
 
   return {
     question,
     questionMetadata,
     loading,
     error,
+    isSubmitted,
+    markAsSubmitted,
     currentDuration: () => {
       return (
         durationRef.current +

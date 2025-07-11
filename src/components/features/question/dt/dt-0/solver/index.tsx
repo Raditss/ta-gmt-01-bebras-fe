@@ -22,7 +22,7 @@ import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-
 
 export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
   const { user } = useAuthStore();
-  const { question, loading, error, currentDuration } =
+  const { question, loading, error, currentDuration, markAsSubmitted } =
     useSolveQuestion<DecisionTreeSolveModel>(
       questionId,
       DecisionTreeSolveModel
@@ -113,9 +113,9 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
         <div className="min-h-screen bg-gray-100 p-8">
           {/* Time Progress Bar */}
           <div className="max-w-7xl mx-auto mb-8">
-            <TimeProgressBar 
-              duration={currentDuration()} 
-              formattedTime={formattedDuration} 
+            <TimeProgressBar
+              duration={currentDuration()}
+              formattedTime={formattedDuration}
             />
           </div>
 
@@ -137,7 +137,9 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
               {/* Monster Character */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-semibold mb-6 text-center">Monster Character</h2>
+                <h2 className="text-2xl font-semibold mb-6 text-center">
+                  Monster Character
+                </h2>
                 <div className="flex justify-center mb-6">
                   <MonsterCharacter selections={selections} hovered={hovered} />
                 </div>
@@ -178,12 +180,13 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                 {/* Controls */}
                 <div className="bg-white rounded-lg p-8 shadow-sm">
                   <h2 className="text-2xl font-semibold mb-8">Actions</h2>
-                  
+
                   <div className="space-y-6">
                     {/* Current Selection Status */}
                     <div className="text-center">
                       <h3 className="text-base font-medium mb-3">
-                        Current Selections ({Object.keys(selections).length} parts)
+                        Current Selections ({Object.keys(selections).length}{' '}
+                        parts)
                       </h3>
                       {Object.keys(selections).length > 0 && (
                         <div className="text-sm text-gray-600 mb-4 p-3 bg-gray-50 rounded-lg">
@@ -215,8 +218,11 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                       question={question}
                       getCurrentDuration={getCurrentDuration}
                       content={null}
-                      answerArr={Object.keys(selections).length > 0 ? [selections] : []}
+                      answerArr={
+                        Object.keys(selections).length > 0 ? [selections] : []
+                      }
                       isDisabled={false}
+                      onSubmissionSuccess={markAsSubmitted}
                     />
                   </div>
                 </div>
