@@ -23,7 +23,7 @@ import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 import MonsterPartWardrobe from '../monster-part-wardrobe';
 
 export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
-  const { question, loading, error, currentDuration } =
+  const { question, loading, error, currentDuration, markAsSubmitted } =
     useSolveQuestion<DecisionTree2SolveModel>(
       questionId,
       DecisionTree2SolveModel
@@ -154,9 +154,9 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
         <div className="min-h-screen bg-gray-100 p-8">
           {/* Time Progress Bar */}
           <div className="max-w-7xl mx-auto mb-8">
-            <TimeProgressBar 
-              duration={currentDuration()} 
-              formattedTime={formattedDuration} 
+            <TimeProgressBar
+              duration={currentDuration()}
+              formattedTime={formattedDuration}
             />
           </div>
 
@@ -172,7 +172,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                 clothing items to dress up the monster. Find a combination that
                 leads to one of the goal finishes shown in the decision tree.
               </p>
-              
+
               {/* Goal indicators */}
               <div className="flex flex-wrap justify-center gap-3 mt-6">
                 <span className="text-base font-medium text-gray-600">
@@ -201,7 +201,9 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
               {/* Decision Tree Visualization */}
               <div className="xl:col-span-2">
                 <div className="bg-white rounded-lg p-8 shadow-sm">
-                  <h2 className="text-2xl font-semibold mb-6 text-center">Decision Tree</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-center">
+                    Decision Tree
+                  </h2>
                   <DecisionTree2
                     rules={question.getRules()}
                     finishes={question.getFinishes()}
@@ -214,9 +216,14 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
               <div className="space-y-8">
                 {/* Monster Character */}
                 <div className="bg-white rounded-lg p-8 shadow-sm">
-                  <h2 className="text-2xl font-semibold mb-6 text-center">Monster Character</h2>
+                  <h2 className="text-2xl font-semibold mb-6 text-center">
+                    Monster Character
+                  </h2>
                   <div className="flex justify-center mb-6">
-                    <MonsterCharacter selections={selections} hovered={hovered} />
+                    <MonsterCharacter
+                      selections={selections}
+                      hovered={hovered}
+                    />
                   </div>
 
                   {monsterParts && (
@@ -233,7 +240,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                 {/* Controls */}
                 <div className="bg-white rounded-lg p-8 shadow-sm">
                   <h2 className="text-2xl font-semibold mb-6">Combinations</h2>
-                  
+
                   <div className="space-y-6">
                     {/* Current Monster Status */}
                     <div className="text-center">
@@ -283,7 +290,8 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                     {question.getCombinations().length > 0 && (
                       <div className="mt-8">
                         <label className="block text-base font-medium mb-3">
-                          Saved Combinations ({question.getCombinations().length}):
+                          Saved Combinations (
+                          {question.getCombinations().length}):
                         </label>
                         <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] space-y-3 max-h-60 overflow-y-auto">
                           {question.getCombinations().map((combo) => (
@@ -300,7 +308,9 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                               </div>
                               <Button
                                 size="sm"
-                                onClick={() => handleRemoveCombination(combo.id)}
+                                onClick={() =>
+                                  handleRemoveCombination(combo.id)
+                                }
                                 className="ml-3 bg-red-500 hover:bg-red-600 text-white"
                               >
                                 <Trash2 className="w-3 h-3" />
@@ -318,6 +328,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                       content={null}
                       answerArr={question.getCombinations()}
                       isDisabled={false}
+                      onSubmissionSuccess={markAsSubmitted}
                     />
                   </div>
                 </div>
