@@ -1,78 +1,49 @@
 'use client';
 
 import React from 'react';
-import {
-  Trophy,
-  TrendingUp,
-  BookOpen,
-  Award,
-  Zap,
-  Play,
-  Code,
-  User
-} from 'lucide-react';
+import { Trophy, TrendingUp, BookOpen, Award, Play, User } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import { useDashboard } from '@/hooks/useDashboard';
 
 const Dashboard = () => {
-  // Dashboard data constants
-  const LEVEL = 8;
-  const TROPHY_CURRENT = 1;
-  const TROPHY_TOTAL = 50;
-  const XP_CURRENT = 50;
-  const XP_TOTAL = 100;
-  const PROGRESS_PERCENT = 50; // as a number 0-100
-  const STREAK_DAYS = 15;
-  const WEEKLY_GRIND = [true, true, true, true, false, false, false]; // 7 days, true=yellow, false=pink
-
   const { user } = useAuthStore();
 
-  const achievements = [
-    {
-      id: 1,
-      title: 'First Blood',
-      description: 'Solved your first problem like a boss',
-      icon: <Code className="w-4 h-4" />,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      earned: true
-    },
-    {
-      id: 2,
-      title: 'Speed Demon',
-      description: 'Solved 5 problems in one day!',
-      icon: <Zap className="w-4 h-4" />,
-      color: 'bg-gray-400',
-      bgColor: 'bg-gray-50',
-      earned: false
-    }
-  ];
+  // Use the dashboard hook to get all data
+  const {
+    level,
+    trophyCurrent,
+    trophyTotal,
+    points,
+    totalPoints,
+    progressPercent,
+    streakDays,
+    weeklyGrind,
+    achievements,
+    recentActivity,
+    isLoading,
+    error
+  } = useDashboard();
 
-  const recentActivity = [
-    {
-      id: 1,
-      title: 'Two Sum Problem',
-      time: '2 hours ago',
-      difficulty: 'Easy',
-      status: 'completed',
-      color: 'bg-green-500'
-    },
-    {
-      id: 2,
-      title: 'Binary Search Tree',
-      time: 'Yesterday',
-      difficulty: 'Medium',
-      status: 'completed',
-      color: 'bg-blue-500'
-    },
-    {
-      id: 3,
-      title: 'Dynamic Programming',
-      time: 'In progress',
-      difficulty: 'Hard',
-      status: 'in-progress',
-      color: 'bg-orange-500'
-    }
-  ];
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 p-6">
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading your dashboard...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state with fallback data
+  if (error) {
+    console.warn('Dashboard error (using fallback data):', error);
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -142,7 +113,7 @@ const Dashboard = () => {
               <div className="relative flex-shrink-0" style={{ width: 180 }}>
                 <div className="w-40 h-40 bg-teal-400 rounded-full flex flex-col items-center justify-center border-8 border-white mx-auto">
                   <div className="text-7xl font-bold text-white leading-none">
-                    {LEVEL}
+                    {level}
                   </div>
                   <div className="text-2xl text-white font-medium mt-1">
                     Level
@@ -152,7 +123,7 @@ const Dashboard = () => {
                 <div className="absolute left-1/2 -bottom-6 -translate-x-1/2 w-28 h-12 bg-yellow-300 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
                   <Trophy className="w-6 h-6 text-black mr-2" />
                   <span className="text-lg font-bold text-black">
-                    {TROPHY_CURRENT}/{TROPHY_TOTAL}
+                    {trophyCurrent}/{trophyTotal}
                   </span>
                 </div>
               </div>
@@ -169,11 +140,11 @@ const Dashboard = () => {
                   <div className="absolute top-0 left-0 w-full h-6 bg-pink-200 rounded-full" />
                   <div
                     className="absolute top-0 left-0 h-6 bg-gradient-to-r from-cyan-300 to-teal-400 rounded-full"
-                    style={{ width: `${PROGRESS_PERCENT}%` }}
+                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
                   />
                   {/* XP badge at top right */}
                   <div className="absolute -top-7 right-0 bg-pink-300 rounded-full px-5 py-1 text-base font-bold text-white shadow">
-                    {XP_CURRENT}/{XP_TOTAL} Points
+                    {points}/{totalPoints} Points
                   </div>
                 </div>
                 {/* Streak and Weekly Grind */}
@@ -195,7 +166,7 @@ const Dashboard = () => {
                     </svg>
                     <div className="flex flex-col items-start">
                       <span className="text-3xl font-bold text-black leading-none">
-                        {STREAK_DAYS}
+                        {streakDays}
                       </span>
                       <span className="text-base text-black">Days</span>
                     </div>
@@ -207,10 +178,10 @@ const Dashboard = () => {
                       </span>
                     </div>
                     <div className="flex gap-2 mt-1">
-                      {WEEKLY_GRIND.map((isYellow, idx) => (
+                      {weeklyGrind.map((isCompleted, idx) => (
                         <div
                           key={idx}
-                          className={`w-7 h-7 rounded-full ${isYellow ? 'bg-yellow-300' : 'bg-pink-300'}`}
+                          className={`w-7 h-7 rounded-full ${isCompleted ? 'bg-yellow-300' : 'bg-pink-300'}`}
                         />
                       ))}
                     </div>
@@ -324,7 +295,7 @@ const Dashboard = () => {
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${achievement.color}`}
                       >
-                        {achievement.icon}
+                        <achievement.icon className="w-4 h-4 text-white" />
                       </div>
                       <div className="flex-1">
                         <div className="font-semibold">{achievement.title}</div>
