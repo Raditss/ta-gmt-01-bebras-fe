@@ -35,6 +35,7 @@ export const updateQuestionRequestSchema = z.object({
   title: z.string(),
   content: jsonStringSchema,
   isPublished: z.boolean(),
+  isActive: z.boolean().optional(),
   points: z.number(),
   estimatedTime: z.number()
 });
@@ -46,6 +47,7 @@ export const questionResponseSchema = z.object({
     content: z.string().min(1, 'Content is required'),
     questionTypeId: z.number().positive('Question Type ID must be positive'),
     isPublished: z.boolean(),
+    isActive: z.boolean(),
     points: z.number().nonnegative(),
     estimatedTime: z.number().nonnegative(),
     questionType: z.object({

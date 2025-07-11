@@ -9,10 +9,14 @@ const FILTER_DEBOUNCE_MS = 300;
 
 interface UseQuestionsWithSearchProps {
   selectedCategories: Record<QuestionTypeEnum, boolean>;
+  isActive?: boolean;
+  isPublished?: boolean;
 }
 
 export function useQuestionsWithSearch({
-  selectedCategories
+  selectedCategories,
+  isActive,
+  isPublished
 }: UseQuestionsWithSearchProps) {
   const [questions, setQuestions] = useState<QuestionResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,6 +77,8 @@ export function useQuestionsWithSearch({
         skip,
         take: QUESTIONS_PER_PAGE,
         search: debouncedSearchTerm || undefined,
+        isActive: isActive ?? undefined,
+        isPublished: isPublished ?? undefined,
         types: selectedTypes.length > 0 ? selectedTypes : undefined
       });
 
@@ -87,7 +93,13 @@ export function useQuestionsWithSearch({
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, debouncedSearchTerm, getSelectedTypes]);
+  }, [
+    currentPage,
+    debouncedSearchTerm,
+    getSelectedTypes,
+    isActive,
+    isPublished
+  ]);
 
   // Fetch questions when page, search term, or categories change
   useEffect(() => {
