@@ -1,28 +1,20 @@
-import {RuleModalCreate} from "@/components/features/question/cfg/create/rule-modal.create";
-import {RulesSection} from "@/components/features/question/cfg/create/rule-section.create";
-import {StateCreationPopupCreate} from "@/components/features/question/cfg/create/state-creation-popup.create";
-import {StateDisplaySolve} from "@/components/features/question/cfg/solve/state-display.solve";
-import {Alert, AlertDescription} from "@/components/ui/alert";
-import {Button} from "@/components/ui/button";
-import {useCreateQuestion} from "@/hooks/useCreateQuestion";
-import {usePageNavigationGuard} from "@/hooks/usePageNavigationGuard";
-import {CfgCreateModel, Rule, State} from "@/models/cfg/cfg.create.model";
-import {AlertCircle, CheckCircle2, Save} from "lucide-react";
-import {nanoid} from "nanoid";
-import {useRouter} from "next/navigation";
-import React, {useCallback, useEffect, useState} from "react";
+import { RuleModalCreate } from '@/components/features/question/cfg/create/rule-modal.create';
+import { RulesSection } from '@/components/features/question/cfg/create/rule-section.create';
+import { StateCreationPopupCreate } from '@/components/features/question/cfg/create/state-creation-popup.create';
+import { StateDisplaySolve } from '@/components/features/question/cfg/solve/state-display.solve';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { useCreateQuestion } from '@/hooks/useCreateQuestion';
+import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
+import { CfgCreateModel, Rule, State } from '@/models/cfg/cfg.create.model';
+import { CheckCircle2, Save } from 'lucide-react';
+import { nanoid } from 'nanoid';
+import { useRouter } from 'next/navigation';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { AVAILABLE_SHAPES } from '@/constants/shapes';
 
-import {BaseCreatorProps, CreatorWrapper} from "../../bases/base.creator";
-import {CreationSubmissionModal} from "../submission-modal.creator";
-
-// Available shapes for creating rules and states
-const availableShapes = [
-  { id: 1, type: "circle", icon: "⚪" },
-  { id: 2, type: "triangle", icon: "△" },
-  { id: 3, type: "square", icon: "⬜" },
-  { id: 4, type: "star", icon: "⭐" },
-  { id: 5, type: "hexagon", icon: "⬡" },
-];
+import { BaseCreatorProps, CreatorWrapper } from '../../bases/base.creator';
+import { CreationSubmissionModal } from '../submission-modal.creator';
 
 interface ShapeObject {
   id: number;
@@ -30,17 +22,16 @@ interface ShapeObject {
   [key: string]: unknown;
 }
 
-export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
+export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
   const router = useRouter();
 
   const {
     question,
     error: creationError,
     hasUnsavedChanges,
-    lastSavedDraft,
     saveDraft,
     submitCreation,
-    markAsChanged,
+    markAsChanged
   } = useCreateQuestion<CfgCreateModel>(initialDataQuestion, CfgCreateModel);
 
   // Nav guard hook - MUST be at top level
@@ -49,23 +40,25 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
     onSaveAndLeave: handleSaveAndLeave,
     onLeaveWithoutSaving: handleLeaveWithoutSaving,
     onStayOnPage: handleStayOnPage,
-    setShowDialog,
+    setShowDialog
   } = usePageNavigationGuard({
     hasUnsavedChanges,
-    onSave: saveDraft,
+    onSave: saveDraft
   });
 
   // ALL useState hooks at top level
   const [rules, setRules] = useState<Rule[]>([]);
   const [startState, setStartState] = useState<State[]>([]);
   const [endState, setEndState] = useState<State[]>([]);
+  const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
+  const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
   const [showRuleModal, setShowRuleModal] = useState(false);
-  const [showStateCreationPopup, setShowStateCreationPopup] = useState(false);
-  const [stateCreationMode, setStateCreationMode] = useState<
-    "start" | "end" | null
-  >(null);
+  const [showStartStateModal, setShowStartStateModal] = useState(false);
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+
+  // Track if this is initial load vs user edit
+  const isInitialLoadRef = useRef(true);
 
   // ALL useEffect hooks at top level
 
@@ -79,6 +72,9 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
     setRules(cfgQuestion.rules || []);
     setStartState(cfgQuestion.startState || []);
     setEndState(cfgQuestion.endState || []);
+
+    // Mark that initial load is complete
+    isInitialLoadRef.current = false;
   }, [question]);
 
   // Auto-hide save confirmation
@@ -89,22 +85,45 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
     }
   }, [showSaveConfirmation]);
 
-  // Initialize end state with start state when entering end state mode
+  // Initialize end state with start state only when creating a NEW start state
+  // (not when loading from database)
   useEffect(() => {
     const cfgQuestion = question as CfgCreateModel | null;
-    if (
-      stateCreationMode === "end" &&
-      endState.length === 0 &&
-      startState.length > 0
-    ) {
+    if (cfgQuestion && startState.length > 0 && endState.length === 0) {
+      // Only initialize endState if it's empty (new creation, not loading from DB)
       const initialEndState = [...startState];
       setEndState(initialEndState);
-      if (cfgQuestion) {
-        cfgQuestion.setInitialEndState(initialEndState);
-        markAsChanged();
-      }
+      cfgQuestion.setEndState(initialEndState);
+      cfgQuestion.setInitialEndState(initialEndState);
+      setSelectedIndices([]);
+      markAsChanged();
     }
-  }, [stateCreationMode, endState.length, startState, question, markAsChanged]);
+  }, [startState, endState.length, question, markAsChanged]);
+
+  // Update applicable rules when selection changes in end state
+  useEffect(() => {
+    if (!rules || selectedIndices.length === 0 || endState.length === 0) {
+      setApplicableRules([]);
+      return;
+    }
+
+    const selectedTypes = selectedIndices
+      .map((index) => endState[index]?.type)
+      .filter(Boolean);
+
+    if (selectedTypes.length === 0) {
+      setApplicableRules([]);
+      return;
+    }
+
+    // Find rules where the "before" part matches selected objects
+    const matchingRules = rules.filter((rule) => {
+      if (rule.before.length !== selectedTypes.length) return false;
+      return rule.before.every((obj, i) => obj.type === selectedTypes[i]);
+    });
+
+    setApplicableRules(matchingRules);
+  }, [selectedIndices, endState, rules]);
 
   // ALL useCallback hooks at top level to avoid React error #310
   // Add a new transformation rule
@@ -117,7 +136,7 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
       const newRule = {
         id: newRuleId,
         before: beforeObjects,
-        after: afterObjects,
+        after: afterObjects
       };
       const updatedRules = [...rules, newRule];
 
@@ -150,63 +169,147 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
     [question, rules, startState, endState, markAsChanged]
   );
 
-  const setStartStateAndSync = useCallback(
-    (newState: State[]) => {
+  const handleStartStateCreation = useCallback(
+    (newStartState: State[]) => {
       const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion) return;
 
-      cfgQuestion.setStartState(newState);
-      setStartState(newState);
-
-      // Reset end state when start state changes
-      if (endState.length > 0) {
-        const newEndState = [...newState];
-        cfgQuestion.setEndState(newEndState);
-        setEndState(newEndState);
-      }
-
-      markAsChanged();
-    },
-    [question, endState, markAsChanged]
-  );
-
-  const setEndStateAndSync = useCallback(
-    (newState: State[]) => {
-      const cfgQuestion = question as CfgCreateModel | null;
-      if (!cfgQuestion) return;
-
-      cfgQuestion.setEndState(newState);
-      setEndState(newState);
+      cfgQuestion.setStartState(newStartState);
+      setStartState(newStartState);
+      setShowStartStateModal(false);
       markAsChanged();
     },
     [question, markAsChanged]
   );
 
-  // Handles undoing the last step by replaying remaining steps from initial state
+  // Handle clicking on objects in the end state for selection
+  const handleEndStateObjectClick = useCallback(
+    (index: number) => {
+      if (selectedIndices.includes(index)) {
+        setSelectedIndices(selectedIndices.filter((i) => i !== index));
+      } else {
+        // Ensure selections are consecutive
+        if (
+          selectedIndices.length === 0 ||
+          Math.abs(index - selectedIndices[selectedIndices.length - 1]) === 1 ||
+          Math.abs(index - selectedIndices[0]) === 1
+        ) {
+          const allIndices = [...selectedIndices, index].sort((a, b) => a - b);
+          if (
+            allIndices[allIndices.length - 1] - allIndices[0] ===
+            allIndices.length - 1
+          ) {
+            setSelectedIndices(allIndices);
+          }
+        }
+      }
+    },
+    [selectedIndices]
+  );
+
+  // Apply selected rule to end state
+  const handleApplyRuleToEndState = useCallback(
+    (rule: Rule) => {
+      const cfgQuestion = question as CfgCreateModel | null;
+      if (!cfgQuestion || selectedIndices.length === 0 || !rule) return;
+
+      // Validate that the rule has proper 'after' objects
+      if (!rule.after || !Array.isArray(rule.after)) {
+        console.error('Rule has invalid after array:', rule);
+        return;
+      }
+
+      // Validate that all 'after' objects have required properties
+      const invalidObjects = rule.after.filter(
+        (obj) => !obj || typeof obj.type !== 'string'
+      );
+      if (invalidObjects.length > 0) {
+        console.error('Rule contains invalid after objects:', invalidObjects);
+        return;
+      }
+
+      const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
+      const startIdx = sortedIndices[0];
+      const endIdx = sortedIndices[sortedIndices.length - 1];
+      const currentEndState = [...endState];
+
+      // Add unique IDs to new objects and ensure they have all required properties
+      const afterWithIds = rule.after.map((obj) => {
+        const newObj: ShapeObject = {
+          id: Date.now() + Math.random(),
+          type: obj.type
+        };
+
+        // Preserve any other properties like icon if they exist
+        if ('icon' in obj && obj.icon) {
+          newObj.icon = obj.icon;
+        }
+
+        return newObj;
+      });
+
+      // Replace selected objects with rule's output
+      currentEndState.splice(startIdx, endIdx - startIdx + 1, ...afterWithIds);
+
+      // Validate the new end state before setting it
+      const validatedEndState = currentEndState.filter(
+        (obj) => obj && typeof obj === 'object' && obj.type
+      );
+
+      if (validatedEndState.length !== currentEndState.length) {
+        console.warn('Some invalid objects were filtered out from end state');
+      }
+
+      // Update the question model with the new end state
+      cfgQuestion.setEndState(validatedEndState);
+
+      // Record step for undo/redo
+      cfgQuestion.pushStep({
+        ruleId: rule.id,
+        index: startIdx,
+        replacedCount: selectedIndices.length,
+        endState: validatedEndState
+      });
+
+      setEndState(validatedEndState);
+      setSelectedIndices([]);
+      markAsChanged();
+    },
+    [question, endState, selectedIndices, markAsChanged]
+  );
+
+  // Handles undoing the last step by replaying remaining steps from start state
   const handleUndo = useCallback(() => {
     const cfgQuestion = question as CfgCreateModel | null;
-    if (!cfgQuestion) return;
+    if (!cfgQuestion || startState.length === 0) return;
+
     const lastStep = cfgQuestion.popStep();
     if (lastStep) {
+      // Start from the initial start state, not empty
       const newEndState = cfgQuestion.replayStepsFromInitialEndState();
-      cfgQuestion.setEndState(newEndState); // Sync to question model
+      cfgQuestion.setEndState(newEndState);
+
       setEndState(newEndState);
+      setSelectedIndices([]);
       markAsChanged();
     }
-  }, [question, markAsChanged]);
+  }, [question, startState, markAsChanged]);
 
   // Handles redoing the last undone step by replaying all steps including the redone one
   const handleRedo = useCallback(() => {
     const cfgQuestion = question as CfgCreateModel | null;
-    if (!cfgQuestion) return;
+    if (!cfgQuestion || startState.length === 0) return;
+
     const step = cfgQuestion.redoStep();
     if (step) {
       const newEndState = cfgQuestion.replayStepsFromInitialEndState();
-      cfgQuestion.setEndState(newEndState); // Sync to question model
+      cfgQuestion.setEndState(newEndState);
+
       setEndState(newEndState);
+      setSelectedIndices([]);
       markAsChanged();
     }
-  }, [question, markAsChanged]);
+  }, [question, startState, markAsChanged]);
 
   // Reset entire question state
   const handleReset = useCallback(() => {
@@ -224,78 +327,17 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
     markAsChanged();
   }, [question, markAsChanged]);
 
-  // Applies a rule to selected objects in the end state
-  const applyRuleToEndState = useCallback(
-    (
-      selectedIndices: number[],
-      ruleToApply: { id: string; after: ShapeObject[] }
-    ) => {
-      const cfgQuestion = question as CfgCreateModel | null;
-      if (!cfgQuestion || !ruleToApply || selectedIndices.length === 0) return;
+  // Reset only the end state back to start state
+  const handleResetEndState = useCallback(() => {
+    const cfgQuestion = question as CfgCreateModel | null;
+    if (!cfgQuestion || startState.length === 0) return;
 
-      // Validate that the rule has proper 'after' objects
-      if (!ruleToApply.after || !Array.isArray(ruleToApply.after)) {
-        console.error("Rule has invalid after array:", ruleToApply);
-        return;
-      }
+    cfgQuestion.resetEndState();
 
-      // Validate that all 'after' objects have required properties
-      const invalidObjects = ruleToApply.after.filter(
-        (obj) => !obj || typeof obj.type !== "string"
-      );
-      if (invalidObjects.length > 0) {
-        console.error("Rule contains invalid after objects:", invalidObjects);
-        return;
-      }
-
-      const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
-      const startIdx = sortedIndices[0];
-      const endIdx = sortedIndices[sortedIndices.length - 1];
-      const currentEndState = [...endState];
-
-      // Add unique IDs to new objects and ensure they have all required properties
-      const afterWithIds = ruleToApply.after.map((obj) => {
-        const newObj: ShapeObject = {
-          id: Date.now() + Math.random(),
-          type: obj.type,
-        };
-
-        // Preserve any other properties like icon if they exist
-        if (obj.icon) {
-          newObj.icon = obj.icon;
-        }
-
-        return newObj;
-      });
-
-      // Replace selected objects with rule's output
-      currentEndState.splice(startIdx, endIdx - startIdx + 1, ...afterWithIds);
-
-      // Validate the new end state before setting it
-      const validatedEndState = currentEndState.filter(
-        (obj) => obj && typeof obj === "object" && obj.type
-      );
-
-      if (validatedEndState.length !== currentEndState.length) {
-        console.warn("Some invalid objects were filtered out from end state");
-      }
-
-      // Update the question model with the new end state
-      cfgQuestion.setEndState(validatedEndState);
-
-      // Record step for undo/redo
-      cfgQuestion.pushStep({
-        ruleId: ruleToApply.id,
-        index: startIdx,
-        replacedCount: selectedIndices.length,
-        endState: validatedEndState,
-      });
-
-      setEndState(validatedEndState);
-      markAsChanged();
-    },
-    [question, endState, markAsChanged]
-  );
+    setEndState([...startState]);
+    setSelectedIndices([]);
+    markAsChanged();
+  }, [question, startState, markAsChanged]);
 
   // Handle manual save
   const handleManualSave = useCallback(async () => {
@@ -304,7 +346,7 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
       setShowSaveConfirmation(true);
       setTimeout(() => setShowSaveConfirmation(false), 3000);
     } catch (error) {
-      console.error("Failed to save draft:", error);
+      console.error('Failed to save draft:', error);
     }
   }, [saveDraft]);
 
@@ -319,13 +361,12 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
 
     try {
       await submitCreation();
-      router.push("/add-problem"); // Redirect after successful submission
+      router.push('/add-problem'); // Redirect after successful submission
     } catch (error) {
-      console.error("Failed to submit creation:", error);
+      console.error('Failed to submit creation:', error);
       setShowSubmissionModal(false);
     }
   }, [question, submitCreation, router]);
-
 
   return (
     <CreatorWrapper
@@ -338,157 +379,261 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
       onStayOnPage={handleStayOnPage}
       onSetShowDialog={setShowDialog}
     >
-      {question ? (
-        <>
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">
-              {"Create New CFG Question"}
-            </h1>
+      {question && (
+        <div className="max-w-full mx-auto p-6">
+          {/* Main Layout - Flexible Grid exactly like solver */}
+          <div className="grid grid-cols-4 gap-8">
+            {/* Rule Table - Left side (3 columns wide) */}
+            <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
+              <RulesSection
+                rules={rules}
+                onAddRule={() => setShowRuleModal(true)}
+                onDeleteRule={handleDeleteRule}
+              />
+            </div>
 
+            {/* Right side - Start and End states (sticky container) */}
+            <div className="space-y-4">
+              {/* Sticky container for both states */}
+              <div className="sticky top-[15vh]">
+                {/* Start State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border mb-8">
+                  <StateDisplaySolve
+                    title="Start State"
+                    state={startState}
+                    isInteractive={true}
+                    onObjectClick={() => {
+                      // Re-edit start state
+                      setShowStartStateModal(true);
+                    }}
+                    containerClassName="bg-transparent border-none p-0"
+                  />
+                  {startState.length === 0 && (
+                    <div className="text-center py-4">
+                      <Button
+                        onClick={() => setShowStartStateModal(true)}
+                        variant="outline"
+                        className="bg-brand-green/10 hover:bg-brand-green/20 text-brand-green border border-brand-green/30"
+                      >
+                        Create Start State
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* End State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border">
+                  <StateDisplaySolve
+                    title="End State"
+                    state={endState}
+                    isInteractive={startState.length > 0}
+                    selectedIndices={selectedIndices}
+                    onObjectClick={handleEndStateObjectClick}
+                    containerClassName="bg-transparent border-none p-0"
+                  />
+                  {endState.length === 0 && (
+                    <div className="text-center text-muted-foreground py-4 text-sm">
+                      {startState.length === 0
+                        ? 'Create start state first'
+                        : 'Transform this state using rules below'}
+                    </div>
+                  )}
+                  {startState.length > 0 && endState.length > 0 && (
+                    <div className="text-center text-muted-foreground mt-2 text-xs">
+                      Click objects to select, then apply rules below
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Applicable Rules Section - Matching solver's "Applicable Rules" section */}
+          <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
+            <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
+              Applicable Rules
+            </h2>
+
+            <div className="flex items-center justify-center min-h-24">
+              {applicableRules.length > 0 ? (
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {applicableRules.map((rule) => (
+                    <Button
+                      key={rule.id}
+                      onClick={() => handleApplyRuleToEndState(rule)}
+                      className="p-4 bg-brand-green/10 hover:bg-brand-green/20 text-foreground border border-brand-green/30 flex items-center gap-3 transition-colors"
+                      variant="outline"
+                    >
+                      <div className="flex items-center gap-2">
+                        {/* Before shapes */}
+                        <div className="flex gap-1">
+                          {rule.before.map((obj, idx) => (
+                            <div
+                              key={idx}
+                              className="w-8 h-8 flex items-center justify-center"
+                            >
+                              <div
+                                className={`w-6 h-6 border-2 shadow-sm ${
+                                  obj.type === 'circle'
+                                    ? 'rounded-full bg-blue-500 border-blue-600'
+                                    : obj.type === 'triangle'
+                                      ? 'bg-green-500 border-green-600 clip-triangle'
+                                      : obj.type === 'square'
+                                        ? 'bg-purple-500 border-purple-600'
+                                        : obj.type === 'star'
+                                          ? 'bg-yellow-500 border-yellow-600 clip-star'
+                                          : obj.type === 'hexagon'
+                                            ? 'bg-orange-500 border-orange-600 clip-hexagon'
+                                            : obj.type === 'pentagon'
+                                              ? 'bg-pink-500 border-pink-600 clip-pentagon'
+                                              : obj.type === 'octagon'
+                                                ? 'bg-indigo-500 border-indigo-600 clip-octagon'
+                                                : obj.type === 'diamond'
+                                                  ? 'bg-red-500 border-red-600 clip-diamond'
+                                                  : 'bg-gray-600 border-gray-700'
+                                }`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Arrow */}
+                        <span className="text-lg font-semibold text-muted-foreground">
+                          →
+                        </span>
+
+                        {/* After shapes */}
+                        <div className="flex gap-1">
+                          {rule.after.map((obj, idx) => (
+                            <div
+                              key={idx}
+                              className="w-8 h-8 flex items-center justify-center"
+                            >
+                              <div
+                                className={`w-6 h-6 border-2 shadow-sm ${
+                                  obj.type === 'circle'
+                                    ? 'rounded-full bg-blue-500 border-blue-600'
+                                    : obj.type === 'triangle'
+                                      ? 'bg-green-500 border-green-600 clip-triangle'
+                                      : obj.type === 'square'
+                                        ? 'bg-purple-500 border-purple-600'
+                                        : obj.type === 'star'
+                                          ? 'bg-yellow-500 border-yellow-600 clip-star'
+                                          : obj.type === 'hexagon'
+                                            ? 'bg-orange-500 border-orange-600 clip-hexagon'
+                                            : obj.type === 'pentagon'
+                                              ? 'bg-pink-500 border-pink-600 clip-pentagon'
+                                              : obj.type === 'octagon'
+                                                ? 'bg-indigo-500 border-indigo-600 clip-octagon'
+                                                : obj.type === 'diamond'
+                                                  ? 'bg-red-500 border-red-600 clip-diamond'
+                                                  : 'bg-gray-600 border-gray-700'
+                                }`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center text-muted-foreground">
+                  {startState.length === 0
+                    ? 'Create a start state and add some rules first'
+                    : selectedIndices.length === 0
+                      ? 'Select objects in the end state to see applicable rules'
+                      : 'No applicable rules for selected objects'}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons - Matching solver layout */}
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={handleUndo}
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
+              disabled={startState.length === 0}
+            >
+              Undo
+            </Button>
+            <Button
+              onClick={handleRedo}
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
+              disabled={startState.length === 0}
+            >
+              Redo
+            </Button>
+            <Button
+              onClick={handleResetEndState}
+              variant="outline"
+              className="bg-orange-100 hover:bg-orange-200 text-orange-700 border-orange-300 px-4 py-2 h-10"
+              disabled={startState.length === 0 || endState.length === 0}
+            >
+              Reset End State
+            </Button>
+            <Button
+              onClick={handleReset}
+              variant="outline"
+              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
+            >
+              Reset All
+            </Button>
             <Button
               onClick={handleManualSave}
               disabled={!hasUnsavedChanges}
-              className="flex items-center gap-2"
+              variant="outline"
+              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
-              <Save className="h-4 w-4" />
-              {"Save Draft"}
+              <Save className="h-4 w-4 mr-2" />
+              Save Draft
             </Button>
+            {startState.length > 0 &&
+              endState.length > 0 &&
+              rules.length > 0 && (
+                <Button
+                  onClick={handleSubmit}
+                  className="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
+                >
+                  Submit Question
+                </Button>
+              )}
           </div>
 
-          {/* Guidance for empty questions */}
-          {rules.length === 0 && startState.length === 0 && (
-            <Alert className="mb-6 bg-blue-50 text-blue-800 border-blue-200">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Getting Started:</strong> To create a CFG question, you
-                need to:
-                <ol className="list-decimal list-inside mt-2 space-y-1">
-                  <li>
-                    Add transformation rules using the &quot;Add Rule&quot;
-                    button below
-                  </li>
-                  <li>Create a start state with initial objects</li>
-                  <li>Define the target end state</li>
-                </ol>
-                Your question will be saved automatically as you add content.
-              </AlertDescription>
-            </Alert>
-          )}
-
+          {/* Save Confirmation Alert - Below buttons */}
           {showSaveConfirmation && (
-            <Alert className="mb-4 bg-green-50 text-green-800 border-green-200">
+            <Alert className="mt-4 bg-green-50 text-green-800 border-green-200 max-w-md mx-auto">
               <CheckCircle2 className="h-4 w-4" />
               <AlertDescription>Draft saved successfully!</AlertDescription>
             </Alert>
           )}
 
-          {lastSavedDraft && !showSaveConfirmation && (
-            <Alert className="mb-4 bg-gray-50 text-gray-800 border-gray-200">
-              <CheckCircle2 className="h-4 w-4" />
-              <AlertDescription>
-                Last saved at {lastSavedDraft.toString()}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Rules creation and management */}
-          <RulesSection
-            rules={rules}
-            onAddRule={() => setShowRuleModal(true)}
-            onDeleteRule={handleDeleteRule}
-          />
-
-          {/* State creation buttons */}
-          <div className="mt-8 flex justify-center gap-4">
-            <button
-              onClick={() => {
-                setShowStateCreationPopup(true);
-                setStateCreationMode("start");
-              }}
-              className="bg-yellow-100 hover:bg-yellow-200 text-gray-800 font-bold py-3 px-6 rounded-full"
-            >
-              {startState.length === 0
-                ? "Create Start State"
-                : "Edit Start State"}
-            </button>
-
-            {startState.length > 0 && (
-              <button
-                onClick={() => {
-                  setShowStateCreationPopup(true);
-                  setStateCreationMode("end");
-                }}
-                className="bg-yellow-100 hover:bg-yellow-200 text-gray-800 font-bold py-3 px-6 rounded-full"
-              >
-                {endState.length === 0 ? "Create End State" : "Edit End State"}
-              </button>
-            )}
-          </div>
-
-          {/* State displays using shared component */}
-          {(startState.length > 0 || endState.length > 0) && (
-            <div className="mt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {startState.length > 0 && (
-                  <StateDisplaySolve
-                    title="Start State"
-                    state={startState}
-                    containerClassName="bg-white"
-                  />
-                )}
-
-                {endState.length > 0 && (
-                  <StateDisplaySolve
-                    title="End State"
-                    state={endState}
-                    containerClassName="bg-white"
-                  />
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Submit and Reset buttons */}
-          {startState.length > 0 && (
-            <div className="mt-8 flex justify-center gap-8">
-              <button
-                onClick={handleSubmit}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-full"
-              >
-                Submit Question
-              </button>
-              <button
-                onClick={handleReset}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-full"
-              >
-                Reset
-              </button>
-            </div>
-          )}
-
           {/* Rule creation modal */}
           {showRuleModal && (
             <RuleModalCreate
-              availableObjects={availableShapes}
+              availableObjects={AVAILABLE_SHAPES}
               onClose={() => setShowRuleModal(false)}
               onAddRule={handleAddRule}
             />
           )}
 
-          {/* State creation/editing popup */}
-          {showStateCreationPopup && (
+          {/* Start state creation modal */}
+          {showStartStateModal && (
             <StateCreationPopupCreate
-              mode={stateCreationMode}
-              availableObjects={availableShapes}
+              mode="start"
+              availableObjects={AVAILABLE_SHAPES}
               rules={rules}
               startState={startState}
               endState={endState}
-              setStartState={setStartStateAndSync}
-              setEndState={setEndStateAndSync}
-              applyRuleToEndState={applyRuleToEndState}
-              onUndo={handleUndo}
-              onRedo={handleRedo}
-              onClose={() => setShowStateCreationPopup(false)}
+              setStartState={handleStartStateCreation}
+              setEndState={() => {}} // Not used for start state creation
+              applyRuleToEndState={() => {}} // Not used for start state creation
+              onUndo={() => {}} // Not used for start state creation
+              onRedo={() => {}} // Not used for start state creation
+              onClose={() => setShowStartStateModal(false)}
             />
           )}
 
@@ -496,25 +641,20 @@ export default function CfgCreator({initialDataQuestion}: BaseCreatorProps) {
           <CreationSubmissionModal
             isOpen={showSubmissionModal}
             isConfirming={true}
-            questionData={
-              {
-                title: question.draft.title,
-                questionType: question.draft.questionType.name,
-                points: question.draft.points,
-                estimatedTime: question.draft.estimatedTime,
-                author: question.draft.teacher.name,
-              }
-            }            onConfirm={handleConfirmSubmit}
+            questionData={{
+              title: question.draft.title,
+              questionType: question.draft.questionType.name,
+              points: question.draft.points,
+              estimatedTime: question.draft.estimatedTime,
+              author: question.draft.teacher.name
+            }}
+            onConfirm={handleConfirmSubmit}
             onCancel={() => setShowSubmissionModal(false)}
             onClose={() => {
               setShowSubmissionModal(false);
-              router.push("/add-problem");
+              router.push('/add-problem');
             }}
           />
-        </>
-      ) : (
-        <div className="text-center py-8">
-          <p className="text-gray-600">No question data available</p>
         </div>
       )}
     </CreatorWrapper>

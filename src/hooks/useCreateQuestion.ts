@@ -37,18 +37,19 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
         throw new Error('Invalid question data');
       }
 
+      const contentToSave = question.toJson();
+
       const updatedCreationData = await creationService.updateCreateQuestion(
         question.draft.id,
         {
           questionTypeId: question.draft.questionTypeId,
           title: question.draft.title,
-          content: question.toJson(),
+          content: contentToSave,
           isPublished: false,
           points: question.draft.points,
           estimatedTime: question.draft.estimatedTime
         }
       );
-
       setLastSavedDraft(toLocalDate(updatedCreationData.updatedAt));
       setHasUnsavedChanges(false);
     } catch (_err) {

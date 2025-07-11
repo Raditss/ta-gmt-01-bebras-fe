@@ -1,8 +1,15 @@
+import { Button } from '@/components/ui/button';
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
+import { Plus, Trash2 } from 'lucide-react';
+
 // Rules Section Component
 export function RulesSection({
   rules,
   onAddRule,
-  onDeleteRule,
+  onDeleteRule
 }: {
   rules: {
     id: string;
@@ -12,90 +19,85 @@ export function RulesSection({
   onAddRule: () => void;
   onDeleteRule: (ruleId: string) => void;
 }) {
+  const RuleShape = ({ type }: { type: string }) => (
+    <ShapeContainer>
+      <Shape type={type} size="md" />
+    </ShapeContainer>
+  );
+
   return (
-    <div className="bg-white rounded-md shadow-md overflow-hidden">
-      <div className="grid grid-cols-[1fr,1fr,auto] border-b">
-        <div className="p-4 text-center font-medium border-r">Before</div>
-        <div className="p-4 text-center font-medium border-r">After</div>
-        <div className="p-4 text-center font-medium w-24">Action</div>
-      </div>
-
-      {rules.map((rule) => (
-        <div key={rule.id} className="grid grid-cols-[1fr,1fr,auto] border-b">
-          <div className="p-6 flex justify-center items-center border-r">
-            <div className="flex flex-wrap justify-center gap-2 max-w-full">
-              {rule.before.map((obj, idx) => (
-                <div
-                  key={idx}
-                  className="w-12 h-12 flex items-center justify-center flex-shrink-0"
-                >
-                  {obj.type === "circle" ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === "triangle" ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === "square" ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === "star" ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="p-6 flex justify-center items-center border-r">
-            <div className="flex flex-wrap justify-center gap-2 max-w-full">
-              {rule.after.map((obj, idx) => (
-                <div
-                  key={idx}
-                  className="w-12 h-12 flex items-center justify-center flex-shrink-0"
-                >
-                  {obj.type === "circle" ? (
-                    <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
-                  ) : obj.type === "triangle" ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-triangle"></div>
-                  ) : obj.type === "square" ? (
-                    <div className="w-10 h-10 bg-gray-300"></div>
-                  ) : obj.type === "star" ? (
-                    <div className="w-10 h-10 bg-gray-300 clip-star"></div>
-                  ) : (
-                    <div className="w-10 h-10 bg-gray-300 clip-hexagon"></div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="p-6 flex justify-center items-center w-24">
-            <button
-              onClick={() => onDeleteRule(rule.id)}
-              className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      ))}
-
-      <div className="p-4 flex justify-center">
-        <button
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-center text-foreground">
+          Rule Table
+        </h2>
+        <Button
           onClick={onAddRule}
-          className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-2 px-4 rounded-full"
+          className="bg-brand-green/10 hover:bg-brand-green/20 text-brand-green border border-brand-green/30 flex items-center gap-2"
+          variant="outline"
         >
-          + Add Rule
-        </button>
+          <Plus className="h-4 w-4" />
+          Add Rule
+        </Button>
       </div>
+
+      {rules.length === 0 ? (
+        <div className="text-center text-muted-foreground py-12 bg-muted/50 rounded-lg border-2 border-dashed border-muted">
+          <div className="mb-4">
+            <Plus className="w-12 h-12 mx-auto opacity-50" />
+          </div>
+          <p className="text-lg font-medium mb-2">No rules created yet</p>
+          <p className="text-sm">
+            Click &quot;Add Rule&quot; to create your first transformation rule
+          </p>
+        </div>
+      ) : (
+        <div className="bg-card rounded-lg shadow-sm border overflow-hidden">
+          <div className="grid grid-cols-[1fr,1fr,auto] border-b-2 border-muted bg-muted/30">
+            <div className="p-4 text-center font-medium border-r-2 border-muted text-foreground">
+              Before
+            </div>
+            <div className="p-4 text-center font-medium border-r-2 border-muted text-foreground">
+              After
+            </div>
+            <div className="p-4 text-center font-medium w-24 text-foreground">
+              Action
+            </div>
+          </div>
+
+          {rules.map((rule) => (
+            <div
+              key={rule.id}
+              className="grid grid-cols-[1fr,1fr,auto] border-b border-muted last:border-b-0"
+            >
+              <div className="p-6 flex justify-center items-center border-r-2 border-muted">
+                <div className="flex flex-wrap justify-center gap-2 max-w-full">
+                  {rule.before.map((obj, idx) => (
+                    <RuleShape key={idx} type={obj.type} />
+                  ))}
+                </div>
+              </div>
+              <div className="p-6 flex justify-center items-center border-r-2 border-muted">
+                <div className="flex flex-wrap justify-center gap-2 max-w-full">
+                  {rule.after.map((obj, idx) => (
+                    <RuleShape key={idx} type={obj.type} />
+                  ))}
+                </div>
+              </div>
+              <div className="p-6 flex justify-center items-center w-24">
+                <Button
+                  onClick={() => onDeleteRule(rule.id)}
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30 p-2 h-auto"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
