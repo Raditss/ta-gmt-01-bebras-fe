@@ -22,7 +22,7 @@ import { CheckCircle2, Save, AlertCircle } from 'lucide-react';
 // Hooks
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
-import { useCipherNCreator } from '@/hooks/useCipherNCreator';
+import { useCipherNCreator } from '@/components/features/question/cipher-n/useCipherNCreator';
 
 // Models and Types
 import { CipherCreateModel } from '@/models/cipher-n/cipher-n.create.model';

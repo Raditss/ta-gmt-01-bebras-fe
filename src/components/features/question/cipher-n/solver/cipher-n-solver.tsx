@@ -8,7 +8,7 @@ import {
 } from '@/components/features/bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
-import { TimeProgressBar } from '@/components/ui/time-progress-bar';
+import { TimeProgressBar } from '@/components/features/question/shared/time-progress-bar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -162,8 +162,14 @@ function PolygonVisualization({
 }
 
 export default function CipherNSolver({ questionId }: BaseSolverProps) {
-  const { question, loading, error, currentDuration, markAsSubmitted } =
-    useSolveQuestion<CipherNSolveModel>(questionId, CipherNSolveModel);
+  const {
+    question,
+    questionMetadata,
+    loading,
+    error,
+    currentDuration,
+    markAsSubmitted
+  } = useSolveQuestion<CipherNSolveModel>(questionId, CipherNSolveModel);
   const { formattedDuration, getCurrentDuration } =
     useDuration(currentDuration());
 
@@ -298,10 +304,13 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
         <div className="min-h-screen bg-gray-100 p-8">
           {/* Time Progress Bar */}
           <div className="max-w-7xl mx-auto mb-8">
-            <TimeProgressBar
-              duration={currentDuration()}
-              formattedTime={formattedDuration}
-            />
+            {questionMetadata && (
+              <TimeProgressBar
+                currentDuration={currentDuration()}
+                estimatedTime={questionMetadata.estimatedTime}
+                formattedDuration={formattedDuration}
+              />
+            )}
           </div>
 
           {/* Main Content */}
