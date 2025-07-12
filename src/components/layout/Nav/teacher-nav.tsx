@@ -15,10 +15,7 @@ import {
 import {
   BookOpen,
   Users,
-  Settings,
   LogOut,
-  Bell,
-  Search,
   GraduationCap,
   Plus,
   User
@@ -70,13 +67,6 @@ export function TeacherNav() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <Search className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Bell className="w-4 h-4" />
-            </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -106,10 +96,6 @@ export function TeacherNav() {
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
                   </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
@@ -159,12 +145,6 @@ export function TeacherNavLinks() {
       </div>
       {/* Right Side */}
       <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="icon">
-          <Search className="w-4 h-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Bell className="w-4 h-4" />
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -191,10 +171,6 @@ export function TeacherNavLinks() {
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/dashboard">
