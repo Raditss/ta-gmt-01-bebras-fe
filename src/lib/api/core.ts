@@ -1,25 +1,26 @@
-import axios from "axios";
+import axios from 'axios';
 
-import {useAuthStore} from "@/store/auth.store";
+import { useAuthStore } from '@/store/auth.store';
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+export const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    "Content-Type": "application/json",
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
 axiosInstance.interceptors.request.use((config) => {
   if (
-    config.url?.includes("/questions/new") ||
-    config.url?.includes("questions/new")
+    config.url?.includes('/questions/new') ||
+    config.url?.includes('questions/new')
   ) {
-    throw new Error("BLOCKED: Main API call to /questions/new is not allowed.");
+    throw new Error('BLOCKED: Main API call to /questions/new is not allowed.');
   }
 
-  const token = localStorage.getItem("auth-storage");
+  const token = localStorage.getItem('auth-storage');
   if (token) {
     const parsedToken = JSON.parse(token).state.token;
     if (parsedToken) {
@@ -36,7 +37,7 @@ axiosInstance.interceptors.response.use(
       const logout = useAuthStore.getState().logout;
       logout();
 
-      console.error("Unauthorized access - redirecting to login");
+      console.error('Unauthorized access - redirecting to login');
     }
     return Promise.reject(error);
   }
@@ -44,9 +45,9 @@ axiosInstance.interceptors.response.use(
 
 export const apiCore = {
   async get<T = unknown>(url: string) {
-    if (url.includes("/questions/new") || url.includes("questions/new")) {
+    if (url.includes('/questions/new') || url.includes('questions/new')) {
       throw new Error(
-        "api.get: Cannot fetch question for new or temporary questions"
+        'api.get: Cannot fetch question for new or temporary questions'
       );
     }
 
@@ -64,4 +65,8 @@ export const apiCore = {
   async delete<T = unknown>(url: string) {
     return await axiosInstance.delete<T>(`/api${url}`);
   },
+
+  async put<T = unknown>(url: string, data?: unknown) {
+    return await axiosInstance.put<T>(`/api${url}`, data);
+  }
 };
