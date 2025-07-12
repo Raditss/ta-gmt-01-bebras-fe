@@ -1,59 +1,72 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
-import {useAuthStore} from "@/store/auth.store";
+import { useAuthStore } from '@/store/auth.store';
 
 export default function EditProfilePage() {
-  const [mounted, setMounted] = useState(false)
-  const { user, isAuthenticated } = useAuthStore()
-  const router = useRouter()
+  const [mounted, setMounted] = useState(false);
+  const { user, isAuthenticated, isHydrated } = useAuthStore();
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    name: "",
-    bio: "",
-    skills: "",
-    github: "",
-    linkedin: "",
-    twitter: "",
-  })
+    name: '',
+    bio: '',
+    skills: '',
+    github: '',
+    linkedin: '',
+    twitter: ''
+  });
 
   useEffect(() => {
-    setMounted(true)
-    // If not authenticated, redirect to login
-    if (mounted && !isAuthenticated) {
-      router.push("/login")
+    setMounted(true);
+    // Only check authentication after hydration
+    if (mounted && isHydrated && !isAuthenticated) {
+      router.push('/login');
     }
     // Initialize form data with user data
     if (user) {
       setFormData({
-        name: user.name || "",
-        bio: "Passionate developer focused on algorithms and data structures. Currently learning Rust and exploring systems programming.",
-        skills: "Python, JavaScript, Rust, Algorithms",
-        github: "",
-        linkedin: "",
-        twitter: "",
-      })
+        name: user.name || '',
+        bio: 'Passionate developer focused on algorithms and data structures. Currently learning Rust and exploring systems programming.',
+        skills: 'Python, JavaScript, Rust, Algorithms',
+        github: '',
+        linkedin: '',
+        twitter: ''
+      });
     }
-  }, [isAuthenticated, mounted, router, user])
+  }, [isAuthenticated, mounted, router, user, isHydrated]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // TODO: Implement profile update logic
     // Form submission logic would go here
-    router.push("/profile")
-  }
+    router.push('/profile');
+  };
 
-  // Show nothing during SSR or if not authenticated
-  if (!mounted || !isAuthenticated) {
-    return null
+  // Show loading while hydrating or if not authenticated
+  if (!mounted || !isHydrated || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -72,7 +85,9 @@ export default function EditProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle>Edit Profile</CardTitle>
-              <CardDescription>Update your personal information and preferences</CardDescription>
+              <CardDescription>
+                Update your personal information and preferences
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -82,7 +97,9 @@ export default function EditProfilePage() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       placeholder="Enter your full name"
                     />
                   </div>
@@ -92,7 +109,9 @@ export default function EditProfilePage() {
                     <Textarea
                       id="bio"
                       value={formData.bio}
-                      onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, bio: e.target.value })
+                      }
                       placeholder="Tell us about yourself"
                       rows={4}
                     />
@@ -103,7 +122,9 @@ export default function EditProfilePage() {
                     <Input
                       id="skills"
                       value={formData.skills}
-                      onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, skills: e.target.value })
+                      }
                       placeholder="Enter your skills (comma separated)"
                     />
                   </div>
@@ -115,7 +136,9 @@ export default function EditProfilePage() {
                       <Input
                         id="github"
                         value={formData.github}
-                        onChange={(e) => setFormData({ ...formData, github: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, github: e.target.value })
+                        }
                         placeholder="https://github.com/username"
                       />
                     </div>
@@ -124,7 +147,9 @@ export default function EditProfilePage() {
                       <Input
                         id="linkedin"
                         value={formData.linkedin}
-                        onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, linkedin: e.target.value })
+                        }
                         placeholder="https://linkedin.com/in/username"
                       />
                     </div>
@@ -133,7 +158,9 @@ export default function EditProfilePage() {
                       <Input
                         id="twitter"
                         value={formData.twitter}
-                        onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, twitter: e.target.value })
+                        }
                         placeholder="https://twitter.com/username"
                       />
                     </div>
@@ -158,5 +185,5 @@ export default function EditProfilePage() {
         </div>
       </footer>
     </div>
-  )
-} 
+  );
+}

@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
-import { Trophy, TrendingUp, BookOpen, Award, Play, User } from 'lucide-react';
+import { Trophy, TrendingUp, Award, Play } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useDashboard } from '@/hooks/useDashboard';
+import Image from 'next/image';
+import RandomQuote from '@/components/ui/random-quotes';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
@@ -49,53 +51,39 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Banner */}
-        <div className="bg-white rounded-3xl p-8 shadow-sm">
-          <div className="flex items-center justify-between">
-            {/* Left Side - Illustrations */}
-            <div className="flex items-center gap-6">
-              {/* Book with lightbulb illustration */}
-              <div className="relative">
-                <div className="w-20 h-20 bg-blue-100 rounded-2xl flex items-center justify-center">
-                  <BookOpen className="w-10 h-10 text-blue-600" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
-                  <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                </div>
-              </div>
+        <div className="bg-white rounded-3xl p-8 shadow-2xl relative overflow-visible min-h-[120px] flex items-center">
+          {/* Left Illustration */}
+          <div className="absolute left-4 bottom-0">
+            <Image
+              src="/graphic/woman-dash.svg"
+              alt="woman"
+              width={280}
+              height={280}
+              className="object-contain object-bottom"
+              style={{ zIndex: 10 }}
+            />
+          </div>
 
-              {/* Woman illustration placeholder */}
-              <div className="w-20 h-20 bg-pink-200 rounded-2xl flex items-center justify-center">
-                <User className="w-10 h-10 text-pink-600" />
-              </div>
-            </div>
+          {/* Right Illustration */}
+          <div className="absolute right-4 bottom-0">
+            <Image
+              src="/graphic/man-dash.svg"
+              alt="man"
+              width={280}
+              height={280}
+              className="object-contain object-bottom"
+              style={{ zIndex: 10 }}
+            />
+          </div>
 
-            {/* Center - Main Text */}
-            <div className="text-center flex-1 mx-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Hi, {user?.name}!
-              </h1>
-              <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                Kata-kata hari ini kali yak, atau kaya kalimat penyemangat atau
-                apa gitu dit lu pikir dah
-              </p>
-            </div>
-
-            {/* Right Side - Illustrations */}
-            <div className="flex items-center gap-6">
-              {/* Man illustration placeholder */}
-              <div className="w-20 h-20 bg-blue-200 rounded-2xl flex items-center justify-center">
-                <User className="w-10 h-10 text-blue-600" />
-              </div>
-
-              {/* Rocket illustration */}
-              <div className="w-20 h-20 bg-red-200 rounded-2xl flex items-center justify-center">
-                <div className="w-10 h-10 bg-red-400 rounded-full flex items-center justify-center transform rotate-45">
-                  <div className="w-6 h-6 bg-white rounded-full"></div>
-                </div>
-              </div>
-            </div>
+          {/* Center Text */}
+          <div className="text-center flex-1 mx-8 z-20 relative px-32">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              Hi, {user?.name}!
+            </h1>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              <RandomQuote />
+            </p>
           </div>
         </div>
 
@@ -151,19 +139,12 @@ const Dashboard = () => {
                 <div className="flex items-center gap-6">
                   {/* Streak Card */}
                   <div className="bg-white rounded-2xl px-6 py-3 flex items-center gap-4 shadow">
-                    <svg
-                      width="36"
-                      height="36"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M12 2C12 2 7 7.5 7 12C7 15.3137 9.68629 18 13 18C16.3137 18 19 15.3137 19 12C19 7.5 12 2 12 2Z"
-                        fill="#FFD600"
-                      />
-                      <circle cx="12" cy="15" r="3" fill="#FFD600" />
-                    </svg>
+                    <Image
+                      src="/graphic/streak-on.svg"
+                      alt="streak"
+                      width={36}
+                      height={36}
+                    />
                     <div className="flex flex-col items-start">
                       <span className="text-3xl font-bold text-black leading-none">
                         {streakDays}
@@ -194,20 +175,20 @@ const Dashboard = () => {
           {/* Ready to Solve Card - Takes up 1 column */}
           <div className="lg:col-span-1">
             <div className="h-64 bg-gradient-to-br from-yellow-400 to-yellow-300 rounded-3xl p-8 text-black flex flex-col justify-center items-center shadow-lg">
-              <h3 className="font-bold text-2xl mb-8">Ready to Solve?</h3>
+              <h3 className="font-semibold text-lg mb-8">Ready to Solve?</h3>
               <div className="space-y-4 w-full">
                 <button
                   onClick={() => (window.location.href = '/problems')}
-                  className="w-full bg-white text-black rounded-full py-4 px-6 font-bold flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-lg shadow"
+                  className="w-full bg-white text-black rounded-full py-3 px-6 font-semibold flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-base shadow"
                 >
-                  <Play className="w-5 h-5" />
+                  <Play className="w-4 h-4" />
                   Let&apos;s Solve
                 </button>
-                <button className="w-full bg-white text-black rounded-full py-4 px-6 font-bold flex items-center justify-center gap-3 border border-black/10 hover:bg-gray-50 transition-colors text-lg shadow">
+                <button className="w-full bg-white text-black rounded-full py-3 px-6 font-semibold flex items-center justify-center gap-3 border border-black/10 hover:bg-gray-50 transition-colors text-base shadow">
                   <span className="inline-block">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="w-5 h-5"
+                      className="w-4 h-4"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
