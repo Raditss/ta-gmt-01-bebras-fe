@@ -1,4 +1,5 @@
 import { UserRole } from '@/types/user-role';
+import { UserStatus } from '@/types/user-status.type';
 import {
   LoginRequest,
   RegisterRequest
@@ -12,6 +13,8 @@ export type User = {
   username: string;
   name: string;
   role: UserRole;
+  status: UserStatus;
+  verifiedAt: Date | null;
 };
 
 export interface AuthStoreInterface {
