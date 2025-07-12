@@ -17,6 +17,7 @@ import { questionTypeApi } from '@/lib/api/question-type.api';
 import { questionsApi } from '@/lib/api/questions.api';
 import { useQuestionsWithSearch } from '@/hooks/useQuestionsWithSearch';
 import { Pagination } from '@/components/ui/pagination';
+import { useAuthStore } from '@/store/auth.store';
 
 export default function ProblemsPage() {
   const [mounted, setMounted] = useState(false);
@@ -25,6 +26,7 @@ export default function ProblemsPage() {
   >({} as Record<QuestionTypeEnum, boolean>);
   const router = useRouter();
   const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+  const { isAuthenticated, isHydrated } = useAuthStore();
 
   // Use the new hook for questions with search and pagination
   const {
@@ -47,6 +49,10 @@ export default function ProblemsPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Only check authentication after hydration
+    if (mounted && isHydrated && !isAuthenticated) {
+      router.push('/login');
+    }
     const fetchQuestionTypes = async () => {
       try {
         const typesResponse = await questionTypeApi.getQuestionTypes();
@@ -65,7 +71,19 @@ export default function ProblemsPage() {
       }
     };
     fetchQuestionTypes();
-  }, []);
+  }, [mounted, isHydrated, isAuthenticated, router]);
+
+  // Show loading while hydrating or if not authenticated
+  if (!mounted || !isHydrated || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleCategoryChange = (questionTypeEnum: QuestionTypeEnum) => {
     setSelectedCategories((prev) => ({
