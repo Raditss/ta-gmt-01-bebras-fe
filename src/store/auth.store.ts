@@ -23,6 +23,7 @@ export interface AuthStoreInterface {
   register: (userData: RegisterRequest) => Promise<boolean>;
   logout: () => void;
   setHydrated: (hydrated: boolean) => void;
+  setUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthStoreInterface>()(
@@ -35,6 +36,13 @@ export const useAuthStore = create<AuthStoreInterface>()(
 
       setHydrated: (hydrated: boolean) => {
         set({ isHydrated: hydrated });
+      },
+
+      setUser: (user: User) => {
+        set({
+          user: user,
+          isAuthenticated: true // Ensure authenticated state is maintained
+        });
       },
 
       login: async (credentials: LoginRequest) => {
