@@ -1,7 +1,8 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Users, TrendingUp, Target } from "lucide-react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { CheckCircle, Users, TrendingUp } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -30,38 +31,34 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-24 items-center">
           <div className="space-y-6">
             <h1 className="text-5xl font-bold text-gray-800 leading-tight">
-              Grow Your Coding Skills with{" "}
+              Grow Your Computational Thinking Skills with{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500">
                 Solvio
               </span>
             </h1>
             <p className="text-xl text-gray-600 leading-relaxed">
-              Challenge yourself with our curated collection of coding problems, track your progress, and compete with
-              others on the leaderboard.
+              Challenge yourself with our curated collection of problems, track
+              your progress, and compete with others on the leaderboard.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild>
-                <Link href="/signup">Get Started</Link>
+                <Link href="/register">Get Started</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="#features">Explore Problems</Link>
               </Button>
             </div>
           </div>
-          <div className="relative">
-            <div className="w-full h-96 bg-gradient-to-br from-yellow-200 via-purple-200 to-blue-200 rounded-3xl flex items-center justify-center">
-              <div className="text-center">
-                <div className="w-32 h-32 bg-yellow-400 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                    <Target className="w-8 h-8 text-purple-500" />
-                  </div>
-                </div>
-                <div className="text-gray-700 font-medium">Interactive Learning</div>
-              </div>
-            </div>
+          <div className="relative drop-shadow-2xl ml-18">
+            <Image
+              src="/graphic/landing-page.svg"
+              alt="solvio"
+              width={500}
+              height={500}
+            />
           </div>
         </div>
       </section>
@@ -69,9 +66,12 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">Why Choose Solvio?</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">
+            Why Choose Solvio?
+          </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Our platform offers everything you need to master computational thinking and coding skills.
+            Our platform offers an interactive way to learn computational
+            thinking skills.
           </p>
         </div>
 
@@ -81,9 +81,12 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Diverse Problem Set</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                Diverse Problem Set
+              </h3>
               <p className="text-gray-600">
-                Access hundreds of carefully crafted problems across multiple difficulty levels and topics.
+                Access all the carefully crafted problems across multiple
+                topics.
               </p>
             </CardContent>
           </Card>
@@ -93,9 +96,12 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Track Your Progress</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                Track Your Progress
+              </h3>
               <p className="text-gray-600">
-                Monitor your learning journey with detailed analytics and progress tracking.
+                Monitor your learning journey with detailed analytics and
+                progress tracking.
               </p>
             </CardContent>
           </Card>
@@ -105,9 +111,12 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-red-500 rounded-full mx-auto mb-6 flex items-center justify-center">
                 <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Compete & Collaborate</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                Compete & Collaborate
+              </h3>
               <p className="text-gray-600">
-                Join a community of learners, compete on leaderboards, and learn together.
+                Join a community of learners, compete on leaderboards, and learn
+                together.
               </p>
             </CardContent>
           </Card>
@@ -117,12 +126,15 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-purple-500 to-blue-500 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Coding Journey?</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Ready to Start Your Computational Thinking Journey?
+          </h2>
           <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of students already improving their computational thinking skills.
+            Join thousands of students already improving their computational
+            thinking skills.
           </p>
           <Button size="lg" variant="secondary" asChild>
-            <Link href="/signup">Get Started for Free</Link>
+            <Link href="/register">Get Started for Free</Link>
           </Button>
         </div>
       </section>
@@ -136,7 +148,9 @@ export default function LandingPage() {
                 <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg"></div>
                 <span className="text-xl font-bold">Solvio</span>
               </div>
-              <p className="text-gray-400">Empowering the next generation of computational thinkers.</p>
+              <p className="text-gray-400">
+                Empowering the next generation of computational thinkers.
+              </p>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Platform</h3>

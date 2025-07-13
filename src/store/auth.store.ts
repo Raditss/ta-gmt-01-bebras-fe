@@ -1,26 +1,32 @@
-import { UserRole } from "@/types/user-role";
+import { UserRole } from '@/types/user-role';
+import { UserStatus } from '@/types/user-status.type';
 import {
   LoginRequest,
-  RegisterRequest,
-} from "@/utils/validations/auth.validation";
-import { create } from "zustand/index";
-import { createJSONStorage, persist } from "zustand/middleware";
-import { authApi } from "@/lib/api";
+  RegisterRequest
+} from '@/utils/validations/auth.validation';
+import { create } from 'zustand/index';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { authApi } from '@/lib/api';
 
 export type User = {
   id: number;
   username: string;
   name: string;
   role: UserRole;
+  status: UserStatus;
+  verifiedAt: Date | null;
 };
 
 export interface AuthStoreInterface {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
   login: (credentials: LoginRequest) => Promise<boolean>;
   register: (userData: RegisterRequest) => Promise<boolean>;
   logout: () => void;
+  setHydrated: (hydrated: boolean) => void;
+  setUser: (user: User) => void;
 }
 
 export const useAuthStore = create<AuthStoreInterface>()(
@@ -29,6 +35,18 @@ export const useAuthStore = create<AuthStoreInterface>()(
       user: null,
       token: null,
       isAuthenticated: false,
+      isHydrated: false,
+
+      setHydrated: (hydrated: boolean) => {
+        set({ isHydrated: hydrated });
+      },
+
+      setUser: (user: User) => {
+        set({
+          user: user,
+          isAuthenticated: true // Ensure authenticated state is maintained
+        });
+      },
 
       login: async (credentials: LoginRequest) => {
         try {
@@ -37,7 +55,7 @@ export const useAuthStore = create<AuthStoreInterface>()(
             set({
               user: response.user.props,
               token: response.accessToken,
-              isAuthenticated: true,
+              isAuthenticated: true
             });
             return true;
           }
@@ -64,13 +82,19 @@ export const useAuthStore = create<AuthStoreInterface>()(
         set({
           user: null,
           token: null,
-          isAuthenticated: false,
+          isAuthenticated: false
         });
-      },
+      }
     }),
     {
-      name: "auth-storage",
+      name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        // Mark as hydrated when the store is rehydrated from localStorage
+        if (state) {
+          state.setHydrated(true);
+        }
+      }
     }
   )
 );
