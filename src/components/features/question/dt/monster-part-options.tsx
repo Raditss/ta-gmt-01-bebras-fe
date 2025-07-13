@@ -1,4 +1,4 @@
-import { MonsterPartOptionType } from '@/components/features/question/dt/types';
+import { MonsterPartOptionType } from '@/components/features/question/dt/monster-part.type';
 import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
 import {
   Carousel,
@@ -10,7 +10,7 @@ import {
 
 export interface MonsterPartOptionsProps {
   options: MonsterPartOptionType[];
-  selectedOption: MonsterPartOptionType | undefined;
+  selectedOption: string | undefined;
   onSelection: (option: MonsterPartOptionType) => void;
   onHover: (value: string) => void;
   onMouseLeave: () => void;
@@ -31,7 +31,7 @@ export default function MonsterPartOptions({
             <MonsterPartOption
               key={index}
               option={option}
-              selected={selectedOption?.label === option.label}
+              selected={selectedOption === option.value}
               onMouseEnter={() => onHover(option.value)}
               onMouseLeave={onMouseLeave}
               onClick={() => onSelection(option)}
@@ -53,7 +53,7 @@ export default function MonsterPartOptions({
                         <MonsterPartOption
                           key={index}
                           option={option}
-                          selected={selectedOption?.label === option.label}
+                          selected={selectedOption === option.value}
                           onMouseEnter={() => onHover(option.value)}
                           onMouseLeave={onMouseLeave}
                           onClick={() => onSelection(option)}

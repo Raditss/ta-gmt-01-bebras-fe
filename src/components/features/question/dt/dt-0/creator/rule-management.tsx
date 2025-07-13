@@ -3,11 +3,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MonsterPartOptionType, MonsterPartType } from '../../types';
+import { MonsterPartType } from '../../monster-part.type';
 import { AlertCircle, Check, Plus, X } from 'lucide-react';
+import { capitalizeFirst } from '@/utils/helpers/common.helper';
 
 interface RuleManagementProps {
-  currentRuleSelections: Record<string, MonsterPartOptionType>;
+  currentRuleSelections: Record<string, string>;
   duplicateRuleError: string | null;
   editingRuleId: number | null;
   isCreatingRule: boolean;
@@ -35,7 +36,7 @@ const RuleManagement: React.FC<RuleManagementProps> = ({
     [MonsterPartType.BODY]: 'Body',
     [MonsterPartType.ARM]: 'Arms',
     [MonsterPartType.LEG]: 'Legs',
-    [MonsterPartType.HORN]: 'Horns',
+    // [MonsterPartType.HORN]: 'Horns',
     [MonsterPartType.COLOR]: 'Color'
   };
 
@@ -72,7 +73,7 @@ const RuleManagement: React.FC<RuleManagementProps> = ({
                 <h3 className="font-semibold mb-3 text-center text-gray-800">
                   Rule Configuration
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {Object.entries(attributeLabels).map(([key, label]) => {
                     const partType = key as MonsterPartType;
                     const selection = currentRuleSelections[partType];
@@ -95,7 +96,7 @@ const RuleManagement: React.FC<RuleManagementProps> = ({
                             {isSelected ? (
                               <span className="flex items-center">
                                 <Check className="h-3 w-3 mr-1" />
-                                {selection.label}
+                                {capitalizeFirst(selection)}
                               </span>
                             ) : (
                               'Not selected'
@@ -112,14 +113,15 @@ const RuleManagement: React.FC<RuleManagementProps> = ({
                   <div className="flex justify-between text-xs text-gray-600 mb-1">
                     <span>Rule Configuration Progress</span>
                     <span>
-                      {Object.values(currentRuleSelections).length}/5 completed
+                      {Object.values(currentRuleSelections).length}/{' '}
+                      {Object.values(MonsterPartType).length} completed
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
                       style={{
-                        width: `${(Object.values(currentRuleSelections).length / 5) * 100}%`
+                        width: `${(Object.values(currentRuleSelections).length / Object.values(MonsterPartType).length) * 100}%`
                       }}
                     />
                   </div>

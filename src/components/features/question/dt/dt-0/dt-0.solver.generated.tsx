@@ -1,37 +1,28 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { BaseSolverProps, SolverWrapper } from '../../../bases/base.solver';
-import { useDuration } from '@/hooks/useDuration';
-import { MonsterPartOptionType, MonsterPartType } from '../monster-part.type';
-import { useSolveQuestion } from '@/hooks/useSolveQuestion';
+import {
+  GeneratedSolverProps,
+  GeneratedSolverWrapper
+} from '@/components/features/bases/base.solver.generated';
+import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 import { DecisionTreeSolveModel } from '@/models/dt-0/dt-0.solve.model';
-import { TimeProgressBar } from '@/components/features/question/shared/time-progress-bar';
+import { MonsterPartOptionType, MonsterPartType } from '../monster-part.type';
 import Monster from '@/components/features/question/dt/monster';
 import { DecisionTree } from '@/components/features/question/dt/dt-0/tree';
 import { Button } from '@/components/ui/button';
 import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
-import { SubmitSection } from '@/components/features/question/shared/submit-section';
+import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 
-export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
-  const {
-    question,
-    questionMetadata,
-    loading,
-    error,
-    currentDuration,
-    markAsSubmitted
-  } = useSolveQuestion<DecisionTreeSolveModel>(
-    questionId,
-    DecisionTreeSolveModel
-  );
+export default function GeneratedDt0Solver({ type }: GeneratedSolverProps) {
+  const { question, questionContent, loading, error, regenerate } =
+    useGeneratedQuestion<DecisionTreeSolveModel>(type, DecisionTreeSolveModel);
+
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [hovered, setHovered] = useState<{
     category: MonsterPartType;
     value: string;
   } | null>(null);
-  const { formattedDuration, getCurrentDuration } =
-    useDuration(currentDuration());
 
   // Update local state when question is loaded
   useEffect(() => {
@@ -64,21 +55,6 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
     setHovered(null);
   }, []);
 
-  /*
-    const handleSubmit = useCallback(async () => {
-      if (!question) return;
-
-      question.setAttemptData(getCurrentDuration(), false);
-      const { ...attemptData } = question.getAttemptData();
-      await questionService.submitAttempt({
-        ...attemptData,
-        answer: JSON.parse(attemptData.answer)
-      });
-
-      router.push(`/problems/${questionId}`);
-    }, [question, getCurrentDuration, questionId, router]);
-  */
-
   const handleReset = useCallback(() => {
     setSelections({});
     if (question) {
@@ -91,19 +67,14 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
     return requiredParts.every((part) => selections[part]);
   }, [selections]);
 
+  // Convert selections to answerArr format for submit section
+  const answerArr = Object.entries(selections);
+
   return (
-    <SolverWrapper loading={loading} error={error}>
+    <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && (
         <div className="min-h-screen bg-gray-100">
           <div className="max-w-[95%] mx-auto p-4">
-            {questionMetadata && (
-              <TimeProgressBar
-                currentDuration={currentDuration()}
-                estimatedTime={questionMetadata.estimatedTime}
-                formattedDuration={formattedDuration}
-              />
-            )}
-
             <div className="text-center mt-6 mb-8">
               <h1 className="text-3xl font-bold text-gray-800">
                 Choose a Monster Not Banned
@@ -162,12 +133,14 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                         >
                           Reset
                         </Button>
-                        <SubmitSection
+
+                        <GeneratedSubmitSection
                           question={question}
-                          getCurrentDuration={getCurrentDuration}
-                          answerArr={Object.entries(selections)}
+                          answerArr={answerArr}
+                          type={type}
+                          questionContent={questionContent}
+                          onRegenerate={regenerate}
                           isDisabled={!isAllPartsSelected()}
-                          onSubmissionSuccess={markAsSubmitted}
                         />
                       </div>
                     </div>
@@ -196,6 +169,6 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
           </div>
         </div>
       )}
-    </SolverWrapper>
+    </GeneratedSolverWrapper>
   );
 }

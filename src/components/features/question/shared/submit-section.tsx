@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
@@ -45,7 +45,7 @@ export function SubmitSection({
   getCurrentDuration,
   answerArr,
   isDisabled = false,
-  className = 'w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 text-lg mt-6',
+  className = 'w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 text-lg',
   buttonText = 'Submit Answer',
   redirectPath = '/problems',
   onSubmissionSuccess
@@ -73,8 +73,6 @@ export function SubmitSection({
         duration: attemptData.duration,
         answer: JSON.parse(attemptData.answer)
       });
-
-      console.log(response);
 
       // Take the answer from the response
       const isCorrect = response.isCorrect;
