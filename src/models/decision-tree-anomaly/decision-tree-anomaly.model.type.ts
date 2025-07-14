@@ -9,10 +9,10 @@ export interface Rule {
   conditions: Condition[];
 }
 
-export interface DecisionTreeAnswer {
+export interface DecisionTreeAnomalyAnswer {
   selections: Record<string, string>;
 }
 
-export interface DecisionTreeContent {
+export interface DecisionTreeAnomalyContent {
   rules: Rule[];
 }

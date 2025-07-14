@@ -2,19 +2,22 @@ import { QuestionTypeEnum } from '@/types/question-type.type';
 import { IAttempt, IQuestion } from '@/models/interfaces/question.model';
 import { QuestionAttemptData } from '@/types/question-attempt.type';
 import {
-  DecisionTreeAnswer,
-  DecisionTreeContent,
+  DecisionTreeAnomalyAnswer,
+  DecisionTreeAnomalyContent,
   Rule
-} from '@/models/dt-0/dt-0.model.type';
+} from '@/models/decision-tree-anomaly/decision-tree-anomaly.model.type';
 
-export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
-  private content: DecisionTreeContent;
-  private answer: DecisionTreeAnswer;
+export class DecisionTreeAnomalySolveModel
+  extends IQuestion
+  implements IAttempt
+{
+  private content: DecisionTreeAnomalyContent;
+  private answer: DecisionTreeAnomalyAnswer;
   private attemptDuration: number;
   private attemptIsDraft: boolean;
 
   constructor(id: number) {
-    super(id, QuestionTypeEnum.DECISION_TREE);
+    super(id, QuestionTypeEnum.DECISION_TREE_ANOMALY);
 
     this.content = {
       rules: []
@@ -49,13 +52,13 @@ export class DecisionTreeSolveModel extends IQuestion implements IAttempt {
   }
 
   loadAnswer(json: string) {
-    const answer = JSON.parse(json) as DecisionTreeAnswer;
+    const answer = JSON.parse(json) as DecisionTreeAnomalyAnswer;
     this.answer = answer || {};
   }
 
   populateQuestionFromString(questionString: string): void {
     try {
-      this.content = JSON.parse(questionString) as DecisionTreeContent;
+      this.content = JSON.parse(questionString) as DecisionTreeAnomalyContent;
 
       this.resetToInitialState();
     } catch (error) {

@@ -1,6 +1,6 @@
 import { Container } from '@pixi/react';
 import { PropsWithChildren } from 'react';
-import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
+import { MonsterPartType } from '@/components/features/question/decision-tree/monster-part.type';
 import { useMonsterSprites } from './useMonsterSprites';
 import {
   MonsterArm,

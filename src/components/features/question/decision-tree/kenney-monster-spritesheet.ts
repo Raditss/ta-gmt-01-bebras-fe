@@ -1,6 +1,6 @@
 // Types for the kenneyMonsterSpritesheet structure
 
-import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
+import { MonsterPartType } from '@/components/features/question/decision-tree/monster-part.type';
 
 export type Texture = {
   source: string;

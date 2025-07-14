@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import { DecisionTreeCreateModel } from '@/models/dt-0/dt-0.create.model';
-import { Condition, Rule } from '@/models/dt-0/dt-0.model.type';
+import { DecisionTreeAnomalyCreateModel } from '@/models/decision-tree-anomaly/decision-tree-anomaly.create.model';
+import {
+  Condition,
+  Rule
+} from '@/models/decision-tree-anomaly/decision-tree-anomaly.model.type';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/monster-part.type';
+} from '@/components/features/question/decision-tree/monster-part.type';
 
 interface UseDecisionTreeCreatorProps {
-  question: DecisionTreeCreateModel;
+  question: DecisionTreeAnomalyCreateModel;
   markAsChanged: () => void;
 }
 

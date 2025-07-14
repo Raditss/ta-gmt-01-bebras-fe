@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Finish, Rule } from '@/models/dt-1/dt-1.model.type';
+import {
+  Finish,
+  Rule
+} from '@/models/decision-tree-trace/decision-tree-trace.model.type';
 
 interface TreeNode {
   type: 'decision' | 'rule' | 'finish';
@@ -354,7 +357,7 @@ const convertToEChartsFormat = (
   };
 };
 
-export function DecisionTree2({
+export function DecisionTreeTraceTree({
   rules,
   finishes,
   goals,

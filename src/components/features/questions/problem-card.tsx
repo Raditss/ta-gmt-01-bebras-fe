@@ -12,8 +12,8 @@ const typeGradientMap: Record<QuestionTypeEnum, string> = {
   [QuestionTypeEnum.CFG]: 'from-pink-500 to-pink-300',
   [QuestionTypeEnum.CIPHER_N]: 'from-green-500 to-green-300',
   [QuestionTypeEnum.RING_CIPHER]: 'from-purple-500 to-purple-300',
-  [QuestionTypeEnum.DECISION_TREE]: 'from-blue-500 to-blue-300',
-  [QuestionTypeEnum.DECISION_TREE_2]: 'from-orange-500 to-orange-300'
+  [QuestionTypeEnum.DECISION_TREE_ANOMALY]: 'from-blue-500 to-blue-300',
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: 'from-orange-500 to-orange-300'
 };
 
 export function ProblemCard({ id, title, author, type }: ProblemCardProps) {

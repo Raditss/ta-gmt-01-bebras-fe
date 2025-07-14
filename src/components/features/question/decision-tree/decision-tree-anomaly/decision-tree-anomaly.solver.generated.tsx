@@ -6,17 +6,22 @@ import {
   GeneratedSolverWrapper
 } from '@/components/features/bases/base.solver.generated';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
-import { DecisionTreeSolveModel } from '@/models/dt-0/dt-0.solve.model';
+import { DecisionTreeAnomalySolveModel } from '@/models/decision-tree-anomaly/decision-tree-anomaly.solve.model';
 import { MonsterPartOptionType, MonsterPartType } from '../monster-part.type';
-import Monster from '@/components/features/question/dt/monster';
-import { DecisionTree } from '@/components/features/question/dt/dt-0/tree';
+import Monster from '@/components/features/question/decision-tree/monster';
+import { DecisionTreeAnomalyTree } from '@/components/features/question/decision-tree/decision-tree-anomaly/tree';
 import { Button } from '@/components/ui/button';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 
-export default function GeneratedDt0Solver({ type }: GeneratedSolverProps) {
+export default function GeneratedDecisionTreeAnomalySolver({
+  type
+}: GeneratedSolverProps) {
   const { question, questionContent, loading, error, regenerate } =
-    useGeneratedQuestion<DecisionTreeSolveModel>(type, DecisionTreeSolveModel);
+    useGeneratedQuestion<DecisionTreeAnomalySolveModel>(
+      type,
+      DecisionTreeAnomalySolveModel
+    );
 
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [hovered, setHovered] = useState<{
@@ -87,7 +92,7 @@ export default function GeneratedDt0Solver({ type }: GeneratedSolverProps) {
                 {/* Tree */}
                 <div className="bg-white rounded-xl shadow-lg p-4">
                   <div className="flex justify-center overflow-x-auto min-h-[400px]">
-                    <DecisionTree
+                    <DecisionTreeAnomalyTree
                       rules={question.getRules()}
                       selections={Object.fromEntries(
                         Object.entries(selections).map(([key, value]) => [

@@ -9,22 +9,24 @@ import { TimeProgressBar } from '@/components/ui/time-progress-bar';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/monster-part.type';
+} from '@/components/features/question/decision-tree/monster-part.type';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
-import { DecisionTree2SolveModel } from '@/models/dt-1/dt-1.solve.model';
+import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree/decision-tree-trace/tree';
+import { DecisionTreeTraceSolveModel } from '@/models/decision-tree-trace/decision-tree-trace.solve.model';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
-import MonsterCharacter from '@/components/features/question/dt/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import { capitalizeFirst } from '@/utils/helpers/common.helper';
 
-export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
+export default function DecisionTreeTraceSolver({
+  questionId
+}: BaseSolverProps) {
   const { question, loading, error, currentDuration, markAsSubmitted } =
-    useSolveQuestion<DecisionTree2SolveModel>(
+    useSolveQuestion<DecisionTreeTraceSolveModel>(
       questionId,
-      DecisionTree2SolveModel
+      DecisionTreeTraceSolveModel
     );
 
   const [selections, setSelections] = useState<Record<string, string>>({});
@@ -122,7 +124,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
             {/* Question Title */}
             <div className="text-center mb-10">
               <h1 className="text-3xl font-bold text-gray-800">
-                Decision Tree Challenge
+                Decision Tree Trace Challenge
               </h1>
               <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
                 Help the monster reach the goal destinations! Select different
@@ -162,7 +164,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                   <h2 className="text-2xl font-semibold mb-6 text-center">
                     Decision Tree
                   </h2>
-                  <DecisionTree2
+                  <DecisionTreeTraceTree
                     rules={question.getRules()}
                     finishes={question.getFinishes()}
                     goals={question.getGoals()}

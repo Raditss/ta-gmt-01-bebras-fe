@@ -20,11 +20,11 @@ export interface CombinationAnswer {
   id: number;
 }
 
-export interface DecisionTree2Answer {
+export interface DecisionTreeTraceAnswer {
   combinations: CombinationAnswer[];
 }
 
-export interface DecisionTree2Content {
+export interface DecisionTreeTraceContent {
   rules: Rule[];
   finishes: Finish[];
   goals: number[];

@@ -1,5 +1,5 @@
-import { MonsterPartOptionType } from '@/components/features/question/dt/monster-part.type';
-import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
+import { MonsterPartOptionType } from '@/components/features/question/decision-tree/monster-part.type';
+import MonsterPartOption from '@/components/features/question/decision-tree/monster-part-option';
 import {
   Carousel,
   CarouselContent,

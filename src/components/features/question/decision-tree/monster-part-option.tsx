@@ -1,4 +1,4 @@
-import { MonsterPartOptionType } from '@/components/features/question/dt/monster-part.type';
+import { MonsterPartOptionType } from '@/components/features/question/decision-tree/monster-part.type';
 import {
   Tooltip,
   TooltipContent,
