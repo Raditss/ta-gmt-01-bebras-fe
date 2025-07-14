@@ -170,14 +170,13 @@ export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
                 Save Draft
               </Button>
 
-              {rules.length > 0 && (
-                <Button
-                  onClick={handleSubmit}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  Submit Question
-                </Button>
-              )}
+              <Button
+                onClick={handleSubmit}
+                disabled={!rules || rules.length === 0}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                Submit Question
+              </Button>
             </div>
 
             {/* Save Confirmation */}

@@ -72,6 +72,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     saveDraft,
     submitCreation,
     isLoading,
+    lastSavedDraft,
     markAsChanged
   } = useCreateQuestion<DecisionTree2CreateModel>(
     initialDataQuestion,
@@ -112,6 +113,8 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   const [duplicateRuleError, setDuplicateRuleError] = useState<string | null>(
     null
   );
+  const [isSubmitButtonDisabled, setIsSubmitButtonDisabled] =
+    useState<boolean>(true);
 
   // Load existing data when question is loaded
   useEffect(() => {
@@ -121,6 +124,18 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
       setGoals(question.content.goals);
     }
   }, [question]);
+
+  useEffect(() => {
+    if (rules) question.content.rules = rules;
+    if (finishes) question.content.finishes = finishes;
+    if (goals) question.content.goals = goals;
+
+    if (question.validateContent()) {
+      setIsSubmitButtonDisabled(false);
+    } else {
+      setIsSubmitButtonDisabled(true);
+    }
+  }, [rules, finishes, goals, question.content, question]);
 
   // Handle monster part selection for rule creation
   const handleSelection = useCallback(
@@ -169,7 +184,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     const conditions = createConditionsFromSelections();
 
     // Check for duplicate rules
-    const isDuplicate = rules.some((rule) => {
+    const isDuplicate = rules?.some((rule) => {
       if (editingRuleId && rule.id === editingRuleId) return false;
       return (
         rule.conditions.length === conditions.length &&
@@ -201,11 +216,16 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     } else {
       // Add new rule
       const newRule: Rule = {
-        id: rules.length < 1 ? 1 : rules[rules.length - 1].id + 1,
+        id: !rules || rules.length === 0 ? 1 : rules[rules.length - 1].id + 1,
         conditions,
         finish: currentRuleFinish!
       };
-      setRules((prev) => [...prev, newRule]);
+
+      if (!rules) {
+        setRules([newRule]);
+      } else {
+        setRules((prev) => [...prev, newRule]);
+      }
     }
 
     markAsChanged();
@@ -264,10 +284,18 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     } else {
       // Add new finish
       const newFinish: Finish = {
-        id: finishes.length < 1 ? 1 : finishes[finishes.length - 1].id + 1,
+        id:
+          !finishes || finishes.length === 0
+            ? 1
+            : finishes[finishes.length - 1].id + 1,
         name: newFinishName.trim()
       };
-      setFinishes((prev) => [...prev, newFinish]);
+
+      if (newFinish.id === 1) {
+        setFinishes([newFinish]);
+      } else {
+        setFinishes((prev) => [...prev, newFinish]);
+      }
     }
 
     markAsChanged();
@@ -300,7 +328,9 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   const handleToggleGoal = (finishId: number) => {
     if (!question) return;
 
-    if (goals.includes(finishId)) {
+    if (!goals) {
+      setGoals([finishId]);
+    } else if (goals.includes(finishId)) {
       setGoals((prev) => prev.filter((goalId) => goalId !== finishId));
     } else {
       setGoals((prev) => [...prev, finishId]);
@@ -325,23 +355,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
   // Handle submit
   const handleSubmit = () => {
     if (!question) return;
-    question.content = {
-      finishes: finishes,
-      goals: goals,
-      rules: rules
-    };
-    if (question.validateContent()) {
-      setShowSubmissionModal(true);
-    } else {
-      // Show validation errors
-      const errors = [];
-      if (rules.length === 0) errors.push('At least one rule is required');
-      if (finishes.length === 0) errors.push('At least one finish is required');
-      if (goals.length === 0)
-        errors.push('At least one goal finish is required');
-
-      alert(`Please fix the following issues:\n- ${errors.join('\n- ')}`);
-    }
+    setShowSubmissionModal(true);
   };
 
   const handleConfirmSubmit = async () => {
@@ -373,11 +387,19 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
               Create Decision Tree 2 Question
             </h1>
             <div className="flex gap-2">
+              {lastSavedDraft && (
+                <Alert className="max-w-md mx-auto bg-gray-50 text-gray-800 border-gray-200">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <AlertDescription>
+                    Last saved at {lastSavedDraft.toString()}
+                  </AlertDescription>
+                </Alert>
+              )}
               <Button variant="outline" onClick={handleManualSave}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Draft
               </Button>
-              <Button onClick={handleSubmit} disabled={!question}>
+              <Button onClick={handleSubmit} disabled={isSubmitButtonDisabled}>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
                 Submit Question
               </Button>
@@ -408,7 +430,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <MapPin className="w-5 h-5" />
-                    Finishes ({finishes.length})
+                    Finishes ({finishes ? finishes.length : 0})
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -419,14 +441,14 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                       Management section.
                     </p>
 
-                    {finishes.map((finish) => (
+                    {finishes?.map((finish) => (
                       <div
                         key={finish.id}
                         className="flex items-center justify-between p-3 border rounded-lg"
                       >
                         <div className="flex items-center gap-3">
                           <span className="font-medium">{finish.name}</span>
-                          {goals.includes(finish.id) && (
+                          {goals && goals.includes(finish.id) && (
                             <Badge className="bg-green-100 text-green-800">
                               <Target className="w-3 h-3 mr-1" />
                               Goal
@@ -503,11 +525,11 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
-                    Goal Management ({goals.length} goals)
+                    Goal Management ({goals ? goals.length : 0} goals)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {finishes.length > 0 ? (
+                  {finishes?.length > 0 ? (
                     <div className="space-y-3">
                       <p className="text-sm text-gray-600 mb-4">
                         Select which finishes are goals. Students must find
@@ -515,7 +537,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                       </p>
 
                       {/* Goal Statistics */}
-                      {goals.length > 0 && (
+                      {goals && rules && (
                         <div className="p-3 bg-green-50 rounded-lg border border-green-200 mb-4">
                           <div className="flex items-center gap-2 mb-2">
                             <Target className="w-4 h-4 text-green-600" />
@@ -551,7 +573,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                             setGoals(allFinishIds);
                             markAsChanged();
                           }}
-                          disabled={goals.length === finishes.length}
+                          disabled={goals?.length === finishes?.length}
                         >
                           Select All
                         </Button>
@@ -562,7 +584,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                             setGoals([]);
                             markAsChanged();
                           }}
-                          disabled={goals.length === 0}
+                          disabled={!goals}
                         >
                           Clear All
                         </Button>
@@ -574,7 +596,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                           <div
                             key={finish.id}
                             className={`p-3 border rounded-lg ${
-                              goals.includes(finish.id)
+                              goals && goals.includes(finish.id)
                                 ? 'border-green-300 bg-green-50'
                                 : 'border-gray-200'
                             }`}
@@ -582,7 +604,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <Checkbox
-                                  checked={goals.includes(finish.id)}
+                                  checked={goals && goals.includes(finish.id)}
                                   onCheckedChange={() =>
                                     handleToggleGoal(finish.id)
                                   }
@@ -590,7 +612,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                                 <span className="font-medium">
                                   {finish.name}
                                 </span>
-                                {goals.includes(finish.id) && (
+                                {goals && goals.includes(finish.id) && (
                                   <Badge className="bg-green-100 text-green-800">
                                     <Target className="w-3 h-3 mr-1" />
                                     Goal
@@ -599,7 +621,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                               </div>
                               <div className="text-sm text-gray-500">
                                 {
-                                  rules.filter(
+                                  rules?.filter(
                                     (rule) => rule.finish === finish.id
                                   ).length
                                 }{' '}
@@ -626,13 +648,18 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>Created Rules ({rules.length})</CardTitle>
+                    <CardTitle>
+                      Created Rules ({rules ? rules.length : 0})
+                    </CardTitle>
                     <Drawer
                       open={isRuleDrawerOpen}
                       onOpenChange={setIsRuleDrawerOpen}
                     >
                       <DrawerTrigger asChild>
-                        <Button size="sm" disabled={finishes.length === 0}>
+                        <Button
+                          size="sm"
+                          disabled={!finishes || finishes.length === 0}
+                        >
                           <Plus className="w-4 h-4 mr-2" />
                           Add Rule
                         </Button>
@@ -699,13 +726,14 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                                     <SelectValue placeholder="Choose a finish..." />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    {finishes.map((finish) => (
+                                    {finishes?.map((finish) => (
                                       <SelectItem
                                         key={finish.id}
                                         value={finish.id.toString()}
                                       >
                                         {finish.name}
-                                        {goals.includes(finish.id) && ' (Goal)'}
+                                        {goals?.includes(finish.id) &&
+                                          ' (Goal)'}
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
@@ -764,7 +792,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                       reach.
                     </p>
 
-                    {finishes.length === 0 && (
+                    {!finishes && (
                       <div className="text-center text-gray-500 py-4 mb-4 bg-gray-50 rounded-lg border border-dashed">
                         <p className="text-sm">
                           Create some finishes first before adding rules
@@ -772,7 +800,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                       </div>
                     )}
 
-                    {rules.length > 0 ? (
+                    {rules && goals ? (
                       <>
                         {/* Rule Statistics */}
                         <div className="grid grid-cols-2 gap-4 mb-4">
@@ -893,12 +921,12 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {rules.length > 0 && finishes.length > 0 ? (
+                {rules && finishes ? (
                   <div className="w-full h-96 overflow-auto">
                     <DecisionTree2
                       rules={rules}
                       finishes={finishes}
-                      goals={goals}
+                      goals={goals || []}
                     />
                   </div>
                 ) : (
