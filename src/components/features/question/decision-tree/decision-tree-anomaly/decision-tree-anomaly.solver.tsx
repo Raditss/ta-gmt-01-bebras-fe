@@ -5,15 +5,17 @@ import { BaseSolverProps, SolverWrapper } from '../../../bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
 import { MonsterPartOptionType, MonsterPartType } from '../monster-part.type';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
-import { DecisionTreeSolveModel } from '@/models/dt-0/dt-0.solve.model';
+import { DecisionTreeAnomalySolveModel } from '@/models/decision-tree-anomaly/decision-tree-anomaly.solve.model';
 import { TimeProgressBar } from '@/components/features/question/shared/time-progress-bar';
-import Monster from '@/components/features/question/dt/monster';
-import { DecisionTree } from '@/components/features/question/dt/dt-0/tree';
+import Monster from '@/components/features/question/decision-tree/monster';
+import { DecisionTreeAnomalyTree } from '@/components/features/question/decision-tree/decision-tree-anomaly/tree';
 import { Button } from '@/components/ui/button';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
 
-export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
+export default function DecisionTreeAnomalySolver({
+  questionId
+}: BaseSolverProps) {
   const {
     question,
     questionMetadata,
@@ -21,9 +23,9 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
     error,
     currentDuration,
     markAsSubmitted
-  } = useSolveQuestion<DecisionTreeSolveModel>(
+  } = useSolveQuestion<DecisionTreeAnomalySolveModel>(
     questionId,
-    DecisionTreeSolveModel
+    DecisionTreeAnomalySolveModel
   );
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [hovered, setHovered] = useState<{
@@ -116,7 +118,7 @@ export default function DecisionTreeSolver({ questionId }: BaseSolverProps) {
                 {/* Tree */}
                 <div className="bg-white rounded-xl shadow-lg p-4">
                   <div className="flex justify-center overflow-x-auto min-h-[400px]">
-                    <DecisionTree
+                    <DecisionTreeAnomalyTree
                       rules={question.getRules()}
                       selections={Object.fromEntries(
                         Object.entries(selections).map(([key, value]) => [

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Rule } from '@/models/dt-0/dt-0.model.type';
+import { Rule } from '@/models/decision-tree-anomaly/decision-tree-anomaly.model.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';
@@ -228,7 +228,7 @@ const convertToEChartsFormat = (
   };
 };
 
-export function DecisionTree({ rules, selections }: TreeProps) {
+export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
   const option = useMemo(() => {
     const tree = buildDecisionTree(rules);
     const data = convertToEChartsFormat(tree, selections);

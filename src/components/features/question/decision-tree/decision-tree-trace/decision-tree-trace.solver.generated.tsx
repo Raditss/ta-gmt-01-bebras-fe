@@ -10,21 +10,23 @@ import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/monster-part.type';
+} from '@/components/features/question/decision-tree/monster-part.type';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
-import { DecisionTree2SolveModel } from '@/models/dt-1/dt-1.solve.model';
-import MonsterCharacter from '@/components/features/question/dt/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree/decision-tree-trace/tree';
+import { DecisionTreeTraceSolveModel } from '@/models/decision-tree-trace/decision-tree-trace.solve.model';
+import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import { capitalizeFirst } from '@/utils/helpers/common.helper';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 
-export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
+export default function GeneratedDecisionTreeTraceSolver({
+  type
+}: GeneratedSolverProps) {
   const { question, questionContent, loading, error, regenerate } =
-    useGeneratedQuestion<DecisionTree2SolveModel>(
+    useGeneratedQuestion<DecisionTreeTraceSolveModel>(
       type,
-      DecisionTree2SolveModel
+      DecisionTreeTraceSolveModel
     );
 
   const [selections, setSelections] = useState<Record<string, string>>({});
@@ -154,7 +156,7 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
                   <h2 className="text-2xl font-semibold mb-6 text-center">
                     Decision Tree
                   </h2>
-                  <DecisionTree2
+                  <DecisionTreeTraceTree
                     rules={question.getRules()}
                     finishes={question.getFinishes()}
                     goals={question.getGoals()}

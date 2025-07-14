@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
+import { MonsterPartType } from '@/components/features/question/decision-tree/monster-part.type';
 import { Stage } from '@pixi/react';
 import { calculateCanvasSize } from '@/utils/helpers/canvas.helper';
 import MonsterContainer from './monster-container';

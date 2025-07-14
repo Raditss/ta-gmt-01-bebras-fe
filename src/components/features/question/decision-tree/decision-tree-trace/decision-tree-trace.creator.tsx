@@ -1,12 +1,12 @@
 'use client';
 
-import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
-import MonsterCharacter from '@/components/features/question/dt/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree/decision-tree-trace/tree';
+import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/monster-part.type';
+} from '@/components/features/question/decision-tree/monster-part.type';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,7 @@ import {
 } from '@/components/ui/select';
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
-import { DecisionTree2CreateModel } from '@/models/dt-1/dt-1.create.model';
+import { DecisionTreeTraceCreateModel } from '@/models/decision-tree-trace/decision-tree-trace.create.model';
 import {
   AlertCircle,
   CheckCircle2,
@@ -53,7 +53,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import { BaseCreatorProps, CreatorWrapper } from '../../../bases/base.creator';
 import { CreationSubmissionModal } from '../../submission-modal.creator';
-import { Condition, Finish, Rule } from '@/models/dt-1/dt-1.model.type';
+import {
+  Condition,
+  Finish,
+  Rule
+} from '@/models/decision-tree-trace/decision-tree-trace.model.type';
 
 const attributeLabels = {
   body: 'Body',
@@ -63,7 +67,9 @@ const attributeLabels = {
   color: 'Color'
 };
 
-export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
+export default function DecisionTreeTraceCreator({
+  initialDataQuestion
+}: BaseCreatorProps) {
   // Creation hook
   const {
     question,
@@ -74,9 +80,9 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
     isLoading,
     lastSavedDraft,
     markAsChanged
-  } = useCreateQuestion<DecisionTree2CreateModel>(
+  } = useCreateQuestion<DecisionTreeTraceCreateModel>(
     initialDataQuestion,
-    DecisionTree2CreateModel
+    DecisionTreeTraceCreateModel
   );
 
   // Nav guard
@@ -384,7 +390,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800">
-              Create Decision Tree 2 Question
+              Create Decision Tree Trace Question
             </h1>
             <div className="flex gap-2">
               {lastSavedDraft && (
@@ -923,7 +929,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
               <CardContent>
                 {rules && finishes ? (
                   <div className="w-full h-96 overflow-auto">
-                    <DecisionTree2
+                    <DecisionTreeTraceTree
                       rules={rules}
                       finishes={finishes}
                       selections={selections}

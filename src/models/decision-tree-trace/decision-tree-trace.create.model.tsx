@@ -2,13 +2,13 @@ import { ICreateQuestion } from '@/models/interfaces/create-question.model';
 import { Question } from '@/types/question.type';
 import { isPresent } from '@/utils/helpers/common.helper';
 import {
-  DecisionTree2Content,
+  DecisionTreeTraceContent,
   Finish,
   Rule
-} from '@/models/dt-1/dt-1.model.type';
+} from '@/models/decision-tree-trace/decision-tree-trace.model.type';
 
-export class DecisionTree2CreateModel extends ICreateQuestion {
-  private _content: DecisionTree2Content;
+export class DecisionTreeTraceCreateModel extends ICreateQuestion {
+  private _content: DecisionTreeTraceContent;
 
   constructor(_question: Question) {
     super(_question);
@@ -20,11 +20,11 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
     this.populateFromContentString(_question.content);
   }
 
-  get content(): DecisionTree2Content {
+  get content(): DecisionTreeTraceContent {
     return this._content;
   }
 
-  set content(value: DecisionTree2Content) {
+  set content(value: DecisionTreeTraceContent) {
     this._content = value;
   }
 
@@ -34,10 +34,13 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
 
   populateFromContentString(contentString: string): void {
     try {
-      this.content = JSON.parse(contentString) as DecisionTree2Content;
+      this.content = JSON.parse(contentString) as DecisionTreeTraceContent;
     } catch (error) {
-      console.error('Error parsing Decision Tree 2 creation content:', error);
-      throw new Error('Invalid Decision Tree 2 creation content format');
+      console.error(
+        'Error parsing Decision Tree Trace creation content:',
+        error
+      );
+      throw new Error('Invalid Decision Tree Trace creation content format');
     }
   }
 
