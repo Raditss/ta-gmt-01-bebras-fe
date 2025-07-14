@@ -155,40 +155,35 @@ export class DecisionTree2CreateModel extends ICreateQuestion {
     return Boolean(finish.name && finish.name.trim().length > 0);
   }
 
-  // Helper methods
-  getNextRuleId(): number {
-    return this.content.rules.length > 0
-      ? Math.max(...this.content.rules.map((r) => r.id)) + 1
-      : 1;
+  isEveryRuleValid(): boolean {
+    return this.content.rules.every((rule) => this.validateRule(rule));
   }
 
-  getNextFinishId(): number {
-    return this.content.finishes.length > 0
-      ? Math.max(...this.content.finishes.map((f) => f.id)) + 1
-      : 1;
+  isEveryFinishValid(): boolean {
+    return this.content.finishes.every((finish) => this.validateFinish(finish));
   }
 
-  getGoalFinishes(): Finish[] {
-    return this.content.finishes.filter((finish) =>
-      this.content.goals.includes(finish.id)
+  isEveryGoalValid(): boolean {
+    return this.content.goals.every((goalId) =>
+      this.content.finishes.some((f) => f.id === goalId)
     );
   }
 
-  getRulesForFinish(finishId: number): Rule[] {
-    return this.content.rules.filter((rule) => rule.finish === finishId);
+  isEveryGoalReachable(): boolean {
+    return this.content.goals.every((goalId) =>
+      this.content.rules.some((rule) => rule.finish === goalId)
+    );
   }
 
   validateContent(): boolean {
     if (!this.hasRequiredContent()) return false;
 
-    if (!this.content.rules.every((rule) => this.validateRule(rule)))
-      return false;
+    if (!this.isEveryRuleValid()) return false;
 
-    if (!this.content.finishes.every((finish) => this.validateFinish(finish)))
-      return false;
+    if (!this.isEveryFinishValid()) return false;
 
-    return this.content.goals.every((goalId) =>
-      this.content.finishes.some((f) => f.id === goalId)
-    );
+    if (!this.isEveryGoalValid()) return false;
+
+    return this.isEveryGoalReachable();
   }
 }
