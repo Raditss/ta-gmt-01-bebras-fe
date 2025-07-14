@@ -13,7 +13,6 @@ import RingCipherCreator from '@/components/features/question/ring-cipher/ring-c
 
 import DecisionTreeSolver from '@/components/features/question/dt/dt-0/dt-0.solver';
 import DecisionTree2Solver from '@/components/features/question/dt/dt-1/dt-1.solver';
-import NotImplementedCreator from '@/components/features/question/fallbacks/not-implemented.creator';
 
 export const createQuestionComponent: Record<
   QuestionTypeEnum,
@@ -23,7 +22,7 @@ export const createQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: CipherNCreator,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherCreator,
   [QuestionTypeEnum.DECISION_TREE]: Dt0Creator,
-  [QuestionTypeEnum.DECISION_TREE_2]: Dt1Creator // TODO: change to CfgCreator when implemented,
+  [QuestionTypeEnum.DECISION_TREE_2]: Dt1Creator
 };
 
 export const solveQuestionComponent: Record<

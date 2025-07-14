@@ -51,13 +51,13 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
           height: 330
         },
         { source: 'body_White_Egg.png', x: 0, y: 768, width: 384, height: 384 },
-        {
-          source: 'body_White_Blob.png',
-          x: 1366,
-          y: 1992,
-          width: 282,
-          height: 388
-        },
+        // {
+        //   source: 'body_White_Blob.png',
+        //   x: 1366,
+        //   y: 1992,
+        //   width: 282,
+        //   height: 388
+        // },
         {
           source: 'body_White_Cube.png',
           x: 384,
