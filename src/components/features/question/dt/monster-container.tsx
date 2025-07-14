@@ -86,10 +86,10 @@ const MonsterContainer = ({
           getCurrentSelection(MonsterPartType.ARM),
           getCurrentSelection(MonsterPartType.COLOR)
         )}
-        x={centerX - 100 * scaleFactor}
+        x={centerX - 95 * scaleFactor}
         y={centerY + 50 * scaleFactor}
-        scaleX={-0.3 * scaleFactor}
-        scaleY={0.3 * scaleFactor}
+        scaleX={-0.25 * scaleFactor}
+        scaleY={0.25 * scaleFactor}
       />
       <MonsterArm
         texture={getTexture(
@@ -97,10 +97,10 @@ const MonsterContainer = ({
           getCurrentSelection(MonsterPartType.ARM),
           getCurrentSelection(MonsterPartType.COLOR)
         )}
-        x={centerX + 100 * scaleFactor}
-        y={centerY + 5 * scaleFactor}
-        scaleX={0.3 * scaleFactor}
-        scaleY={-0.3 * scaleFactor}
+        x={centerX + 95 * scaleFactor}
+        y={centerY + 50 * scaleFactor}
+        scaleX={0.25 * scaleFactor}
+        scaleY={0.25 * scaleFactor}
       />
 
       {/* Body */}
@@ -130,9 +130,19 @@ const MonsterContainer = ({
       {/*/>*/}
 
       {/* Eyes */}
+      {/* Left Eye */}
       <MonsterEye
         texture={getStaticTexture('eye_Red_human.png')}
-        x={centerX}
+        x={centerX - 25 * scaleFactor}
+        y={centerY - 20 * scaleFactor}
+        scaleX={0.4 * scaleFactor}
+        scaleY={0.4 * scaleFactor}
+      />
+
+      {/* Right Eye */}
+      <MonsterEye
+        texture={getStaticTexture('eye_Red_human.png')}
+        x={centerX + 25 * scaleFactor}
         y={centerY - 20 * scaleFactor}
         scaleX={0.4 * scaleFactor}
         scaleY={0.4 * scaleFactor}
@@ -140,9 +150,9 @@ const MonsterContainer = ({
 
       {/* Mouth */}
       <MonsterMouth
-        texture={getStaticTexture('mouth_openToothless')}
+        texture={getStaticTexture('mouth_closedTeeth.png')}
         x={centerX}
-        y={centerY + 20 * scaleFactor}
+        y={centerY + 30 * scaleFactor}
         scaleX={0.5 * scaleFactor}
         scaleY={0.5 * scaleFactor}
       />

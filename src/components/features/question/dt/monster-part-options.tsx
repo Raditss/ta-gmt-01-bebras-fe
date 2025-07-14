@@ -25,7 +25,7 @@ export default function MonsterPartOptions({
 }: MonsterPartOptionsProps) {
   return (
     <div className="mt-4">
-      {options.length < 4 ? (
+      {options.length <= 4 ? (
         <div className="grid grid-cols-2 gap-2">
           {options.map((option, index) => (
             <MonsterPartOption
