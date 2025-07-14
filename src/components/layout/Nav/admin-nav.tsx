@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Shield, Users, BookOpen, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
-
+import Image from 'next/image';
 const navItems = [
   { href: '/admin', label: 'Dashboard', icon: Shield },
   { href: '/manage-user', label: 'Users', icon: Users },
@@ -30,12 +30,14 @@ export function AdminNav() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/admin" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-800">
-              Solvio Admin
-            </span>
+            <Image
+              src="/graphic/Solvio-logo.svg"
+              alt="logo"
+              width={100}
+              height={100}
+              className="object-contain"
+            />
+            <span className="text-xl font-bold text-gray-800">Admin</span>
           </Link>
 
           {/* Navigation Links */}

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Home, BookOpen, Trophy, User, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import Image from 'next/image';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
@@ -29,8 +30,13 @@ export function StudentNav() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg"></div>
-            <span className="text-xl font-bold text-gray-800">Solvio</span>
+            <Image
+              src="/graphic/Solvio-logo.svg"
+              alt="logo"
+              width={100}
+              height={100}
+              className="object-contain"
+            />
           </Link>
 
           {/* Navigation Links */}

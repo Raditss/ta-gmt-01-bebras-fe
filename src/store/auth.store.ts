@@ -14,7 +14,7 @@ export type User = {
   name: string;
   role: UserRole;
   status: UserStatus;
-  verifiedAt: Date | null;
+  verifiedAt: Date | string | null;
 };
 
 export interface AuthStoreInterface {

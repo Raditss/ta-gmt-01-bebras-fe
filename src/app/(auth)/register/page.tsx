@@ -25,6 +25,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 
 const registerFormSchema = z
   .object({
@@ -128,24 +129,20 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl grid lg:grid-cols-2 gap-8 items-center">
-        {/* Illustration Side */}
-        <div className="hidden lg:flex flex-col items-center justify-center space-y-6">
-          <div className="w-80 h-80 bg-gradient-to-br from-yellow-200 via-purple-200 to-blue-200 rounded-3xl flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-32 h-32 bg-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                <User className="w-16 h-16 text-white" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-700">Join Solvio!</h3>
-              <p className="text-gray-600 mt-2">
-                Start your coding journey today
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Register Form Side */}
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Left illustration */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <Image
+          src="/graphic/register.png"
+          alt="Register Illustration"
+          width={700}
+          height={700}
+          className="max-w-full h-auto"
+          priority
+        />
+      </div>
+      {/* Right: register form (existing content) */}
+      <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md mx-auto">
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center space-x-2 mb-6">

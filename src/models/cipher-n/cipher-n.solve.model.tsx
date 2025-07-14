@@ -22,7 +22,6 @@ interface CipherContent {
     plaintext: string;
     prompt: string;
   };
-
 }
 
 interface CipherNAnswer {
@@ -51,7 +50,7 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
         task: '',
         plaintext: '',
         prompt: ''
-      },
+      }
     };
     this.answer = {
       currentVertex: 0,
@@ -72,7 +71,6 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
     this.answer = this.undoStack.pop()!;
     return true;
   }
-
 
   resetToInitialState(): void {
     this.answer = {
@@ -121,35 +119,46 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
     // Update state
     this.answer = {
       currentVertex: targetVertex,
-      encryptedMessage: [
-        ...this.answer.encryptedMessage,
-        [rotation, position]
-      ]
+      encryptedMessage: [...this.answer.encryptedMessage, [rotation, position]]
     };
     return [rotation, position];
   }
 
   // New method to use user's direct rotation and position inputs
-  encryptWithUserInputs(rotation: number, position: number): [number, number] | null {
-    const targetVertex = (this.answer.currentVertex + rotation) % this.content.config.vertexCount;
-    const targetLetters = this.content.vertices[targetVertex]?.letters || "";
-    
+  encryptWithUserInputs(
+    rotation: number,
+    position: number
+  ): [number, number] | null {
+    let targetVertex: number;
+
+    if (this.content.config.isClockwise) {
+      targetVertex =
+        (this.answer.currentVertex + rotation) %
+        this.content.config.vertexCount;
+    } else {
+      // Counterclockwise rotation
+      targetVertex =
+        (this.answer.currentVertex -
+          rotation +
+          this.content.config.vertexCount) %
+        this.content.config.vertexCount;
+    }
+
+    const targetLetters = this.content.vertices[targetVertex]?.letters || '';
+
     if (position < 1 || position > targetLetters.length) return null;
-    
+
     // Save current state for undo
     const prevState: CipherNAnswer = {
       currentVertex: this.answer.currentVertex,
       encryptedMessage: [...this.answer.encryptedMessage]
     };
     this.undoStack.push(prevState);
-    
+
     // Update state with user's exact inputs
     this.answer = {
       currentVertex: targetVertex,
-      encryptedMessage: [
-        ...this.answer.encryptedMessage,
-        [rotation, position]
-      ]
+      encryptedMessage: [...this.answer.encryptedMessage, [rotation, position]]
     };
     return [rotation, position];
   }
@@ -183,7 +192,8 @@ export class CipherNSolveModel extends IQuestion implements IAttempt {
 
   loadAnswer(json: string): void {
     const answer = JSON.parse(json) as CipherNAnswer;
-    this.answer.currentVertex = answer.currentVertex || this.content.config.startingVertex;
+    this.answer.currentVertex =
+      answer.currentVertex || this.content.config.startingVertex;
     this.answer.encryptedMessage = answer.encryptedMessage || [];
   }
 }
