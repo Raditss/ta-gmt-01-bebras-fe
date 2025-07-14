@@ -93,6 +93,8 @@ export const useSolveQuestion = <
         initializeAttemptData(question, currentDuration);
         const attemptData = question.getAttemptData();
 
+        console.log('save-draft: ', question);
+
         await questionService.saveDraft({
           questionId: attemptData.questionId,
           duration: attemptData.duration,

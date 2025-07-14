@@ -1,13 +1,13 @@
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/types';
+} from '@/components/features/question/dt/monster-part.type';
 import MonsterPartOptions from './monster-part-options';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { monsterParts } from '@/components/features/question/dt/dt-0/helper';
 
 export interface MonsterPartWardrobeProps {
-  selections: Record<string, MonsterPartOptionType>;
+  selections: Record<string, string>;
   onSelection: (
     category: MonsterPartType,
     value: MonsterPartOptionType
@@ -29,8 +29,8 @@ export default function MonsterPartWardrobe({
   }
 
   return (
-    <Tabs defaultValue={partKeys[0]} className="mt-4">
-      <TabsList className="justify-center">
+    <Tabs defaultValue={partKeys[0]} className="mt-4 justify-center">
+      <TabsList className="justify-center w-full">
         {partKeys.map((part) => (
           <TabsTrigger
             key={part}

@@ -1,22 +1,18 @@
 import { Container } from '@pixi/react';
 import { PropsWithChildren } from 'react';
-import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '@/components/features/question/dt/types';
+import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
 import { useMonsterSprites } from './useMonsterSprites';
 import {
   MonsterArm,
   MonsterBody,
   MonsterEye,
-  MonsterHorn,
   MonsterLeg,
   MonsterMouth
 } from './monster-parts';
 
 interface IMainContainerProps {
   canvasSize: { width: number; height: number };
-  selections?: Record<string, MonsterPartOptionType>;
+  selections?: Record<string, string>;
   hovered?: {
     category: MonsterPartType;
     value: string;
@@ -36,23 +32,21 @@ const MonsterContainer = ({
   const centerY = canvasSize.height / 2;
 
   // Calculate scale factor based on canvas size
-  const scaleFactor = Math.min(canvasSize.width, canvasSize.height) / 600;
+  const scaleFactor = Math.min(canvasSize.width, canvasSize.height) / 300;
 
   const getCurrentSelection = (category: MonsterPartType) => {
     if (hovered && hovered.category === category) return hovered.value;
 
     // Provide default values if no selection is available
     const defaultValues = {
-      [MonsterPartType.COLOR]: 'white',
-      [MonsterPartType.BODY]: 'A',
-      [MonsterPartType.LEG]: 'A',
-      [MonsterPartType.ARM]: 'A',
-      [MonsterPartType.HORN]: 'none'
+      [MonsterPartType.COLOR]: 'White',
+      [MonsterPartType.BODY]: 'Orb',
+      [MonsterPartType.LEG]: 'Paddle',
+      [MonsterPartType.ARM]: 'Clampfin'
+      // [MonsterPartType.HORN]: 'none'
     };
 
-    return (
-      (selections && selections[category]?.value) || defaultValues[category]
-    );
+    return (selections && selections[category]) || defaultValues[category];
   };
 
   if (isLoading) {
@@ -123,21 +117,21 @@ const MonsterContainer = ({
       />
 
       {/* Horn (if present) */}
-      <MonsterHorn
-        texture={getTexture(
-          MonsterPartType.HORN,
-          getCurrentSelection(MonsterPartType.HORN),
-          getCurrentSelection(MonsterPartType.COLOR)
-        )}
-        x={centerX}
-        y={centerY - 80 * scaleFactor}
-        scaleX={0.4 * scaleFactor}
-        scaleY={0.4 * scaleFactor}
-      />
+      {/*<MonsterHorn*/}
+      {/*  texture={getTexture(*/}
+      {/*    MonsterPartType.HORN,*/}
+      {/*    getCurrentSelection(MonsterPartType.HORN),*/}
+      {/*    getCurrentSelection(MonsterPartType.COLOR)*/}
+      {/*  )}*/}
+      {/*  x={centerX}*/}
+      {/*  y={centerY - 80 * scaleFactor}*/}
+      {/*  scaleX={0.4 * scaleFactor}*/}
+      {/*  scaleY={0.4 * scaleFactor}*/}
+      {/*/>*/}
 
       {/* Eyes */}
       <MonsterEye
-        texture={getStaticTexture('eye_human')}
+        texture={getStaticTexture('eye_Red_human.png')}
         x={centerX}
         y={centerY - 20 * scaleFactor}
         scaleX={0.4 * scaleFactor}

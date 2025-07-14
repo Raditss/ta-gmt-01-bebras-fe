@@ -1,6 +1,6 @@
-import { Rule, Finish } from '@/models/dt-1/dt-1.solve.model';
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
+import { Finish, Rule } from '@/models/dt-1/dt-1.model.type';
 
 interface TreeNode {
   type: 'decision' | 'rule' | 'finish';
@@ -48,7 +48,13 @@ const buildDecisionTree = (
   finishes: Finish[],
   goals: number[]
 ): TreeNode => {
-  const attributeOrder = ['body', 'arms', 'legs', 'horns', 'color'];
+  const attributeOrder = [
+    'body',
+    'arms',
+    'legs',
+    // 'horns',
+    'color'
+  ];
 
   const findMatchingRules = (conditions: Record<string, string>): Rule[] => {
     return rules.filter((rule) =>
@@ -383,8 +389,8 @@ export function DecisionTree2({ rules, finishes, goals }: TreeProps) {
           animationDuration: 550,
           animationDurationUpdate: 750,
           layout: 'orthogonal',
-          orient: 'LR', // Left to Right
-          roam: true // Enable zoom and pan
+          orient: 'LR' // Left to Right
+          // roam: true // Enable zoom and pan
         }
       ]
     };

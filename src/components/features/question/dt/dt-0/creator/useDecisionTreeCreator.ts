@@ -1,10 +1,10 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DecisionTreeCreateModel } from '@/models/dt-0/dt-0.create.model';
-import { Rule, Condition } from '@/models/dt-0/dt-0.type';
+import { Condition, Rule } from '@/models/dt-0/dt-0.model.type';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/types';
+} from '@/components/features/question/dt/monster-part.type';
 
 interface UseDecisionTreeCreatorProps {
   question: DecisionTreeCreateModel;
@@ -17,7 +17,7 @@ export const useDecisionTreeCreator = ({
 }: UseDecisionTreeCreatorProps) => {
   const [rules, setRules] = useState<Rule[]>([]);
   const [currentRuleSelections, setCurrentRuleSelections] = useState<
-    Record<string, MonsterPartOptionType>
+    Record<string, string>
   >({});
   const [isCreatingRule, setIsCreatingRule] = useState(false);
   const [editingRuleId, setEditingRuleId] = useState<number | null>(null);
@@ -46,7 +46,7 @@ export const useDecisionTreeCreator = ({
       MonsterPartType.BODY,
       MonsterPartType.ARM,
       MonsterPartType.LEG,
-      MonsterPartType.HORN,
+      // MonsterPartType.HORN,
       MonsterPartType.COLOR
     ];
     return requiredParts.every((part) => currentRuleSelections[part]);
@@ -58,27 +58,27 @@ export const useDecisionTreeCreator = ({
       {
         attribute: 'body',
         operator: '=',
-        value: currentRuleSelections[MonsterPartType.BODY]?.value || ''
+        value: currentRuleSelections[MonsterPartType.BODY] || ''
       },
       {
         attribute: 'arms',
         operator: '=',
-        value: currentRuleSelections[MonsterPartType.ARM]?.value || ''
+        value: currentRuleSelections[MonsterPartType.ARM] || ''
       },
       {
         attribute: 'legs',
         operator: '=',
-        value: currentRuleSelections[MonsterPartType.LEG]?.value || ''
+        value: currentRuleSelections[MonsterPartType.LEG] || ''
       },
-      {
-        attribute: 'horns',
-        operator: '=',
-        value: currentRuleSelections[MonsterPartType.HORN]?.value || ''
-      },
+      // {
+      //   attribute: 'horns',
+      //   operator: '=',
+      //   value: currentRuleSelections[MonsterPartType.HORN]?.value || ''
+      // },
       {
         attribute: 'color',
         operator: '=',
-        value: currentRuleSelections[MonsterPartType.COLOR]?.value || ''
+        value: currentRuleSelections[MonsterPartType.COLOR] || ''
       }
     ];
   }, [currentRuleSelections]);
@@ -121,7 +121,7 @@ export const useDecisionTreeCreator = ({
     (category: MonsterPartType, value: MonsterPartOptionType) => {
       setCurrentRuleSelections((prev) => ({
         ...prev,
-        [category]: value
+        [category]: value.value
       }));
       setDuplicateRuleError(null);
     },
@@ -164,48 +164,14 @@ export const useDecisionTreeCreator = ({
 
   // Edit existing rule
   const editRule = useCallback(
-    (
-      ruleId: number,
-      monsterParts: Record<MonsterPartType, MonsterPartOptionType[]>
-    ) => {
+    (ruleId: number) => {
       const rule = rules.find((r) => r.id === ruleId);
       if (!rule) return;
 
-      const selections: Record<string, MonsterPartOptionType> = {};
+      const selections: Record<string, string> = {};
 
       rule.conditions.forEach((condition) => {
-        let partType: MonsterPartType;
-        let parts: MonsterPartOptionType[];
-
-        switch (condition.attribute) {
-          case 'body':
-            partType = MonsterPartType.BODY;
-            parts = monsterParts[MonsterPartType.BODY];
-            break;
-          case 'arms':
-            partType = MonsterPartType.ARM;
-            parts = monsterParts[MonsterPartType.ARM];
-            break;
-          case 'legs':
-            partType = MonsterPartType.LEG;
-            parts = monsterParts[MonsterPartType.LEG];
-            break;
-          case 'horns':
-            partType = MonsterPartType.HORN;
-            parts = monsterParts[MonsterPartType.HORN];
-            break;
-          case 'color':
-            partType = MonsterPartType.COLOR;
-            parts = monsterParts[MonsterPartType.COLOR];
-            break;
-          default:
-            return;
-        }
-
-        const option = parts.find((p) => p.value === condition.value);
-        if (option) {
-          selections[partType] = option;
-        }
+        selections[condition.attribute] = condition.value;
       });
 
       setCurrentRuleSelections(selections);

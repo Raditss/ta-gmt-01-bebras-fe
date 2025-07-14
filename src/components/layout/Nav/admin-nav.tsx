@@ -12,15 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-  Shield,
-  Users,
-  BookOpen,
-  Settings,
-  LogOut,
-  Bell,
-  Search
-} from 'lucide-react';
+import { Shield, Users, BookOpen, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import Image from 'next/image';
 const navItems = [
@@ -71,13 +63,6 @@ export function AdminNav() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <Search className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Bell className="w-4 h-4" />
-            </Button>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -102,10 +87,6 @@ export function AdminNav() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
                     <Users className="mr-2 h-4 w-4" />
@@ -154,12 +135,6 @@ export function AdminNavLinks() {
       </div>
       {/* Right Side */}
       <div className="flex items-center space-x-4">
-        <Button variant="ghost" size="icon">
-          <Search className="w-4 h-4" />
-        </Button>
-        <Button variant="ghost" size="icon">
-          <Bell className="w-4 h-4" />
-        </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -181,10 +156,6 @@ export function AdminNavLinks() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/dashboard">
                 <Users className="mr-2 h-4 w-4" />

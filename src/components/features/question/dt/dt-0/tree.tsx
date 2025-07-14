@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Rule } from '@/models/dt-0/dt-0.type';
+import { Rule } from '@/models/dt-0/dt-0.model.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';
@@ -41,7 +41,13 @@ interface EChartsNode {
 }
 
 const buildDecisionTree = (rules: Rule[]): TreeNode => {
-  const attributeOrder = ['body', 'arms', 'legs', 'horns', 'color'];
+  const attributeOrder = [
+    'body',
+    'arms',
+    'legs',
+    // 'horns',
+    'color'
+  ];
 
   const findMatchingRule = (conditions: Record<string, string>): number => {
     for (const rule of rules) {
@@ -247,25 +253,23 @@ export function DecisionTree({ rules, selections }: TreeProps) {
             align: 'center',
             fontSize: 12,
             distance: 10
+            // rotate: 90
           },
-
           leaves: {
             label: {
               position: 'top',
               verticalAlign: 'bottom',
               align: 'center',
               distance: 10
+              // rotate: 90
             }
-          },
-          emphasis: {
-            focus: 'descendant'
           },
           expandAndCollapse: false,
           animationDuration: 550,
           animationDurationUpdate: 750,
           layout: 'orthogonal',
-          orient: 'LR', // Left to Right
-          roam: true // Enable zoom and pan
+          orient: 'LR' // Left to Right
+          // roam: true // Enable zoom and pan
         }
       ]
     };
@@ -281,7 +285,7 @@ export function DecisionTree({ rules, selections }: TreeProps) {
           ? `Selected: ${Object.entries(selections)
               .map(([k, v]) => `${k}=${v}`)
               .join(', ')}`
-          : 'Click on leaf nodes to select rules • Use mouse wheel to zoom • Drag to pan'}
+          : 'Use mouse wheel to zoom • Drag to pan'}
       </div>
       <ReactECharts
         option={option}

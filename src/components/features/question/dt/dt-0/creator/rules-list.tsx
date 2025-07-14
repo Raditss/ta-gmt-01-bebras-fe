@@ -2,8 +2,11 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Rule } from '@/models/dt-0/dt-0.type';
-import { MonsterPartOptionType, MonsterPartType } from '../../types';
+import { Rule } from '@/models/dt-0/dt-0.model.type';
+import {
+  MonsterPartOptionType,
+  MonsterPartType
+} from '../../monster-part.type';
 import { Edit2, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { monsterParts } from '@/components/features/question/dt/dt-0/helper';
 
@@ -30,7 +33,7 @@ const RulesList: React.FC<RulesListProps> = ({
     body: 'Body',
     arms: 'Arms',
     legs: 'Legs',
-    horns: 'Horns',
+    // horns: 'Horns',
     color: 'Color'
   };
 
@@ -46,9 +49,9 @@ const RulesList: React.FC<RulesListProps> = ({
       case 'legs':
         partType = MonsterPartType.LEG;
         break;
-      case 'horns':
-        partType = MonsterPartType.HORN;
-        break;
+      // case 'horns':
+      //   partType = MonsterPartType.HORN;
+      //   break;
       case 'color':
         partType = MonsterPartType.COLOR;
         break;

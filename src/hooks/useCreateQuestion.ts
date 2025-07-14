@@ -33,10 +33,6 @@ export const useCreateQuestion = <CreateQuestionModel extends ICreateQuestion>(
       setError(null);
       setIsLoading(true);
 
-      if (!question.validateContent()) {
-        throw new Error('Invalid question data');
-      }
-
       const contentToSave = question.toJson();
 
       const updatedCreationData = await creationService.updateCreateQuestion(

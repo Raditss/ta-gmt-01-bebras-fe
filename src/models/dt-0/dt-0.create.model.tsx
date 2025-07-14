@@ -1,6 +1,6 @@
 import { ICreateQuestion } from '../interfaces/create-question.model';
-import { DecisionTreeContent, Rule } from '@/models/dt-0/dt-0.type';
-import { MonsterPartType } from '@/components/features/question/dt/types';
+import { DecisionTreeContent, Rule } from '@/models/dt-0/dt-0.model.type';
+import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
 import { Question } from '@/types/question.type';
 
 export class DecisionTreeCreateModel extends ICreateQuestion {
@@ -28,19 +28,10 @@ export class DecisionTreeCreateModel extends ICreateQuestion {
 
   populateFromContentString(contentString: string): void {
     try {
-      console.log(
-        '1: ',
-        this.content,
-        contentString,
-        JSON.parse('{}'),
-        JSON.parse(contentString)
-      );
       this.content = JSON.parse(contentString) as DecisionTreeContent;
-      console.log('2: ', this.content);
       if (!this.hasRequiredContent()) {
         this.content.rules = [];
       }
-      console.log('3: ', this.content);
     } catch (error) {
       console.error('Error parsing Decision Tree creation content:', error);
       throw new Error('Invalid Decision Tree creation content format');
