@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/store/auth.store';
 import { z } from 'zod';
 import { UserRole } from '@/types/user-role';
+import Image from 'next/image';
 
 // Infer the form type from the zod schema
 type LoginFormValues = z.infer<typeof loginRequestSchema>;
@@ -88,122 +89,120 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md mx-auto">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center space-x-2 mb-6">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg"></div>
-            <span className="text-2xl font-bold text-gray-800">Solvio</span>
-          </Link>
-        </div>
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Left illustration */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <Image
+          src="/graphic/login.png"
+          alt="Login Illustration"
+          width={700}
+          height={700}
+          className="max-w-full h-auto"
+          priority
+        />
+      </div>
+      {/* Right: login form (existing content) */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="w-full max-w-md mx-auto">
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-flex items-center space-x-2 mb-6">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg"></div>
+              <span className="text-2xl font-bold text-gray-800">Solvio</span>
+            </Link>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Welcome Back</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username or Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter your username or email"
-                    className="pl-10"
-                    {...register('username')}
-                    autoComplete="username"
-                    disabled={isSubmitting}
-                  />
+          <Card>
+            <CardHeader>
+              <CardTitle>Welcome Back</CardTitle>
+              <CardDescription>
+                Enter your credentials to access your account
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="username">Username or Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Enter your username or email"
+                      className="pl-10"
+                      {...register('username')}
+                      autoComplete="username"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  {errors.username && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.username.message}
+                    </p>
+                  )}
                 </div>
-                {errors.username && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.username.message}
-                  </p>
-                )}
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Enter your password"
-                    className="pl-10 pr-10"
-                    {...register('password')}
-                    autoComplete="current-password"
-                    disabled={isSubmitting}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
-                    disabled={isSubmitting}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
+                      className="pl-10 pr-10"
+                      {...register('password')}
+                      autoComplete="current-password"
+                      disabled={isSubmitting}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                      disabled={isSubmitting}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password.message}
+                    </p>
+                  )}
                 </div>
-                {errors.password && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? 'Signing in...' : 'Sign In'}
-              </Button>
-
-              {loginError && (
-                <p className="text-xs text-red-500 mt-2 text-center">
-                  Login failed, please check your credential
-                </p>
-              )}
-            </form>
-
-            <div className="mt-6 text-center text-sm">
-              <p className="text-gray-500">
-                Don&apos;t have an account?{' '}
-                <Link
-                  href="/register"
-                  className="text-purple-600 hover:underline"
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
                 >
-                  Register here
-                </Link>
-              </p>
-            </div>
+                  {isSubmitting ? 'Signing in...' : 'Sign In'}
+                </Button>
 
-            {mounted && (
-              <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium text-sm mb-2">Demo Accounts</h3>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Student:</span>
-                    <span className="font-mono">student / password</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Teacher:</span>
-                    <span className="font-mono">teacher / password</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Admin:</span>
-                    <span className="font-mono">admin / password</span>
-                  </div>
-                </div>
+                {loginError && (
+                  <p className="text-xs text-red-500 mt-2 text-center">
+                    Login failed, please check your credential
+                  </p>
+                )}
+              </form>
+
+              <div className="mt-6 text-center text-sm">
+                <p className="text-gray-500">
+                  Don&apos;t have an account?{' '}
+                  <Link
+                    href="/register"
+                    className="text-purple-600 hover:underline"
+                  >
+                    Register here
+                  </Link>
+                </p>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

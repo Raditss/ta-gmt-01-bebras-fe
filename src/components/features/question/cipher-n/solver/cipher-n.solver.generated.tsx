@@ -183,17 +183,30 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   const answer = question?.getAnswer();
   const currentVertex = answer?.currentVertex || 0;
   const answerArr = answer?.encryptedMessage || [];
+  const isClockwise = content?.config?.isClockwise ?? true;
+
+  // Update target vertex when current vertex changes (e.g., after undo/clear)
+  useEffect(() => {
+    setTargetVertex(currentVertex);
+  }, [currentVertex]);
 
   // Update states when rotation value changes
   useEffect(() => {
     const rotation = parseInt(rotationValue);
     if (!isNaN(rotation) && rotation >= 0 && rotation <= maxRotation) {
-      const newTargetVertex = (currentVertex + rotation) % vertices.length;
+      let newTargetVertex: number;
+      if (isClockwise) {
+        newTargetVertex = (currentVertex + rotation) % vertices.length;
+      } else {
+        // Counterclockwise rotation
+        newTargetVertex =
+          (currentVertex - rotation + vertices.length) % vertices.length;
+      }
       setTargetVertex(newTargetVertex);
     } else {
       setTargetVertex(currentVertex);
     }
-  }, [rotationValue, currentVertex, vertices.length, maxRotation]);
+  }, [rotationValue, currentVertex, vertices.length, maxRotation, isClockwise]);
 
   // Update highlighted position when position value changes
   useEffect(() => {
@@ -248,7 +261,14 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
     if (position < 1 || position > targetLetters.length) return;
 
     // Use user's exact inputs instead of calculating from letter
-    question.encryptWithUserInputs(rotation, position);
+    const result = question.encryptWithUserInputs(rotation, position);
+
+    if (result) {
+      // Update UI state to reflect the new current vertex
+      const newAnswer = question.getAnswer();
+      setTargetVertex(newAnswer.currentVertex);
+      setHighlightedPosition(0);
+    }
 
     // Clear inputs
     setRotationValue('');
@@ -265,9 +285,13 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   // Undo last step
   const handleUndo = useCallback(() => {
     if (!question) return;
-    question.undo();
-    setRotationValue('');
-    setPositionValue('');
+    const success = question.undo();
+    if (success) {
+      setRotationValue('');
+      setPositionValue('');
+      setTargetVertex(question.getAnswer().currentVertex);
+      setHighlightedPosition(0);
+    }
   }, [question]);
 
   // Clear all (reset)
@@ -276,6 +300,8 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
     question.resetToInitialState();
     setRotationValue('');
     setPositionValue('');
+    setTargetVertex(question.getAnswer().currentVertex);
+    setHighlightedPosition(0);
   }, [question]);
 
   const isValidInputs = () => {
@@ -317,6 +343,52 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Left Side - Cipher Wheel */}
               <div className="bg-white rounded-lg p-8 shadow-sm">
+                {/* Rotation Direction Indicator */}
+                <div className="text-center mb-6">
+                  <div
+                    className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-lg ${
+                      isClockwise
+                        ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                        : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full mr-3 ${
+                        isClockwise ? 'bg-blue-500' : 'bg-orange-500'
+                      }`}
+                    ></div>
+                    <span className="mr-2">Rotation Direction:</span>
+                    <span className="font-bold">
+                      {isClockwise ? 'Clockwise' : 'Counter-clockwise'}
+                    </span>
+                    {isClockwise ? (
+                      <svg
+                        className="w-5 h-5 ml-2 text-blue-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5 ml-2 text-orange-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M10 2a8 8 0 100 16 8 8 0 000-16zm-3.707 8.707l3 3a1 1 0 001.414-1.414L11 10.586V7a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 00-1.414 1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+
                 <PolygonVisualization
                   vertices={vertices}
                   currentVertex={currentVertex}

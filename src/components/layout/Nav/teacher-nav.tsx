@@ -19,10 +19,10 @@ import {
   LogOut,
   Bell,
   Search,
-  GraduationCap,
   Plus
 } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
+import Image from 'next/image';
 
 const navItems = [
   { href: '/my-problem', label: 'My Problems', icon: BookOpen },
@@ -38,12 +38,14 @@ export function TeacherNav() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/my-problem" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-800">
-              Solvio Teacher
-            </span>
+            <Image
+              src="/graphic/Solvio-logo.svg"
+              alt="logo"
+              width={100}
+              height={100}
+              className="object-contain"
+            />
+            <span className="text-xl font-bold text-gray-800">Teacher</span>
           </Link>
 
           {/* Navigation Links */}

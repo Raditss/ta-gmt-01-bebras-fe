@@ -10,8 +10,13 @@ export default function LandingPage() {
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg"></div>
-          <span className="text-xl font-bold text-gray-800">solvio</span>
+          <Image
+            src="/graphic/Solvio-logo.svg"
+            alt="logo"
+            width={150}
+            height={150}
+            className="object-contain"
+          />
         </div>
         <nav className="hidden md:flex items-center space-x-6">
           <Link href="#features" className="text-gray-600 hover:text-gray-800">

@@ -47,7 +47,7 @@ export const loginResponseSchema = z.object({
       name: z.string(),
       role: z.nativeEnum(UserRole),
       status: z.nativeEnum(UserStatus),
-      verifiedAt: z.date().nullable()
+      verifiedAt: z.string().nullable()
     })
   })
 });
