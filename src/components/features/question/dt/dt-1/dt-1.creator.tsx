@@ -926,6 +926,7 @@ export default function Dt1Creator({ initialDataQuestion }: BaseCreatorProps) {
                     <DecisionTree2
                       rules={rules}
                       finishes={finishes}
+                      selections={selections}
                       goals={goals || []}
                     />
                   </div>
