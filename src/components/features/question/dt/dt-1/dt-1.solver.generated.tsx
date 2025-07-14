@@ -158,6 +158,7 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
                     rules={question.getRules()}
                     finishes={question.getFinishes()}
                     goals={question.getGoals()}
+                    selections={selections}
                   />
                 </div>
 

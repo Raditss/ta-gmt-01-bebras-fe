@@ -166,6 +166,7 @@ export default function DecisionTree2Solver({ questionId }: BaseSolverProps) {
                     rules={question.getRules()}
                     finishes={question.getFinishes()}
                     goals={question.getGoals()}
+                    selections={selections}
                   />
                 </div>
 
