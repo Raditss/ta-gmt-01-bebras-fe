@@ -57,7 +57,7 @@ function RingVisualization({
             const currentPosition = ringPositions[ringIndex] || 0;
             const angleStep = (2 * Math.PI) / ring.letters.length;
             const rotationAngle =
-              -(currentPosition * angleStep * 180) / Math.PI;
+              -(currentPosition * angleStep * 180) / Math.PI; // positive for counter-clockwise
             return (
               <g key={ring.id}>
                 <circle
@@ -74,7 +74,10 @@ function RingVisualization({
                   className="transition-all duration-500"
                 />
                 <g
-                  transform={`rotate(${rotationAngle} ${centerX} ${centerY})`}
+                  style={{
+                    transform: `rotate(${rotationAngle}deg)`,
+                    transformOrigin: `${centerX}px ${centerY}px`
+                  }}
                   className="transition-all duration-500 ease-in-out"
                 >
                   {ring.letters.map((letter, letterIndex) => {
@@ -115,7 +118,6 @@ function RingVisualization({
                           x={x}
                           y={y + 5} // Adjusted for smaller circle
                           textAnchor="middle"
-                          transform={`rotate(${-rotationAngle} ${x} ${y})`}
                           className={`text-sm font-bold transition-all duration-300 ${
                             isTargetLetter
                               ? 'fill-white'

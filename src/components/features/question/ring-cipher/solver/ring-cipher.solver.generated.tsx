@@ -27,8 +27,9 @@ function RingVisualization({
 }: RingVisualizationProps) {
   const centerX = 250;
   const centerY = 250;
-  const maxRadius = 200;
-  const minRadius = 75;
+  // Increased spacing for better visibility with multiple rings
+  const maxRadius = 220; // Increased from 200
+  const minRadius = 60; // Reduced from 75 to start closer to center
   const ringColors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
   return (
     <div className="flex flex-col items-center w-full">
@@ -46,14 +47,15 @@ function RingVisualization({
           .reverse()
           .map((ring, reverseIndex) => {
             const ringIndex = rings.length - 1 - reverseIndex;
-            const radius =
-              minRadius +
-              ((maxRadius - minRadius) * (ringIndex + 1)) / rings.length;
+            // Better spacing calculation for multiple rings
+            const radiusStep =
+              (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
+            const radius = minRadius + radiusStep * ringIndex;
             const isHighlighted = ringIndex === highlightedRing;
             const currentPosition = ringPositions[ringIndex] || 0;
             const angleStep = (2 * Math.PI) / ring.letters.length;
             const rotationAngle =
-              -(currentPosition * angleStep * 180) / Math.PI;
+              -(currentPosition * angleStep * 180) / Math.PI; // positive for counter-clockwise
             return (
               <g key={ring.id}>
                 <circle
@@ -70,7 +72,10 @@ function RingVisualization({
                   className="transition-all duration-500"
                 />
                 <g
-                  transform={`rotate(${rotationAngle} ${centerX} ${centerY})`}
+                  style={{
+                    transform: `rotate(${rotationAngle}deg)`,
+                    transformOrigin: `${centerX}px ${centerY}px`
+                  }}
                   className="transition-all duration-500 ease-in-out"
                 >
                   {ring.letters.map((letter, letterIndex) => {
@@ -87,7 +92,7 @@ function RingVisualization({
                         <circle
                           cx={x}
                           cy={y}
-                          r="18"
+                          r="15" // Reduced from 18 to prevent crowding
                           fill={
                             isTargetLetter
                               ? '#FDE68A'
@@ -109,10 +114,9 @@ function RingVisualization({
                         />
                         <text
                           x={x}
-                          y={y + 6}
+                          y={y + 5} // Adjusted for smaller circle
                           textAnchor="middle"
-                          transform={`rotate(${-rotationAngle} ${x} ${y})`}
-                          className={`text-base font-bold transition-all duration-300 ${
+                          className={`text-sm font-bold transition-all duration-300 ${
                             isTargetLetter
                               ? 'fill-white'
                               : isAtMarker
