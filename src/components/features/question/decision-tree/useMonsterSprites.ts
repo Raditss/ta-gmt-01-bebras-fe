@@ -4,8 +4,8 @@ import {
   defaultColor,
   monsterAssetUrl,
   MonsterPartType
-} from '@/components/features/question/dt/monster-part.type';
-import KenneyMonsterSpritesheet from '@/components/features/question/dt/kenney-monster-spritesheet';
+} from '@/components/features/question/decision-tree/monster-part.type';
+import KenneyMonsterSpritesheet from '@/components/features/question/decision-tree/kenney-monster-spritesheet';
 
 interface UseMonsterSpritesReturn {
   spritesheet: Spritesheet | null;

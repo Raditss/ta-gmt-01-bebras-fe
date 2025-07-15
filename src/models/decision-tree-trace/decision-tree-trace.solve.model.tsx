@@ -3,20 +3,20 @@ import { IAttempt, IQuestion } from '@/models/interfaces/question.model';
 import { QuestionAttemptData } from '@/types/question-attempt.type';
 import {
   CombinationAnswer,
-  DecisionTree2Answer,
-  DecisionTree2Content,
+  DecisionTreeTraceAnswer,
+  DecisionTreeTraceContent,
   Finish,
   Rule
-} from '@/models/dt-1/dt-1.model.type';
+} from '@/models/decision-tree-trace/decision-tree-trace.model.type';
 
-export class DecisionTree2SolveModel extends IQuestion implements IAttempt {
-  private content: DecisionTree2Content;
-  private answer: DecisionTree2Answer;
+export class DecisionTreeTraceSolveModel extends IQuestion implements IAttempt {
+  private content: DecisionTreeTraceContent;
+  private answer: DecisionTreeTraceAnswer;
   private attemptDuration: number;
   private attemptIsDraft: boolean;
 
   constructor(id: number) {
-    super(id, QuestionTypeEnum.DECISION_TREE_2);
+    super(id, QuestionTypeEnum.DECISION_TREE_TRACE);
 
     this.content = {
       rules: [],
@@ -49,7 +49,7 @@ export class DecisionTree2SolveModel extends IQuestion implements IAttempt {
   }
 
   loadAnswer(json: string) {
-    const answer = JSON.parse(json) as DecisionTree2Answer;
+    const answer = JSON.parse(json) as DecisionTreeTraceAnswer;
     this.answer = {
       combinations: answer.combinations || []
     };
@@ -57,7 +57,7 @@ export class DecisionTree2SolveModel extends IQuestion implements IAttempt {
 
   populateQuestionFromString(questionString: string): void {
     try {
-      this.content = JSON.parse(questionString) as DecisionTree2Content;
+      this.content = JSON.parse(questionString) as DecisionTreeTraceContent;
 
       this.resetToInitialState();
     } catch (error) {

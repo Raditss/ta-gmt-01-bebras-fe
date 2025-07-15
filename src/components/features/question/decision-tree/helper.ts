@@ -2,8 +2,8 @@ import {
   ColorOptions,
   MonsterPartOptionType,
   MonsterPartType
-} from '../monster-part.type';
-import KenneyMonsterSpritesheet from '@/components/features/question/dt/kenney-monster-spritesheet';
+} from './monster-part.type';
+import KenneyMonsterSpritesheet from '@/components/features/question/decision-tree/kenney-monster-spritesheet';
 
 export const extractOptions = (
   type: Exclude<MonsterPartType, MonsterPartType.COLOR>

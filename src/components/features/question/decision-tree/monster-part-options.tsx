@@ -1,5 +1,5 @@
-import { MonsterPartOptionType } from '@/components/features/question/dt/monster-part.type';
-import MonsterPartOption from '@/components/features/question/dt/monster-part-option';
+import { MonsterPartOptionType } from '@/components/features/question/decision-tree/monster-part.type';
+import MonsterPartOption from '@/components/features/question/decision-tree/monster-part-option';
 import {
   Carousel,
   CarouselContent,
@@ -25,7 +25,7 @@ export default function MonsterPartOptions({
 }: MonsterPartOptionsProps) {
   return (
     <div className="mt-4">
-      {options.length < 4 ? (
+      {options.length <= 4 ? (
         <div className="grid grid-cols-2 gap-2">
           {options.map((option, index) => (
             <MonsterPartOption

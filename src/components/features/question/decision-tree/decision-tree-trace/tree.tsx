@@ -1,6 +1,9 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Finish, Rule } from '@/models/dt-1/dt-1.model.type';
+import {
+  Finish,
+  Rule
+} from '@/models/decision-tree-trace/decision-tree-trace.model.type';
 
 interface TreeNode {
   type: 'decision' | 'rule' | 'finish';
@@ -17,6 +20,7 @@ interface TreeProps {
   rules: Rule[];
   finishes: Finish[];
   goals: number[];
+  selections: Record<string, string>;
 }
 
 interface EChartsNode {
@@ -39,6 +43,7 @@ interface EChartsNode {
   nodeType?: 'decision' | 'leaf';
   ruleId?: number;
   finishId?: number;
+  isSelected?: boolean;
   isOnPath?: boolean;
   isGoal?: boolean;
 }
@@ -213,18 +218,28 @@ const buildDecisionTree = (
 // Convert to ECharts format
 const convertToEChartsFormat = (
   tree: TreeNode,
+  selections: Record<string, string>,
   goals: number[],
   path: string[] = []
 ): EChartsNode => {
+  const checkIfOnPath = (currentPath: string[]): boolean => {
+    return currentPath.every((condition) => {
+      const [attr, value] = condition.split('=');
+      return selections[attr] === value;
+    });
+  };
+
   // Handle different node types
   if (tree.type === 'finish') {
     const isGoal = tree.isGoal || false;
+    const isOnPath = checkIfOnPath(path);
 
     return {
       name: tree.finishName || 'Unknown Finish',
       nodeType: 'leaf',
       finishId: tree.finishId,
       isGoal,
+      isOnPath,
       itemStyle: {
         color: isGoal ? '#dcfce7' : '#f3f4f6',
         borderColor: isGoal ? '#16a34a' : '#9ca3af',
@@ -238,13 +253,19 @@ const convertToEChartsFormat = (
   }
 
   if (tree.type === 'rule') {
+    const isOnPath = checkIfOnPath(path);
     const children: EChartsNode[] = [];
 
     // Process finish node children
     if (tree.children) {
       tree.children.forEach((childNode) => {
         const childPath = [...path, `rule=${tree.ruleId}`];
-        const child = convertToEChartsFormat(childNode, goals, childPath);
+        const child = convertToEChartsFormat(
+          childNode,
+          selections,
+          goals,
+          childPath
+        );
         children.push(child);
       });
     }
@@ -254,13 +275,14 @@ const convertToEChartsFormat = (
       children,
       nodeType: 'decision', // Rule nodes have children, so they're not leaf nodes
       ruleId: tree.ruleId,
+      isOnPath,
       itemStyle: {
-        color: '#e5e7eb',
-        borderColor: '#9ca3af',
+        color: isOnPath ? '#fbbf24' : '#e5e7eb',
+        borderColor: isOnPath ? '#f59e0b' : '#9ca3af',
         borderWidth: 2
       },
       label: {
-        color: '#6b7280',
+        color: isOnPath ? '#92400e' : '#6b7280',
         fontWeight: 'bold'
       }
     };
@@ -270,9 +292,17 @@ const convertToEChartsFormat = (
   const children: EChartsNode[] = [];
 
   if (tree.type === 'decision' && tree.children && tree.attribute) {
+    const hasSelection = selections[tree.attribute] !== undefined;
+    const selectedValue = selections[tree.attribute];
+
     tree.children.forEach((childNode, value) => {
       const childPath = [...path, `${tree.attribute}=${value}`];
-      const child = convertToEChartsFormat(childNode, goals, childPath);
+      const child = convertToEChartsFormat(
+        childNode,
+        selections,
+        goals,
+        childPath
+      );
 
       // Format: "Attribute: Value" - shows the decision being made
       if (tree.attribute && tree.attribute !== 'rule') {
@@ -283,9 +313,15 @@ const convertToEChartsFormat = (
         child.name = value; // For rule nodes, just show the rule name
       }
 
+      const isSelectedPath = selectedValue === value;
+
       child.lineStyle = {
-        color: '#6b7280',
-        width: 2
+        color: isSelectedPath
+          ? '#16a34a'
+          : hasSelection
+            ? '#cbd5e1'
+            : '#6b7280',
+        width: isSelectedPath ? 3 : 2
       };
 
       children.push(child);
@@ -321,10 +357,15 @@ const convertToEChartsFormat = (
   };
 };
 
-export function DecisionTree2({ rules, finishes, goals }: TreeProps) {
+export function DecisionTreeTraceTree({
+  rules,
+  finishes,
+  goals,
+  selections
+}: TreeProps) {
   const option = useMemo(() => {
     const tree = buildDecisionTree(rules, finishes, goals);
-    const data = convertToEChartsFormat(tree, goals);
+    const data = convertToEChartsFormat(tree, selections, goals);
 
     return {
       tooltip: {
@@ -382,9 +423,6 @@ export function DecisionTree2({ rules, finishes, goals }: TreeProps) {
               distance: 10
             }
           },
-          emphasis: {
-            focus: 'descendant'
-          },
           expandAndCollapse: false,
           animationDuration: 550,
           animationDurationUpdate: 750,
@@ -394,7 +432,7 @@ export function DecisionTree2({ rules, finishes, goals }: TreeProps) {
         }
       ]
     };
-  }, [rules, finishes, goals]);
+  }, [rules, finishes, goals, selections]);
 
   return (
     <div className="w-full border rounded-lg bg-white p-4">
@@ -404,7 +442,7 @@ export function DecisionTree2({ rules, finishes, goals }: TreeProps) {
 
       <ReactECharts
         option={option}
-        style={{ height: '500px', width: '100%' }}
+        style={{ height: '400px', width: '100%' }}
         opts={{ renderer: 'svg' }}
       />
     </div>

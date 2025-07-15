@@ -1,10 +1,13 @@
 import { ICreateQuestion } from '../interfaces/create-question.model';
-import { DecisionTreeContent, Rule } from '@/models/dt-0/dt-0.model.type';
-import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
+import {
+  DecisionTreeAnomalyContent,
+  Rule
+} from '@/models/decision-tree-anomaly/decision-tree-anomaly.model.type';
+import { MonsterPartType } from '@/components/features/question/decision-tree/monster-part.type';
 import { Question } from '@/types/question.type';
 
-export class DecisionTreeCreateModel extends ICreateQuestion {
-  private content: DecisionTreeContent;
+export class DecisionTreeAnomalyCreateModel extends ICreateQuestion {
+  private content: DecisionTreeAnomalyContent;
 
   constructor(draft: Question) {
     super(draft);
@@ -28,13 +31,16 @@ export class DecisionTreeCreateModel extends ICreateQuestion {
 
   populateFromContentString(contentString: string): void {
     try {
-      this.content = JSON.parse(contentString) as DecisionTreeContent;
+      this.content = JSON.parse(contentString) as DecisionTreeAnomalyContent;
       if (!this.hasRequiredContent()) {
         this.content.rules = [];
       }
     } catch (error) {
-      console.error('Error parsing Decision Tree creation content:', error);
-      throw new Error('Invalid Decision Tree creation content format');
+      console.error(
+        'Error parsing Decision Tree Anomaly creation content:',
+        error
+      );
+      throw new Error('Invalid Decision Tree Anomaly creation content format');
     }
   }
 

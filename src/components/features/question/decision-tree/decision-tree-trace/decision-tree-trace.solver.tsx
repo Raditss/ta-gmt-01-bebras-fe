@@ -2,29 +2,31 @@
 
 import { useCallback, useState } from 'react';
 import { Plus, Target, Trash2 } from 'lucide-react';
-import {
-  GeneratedSolverProps,
-  GeneratedSolverWrapper
-} from '@/components/features/bases/base.solver.generated';
-import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
+import { BaseSolverProps, SolverWrapper } from '../../../bases/base.solver';
+import { useDuration } from '@/hooks/useDuration';
+import { SubmitSection } from '@/components/features/question/shared/submit-section';
+import { TimeProgressBar } from '@/components/ui/time-progress-bar';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/dt/monster-part.type';
+} from '@/components/features/question/decision-tree/monster-part.type';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DecisionTree2 } from '@/components/features/question/dt/dt-1/tree';
-import { DecisionTree2SolveModel } from '@/models/dt-1/dt-1.solve.model';
-import MonsterCharacter from '@/components/features/question/dt/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree/decision-tree-trace/tree';
+import { DecisionTreeTraceSolveModel } from '@/models/decision-tree-trace/decision-tree-trace.solve.model';
+import { useSolveQuestion } from '@/hooks/useSolveQuestion';
+import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import { capitalizeFirst } from '@/utils/helpers/common.helper';
-import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 
-export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
-  const { question, questionContent, loading, error, regenerate } =
-    useGeneratedQuestion<DecisionTree2SolveModel>(
-      type,
-      DecisionTree2SolveModel
+export default function DecisionTreeTraceSolver({
+  questionId
+}: BaseSolverProps) {
+  const { question, loading, error, currentDuration, markAsSubmitted } =
+    useSolveQuestion<DecisionTreeTraceSolveModel>(
+      questionId,
+      DecisionTreeTraceSolveModel
     );
 
   const [selections, setSelections] = useState<Record<string, string>>({});
@@ -33,14 +35,17 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
     value: string;
   } | null>(null);
 
+  const { formattedDuration, getCurrentDuration } =
+    useDuration(currentDuration());
+
   const handleAddCombination = useCallback(() => {
     if (!question) return;
 
-    // Check if all monster parts are selected
+    // TODO: show error message
     if (Object.keys(selections).length !== Object.keys(MonsterPartType).length)
       return;
 
-    // Check if the selections satisfy all of the monster parts
+    // check if the selections is already satisfied all of the monster parts
     const isSatisfied = Object.values(MonsterPartType).every(
       (part) => !!selections[part]
     );
@@ -102,19 +107,24 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
     setHovered(null);
   }, [question]);
 
-  // Convert combinations to answerArr format for submit section
-  const answerArr = question?.getCombinations() || [];
-
   return (
-    <GeneratedSolverWrapper loading={loading} error={error} type={type}>
+    <SolverWrapper loading={loading} error={error}>
       {question && (
         <div className="min-h-screen bg-gray-100 p-8">
+          {/* Time Progress Bar */}
+          <div className="max-w-7xl mx-auto mb-8">
+            <TimeProgressBar
+              duration={currentDuration()}
+              formattedTime={formattedDuration}
+            />
+          </div>
+
           {/* Main Content */}
           <div className="max-w-7xl mx-auto">
             {/* Question Title */}
             <div className="text-center mb-10">
               <h1 className="text-3xl font-bold text-gray-800">
-                Decision Tree Challenge
+                Decision Tree Trace Challenge
               </h1>
               <p className="text-lg text-gray-600 mt-4 max-w-2xl mx-auto">
                 Help the monster reach the goal destinations! Select different
@@ -154,10 +164,11 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
                   <h2 className="text-2xl font-semibold mb-6 text-center">
                     Decision Tree
                   </h2>
-                  <DecisionTree2
+                  <DecisionTreeTraceTree
                     rules={question.getRules()}
                     finishes={question.getFinishes()}
                     goals={question.getGoals()}
+                    selections={selections}
                   />
                 </div>
 
@@ -278,13 +289,12 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
                     </Button>
 
                     {/* Submit Section */}
-                    <GeneratedSubmitSection
+                    <SubmitSection
                       question={question}
-                      answerArr={answerArr}
-                      type={type}
-                      questionContent={questionContent}
-                      onRegenerate={regenerate}
+                      getCurrentDuration={getCurrentDuration}
+                      answerArr={question.getCombinations()}
                       isDisabled={false}
+                      onSubmissionSuccess={markAsSubmitted}
                     />
                   </div>
                 </div>
@@ -293,6 +303,6 @@ export default function GeneratedDt1Solver({ type }: GeneratedSolverProps) {
           </div>
         </div>
       )}
-    </GeneratedSolverWrapper>
+    </SolverWrapper>
   );
 }

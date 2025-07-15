@@ -9,12 +9,12 @@ import { CheckCircle2, Save } from 'lucide-react';
 
 // Hooks
 import { useCreateQuestion } from '@/hooks/useCreateQuestion';
-import { useDecisionTreeCreator } from '@/components/features/question/dt/dt-0/creator/useDecisionTreeCreator';
+import { useDecisionTreeCreator } from '@/components/features/question/decision-tree/decision-tree-anomaly/creator/useDecisionTreeCreator';
 import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
 
 // Models and Types
-import { DecisionTreeCreateModel } from '@/models/dt-0/dt-0.create.model';
-import { MonsterPartType } from '@/components/features/question/dt/monster-part.type';
+import { DecisionTreeAnomalyCreateModel } from '@/models/decision-tree-anomaly/decision-tree-anomaly.create.model';
+import { MonsterPartType } from '@/components/features/question/decision-tree/monster-part.type';
 
 // Components
 import {
@@ -22,13 +22,15 @@ import {
   CreatorWrapper
 } from '@/components/features/bases/base.creator';
 import { CreationSubmissionModal } from '@/components/features/question/submission-modal.creator';
-import { DecisionTree } from '@/components/features/question/dt/dt-0/tree';
-import MonsterCharacter from '@/components/features/question/dt/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/dt/monster-part-wardrobe';
+import { DecisionTreeAnomalyTree } from '@/components/features/question/decision-tree/decision-tree-anomaly/tree';
+import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
 import RuleManagement from './rule-management';
 import RulesList from './rules-list';
 
-export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
+export default function DecisionTreeAnomalyCreator({
+  initialDataQuestion
+}: BaseCreatorProps) {
   const router = useRouter();
 
   // Core question management
@@ -41,9 +43,9 @@ export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
     submitCreation,
     markAsChanged,
     clearError
-  } = useCreateQuestion<DecisionTreeCreateModel>(
+  } = useCreateQuestion<DecisionTreeAnomalyCreateModel>(
     initialDataQuestion,
-    DecisionTreeCreateModel
+    DecisionTreeAnomalyCreateModel
   );
 
   // DecisionTree-specific logic
@@ -170,14 +172,13 @@ export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
                 Save Draft
               </Button>
 
-              {rules.length > 0 && (
-                <Button
-                  onClick={handleSubmit}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  Submit Question
-                </Button>
-              )}
+              <Button
+                onClick={handleSubmit}
+                disabled={!rules || rules.length === 0}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                Submit Question
+              </Button>
             </div>
 
             {/* Save Confirmation */}
@@ -245,7 +246,7 @@ export default function Dt0Creator({ initialDataQuestion }: BaseCreatorProps) {
                     <h3 className="text-lg font-semibold mb-4 text-center">
                       Decision Tree Preview
                     </h3>
-                    <DecisionTree
+                    <DecisionTreeAnomalyTree
                       rules={rules}
                       selections={getTreeSelections()}
                     />
