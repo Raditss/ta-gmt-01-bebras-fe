@@ -1,10 +1,10 @@
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/decision-tree/monster-part.type';
+} from '@/components/features/question/anomaly-monster/monster-part.type';
 import MonsterPartOptions from './monster-part-options';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { monsterParts } from '@/components/features/question/decision-tree/helper';
+import { monsterParts } from '@/components/features/question/anomaly-monster/helper';
 
 export interface MonsterPartWardrobeProps {
   selections: Record<string, string>;

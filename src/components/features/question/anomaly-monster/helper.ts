@@ -3,7 +3,7 @@ import {
   MonsterPartOptionType,
   MonsterPartType
 } from './monster-part.type';
-import KenneyMonsterSpritesheet from '@/components/features/question/decision-tree/kenney-monster-spritesheet';
+import KenneyMonsterSpritesheet from '@/components/features/question/anomaly-monster/kenney-monster-spritesheet';
 
 export const extractOptions = (
   type: Exclude<MonsterPartType, MonsterPartType.COLOR>
@@ -27,7 +27,6 @@ export const extractSpriteOptions = () => {
 
   return {
     body: bodyOptions,
-    // horns: [{ label: 'None', value: 'none' }, ...hornOptions],
     legs: legOptions,
     arms: armOptions,
     colors: ColorOptions
@@ -35,9 +34,8 @@ export const extractSpriteOptions = () => {
 };
 
 export const monsterParts: Record<MonsterPartType, MonsterPartOptionType[]> = {
-  [MonsterPartType.COLOR]: extractSpriteOptions().colors,
-  // [MonsterPartType.HORN]: extractSpriteOptions().horns,
   [MonsterPartType.BODY]: extractSpriteOptions().body,
   [MonsterPartType.ARM]: extractSpriteOptions().arms,
-  [MonsterPartType.LEG]: extractSpriteOptions().legs
+  [MonsterPartType.LEG]: extractSpriteOptions().legs,
+  [MonsterPartType.COLOR]: extractSpriteOptions().colors
 };

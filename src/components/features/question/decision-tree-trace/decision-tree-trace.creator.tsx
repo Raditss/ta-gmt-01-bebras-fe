@@ -1,12 +1,12 @@
 'use client';
 
-import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree/decision-tree-trace/tree';
-import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
+import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree-trace/tree';
+import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/anomaly-monster/monster-part-wardrobe';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/decision-tree/monster-part.type';
+} from '@/components/features/question/anomaly-monster/monster-part.type';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -51,8 +51,8 @@ import {
 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { BaseCreatorProps, CreatorWrapper } from '../../../bases/base.creator';
-import { CreationSubmissionModal } from '../../submission-modal.creator';
+import { BaseCreatorProps, CreatorWrapper } from '../../bases/base.creator';
+import { CreationSubmissionModal } from '../submission-modal.creator';
 import {
   Condition,
   Finish,

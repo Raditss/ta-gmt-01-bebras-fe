@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Rule } from '@/models/decision-tree-anomaly/decision-tree-anomaly.model.type';
+import { Monster } from '@/models/anomaly-monster/anomaly-monster.model.type';
+import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';
@@ -11,7 +12,7 @@ interface TreeNode {
 }
 
 interface TreeProps {
-  rules: Rule[];
+  rules: Monster[];
   selections: Record<string, string>;
 }
 
@@ -40,13 +41,13 @@ interface EChartsNode {
   isOnPath?: boolean;
 }
 
-const buildDecisionTree = (rules: Rule[]): TreeNode => {
+const buildDecisionTree = (rules: Monster[]): TreeNode => {
   const attributeOrder = [
-    'body',
-    'arms',
-    'legs',
+    MonsterPartType.BODY,
+    MonsterPartType.ARM,
+    MonsterPartType.LEG,
     // 'horns',
-    'color'
+    MonsterPartType.COLOR
   ];
 
   const findMatchingRule = (conditions: Record<string, string>): number => {

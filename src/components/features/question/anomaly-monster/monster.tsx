@@ -1,8 +1,8 @@
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/decision-tree/monster-part.type';
-import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
+} from '@/components/features/question/anomaly-monster/monster-part.type';
+import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
 
 interface MonsterProps {
   selections: Record<string, string>;

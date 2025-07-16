@@ -1,6 +1,5 @@
 export interface Condition {
   attribute: string;
-  operator: string;
   value: string;
 }
 

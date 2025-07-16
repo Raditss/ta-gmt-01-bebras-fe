@@ -4,8 +4,8 @@ import {
   defaultColor,
   monsterAssetUrl,
   MonsterPartType
-} from '@/components/features/question/decision-tree/monster-part.type';
-import KenneyMonsterSpritesheet from '@/components/features/question/decision-tree/kenney-monster-spritesheet';
+} from '@/components/features/question/anomaly-monster/monster-part.type';
+import KenneyMonsterSpritesheet from '@/components/features/question/anomaly-monster/kenney-monster-spritesheet';
 
 interface UseMonsterSpritesReturn {
   spritesheet: Spritesheet | null;
@@ -40,7 +40,7 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
       try {
         setIsLoading(true);
 
-        const texture = await Assets.load(`${monsterAssetUrl}/spritesheet.png`);
+        const texture = await Assets.load(`${monsterAssetUrl}/Spritesheet.png`);
 
         // Get all textures from the spritesheet
         const allTextures = Object.values(
@@ -89,13 +89,15 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
   ): string | null => {
     const currentColor = color || defaultColor;
 
+    console.log('typee', type, currentColor, value);
+
     switch (type) {
       case MonsterPartType.BODY:
-        return `body_${currentColor}_${value}.png`;
+        return `${MonsterPartType.BODY}_${currentColor}_${value}.png`;
       case MonsterPartType.LEG:
-        return `leg_${currentColor}_${value}.png`;
+        return `${MonsterPartType.LEG}_${currentColor}_${value}.png`;
       case MonsterPartType.ARM:
-        return `arm_${currentColor}_${value}.png`;
+        return `${MonsterPartType.ARM}_${currentColor}_${value}.png`;
       // case MonsterPartType.HORN:
       //   return value === 'none' ? null : `horn_${currentColor}_${value}.png`;
       default:

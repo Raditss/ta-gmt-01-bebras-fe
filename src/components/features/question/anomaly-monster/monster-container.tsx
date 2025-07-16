@@ -1,6 +1,6 @@
 import { Container } from '@pixi/react';
 import { PropsWithChildren } from 'react';
-import { MonsterPartType } from '@/components/features/question/decision-tree/monster-part.type';
+import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
 import { useMonsterSprites } from './useMonsterSprites';
 import {
   MonsterArm,
@@ -132,7 +132,7 @@ const MonsterContainer = ({
       {/* Eyes */}
       {/* Left Eye */}
       <MonsterEye
-        texture={getStaticTexture('eye_Red_human.png')}
+        texture={getStaticTexture('Eye_Red_human.png')}
         x={centerX - 25 * scaleFactor}
         y={centerY - 20 * scaleFactor}
         scaleX={0.4 * scaleFactor}
@@ -141,7 +141,7 @@ const MonsterContainer = ({
 
       {/* Right Eye */}
       <MonsterEye
-        texture={getStaticTexture('eye_Red_human.png')}
+        texture={getStaticTexture('Eye_Red_human.png')}
         x={centerX + 25 * scaleFactor}
         y={centerY - 20 * scaleFactor}
         scaleX={0.4 * scaleFactor}
@@ -150,7 +150,7 @@ const MonsterContainer = ({
 
       {/* Mouth */}
       <MonsterMouth
-        texture={getStaticTexture('mouth_closedTeeth.png')}
+        texture={getStaticTexture('Mouth_closedTeeth.png')}
         x={centerX}
         y={centerY + 30 * scaleFactor}
         scaleX={0.5 * scaleFactor}

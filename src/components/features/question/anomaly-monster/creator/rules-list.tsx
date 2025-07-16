@@ -2,16 +2,13 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Rule } from '@/models/decision-tree-anomaly/decision-tree-anomaly.model.type';
-import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '../../monster-part.type';
+import { Monster } from '@/models/anomaly-monster/anomaly-monster.model.type';
+import { MonsterPartOptionType, MonsterPartType } from '../monster-part.type';
 import { Edit2, Eye, EyeOff, Trash2 } from 'lucide-react';
-import { monsterParts } from '@/components/features/question/decision-tree/helper';
+import { monsterParts } from '@/components/features/question/anomaly-monster/helper';
 
 interface RulesListProps {
-  rules: Rule[];
+  rules: Monster[];
   selectedRuleId: number | null;
   editingRuleId: number | null;
   isCreatingRule: boolean;

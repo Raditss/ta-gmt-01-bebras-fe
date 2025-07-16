@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { Plus, Target, Trash2 } from 'lucide-react';
-import { BaseSolverProps, SolverWrapper } from '../../../bases/base.solver';
+import { BaseSolverProps, SolverWrapper } from '../../bases/base.solver';
 import { useDuration } from '@/hooks/useDuration';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
 import { TimeProgressBar } from '@/components/ui/time-progress-bar';
@@ -13,7 +13,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree/decision-tree-trace/tree';
+import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree-trace/tree';
 import { DecisionTreeTraceSolveModel } from '@/models/decision-tree-trace/decision-tree-trace.solve.model';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
 import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
