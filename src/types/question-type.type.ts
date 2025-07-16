@@ -2,7 +2,7 @@ export enum QuestionTypeEnum {
   CFG = 'context-free-grammar',
   CIPHER_N = 'cipher-n',
   RING_CIPHER = 'ring-cipher',
-  DECISION_TREE_ANOMALY = 'decision-tree-anomaly',
+  ANOMALY_MONSTER = 'decision-tree-anomaly',
   DECISION_TREE_TRACE = 'decision-tree-trace'
 }
 
