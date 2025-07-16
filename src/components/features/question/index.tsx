@@ -16,6 +16,9 @@ import GeneratedCfgSolver from '@/components/features/question/cfg/cfg.solver.ge
 import GeneratedCipherNSolver from '@/components/features/question/cipher-n/solver/cipher-n.solver.generated';
 import GeneratedRingCipherSolver from '@/components/features/question/ring-cipher/solver/ring-cipher.solver.generated';
 import GeneratedAnomalyMonsterSolver from '@/components/features/question/anomaly-monster/anomaly-monster.solver.generated';
+import DecisionTreeTraceCreator from '@/components/features/question/decision-tree-trace/decision-tree-trace.creator';
+import DecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver';
+import GeneratedDecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver.generated';
 
 export const createQuestionComponent: Record<
   QuestionTypeEnum,
@@ -24,7 +27,8 @@ export const createQuestionComponent: Record<
   [QuestionTypeEnum.CFG]: CfgCreator,
   [QuestionTypeEnum.CIPHER_N]: CipherNCreator,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherCreator,
-  [QuestionTypeEnum.ANOMALY_MONSTER]: AnomalyMonsterCreator
+  [QuestionTypeEnum.ANOMALY_MONSTER]: AnomalyMonsterCreator,
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceCreator
 };
 
 export const solveQuestionComponent: Record<
@@ -34,7 +38,8 @@ export const solveQuestionComponent: Record<
   [QuestionTypeEnum.CFG]: CfgSolver,
   [QuestionTypeEnum.CIPHER_N]: CipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherSolver,
-  [QuestionTypeEnum.ANOMALY_MONSTER]: DecisionTreeAnomalySolver
+  [QuestionTypeEnum.ANOMALY_MONSTER]: DecisionTreeAnomalySolver,
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceSolver
 };
 
 export const solveGeneratedQuestionComponent: Record<
@@ -44,5 +49,6 @@ export const solveGeneratedQuestionComponent: Record<
   [QuestionTypeEnum.CFG]: GeneratedCfgSolver,
   [QuestionTypeEnum.CIPHER_N]: GeneratedCipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: GeneratedRingCipherSolver,
-  [QuestionTypeEnum.ANOMALY_MONSTER]: GeneratedAnomalyMonsterSolver
+  [QuestionTypeEnum.ANOMALY_MONSTER]: GeneratedAnomalyMonsterSolver,
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: GeneratedDecisionTreeTraceSolver
 };

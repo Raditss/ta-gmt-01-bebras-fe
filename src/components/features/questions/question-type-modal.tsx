@@ -87,9 +87,9 @@ export function QuestionTypeModal({
       [QuestionTypeEnum.RING_CIPHER]:
         'border-pink-200 hover:border-pink-300 bg-pink-50 hover:bg-pink-100',
       [QuestionTypeEnum.ANOMALY_MONSTER]:
-        'border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100'
-      // [QuestionTypeEnum.DECISION_TREE_TRACE]:
-      //   'border-yellow-200 hover:border-yellow-300 bg-yellow-50 hover:bg-yellow-100'
+        'border-green-200 hover:border-green-300 bg-green-50 hover:bg-green-100',
+      [QuestionTypeEnum.DECISION_TREE_TRACE]:
+        'border-yellow-200 hover:border-yellow-300 bg-yellow-50 hover:bg-yellow-100'
     };
     return (
       colors[type] ||
