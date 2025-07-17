@@ -11,6 +11,7 @@ import Monster from '@/components/features/question/anomaly-monster/monster';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import { Button } from '@/components/ui/button';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
+import { ArrowLeft, ArrowRight, Check, Worm } from 'lucide-react';
 
 export default function GeneratedAnomalyMonsterSolver({
   type
@@ -91,8 +92,12 @@ export default function GeneratedAnomalyMonsterSolver({
         <div className="max-w-[95%] mx-auto p-4">
           <div className="text-center mt-6 mb-8">
             <h1 className="text-3xl font-bold text-gray-800">
-              Choose a Monster Not Banned
+              Monster yang Aneh
             </h1>
+            <h3 className="mt-3 text-xl font-semibold text-gray-500">
+              Kamu ditugaskan membantu para saintis! Teliti setiap monster dan
+              tentukan: normal atau terinfeksi?
+            </h3>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -110,7 +115,7 @@ export default function GeneratedAnomalyMonsterSolver({
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <div className="flex flex-col gap-4">
                   <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-2">Progress</h3>
+                    <h3 className="text-lg font-semibold mb-2">Progres</h3>
                     <p className="text-gray-600">
                       Kamu telah memeriksa {classifiedCount} dari{' '}
                       {totalMonsters} monster
@@ -134,7 +139,7 @@ export default function GeneratedAnomalyMonsterSolver({
                         <div className="text-red-600 font-bold text-xl">
                           {anomalies.length}
                         </div>
-                        <div className="text-sm text-gray-500">Anomaly</div>
+                        <div className="text-sm text-gray-500">Terinfeksi</div>
                       </div>
                     </div>
                   </div>
@@ -144,7 +149,7 @@ export default function GeneratedAnomalyMonsterSolver({
                       onClick={handleReset}
                       className="w-full"
                     >
-                      Reset All Classifications
+                      🔄 Klasifikasi Ulang Semua Monster
                     </Button>
                     <GeneratedSubmitSection
                       question={question}
@@ -170,18 +175,18 @@ export default function GeneratedAnomalyMonsterSolver({
                   <div className="mt-2">
                     {normals.includes(currentIdx) && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        ✓ Classified as Normal
+                        ✓ Diklasifikasikan sebagai Normal
                       </span>
                     )}
                     {anomalies.includes(currentIdx) && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                        ⚠ Classified as Anomaly
+                        ⚠ Diklasifikasikan sebagai Terinfeksi
                       </span>
                     )}
                     {!normals.includes(currentIdx) &&
                       !anomalies.includes(currentIdx) && (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
-                          ? Not yet classified
+                          ? Belum diklasifikasikan
                         </span>
                       )}
                   </div>
@@ -190,7 +195,7 @@ export default function GeneratedAnomalyMonsterSolver({
                   <>
                     <div className="text-center mb-4">
                       <p className="text-sm text-gray-600">
-                        Monster characteristics:
+                        Karakteristik monster:
                       </p>
                       <div className="flex flex-wrap justify-center gap-2 mt-2">
                         {currentMonster.conditions.map((condition, idx) => (
@@ -220,7 +225,7 @@ export default function GeneratedAnomalyMonsterSolver({
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold mb-2">
-                    Apakah monster ini terkena virus?
+                    Apakah monster ini terinfeksi?
                   </h3>
                   <p className="text-sm text-gray-600">
                     Gunakan pohon keputusan untuk membantu menentukan
@@ -234,48 +239,58 @@ export default function GeneratedAnomalyMonsterSolver({
                     variant="outline"
                     size="lg"
                   >
-                    ← Previous
+                    <ArrowLeft />
                   </Button>
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <Button
                       onClick={handleMarkAsNormal}
-                      className={`flex items-center justify-center w-12 h-12 rounded-lg font-semibold transition-all duration-200 ${normals.includes(currentIdx) ? 'bg-green-500 text-white shadow-lg hover:bg-green-600' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                      className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
+                        normals.includes(currentIdx)
+                          ? 'bg-green-500 text-white shadow-xl hover:bg-green-600'
+                          : 'border-2 border-green-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105'
+                      }`}
                       size="lg"
                     >
+                      <Check
+                        className={`mr-1 ${
+                          normals.includes(currentIdx)
+                            ? 'stroke-white'
+                            : 'stroke-green-600'
+                        }`}
+                        size={20}
+                      />
                       Normal
                     </Button>
+
                     <Button
                       onClick={handleMarkAsAnomaly}
-                      className={`flex items-center justify-center w-12 h-12 rounded-lg font-semibold transition-all duration-200 ${anomalies.includes(currentIdx) ? 'bg-red-500 text-white shadow-lg hover:bg-red-600' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                      className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
+                        anomalies.includes(currentIdx)
+                          ? 'bg-red-500 text-white shadow-xl hover:bg-red-600'
+                          : 'border-2 border-red-400 text-red-600 bg-white hover:bg-red-50 hover:scale-105'
+                      }`}
                       size="lg"
                     >
-                      Anomaly
+                      <Worm
+                        className={`mr-1 ${
+                          anomalies.includes(currentIdx)
+                            ? 'stroke-white'
+                            : 'stroke-red-600'
+                        }`}
+                        size={20}
+                      />
+                      Terinfeksi
                     </Button>
                   </div>
+
                   <Button
                     onClick={handleNext}
                     disabled={currentIdx === totalMonsters - 1}
                     variant="outline"
                     size="lg"
                   >
-                    Next →
+                    <ArrowRight />
                   </Button>
-                </div>
-                <div className="flex justify-center gap-8 mt-4">
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-green-700">
-                      Normal
-                    </div>
-                    <div className="text-xs text-gray-500">Not infected</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-medium text-red-700">
-                      Anomaly
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Infected/Suspicious
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

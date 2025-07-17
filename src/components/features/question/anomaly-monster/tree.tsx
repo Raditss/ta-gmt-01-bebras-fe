@@ -279,15 +279,15 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
   return (
     <div className="w-full border rounded-lg bg-white p-4">
       <div className="mb-2 text-sm font-semibold text-gray-700">
-        Monster Decision Tree
+        Pohon Keputusan Monster Normal
       </div>
-      <div className="mb-3 text-xs text-gray-500">
-        {Object.keys(selections).length > 0
-          ? `Selected: ${Object.entries(selections)
-              .map(([k, v]) => `${k}=${v}`)
-              .join(', ')}`
-          : 'Use mouse wheel to zoom • Drag to pan'}
-      </div>
+      {/*<div className="mb-3 text-xs text-gray-500">*/}
+      {/*  {Object.keys(selections).length > 0*/}
+      {/*    ? `Selected: ${Object.entries(selections)*/}
+      {/*        .map(([k, v]) => `${k}=${v}`)*/}
+      {/*        .join(', ')}`*/}
+      {/*    : 'Use mouse wheel to zoom • Drag to pan'}*/}
+      {/*</div>*/}
       <ReactECharts
         option={option}
         style={{ height: '400px', width: '100%' }}
