@@ -11,6 +11,8 @@ import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-
 import { Button } from '@/components/ui/button';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
 import { ArrowLeft, ArrowRight, Check, Worm } from 'lucide-react';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 
 export default function DecisionTreeAnomalySolver({
   questionId
@@ -195,7 +197,7 @@ export default function DecisionTreeAnomalySolver({
                       <SubmitSection
                         question={question}
                         getCurrentDuration={getCurrentDuration}
-                        answerArr={Object.entries(anomalies)}
+                        answerArr={anomalies.concat(normals)}
                         isDisabled={classifiedCount !== totalMonsters}
                         onSubmissionSuccess={markAsSubmitted}
                       />
@@ -352,6 +354,7 @@ export default function DecisionTreeAnomalySolver({
           </div>
         </div>
       )}
+      <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
     </SolverWrapper>
   );
 }

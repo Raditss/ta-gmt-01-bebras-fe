@@ -12,6 +12,8 @@ import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-
 import { Button } from '@/components/ui/button';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 import { ArrowLeft, ArrowRight, Check, Worm } from 'lucide-react';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 
 export default function GeneratedAnomalyMonsterSolver({
   type
@@ -327,6 +329,7 @@ export default function GeneratedAnomalyMonsterSolver({
           </div>
         </div>
       </div>
+      <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
     </GeneratedSolverWrapper>
   );
 }
