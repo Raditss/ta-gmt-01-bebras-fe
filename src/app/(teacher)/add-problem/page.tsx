@@ -198,7 +198,7 @@ const AddProblemPage = () => {
                       name={'estimatedTime'}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Estimated Time (minutes)</FormLabel>
+                          <FormLabel>Estimated Time (seconds)</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -209,7 +209,7 @@ const AddProblemPage = () => {
                             />
                           </FormControl>
                           <FormDescription>
-                            Estimated time to solve this question in minutes.
+                            Estimated time to solve this question in seconds.
                             Default is 30.
                           </FormDescription>
                           <FormMessage />
