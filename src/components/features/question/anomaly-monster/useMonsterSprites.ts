@@ -89,8 +89,6 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
   ): string | null => {
     const currentColor = color || defaultColor;
 
-    console.log('typee', type, currentColor, value);
-
     switch (type) {
       case MonsterPartType.BODY:
         return `${MonsterPartType.BODY}_${currentColor}_${value}.png`;
