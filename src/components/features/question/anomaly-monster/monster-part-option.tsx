@@ -1,5 +1,4 @@
 import { MonsterPartOptionType } from '@/components/features/question/anomaly-monster/monster-part.type';
-import {} from '@/components/ui/tooltip';
 import Image from 'next/image';
 
 export interface MonsterPartOptionProps {
@@ -23,12 +22,16 @@ export default function MonsterPartOption({
       className={`
         w-full h-24 p-3 rounded-lg transition-all duration-200 flex flex-col items-center justify-center gap-1 hover:cursor-pointer
         ${
-          selected
-            ? 'bg-blue-500 text-white shadow-lg border-2 border-blue-600 scale-105'
-            : 'hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:shadow-md'
+          option.source
+            ? selected
+              ? 'bg-blue-500 text-white shadow-lg border-2 border-blue-600 scale-105'
+              : 'hover:bg-gray-50 border-2 border-gray-200 hover:border-gray-300 hover:shadow-md'
+            : selected
+              ? 'bg-blue-500 text-white shadow-lg border-2 border-blue-600 scale-105'
+              : `hover:bg-${option.label.toLowerCase()}-300 border-2 border-gray-200 hover:border-gray-300 hover:shadow-md`
         }
         bg-${option.label.toLowerCase() !== 'dark' ? option.label.toLowerCase() + '-500 text-gray-800' : 'black text-white hover:text-gray-800'}
-        hover:text-blue-400
+        hover:text-gray-200
       `}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
