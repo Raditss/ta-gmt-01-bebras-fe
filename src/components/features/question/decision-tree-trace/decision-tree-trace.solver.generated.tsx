@@ -10,13 +10,13 @@ import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/decision-tree/monster-part.type';
+} from '@/components/features/question/anomaly-monster/monster-part.type';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree-trace/tree';
 import { DecisionTreeTraceSolveModel } from '@/models/decision-tree-trace/decision-tree-trace.solve.model';
-import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
+import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/anomaly-monster/monster-part-wardrobe';
 import { capitalizeFirst } from '@/utils/helpers/common.helper';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
 
@@ -129,7 +129,7 @@ export default function GeneratedDecisionTreeTraceSolver({
                 <span className="text-base font-medium text-gray-600">
                   Goals:
                 </span>
-                {question.getGoals().map((goalId) => {
+                {question.getGoals()?.map((goalId) => {
                   const finish = question
                     .getFinishes()
                     .find((f) => f.id === goalId);
