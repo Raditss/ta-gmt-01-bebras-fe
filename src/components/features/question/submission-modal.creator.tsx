@@ -1,7 +1,14 @@
-"use client"
+'use client';
 
 import { useState } from 'react';
-import { AlertCircle, CheckCircle2, Clock, Award, User, BookOpen } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Award,
+  User,
+  BookOpen
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,7 +16,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from '@/components/ui/dialog';
 
 export interface CreationSubmissionModalProps {
@@ -92,7 +99,7 @@ export function CreationSubmissionModal({
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg space-y-3">
               <h3 className="font-semibold text-lg">{questionData.title}</h3>
-              
+
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <User className="w-4 h-4 text-gray-500" />
@@ -103,24 +110,26 @@ export function CreationSubmissionModal({
                   <BookOpen className="w-4 h-4 text-gray-500" />
                   <span>Category: {questionData.questionType}</span>
                 </div>
-                
 
                 <div className="flex items-center gap-2">
                   <Award className="w-4 h-4 text-gray-500" />
                   <span>Points: {questionData.points}</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2 col-span-2">
                   <Clock className="w-4 h-4 text-gray-500" />
-                  <span>Estimated Time: {questionData.estimatedTime} minutes</span>
+                  <span>
+                    Estimated Time: {questionData.estimatedTime} seconds
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="bg-blue-50 p-4 rounded-lg">
               <p className="text-sm text-blue-800">
-                <strong>Note:</strong> Once published, this question will be available to all students and cannot be easily modified. 
-                Make sure all rules, states, and content are correct.
+                <strong>Note:</strong> Once published, this question will be
+                available to all students and cannot be easily modified. Make
+                sure all rules, states, and content are correct.
               </p>
             </div>
           </div>
@@ -147,4 +156,4 @@ export function CreationSubmissionModal({
   }
 
   return null;
-} 
+}

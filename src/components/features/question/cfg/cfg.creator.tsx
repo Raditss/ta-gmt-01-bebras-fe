@@ -174,8 +174,18 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
       const cfgQuestion = question as CfgCreateModel | null;
       if (!cfgQuestion) return;
 
+      // Set the new start state
       cfgQuestion.setStartState(newStartState);
       setStartState(newStartState);
+
+      // Reset end state to match the new start state
+      cfgQuestion.setEndState([...newStartState]);
+      cfgQuestion.setInitialEndState([...newStartState]);
+      setEndState([...newStartState]);
+
+      // Clear selected indices since end state changed
+      setSelectedIndices([]);
+
       setShowStartStateModal(false);
       markAsChanged();
     },
