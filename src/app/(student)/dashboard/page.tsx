@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trophy, TrendingUp, Award, Play } from 'lucide-react';
+import { Trophy, TrendingUp, Play } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useDashboard } from '@/hooks/useDashboard';
 import Image from 'next/image';
@@ -20,7 +20,7 @@ const Dashboard = () => {
     progressPercent,
     streakDays,
     weeklyGrind,
-    achievements,
+    // achievements,
     recentActivity,
     isLoading,
     error
@@ -211,7 +211,7 @@ const Dashboard = () => {
         {/* Bottom Section */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Recent Activity */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <TrendingUp className="w-6 h-6 text-purple-500" />
@@ -258,7 +258,7 @@ const Dashboard = () => {
           </div>
 
           {/* Achievements */}
-          <div className="lg:col-span-1">
+          {/* <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <Award className="w-6 h-6 text-purple-500" />
@@ -294,7 +294,7 @@ const Dashboard = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
