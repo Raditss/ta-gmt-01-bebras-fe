@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
+import { QuestionTypeEnum } from '@/types/question-type.type';
 
 interface PolygonProps {
   vertices: Array<{ pos: number; letters: string }>;
@@ -68,7 +70,7 @@ function PolygonVisualization({
           const isCurrent = i === currentVertex;
 
           // Calculate position for the label outside the polygon
-          const labelRadius = radius + 45; // 45px outside the polygon
+          const labelRadius = radius + 60; // 70px outside the polygon
           const angle = (i * 2 * Math.PI) / vertexCount - Math.PI / 2;
           const labelX = centerX + labelRadius * Math.cos(angle);
           const labelY = centerY + labelRadius * Math.sin(angle);
@@ -325,180 +327,186 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && content && (
-        <div className="min-h-screen bg-gray-100 p-8">
-          {/* Main Content */}
-          <div className="max-w-7xl mx-auto">
-            {/* Question Title */}
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-bold text-gray-800">
-                {content.question.prompt}
-              </h1>
-              <p className="text-lg text-gray-600 mt-2">
-                <strong>Message to encrypt:</strong>{' '}
-                {content.question.plaintext}
-              </p>
-            </div>
-
-            {/* Main Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Left Side - Cipher Wheel */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                {/* Rotation Direction Indicator */}
-                <div className="text-center mb-6">
-                  <div
-                    className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-lg ${
-                      isClockwise
-                        ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
-                        : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
-                    }`}
-                  >
-                    <div
-                      className={`w-4 h-4 rounded-full mr-3 ${
-                        isClockwise ? 'bg-blue-500' : 'bg-orange-500'
-                      }`}
-                    ></div>
-                    <span className="mr-2">Rotation Direction:</span>
-                    <span className="font-bold">
-                      {isClockwise ? 'Clockwise' : 'Counter-clockwise'}
-                    </span>
-                    {isClockwise ? (
-                      <svg
-                        className="w-5 h-5 ml-2 text-blue-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        className="w-5 h-5 ml-2 text-orange-600"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 2a8 8 0 100 16 8 8 0 000-16zm-3.707 8.707l3 3a1 1 0 001.414-1.414L11 10.586V7a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 00-1.414 1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                </div>
-
-                <PolygonVisualization
-                  vertices={vertices}
-                  currentVertex={currentVertex}
-                  targetVertex={targetVertex}
-                  highlightedPosition={highlightedPosition}
-                />
-                <div className="mt-6 flex justify-center space-x-6">
-                  <Badge
-                    variant="outline"
-                    className="bg-green-100 text-sm px-3 py-1"
-                  >
-                    <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                    Current Position
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="bg-red-100 text-sm px-3 py-1"
-                  >
-                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                    Target Position
-                  </Badge>
-                </div>
+        <>
+          <div className="min-h-screen bg-gray-100 p-8">
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto">
+              {/* Question Title */}
+              <div className="text-center mb-10">
+                <h1 className="text-3xl font-bold text-gray-800">
+                  {content.question.prompt}
+                </h1>
+                <p className="text-lg text-gray-600 mt-2">
+                  <strong>Message to encrypt:</strong>{' '}
+                  {content.question.plaintext}
+                </p>
               </div>
 
-              {/* Right Side - Encryption Controls */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-semibold mb-8">
-                  Encryption Controls
-                </h2>
-
-                <div className="space-y-6">
-                  {/* Rotation Input */}
-                  <div>
-                    <label className="block text-base font-medium mb-3">
-                      Rotation (0-{maxRotation}):
-                    </label>
-                    <Input
-                      type="text"
-                      value={rotationValue}
-                      onChange={(e) => handleRotationChange(e.target.value)}
-                      placeholder={`Enter 0-${maxRotation}`}
-                      className="w-full text-lg py-3 px-4"
-                    />
-                  </div>
-
-                  {/* Position Input */}
-                  <div>
-                    <label className="block text-base font-medium mb-3">
-                      Position (1-{vertices[targetVertex]?.letters.length || 0}
-                      ):
-                    </label>
-                    <Input
-                      type="text"
-                      value={positionValue}
-                      onChange={(e) => handlePositionChange(e.target.value)}
-                      placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
-                      className="w-full text-lg py-3 px-4"
-                      disabled={!vertices[targetVertex]}
-                    />
-                  </div>
-
-                  {/* Add to Final Answer Button */}
-                  <Button
-                    onClick={handleAddToAnswer}
-                    disabled={!isValidInputs()}
-                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
-                  >
-                    Add to Final Answer
-                  </Button>
-
-                  {/* Final Answer Section */}
-                  <div className="mt-8">
-                    <label className="block text-base font-medium mb-3">
-                      Final Answer:
-                    </label>
-                    <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
-                      {finalAnswerDisplay || ''}
-                    </div>
-
-                    {/* Undo and Clear Buttons */}
-                    <div className="flex gap-4 mt-4">
-                      <Button
-                        onClick={handleUndo}
-                        className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
-                        disabled={answerArr.length === 0}
-                      >
-                        Undo
-                      </Button>
-                      <Button
-                        onClick={handleClearAnswer}
-                        className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
-                      >
-                        Clear
-                      </Button>
+              {/* Main Grid Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* Left Side - Cipher Wheel */}
+                <div className="bg-white rounded-lg p-8 shadow-sm">
+                  {/* Rotation Direction Indicator */}
+                  <div className="text-center mb-6">
+                    <div
+                      className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-lg ${
+                        isClockwise
+                          ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                          : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
+                      }`}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full mr-3 ${
+                          isClockwise ? 'bg-blue-500' : 'bg-orange-500'
+                        }`}
+                      ></div>
+                      <span className="mr-2">Rotation Direction:</span>
+                      <span className="font-bold">
+                        {isClockwise ? 'Clockwise' : 'Counter-clockwise'}
+                      </span>
+                      {isClockwise ? (
+                        <svg
+                          className="w-5 h-5 ml-2 text-blue-600"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-5 h-5 ml-2 text-orange-600"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 2a8 8 0 100 16 8 8 0 000-16zm-3.707 8.707l3 3a1 1 0 001.414-1.414L11 10.586V7a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 00-1.414 1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
                     </div>
                   </div>
 
-                  {/* Submit Section */}
-                  <GeneratedSubmitSection
-                    question={question}
-                    answerArr={answerArr}
-                    type={type}
-                    questionContent={questionContent}
-                    onRegenerate={regenerate}
+                  <PolygonVisualization
+                    vertices={vertices}
+                    currentVertex={currentVertex}
+                    targetVertex={targetVertex}
+                    highlightedPosition={highlightedPosition}
                   />
+                  <div className="mt-6 flex justify-center space-x-6">
+                    <Badge
+                      variant="outline"
+                      className="bg-green-100 text-sm px-3 py-1"
+                    >
+                      <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                      Current Position
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="bg-red-100 text-sm px-3 py-1"
+                    >
+                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                      Target Position
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Right Side - Encryption Controls */}
+                <div className="bg-white rounded-lg p-8 shadow-sm">
+                  <h2 className="text-2xl font-semibold mb-8">
+                    Encryption Controls
+                  </h2>
+
+                  <div className="space-y-6">
+                    {/* Rotation Input */}
+                    <div>
+                      <label className="block text-base font-medium mb-3">
+                        Rotation (0-{maxRotation}):
+                      </label>
+                      <Input
+                        type="text"
+                        value={rotationValue}
+                        onChange={(e) => handleRotationChange(e.target.value)}
+                        placeholder={`Enter 0-${maxRotation}`}
+                        className="w-full text-lg py-3 px-4"
+                      />
+                    </div>
+
+                    {/* Position Input */}
+                    <div>
+                      <label className="block text-base font-medium mb-3">
+                        Position (1-
+                        {vertices[targetVertex]?.letters.length || 0}
+                        ):
+                      </label>
+                      <Input
+                        type="text"
+                        value={positionValue}
+                        onChange={(e) => handlePositionChange(e.target.value)}
+                        placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
+                        className="w-full text-lg py-3 px-4"
+                        disabled={!vertices[targetVertex]}
+                      />
+                    </div>
+
+                    {/* Add to Final Answer Button */}
+                    <Button
+                      onClick={handleAddToAnswer}
+                      disabled={!isValidInputs()}
+                      className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
+                    >
+                      Add to Final Answer
+                    </Button>
+
+                    {/* Final Answer Section */}
+                    <div className="mt-8">
+                      <label className="block text-base font-medium mb-3">
+                        Final Answer:
+                      </label>
+                      <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
+                        {finalAnswerDisplay || ''}
+                      </div>
+
+                      {/* Undo and Clear Buttons */}
+                      <div className="flex gap-4 mt-4">
+                        <Button
+                          onClick={handleUndo}
+                          className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
+                          disabled={answerArr.length === 0}
+                        >
+                          Undo
+                        </Button>
+                        <Button
+                          onClick={handleClearAnswer}
+                          className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Submit Section */}
+                    <GeneratedSubmitSection
+                      question={question}
+                      answerArr={answerArr}
+                      type={type}
+                      questionContent={questionContent}
+                      onRegenerate={regenerate}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Help Component */}
+          <DynamicHelp questionType={QuestionTypeEnum.CIPHER_N} />
+        </>
       )}
     </GeneratedSolverWrapper>
   );

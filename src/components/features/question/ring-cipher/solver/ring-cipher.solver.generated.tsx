@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
+import { QuestionTypeEnum } from '@/types/question-type.type';
 
 interface RingVisualizationProps {
   rings: Array<{ id: number; letters: string[]; currentPosition: number }>;
@@ -295,137 +297,143 @@ export default function GeneratedRingCipherSolver({
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && content && (
-        <div className="min-h-screen bg-gray-100 p-8">
-          {/* Main Content */}
-          <div className="max-w-7xl mx-auto">
-            {/* Question Title */}
-            <div className="text-center mb-10">
-              <h1 className="text-3xl font-bold text-gray-800">
-                {content.question.prompt}
-              </h1>
-              <p className="text-lg text-gray-600 mt-2">
-                <strong>Message to encrypt:</strong>{' '}
-                {content.question.plaintext}
-              </p>
-            </div>
-
-            {/* Main Grid Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Left Side - Ring Cipher */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <RingVisualization
-                  rings={rings}
-                  ringPositions={
-                    previewPositions.length ? previewPositions : ringPositions
-                  }
-                  highlightedRing={highlightedRing}
-                  highlightedLetter={highlightedLetter}
-                />
-                <div className="mt-6 flex justify-center space-x-6">
-                  <Badge
-                    variant="outline"
-                    className="bg-yellow-100 text-sm px-3 py-1"
-                  >
-                    <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                    Marker Position
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="bg-orange-100 text-sm px-3 py-1"
-                  >
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                    Target Letter
-                  </Badge>
-                </div>
+        <>
+          <div className="min-h-screen bg-gray-100 p-8">
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto">
+              {/* Question Title */}
+              <div className="text-center mb-10">
+                <h1 className="text-3xl font-bold text-gray-800">
+                  {content.question.prompt}
+                </h1>
+                <p className="text-lg text-gray-600 mt-2">
+                  <strong>Message to encrypt:</strong>{' '}
+                  {content.question.plaintext}
+                </p>
               </div>
 
-              {/* Right Side - Encryption Controls */}
-              <div className="bg-white rounded-lg p-8 shadow-sm">
-                <h2 className="text-2xl font-semibold mb-8">
-                  Encryption Controls
-                </h2>
-
-                <div className="space-y-6">
-                  {/* Ring Input */}
-                  <div>
-                    <label className="block text-base font-medium mb-3">
-                      Ring Number (1-{rings.length}):
-                    </label>
-                    <Input
-                      type="text"
-                      value={ringValue}
-                      onChange={(e) => handleRingChange(e.target.value)}
-                      placeholder={`Enter 1-${rings.length}`}
-                      className="w-full text-lg py-3 px-4"
-                    />
-                  </div>
-
-                  {/* Steps Input */}
-                  <div>
-                    <label className="block text-base font-medium mb-3">
-                      Rotation Steps (0-
-                      {rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}
-                      ):
-                    </label>
-                    <Input
-                      type="text"
-                      value={stepsValue}
-                      onChange={(e) => handleStepsChange(e.target.value)}
-                      placeholder={`Enter 0-${rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}`}
-                      className="w-full text-lg py-3 px-4"
-                      disabled={!rings[parseInt(ringValue) - 1]}
-                    />
-                  </div>
-
-                  {/* Add to Final Answer Button */}
-                  <Button
-                    onClick={handleAddToAnswer}
-                    disabled={!isValidInputs()}
-                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
-                  >
-                    Add to Final Answer
-                  </Button>
-
-                  {/* Final Answer Section */}
-                  <div className="mt-8">
-                    <label className="block text-base font-medium mb-3">
-                      Final Answer:
-                    </label>
-                    <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
-                      {finalAnswerDisplay || ''}
-                    </div>
-
-                    {/* Undo and Clear Buttons */}
-                    <div className="flex gap-4 mt-4">
-                      <Button
-                        onClick={handleUndo}
-                        className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
-                        disabled={answerArr.length === 0}
-                      >
-                        Undo
-                      </Button>
-                      <Button
-                        onClick={handleClearAnswer}
-                        className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
-                      >
-                        Clear
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Submit Section */}
-                  <GeneratedSubmitSection
-                    question={question}
-                    answerArr={answerArr}
-                    type={type}
-                    questionContent={questionContent}
-                    onRegenerate={regenerate}
+              {/* Main Grid Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* Left Side - Ring Cipher */}
+                <div className="bg-white rounded-lg p-8 shadow-sm">
+                  <RingVisualization
+                    rings={rings}
+                    ringPositions={
+                      previewPositions.length ? previewPositions : ringPositions
+                    }
+                    highlightedRing={highlightedRing}
+                    highlightedLetter={highlightedLetter}
                   />
+                  <div className="mt-6 flex justify-center space-x-6">
+                    <Badge
+                      variant="outline"
+                      className="bg-yellow-100 text-sm px-3 py-1"
+                    >
+                      <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                      Marker Position
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className="bg-orange-100 text-sm px-3 py-1"
+                    >
+                      <div className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                      Target Letter
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Right Side - Encryption Controls */}
+                <div className="bg-white rounded-lg p-8 shadow-sm">
+                  <h2 className="text-2xl font-semibold mb-8">
+                    Encryption Controls
+                  </h2>
+
+                  <div className="space-y-6">
+                    {/* Ring Input */}
+                    <div>
+                      <label className="block text-base font-medium mb-3">
+                        Ring Number (1-{rings.length}):
+                      </label>
+                      <Input
+                        type="text"
+                        value={ringValue}
+                        onChange={(e) => handleRingChange(e.target.value)}
+                        placeholder={`Enter 1-${rings.length}`}
+                        className="w-full text-lg py-3 px-4"
+                      />
+                    </div>
+
+                    {/* Steps Input */}
+                    <div>
+                      <label className="block text-base font-medium mb-3">
+                        Rotation Steps (0-
+                        {rings[parseInt(ringValue) - 1]?.letters.length - 1 ||
+                          0}
+                        ):
+                      </label>
+                      <Input
+                        type="text"
+                        value={stepsValue}
+                        onChange={(e) => handleStepsChange(e.target.value)}
+                        placeholder={`Enter 0-${rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}`}
+                        className="w-full text-lg py-3 px-4"
+                        disabled={!rings[parseInt(ringValue) - 1]}
+                      />
+                    </div>
+
+                    {/* Add to Final Answer Button */}
+                    <Button
+                      onClick={handleAddToAnswer}
+                      disabled={!isValidInputs()}
+                      className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
+                    >
+                      Add to Final Answer
+                    </Button>
+
+                    {/* Final Answer Section */}
+                    <div className="mt-8">
+                      <label className="block text-base font-medium mb-3">
+                        Final Answer:
+                      </label>
+                      <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
+                        {finalAnswerDisplay || ''}
+                      </div>
+
+                      {/* Undo and Clear Buttons */}
+                      <div className="flex gap-4 mt-4">
+                        <Button
+                          onClick={handleUndo}
+                          className="flex-1 py-3 text-base bg-yellow-400 hover:bg-yellow-500 text-black"
+                          disabled={answerArr.length === 0}
+                        >
+                          Undo
+                        </Button>
+                        <Button
+                          onClick={handleClearAnswer}
+                          className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Submit Section */}
+                    <GeneratedSubmitSection
+                      question={question}
+                      answerArr={answerArr}
+                      type={type}
+                      questionContent={questionContent}
+                      onRegenerate={regenerate}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Help Component */}
+          <DynamicHelp questionType={QuestionTypeEnum.RING_CIPHER} />
+        </>
       )}
     </GeneratedSolverWrapper>
   );

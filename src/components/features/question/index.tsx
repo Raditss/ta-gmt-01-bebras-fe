@@ -16,9 +16,12 @@ import GeneratedCfgSolver from '@/components/features/question/cfg/cfg.solver.ge
 import GeneratedCipherNSolver from '@/components/features/question/cipher-n/solver/cipher-n.solver.generated';
 import GeneratedRingCipherSolver from '@/components/features/question/ring-cipher/solver/ring-cipher.solver.generated';
 import GeneratedAnomalyMonsterSolver from '@/components/features/question/anomaly-monster/anomaly-monster.solver.generated';
-import DecisionTreeTraceCreator from '@/components/features/question/decision-tree-trace/decision-tree-trace.creator';
-import DecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver';
-import GeneratedDecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver.generated';
+// import DecisionTreeTraceCreator from '@/components/features/question/decision-tree-trace/decision-tree-trace.creator';
+// import DecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver';
+// import GeneratedNotImplementedSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver.generated';
+import NotImplementedCreator from '@/components/features/question/fallbacks/not-implemented.creator';
+import NotImplementedSolver from '@/components/features/question/fallbacks/not-implemented.solver';
+import GeneratedNotImplementedSolver from '@/components/features/question/fallbacks/not-implemented.solver.generated';
 
 export const createQuestionComponent: Record<
   QuestionTypeEnum,
@@ -28,7 +31,7 @@ export const createQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: CipherNCreator,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherCreator,
   [QuestionTypeEnum.ANOMALY_MONSTER]: AnomalyMonsterCreator,
-  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceCreator
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: NotImplementedCreator
 };
 
 export const solveQuestionComponent: Record<
@@ -39,7 +42,7 @@ export const solveQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: CipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherSolver,
   [QuestionTypeEnum.ANOMALY_MONSTER]: DecisionTreeAnomalySolver,
-  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceSolver
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: NotImplementedSolver
 };
 
 export const solveGeneratedQuestionComponent: Record<
@@ -50,5 +53,5 @@ export const solveGeneratedQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: GeneratedCipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: GeneratedRingCipherSolver,
   [QuestionTypeEnum.ANOMALY_MONSTER]: GeneratedAnomalyMonsterSolver,
-  [QuestionTypeEnum.DECISION_TREE_TRACE]: GeneratedDecisionTreeTraceSolver
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: GeneratedNotImplementedSolver
 };
