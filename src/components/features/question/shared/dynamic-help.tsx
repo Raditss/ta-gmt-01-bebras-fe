@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { HelpOverlay } from './help-overlay';
 import { QuestionTypeEnum } from '@/types/question-type.type';
 
@@ -30,6 +30,11 @@ export function DynamicHelp({ questionType }: DynamicHelpProps) {
           case QuestionTypeEnum.RING_CIPHER: {
             const mod = await import('./help-content/ring-cipher-help');
             setHelpContent(() => mod.RingCipherHelp);
+            break;
+          }
+          case QuestionTypeEnum.ANOMALY_MONSTER: {
+            const mod = await import('./help-content/anomaly-monster-help');
+            setHelpContent(() => mod.AnomalyMonsterHelp);
             break;
           }
           default: {

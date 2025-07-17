@@ -10,7 +10,9 @@ import Monster from '@/components/features/question/anomaly-monster/monster';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import { Button } from '@/components/ui/button';
 import { SubmitSection } from '@/components/features/question/shared/submit-section';
-import { Check, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Worm } from 'lucide-react';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 
 export default function DecisionTreeAnomalySolver({
   questionId
@@ -43,6 +45,7 @@ export default function DecisionTreeAnomalySolver({
 
   useEffect(() => {
     if (!question) return;
+
     question.setAnomaly(anomalies);
     question.setNormal(normals);
     question.setCurrentIdx(currentIdx);
@@ -61,7 +64,36 @@ export default function DecisionTreeAnomalySolver({
 
       router.push(`/problems/${questionId}`);
     }, [question, getCurrentDuration, questionId, router]);
-  */
+    */
+
+  const handleMarkAsNormal = useCallback(() => {
+    if (!question) return;
+    if (normals.includes(question.content.choices[currentIdx].id)) return;
+    setNormals((prev) => [...prev, question.content.choices[currentIdx].id]);
+    setAnomalies((prev) =>
+      prev.filter((idx) => idx !== question.content.choices[currentIdx].id)
+    );
+  }, [currentIdx, normals, question]);
+
+  const handleMarkAsAnomaly = useCallback(() => {
+    if (!question) return;
+    if (anomalies.includes(question.content.choices[currentIdx].id)) return;
+    setAnomalies((prev) => [...prev, question.content.choices[currentIdx].id]);
+    setNormals((prev) =>
+      prev.filter((idx) => idx !== question.content.choices[currentIdx].id)
+    );
+  }, [question, anomalies, currentIdx]);
+
+  const handlePrevious = useCallback(() => {
+    setCurrentIdx((prev) => Math.max(0, prev - 1));
+  }, []);
+
+  const handleNext = useCallback(() => {
+    if (!question) return;
+    setCurrentIdx((prev) =>
+      Math.min(question.content.choices.length - 1, prev + 1)
+    );
+  }, [question]);
 
   const handleReset = useCallback(() => {
     setAnomalies([]);
@@ -71,6 +103,18 @@ export default function DecisionTreeAnomalySolver({
       question.resetToInitialState();
     }
   }, [question]);
+
+  if (!question) {
+    return (
+      <SolverWrapper loading={loading} error={error}>
+        <></>
+      </SolverWrapper>
+    );
+  }
+
+  const totalMonsters = question.content.choices.length;
+  const classifiedCount = normals.length + anomalies.length;
+  const currentMonster = question.content.choices[currentIdx];
 
   return (
     <SolverWrapper loading={loading} error={error}>
@@ -87,170 +131,230 @@ export default function DecisionTreeAnomalySolver({
 
             <div className="text-center mt-6 mb-8">
               <h1 className="text-3xl font-bold text-gray-800">
-                Choose a Monster Not Banned
+                Monster yang Aneh
               </h1>
+              <h3 className="mt-3 text-xl font-semibold text-gray-500">
+                Kamu ditugaskan membantu para saintis! Teliti setiap monster dan
+                tentukan: normal atau terinfeksi?
+              </h3>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left side - Tree and Wardrobe */}
+              {/* Left side - Tree and Progress */}
               <div className="flex flex-col gap-6">
                 {/* Tree */}
                 <div className="bg-white rounded-xl shadow-lg p-4">
-                  Bantu scientist untuk mengkarantina monster yang terdampak
-                  virus! Pohon keputusan ini membantumu untuk menentukan apakah
-                  monster tersebut terdampak virus atau tidak
                   <div className="flex justify-center overflow-x-auto min-h-[400px]">
                     <DecisionTreeAnomalyTree
                       rules={question.getMonsterTree()}
                       selections={{}}
                     />
-                    {/*  TODO: perlu apa ntah selections ini*/}
                   </div>
                 </div>
 
-                {/* Answer and Actions */}
+                {/* Progress and Actions */}
                 <div className="bg-white rounded-xl shadow-lg p-6">
                   <div className="flex flex-col gap-4">
-                    <div className="rounded-xl">
-                      <div className="flex flex-col gap-4">
-                        Kamu telah memeriksa {normals.length + anomalies.length}{' '}
-                        dari {question.content.choices.length} monster
-                        {/* Action Buttons */}
-                        <Button
-                          variant="outline"
-                          onClick={handleReset}
-                          className="w-full"
-                        >
-                          Reset
-                        </Button>
-                        <SubmitSection
-                          question={question}
-                          getCurrentDuration={getCurrentDuration}
-                          answerArr={Object.entries(anomalies)}
-                          isDisabled={
-                            normals.length + anomalies.length !==
-                            question.content.tree?.length
-                          }
-                          onSubmissionSuccess={markAsSubmitted}
+                    <div className="text-center">
+                      <h3 className="text-lg font-semibold mb-2">Progres</h3>
+                      <p className="text-gray-600">
+                        Kamu telah memeriksa {classifiedCount} dari{' '}
+                        {totalMonsters} monster
+                      </p>
+                      <div className="w-full bg-gray-200 rounded-full h-3 mt-3">
+                        <div
+                          className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${(classifiedCount / totalMonsters) * 100}%`
+                          }}
                         />
                       </div>
+                      <div className="flex justify-center gap-6 mt-4">
+                        <div className="text-center">
+                          <div className="text-green-600 font-bold text-xl">
+                            {normals.length}
+                          </div>
+                          <div className="text-sm text-gray-500">Normal</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-red-600 font-bold text-xl">
+                            {anomalies.length}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            Terinfeksi
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={handleReset}
+                        className="w-full"
+                      >
+                        🔄 Klasifikasi Ulang Semua Monster
+                      </Button>
+                      <SubmitSection
+                        question={question}
+                        getCurrentDuration={getCurrentDuration}
+                        answerArr={anomalies.concat(normals)}
+                        isDisabled={classifiedCount !== totalMonsters}
+                        onSubmissionSuccess={markAsSubmitted}
+                      />
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right side - Monster Preview and Wardrobe */}
+              {/* Right side - Monster Preview and Classification */}
               <div className="flex flex-col gap-6">
                 {/* Monster Preview */}
-                <div className="bg-white rounded-xl shadow-lg p-4">
-                  <p className="text-center">
-                    Monster {currentIdx + 1} dari{' '}
-                    {question.content.choices.length}
-                  </p>
-                  <p className="text-center">
-                    {Object.values(
-                      question.content.choices[currentIdx].conditions.map(
-                        (value) => {
-                          return `${value.attribute}: ${value.value} `;
-                        }
-                      )
-                    )}
-                  </p>
-                  {question.content.choices && (
-                    <Monster
-                      selections={question.content.choices[
-                        currentIdx
-                      ].conditions.reduce(
-                        (acc, condition) => {
-                          acc[condition.attribute] = condition.value;
-                          return acc;
-                        },
-                        {} as Record<string, string>
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold">
+                      Monster {currentIdx + 1} dari {totalMonsters}
+                    </h3>
+                    <div className="mt-2">
+                      {normals.includes(
+                        question.content.choices[currentIdx].id
+                      ) && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                          ✓ Diklasifikasikan sebagai Normal
+                        </span>
                       )}
-                    />
+                      {anomalies.includes(
+                        question.content.choices[currentIdx].id
+                      ) && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                          ⚠ Diklasifikasikan sebagai Terinfeksi
+                        </span>
+                      )}
+                      {!normals.includes(
+                        question.content.choices[currentIdx].id
+                      ) &&
+                        !anomalies.includes(
+                          question.content.choices[currentIdx].id
+                        ) && (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
+                            ? Belum diklasifikasikan
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                  {currentMonster && (
+                    <>
+                      <div className="text-center mb-4">
+                        <p className="text-sm text-gray-600">
+                          Karakteristik monster:
+                        </p>
+                        <div className="flex flex-wrap justify-center gap-2 mt-2">
+                          {currentMonster.conditions.map((condition, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800"
+                            >
+                              {condition.attribute}: {condition.value}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex justify-center mb-6">
+                        <Monster
+                          selections={currentMonster.conditions.reduce(
+                            (acc, condition) => {
+                              acc[condition.attribute] = condition.value;
+                              return acc;
+                            },
+                            {} as Record<string, string>
+                          )}
+                        />
+                      </div>
+                    </>
                   )}
                 </div>
-                <div className="flex justify-center items-center">
-                  Apakah monster ini terkena virus?
-                </div>
-                <div className="flex justify-center items-center gap-2">
-                  <Button
-                    onClick={() => setCurrentIdx((prevState) => prevState - 1)}
-                    disabled={currentIdx === 0}
-                  >
-                    {'<'}
-                  </Button>
-                  {/* TODO: tambahin styling kalo sudah terpilih, kalau belum biarin */}
-                  <Button
-                    onClick={() => {
-                      if (
-                        anomalies.includes(
-                          question?.content.choices[currentIdx].id
-                        )
-                      ) {
-                        setAnomalies((prevState) =>
-                          prevState.filter(
-                            (idx) =>
-                              idx !== question?.content.choices[currentIdx].id
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                  <div className="text-center mb-4">
+                    <h3 className="text-lg font-semibold mb-2">
+                      Apakah monster ini terinfeksi?
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Gunakan pohon keputusan untuk membantu menentukan
+                      klasifikasi
+                    </p>
+                  </div>
+                  <div className="flex justify-center items-center gap-4">
+                    <Button
+                      onClick={handlePrevious}
+                      disabled={currentIdx === 0}
+                      variant="outline"
+                      size="lg"
+                    >
+                      <ArrowLeft />
+                    </Button>
+                    <div className="flex gap-4">
+                      <Button
+                        onClick={handleMarkAsNormal}
+                        className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
+                          normals.includes(
+                            question.content.choices[currentIdx].id
                           )
-                        );
-                      }
-                      if (
-                        !normals.includes(
-                          question?.content.choices[currentIdx].id
-                        )
-                      ) {
-                        setNormals((prevState) => [
-                          ...prevState,
-                          question?.content.choices[currentIdx].id
-                        ]);
-                      }
-                    }}
-                  >
-                    <Check />
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      if (
-                        normals.includes(
-                          question?.content.choices[currentIdx].id
-                        )
-                      ) {
-                        setNormals((prevState) =>
-                          prevState.filter(
-                            (idx) =>
-                              idx !== question?.content.choices[currentIdx].id
+                            ? 'bg-green-500 text-white shadow-xl hover:bg-green-600'
+                            : 'border-2 border-green-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105'
+                        }`}
+                        size="lg"
+                      >
+                        <Check
+                          className={`mr-1 ${
+                            normals.includes(
+                              question.content.choices[currentIdx].id
+                            )
+                              ? 'stroke-white'
+                              : 'stroke-green-600'
+                          }`}
+                          size={20}
+                        />
+                        Normal
+                      </Button>
+                      <Button
+                        onClick={handleMarkAsAnomaly}
+                        className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
+                          anomalies.includes(
+                            question.content.choices[currentIdx].id
                           )
-                        );
-                      }
-                      if (
-                        !anomalies.includes(
-                          question?.content.choices[currentIdx].id
-                        )
-                      ) {
-                        setAnomalies((prevState) => [
-                          ...prevState,
-                          question?.content.choices[currentIdx].id
-                        ]);
-                      }
-                    }}
-                  >
-                    <X />
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentIdx((prevState) => prevState + 1)}
-                    disabled={
-                      currentIdx === question.content.choices.length - 1
-                    }
-                  >
-                    {'>'}
-                  </Button>
+                            ? 'bg-red-500 text-white shadow-xl hover:bg-red-600'
+                            : 'border-2 border-red-400 text-red-600 bg-white hover:bg-red-50 hover:scale-105'
+                        }`}
+                        size="lg"
+                      >
+                        <Worm
+                          className={`mr-1 ${
+                            anomalies.includes(
+                              question.content.choices[currentIdx].id
+                            )
+                              ? 'stroke-white'
+                              : 'stroke-red-600'
+                          }`}
+                          size={20}
+                        />
+                        Terinfeksi
+                      </Button>
+                    </div>
+                    <Button
+                      onClick={handleNext}
+                      disabled={currentIdx === totalMonsters - 1}
+                      variant="outline"
+                      size="lg"
+                    >
+                      <ArrowRight />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       )}
+      <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
     </SolverWrapper>
   );
 }
