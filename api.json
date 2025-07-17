@@ -1,0 +1,1058 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "operationId": "ProfileController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Profile"
+        ]
+      }
+    },
+    "/api/questions": {
+      "post": {
+        "operationId": "QuestionsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create Question Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Question created successfully"
+          },
+          "400": {
+            "description": "Bad request - missing required fields"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Questions"
+        ]
+      },
+      "get": {
+        "operationId": "QuestionsController_findMany",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Questions"
+        ]
+      }
+    },
+    "/api/questions/{id}": {
+      "get": {
+        "operationId": "QuestionsController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Questions"
+        ]
+      },
+      "patch": {
+        "operationId": "QuestionsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update Question Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Questions"
+        ]
+      },
+      "delete": {
+        "operationId": "QuestionsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Questions"
+        ]
+      }
+    },
+    "/api/questions/generate": {
+      "post": {
+        "operationId": "QuestionsController_generate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Generate Question Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Questions"
+        ]
+      }
+    },
+    "/api/question-types": {
+      "post": {
+        "operationId": "QuestionTypesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create Question Type Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionTypes"
+        ]
+      },
+      "get": {
+        "operationId": "QuestionTypesController_findMany",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionTypes"
+        ]
+      }
+    },
+    "/api/question-types/{id}": {
+      "get": {
+        "operationId": "QuestionTypesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionTypes"
+        ]
+      },
+      "patch": {
+        "operationId": "QuestionTypesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update Question Type Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionTypes"
+        ]
+      },
+      "delete": {
+        "operationId": "QuestionTypesController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionTypes"
+        ]
+      }
+    },
+    "/api/question-attempts": {
+      "post": {
+        "operationId": "QuestionAttemptsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Create Question Attempt Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      },
+      "get": {
+        "operationId": "QuestionAttemptsController_findMany",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/question-attempts/{id}": {
+      "get": {
+        "operationId": "QuestionAttemptsController_findById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      },
+      "patch": {
+        "operationId": "QuestionAttemptsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Update Question Attempt Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/question-attempts/save-draft": {
+      "post": {
+        "operationId": "QuestionAttemptsController_saveDraft",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Save Draft Attempt Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/question-attempts/submit": {
+      "post": {
+        "operationId": "QuestionAttemptsController_submit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Submit Attempt Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/question-attempts/latest/{questionId}": {
+      "get": {
+        "operationId": "QuestionAttemptsController_getLatest",
+        "parameters": [
+          {
+            "name": "questionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/question-attempts/history/{questionId}": {
+      "get": {
+        "operationId": "QuestionAttemptsController_getHistory",
+        "parameters": [
+          {
+            "name": "questionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/question-attempts/check-answer": {
+      "post": {
+        "operationId": "QuestionAttemptsController_checkGeneratedAnswer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Check Answer Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "QuestionAttempts"
+        ]
+      }
+    },
+    "/api/scores/my-score": {
+      "get": {
+        "operationId": "ScoresController_getMyScore",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Scores"
+        ]
+      }
+    },
+    "/api/scores/user/{userId}": {
+      "get": {
+        "operationId": "ScoresController_getUserScore",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Scores"
+        ]
+      }
+    },
+    "/api/scores/leaderboard": {
+      "get": {
+        "operationId": "ScoresController_getLeaderboard",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "Scores"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TA GMT 01 API",
+    "description": "TA GMT 01 API description",
+    "version": "1.0",
+    "contact": {
+
+    }
+  },
+  "tags": [
+    {
+      "name": "ta-gmt-01",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username",
+            "example": "johndoe"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password",
+            "example": "Password1@"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username",
+            "example": "johndoe"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password",
+            "example": "Password1@"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "example": "STUDENT",
+            "enum": [
+              "ADMIN",
+              "STUDENT",
+              "TEACHER"
+            ]
+          }
+        },
+        "required": [
+          "username",
+          "password",
+          "name",
+          "role"
+        ]
+      },
+      "Create Question Request": {
+        "type": "object",
+        "properties": {
+          "questionTypeId": {
+            "type": "number",
+            "title": "Question Type ID",
+            "example": 1
+          },
+          "content": {
+            "type": "string",
+            "title": "Question Content (JSON String)",
+            "example": "{\"rules\": [], \"startState\": \"\", \"endState\": \"\"}",
+            "description": "Encapsulated content from ICreateQuestion implementation as JSON string"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "title": "Is Published",
+            "example": false
+          },
+          "title": {
+            "type": "string",
+            "title": "Question Title",
+            "example": "Context-Free Grammar Exercise"
+          },
+          "points": {
+            "type": "number",
+            "title": "Points",
+            "example": 100
+          },
+          "estimatedTime": {
+            "type": "number",
+            "title": "Estimated Time (minutes)",
+            "example": 30
+          }
+        },
+        "required": [
+          "questionTypeId",
+          "content",
+          "isPublished",
+          "title",
+          "points",
+          "estimatedTime"
+        ]
+      },
+      "Update Question Request": {
+        "type": "object",
+        "properties": {
+          "questionTypeId": {
+            "type": "number",
+            "title": "Question Type ID",
+            "example": 1
+          },
+          "content": {
+            "type": "string",
+            "title": "Question Content (JSON String)",
+            "example": "{\"rules\": [], \"startState\": \"\", \"endState\": \"\"}",
+            "description": "Encapsulated content from ICreateQuestion implementation as JSON string"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "title": "Is Published",
+            "example": false
+          },
+          "title": {
+            "type": "string",
+            "title": "Question Title",
+            "example": "Context-Free Grammar Exercise"
+          },
+          "points": {
+            "type": "number",
+            "title": "Points",
+            "example": 100
+          },
+          "estimatedTime": {
+            "type": "number",
+            "title": "Estimated Time (minutes)",
+            "example": 30
+          }
+        }
+      },
+      "Generate Question Request": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Question Type",
+            "example": "cfg"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "Create Question Type Request": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "example": "Decision Tree"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "example": "Decision Tree"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ]
+      },
+      "Update Question Type Request": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "example": "Decision Tree"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "example": "Decision Tree"
+          }
+        }
+      },
+      "Create Question Attempt Request": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "number",
+            "title": "Question ID",
+            "example": 1
+          }
+        },
+        "required": [
+          "questionId"
+        ]
+      },
+      "Update Question Attempt Request": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "number",
+            "title": "Question ID",
+            "example": 1
+          },
+          "answer": {
+            "type": "object",
+            "title": "Answer",
+            "example": {
+              "answer": "answer"
+            }
+          }
+        },
+        "required": [
+          "answer"
+        ]
+      },
+      "Save Draft Attempt Request": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "number",
+            "title": "Question ID",
+            "example": 1
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration in seconds",
+            "example": 300
+          },
+          "answer": {
+            "type": "object",
+            "title": "Answer/Solution JSON",
+            "example": {
+              "steps": [],
+              "currentState": []
+            }
+          }
+        },
+        "required": [
+          "questionId",
+          "duration"
+        ]
+      },
+      "Submit Attempt Request": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "number",
+            "title": "Question ID",
+            "example": 1
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration in seconds",
+            "example": 300
+          },
+          "answer": {
+            "type": "object",
+            "title": "Answer/Solution JSON",
+            "example": {
+              "steps": [],
+              "currentState": []
+            }
+          }
+        },
+        "required": [
+          "questionId",
+          "duration",
+          "answer"
+        ]
+      },
+      "Check Answer Request": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "title": "Question ID",
+            "example": "cfg-abc123"
+          },
+          "type": {
+            "type": "string",
+            "title": "Question Type",
+            "example": "cfg"
+          },
+          "duration": {
+            "type": "number",
+            "title": "Duration in seconds",
+            "example": 300
+          },
+          "solution": {
+            "type": "string",
+            "title": "Solution JSON",
+            "example": "{\"steps\": [], \"currentState\": []}"
+          }
+        },
+        "required": [
+          "questionId",
+          "type",
+          "duration",
+          "solution"
+        ]
+      }
+    }
+  }
+}

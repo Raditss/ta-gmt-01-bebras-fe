@@ -2,14 +2,14 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 
 export interface FilterOption {
-  id: string
+  id: number
   label: string
 }
 
 interface FilterGroupProps {
   options: FilterOption[]
   selectedOptions: Record<string, boolean>
-  onChange: (optionId: string) => void
+  onChange: (optionId: number) => void
   title?: string
 }
 
@@ -20,11 +20,11 @@ export function FilterGroup({ options, selectedOptions, onChange, title }: Filte
       {options.map((option) => (
         <div key={option.id} className="flex items-center space-x-2">
           <Checkbox
-            id={option.id}
+            id={option.id.toString()}
             checked={selectedOptions[option.id]}
             onCheckedChange={() => onChange(option.id)}
           />
-          <Label htmlFor={option.id} className="text-sm">
+          <Label htmlFor={option.id.toString()} className="text-sm">
             {option.label}
           </Label>
         </div>

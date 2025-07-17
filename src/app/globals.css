@@ -4,34 +4,531 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light mode colors */
+    --background: 210 100% 98%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 47 95% 67%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 262 83% 58%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 47 95% 67%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 262 83% 58%;
     --radius: 0.5rem;
+
+    /* Custom brand colors */
+    --brand-purple: 262 83% 58%;
+    --brand-purple-light: 262 83% 68%;
+    --brand-purple-dark: 262 83% 48%;
+    --brand-blue: 217 91% 60%;
+    --brand-blue-light: 217 91% 70%;
+    --brand-blue-dark: 217 91% 50%;
+    --brand-green: 142 76% 36%;
+    --brand-green-light: 142 76% 46%;
+    --brand-green-dark: 142 76% 26%;
+    --brand-yellow: 48 96% 53%;
+    --brand-yellow-light: 48 96% 63%;
+    --brand-yellow-dark: 48 96% 43%;
+    --brand-orange: 25 95% 53%;
+    --brand-orange-light: 25 95% 63%;
+    --brand-orange-dark: 25 95% 43%;
+    --brand-red: 0 84% 60%;
+    --brand-red-light: 0 84% 70%;
+    --brand-red-dark: 0 84% 50%;
+
+    /* Difficulty colors */
+    --difficulty-easy: 142 76% 36%;
+    --difficulty-easy-bg: 142 76% 96%;
+    --difficulty-medium: 48 96% 53%;
+    --difficulty-medium-bg: 48 96% 96%;
+    --difficulty-hard: 0 84% 60%;
+    --difficulty-hard-bg: 0 84% 96%;
+
+    /* Status colors */
+    --status-active: 142 76% 36%;
+    --status-active-bg: 142 76% 96%;
+    --status-pending: 48 96% 53%;
+    --status-pending-bg: 48 96% 96%;
+    --status-rejected: 0 84% 60%;
+    --status-rejected-bg: 0 84% 96%;
+    --status-banned: 0 84% 60%;
+    --status-banned-bg: 0 84% 96%;
+    --status-hold: 48 96% 53%;
+    --status-hold-bg: 48 96% 96%;
+
+    /* Gradient backgrounds */
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--brand-purple)) 0%,
+      hsl(var(--brand-blue)) 100%
+    );
+    --gradient-secondary: linear-gradient(
+      135deg,
+      hsl(var(--brand-yellow)) 0%,
+      hsl(var(--brand-orange)) 100%
+    );
+    --gradient-success: linear-gradient(
+      135deg,
+      hsl(var(--brand-green)) 0%,
+      hsl(var(--brand-blue)) 100%
+    );
+    --gradient-warning: linear-gradient(
+      135deg,
+      hsl(var(--brand-orange)) 0%,
+      hsl(var(--brand-red)) 100%
+    );
+
+    /* Sidebar colors */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chart colors */
+    --chart-1: 262 83% 58%;
+    --chart-2: 217 91% 60%;
+    --chart-3: 142 76% 36%;
+    --chart-4: 48 96% 53%;
+    --chart-5: 25 95% 53%;
   }
 }
 
 @layer base {
   * {
-    @apply border-0;
+    @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom utility classes */
+@layer utilities {
+  /* Brand gradients */
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+
+  .bg-gradient-success {
+    background: var(--gradient-success);
+  }
+
+  .bg-gradient-warning {
+    background: var(--gradient-warning);
+  }
+
+  /* Brand colors */
+  .text-brand-purple {
+    color: hsl(var(--brand-purple));
+  }
+
+  .bg-brand-purple {
+    background-color: hsl(var(--brand-purple));
+  }
+
+  .text-brand-blue {
+    color: hsl(var(--brand-blue));
+  }
+
+  .bg-brand-blue {
+    background-color: hsl(var(--brand-blue));
+  }
+
+  .text-brand-green {
+    color: hsl(var(--brand-green));
+  }
+
+  .bg-brand-green {
+    background-color: hsl(var(--brand-green));
+  }
+
+  /* Difficulty badges */
+  .badge-easy {
+    background-color: hsl(var(--difficulty-easy-bg));
+    color: hsl(var(--difficulty-easy));
+  }
+
+  .badge-medium {
+    background-color: hsl(var(--difficulty-medium-bg));
+    color: hsl(var(--difficulty-medium));
+  }
+
+  .badge-hard {
+    background-color: hsl(var(--difficulty-hard-bg));
+    color: hsl(var(--difficulty-hard));
+  }
+
+  /* Status badges */
+  .badge-active {
+    background-color: hsl(var(--status-active-bg));
+    color: hsl(var(--status-active));
+  }
+
+  .badge-pending {
+    background-color: hsl(var(--status-pending-bg));
+    color: hsl(var(--status-pending));
+  }
+
+  .badge-rejected {
+    background-color: hsl(var(--status-rejected-bg));
+    color: hsl(var(--status-rejected));
+  }
+
+  .badge-banned {
+    background-color: hsl(var(--status-banned-bg));
+    color: hsl(var(--status-banned));
+  }
+
+  .badge-hold {
+    background-color: hsl(var(--status-hold-bg));
+    color: hsl(var(--status-hold));
+  }
+
+  /* Glass morphism effects */
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Animated gradients */
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    transition:
+      transform 0.2s ease-in-out,
+      box-shadow 0.2s ease-in-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Focus states */
+  .focus-brand {
+    @apply focus:ring-2 focus:ring-brand-purple focus:ring-offset-2 focus:outline-none;
+  }
+
+  /* Text gradients */
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-gradient-secondary {
+    background: var(--gradient-secondary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Loading states */
+  .loading-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* Card variants */
+  .card-elevated {
+    @apply shadow-lg hover:shadow-xl transition-shadow duration-300;
+  }
+
+  .card-interactive {
+    @apply hover-lift cursor-pointer transition-all duration-200;
+  }
+
+  .card-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--card)) 0%,
+      hsl(var(--muted)) 100%
+    );
+  }
+
+  /* Button variants */
+  .btn-gradient {
+    background: var(--gradient-primary);
+    @apply text-white border-0 hover:opacity-90 transition-opacity;
+  }
+
+  .btn-glass {
+    @apply glass text-foreground hover:bg-white/20;
+  }
+
+  /* Navigation states */
+  .nav-active {
+    @apply bg-brand-purple/10 text-brand-purple border-brand-purple/20;
+  }
+
+  .nav-hover {
+    @apply hover:bg-muted/50 hover:text-foreground transition-colors;
+  }
+
+  /* Form states */
+  .form-error {
+    @apply border-destructive focus:ring-destructive;
+  }
+
+  .form-success {
+    @apply border-brand-green focus:ring-brand-green;
+  }
+
+  /* Responsive text */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl;
+  }
+
+  .text-responsive-3xl {
+    @apply text-3xl sm:text-4xl;
+  }
+}
+
+/* Component-specific styles */
+@layer components {
+  /* Custom badge styles */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors;
+  }
+
+  .badge-outline {
+    @apply border border-current bg-transparent;
+  }
+
+  /* Custom card styles */
+  .card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+  }
+
+  .card-header {
+    @apply flex flex-col space-y-1.5 p-6;
+  }
+
+  .card-content {
+    @apply p-6 pt-0;
+  }
+
+  .card-footer {
+    @apply flex items-center p-6 pt-0;
+  }
+
+  /* Custom input styles */
+  .input {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  /* Custom button styles */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .btn-outline {
+    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .btn-sm {
+    @apply h-9 rounded-md px-3;
+  }
+
+  .btn-lg {
+    @apply h-11 rounded-md px-8;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .card {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+  }
+}
+
+/* Focus visible for keyboard navigation */
+.focus-visible {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+}
+
+/* Custom selection colors */
+::selection {
+  background-color: hsl(var(--brand-purple) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* ShapeShared clips for CFG */
+.clip-triangle {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.clip-star {
+  clip-path: polygon(
+    50% 0%,
+    61% 35%,
+    98% 35%,
+    68% 57%,
+    79% 91%,
+    50% 70%,
+    21% 91%,
+    32% 57%,
+    2% 35%,
+    39% 35%
+  );
+}
+
+.clip-hexagon {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.clip-pentagon {
+  clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+.clip-octagon {
+  clip-path: polygon(
+    30% 0%,
+    70% 0%,
+    100% 30%,
+    100% 70%,
+    70% 100%,
+    30% 100%,
+    0% 70%,
+    0% 30%
+  );
+}
+
+.clip-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 }

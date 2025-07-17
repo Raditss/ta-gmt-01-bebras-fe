@@ -1,0 +1,373 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { GraduationCap } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { usersApi } from '@/lib/api/users.api';
+import { User } from '@/store/auth.store';
+import { UserStatus } from '@/types/user-status.type';
+
+const STATUS_COLORS = {
+  PENDING: 'bg-yellow-100 text-yellow-800',
+  VERIFIED: 'bg-green-100 text-green-800',
+  ACTIVE: 'bg-green-100 text-green-800',
+  UNDER_REVIEW: 'bg-blue-100 text-blue-800',
+  BANNED: 'bg-red-100 text-red-800'
+};
+
+export default function ManageUsersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [modal, setModal] = useState<{
+    open: boolean;
+    userId: number | null;
+    action: 'ACTIVATE' | 'DEACTIVATE' | 'VERIFY' | null;
+  }>({ open: false, userId: null, action: null });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sortKey, setSortKey] = useState<keyof User | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const data = await usersApi.getUsers({});
+      const users =
+        (data as { users: { props: User }[] }).users?.map((u) => u.props) || [];
+      setUsers(users);
+    } catch {
+      setError('Failed to fetch users');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch users from API
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleSort = (key: keyof User) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedUsers = [...users].sort((a, b) => {
+    if (!sortKey) return 0;
+    const aValue = a[sortKey];
+    const bValue = b[sortKey];
+    if (aValue == null || bValue == null) return 0;
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortOrder === 'asc'
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+    return 0;
+  });
+
+  const filteredUsers = sortedUsers.filter((user) => {
+    const matchesSearch =
+      user.name.toLowerCase().includes(search.toLowerCase()) ||
+      user.username.toLowerCase().includes(search.toLowerCase());
+    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    const matchesStatus = statusFilter ? user.status === statusFilter : true;
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
+  // Update user status via API
+  const updateUserStatus = async (id: number, newStatus: string) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+    setLoading(true);
+    try {
+      await usersApi.updateUserStatus({
+        username: user.username,
+        status: newStatus
+      });
+      await fetchUsers(); // Refresh the user list from backend
+    } catch {
+      setError('Failed to update user status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleActivateDeactivate = (
+    userId: number,
+    action: 'ACTIVATE' | 'DEACTIVATE' | 'VERIFY'
+  ) => {
+    setModal({ open: true, userId, action });
+  };
+
+  const confirmActivateDeactivateVerify = async () => {
+    if (modal.userId && modal.action) {
+      const user = users.find((u) => u.id === modal.userId);
+      if (!user) return;
+      let newStatus: UserStatus;
+      if (modal.action === 'VERIFY') {
+        newStatus = UserStatus.ACTIVE; // or whatever status you want after verification
+      } else if (modal.action === 'ACTIVATE') {
+        newStatus = UserStatus.ACTIVE;
+      } else {
+        newStatus = UserStatus.INACTIVE;
+      }
+      await updateUserStatus(modal.userId, newStatus);
+    }
+    setModal({ open: false, userId: null, action: null });
+  };
+
+  const cancelModal = () =>
+    setModal({ open: false, userId: null, action: null });
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <main className="flex-1 container mx-auto py-8 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-3">
+              <GraduationCap className="h-8 w-8 text-black" />
+              <h1 className="text-2xl font-bold">Manage Users</h1>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
+            <input
+              type="search"
+              placeholder="Search by name or username..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
+            <div className="flex gap-2 w-full md:w-auto justify-end">
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 h-10 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              >
+                <option value="">All Roles</option>
+                <option value="TEACHER">Teacher</option>
+                <option value="STUDENT">Student</option>
+              </select>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 h-10 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              >
+                <option value="">All Statuses</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          {loading && <div className="text-center py-4">Loading users...</div>}
+          {error && (
+            <div className="text-center text-red-500 py-2">{error}</div>
+          )}
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Avatar</TableHead>
+                <TableHead
+                  onClick={() => handleSort('name')}
+                  className="cursor-pointer select-none"
+                >
+                  Name
+                  {sortKey === 'name' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('username')}
+                  className="cursor-pointer select-none"
+                >
+                  Username
+                  {sortKey === 'username' &&
+                    (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('role')}
+                  className="cursor-pointer select-none"
+                >
+                  Role
+                  {sortKey === 'role' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('status')}
+                  className="cursor-pointer select-none"
+                >
+                  Status
+                  {sortKey === 'status' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                </TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredUsers.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>
+                    <Avatar className="h-10 w-10">
+                      {/* If you have user.avatar, use AvatarImage here */}
+                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                  </TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.username}</TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        user.role === 'TEACHER'
+                          ? user.verifiedAt === null
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-blue-100 text-blue-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}
+                    >
+                      {user.role}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[user.status as keyof typeof STATUS_COLORS]}`}
+                    >
+                      {user.status.replace('_', ' ')}
+                    </span>
+                  </TableCell>
+                  <TableCell className="space-x-2">
+                    {/* TEACHER: Not verified */}
+                    {user.role === 'TEACHER' && user.verifiedAt === null && (
+                      <Button
+                        size="sm"
+                        className="bg-green-400 hover:bg-green-500 text-black min-w-[90px]"
+                        onClick={() =>
+                          handleActivateDeactivate(user.id, 'VERIFY')
+                        }
+                      >
+                        Verify
+                      </Button>
+                    )}
+                    {/* TEACHER: Verified */}
+                    {user.role === 'TEACHER' &&
+                      user.verifiedAt !== null &&
+                      user.status === UserStatus.ACTIVE && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="min-w-[90px]"
+                          onClick={() =>
+                            handleActivateDeactivate(user.id, 'DEACTIVATE')
+                          }
+                        >
+                          Deactivate
+                        </Button>
+                      )}
+                    {user.role === 'TEACHER' &&
+                      user.verifiedAt !== null &&
+                      user.status === UserStatus.INACTIVE && (
+                        <Button
+                          size="sm"
+                          className="bg-blue-500 hover:bg-blue-600 text-white min-w-[90px]"
+                          onClick={() =>
+                            handleActivateDeactivate(user.id, 'ACTIVATE')
+                          }
+                        >
+                          Activate
+                        </Button>
+                      )}
+                    {/* STUDENT: Only ACTIVE/INACTIVE */}
+                    {user.role === 'STUDENT' &&
+                      user.status === UserStatus.INACTIVE && (
+                        <Button
+                          size="sm"
+                          className="bg-blue-500 hover:bg-blue-600 text-white min-w-[90px]"
+                          onClick={() =>
+                            handleActivateDeactivate(user.id, 'ACTIVATE')
+                          }
+                        >
+                          Activate
+                        </Button>
+                      )}
+                    {user.role === 'STUDENT' &&
+                      user.status === UserStatus.ACTIVE && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() =>
+                            handleActivateDeactivate(user.id, 'DEACTIVATE')
+                          }
+                        >
+                          Deactivate
+                        </Button>
+                      )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </main>
+      {/* Ban/Unban Confirmation Modal */}
+      <Dialog open={modal.open} onOpenChange={cancelModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {modal.action === 'ACTIVATE'
+                ? 'Confirm Activate'
+                : modal.action === 'DEACTIVATE'
+                  ? 'Confirm Deactivate'
+                  : 'Confirm Verify'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            {modal.action === 'ACTIVATE'
+              ? 'Are you sure you want to activate this user? They will be able to access the system.'
+              : modal.action === 'DEACTIVATE'
+                ? 'Are you sure you want to deactivate this user? They will not be able to access the system.'
+                : 'Are you sure you want to verify this user? They will be able to access the system.'}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={cancelModal}>
+              Cancel
+            </Button>
+            <Button
+              variant={
+                modal.action === 'ACTIVATE'
+                  ? 'default'
+                  : modal.action === 'DEACTIVATE'
+                    ? 'destructive'
+                    : 'default'
+              }
+              onClick={confirmActivateDeactivateVerify}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

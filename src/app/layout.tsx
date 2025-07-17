@@ -1,26 +1,32 @@
-import type React from "react"
-import type { Metadata } from "next/types"
-import { Inter } from "next/font/google"
-import "./globals.css"
+import type React from 'react';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/sonner';
 
-const inter = Inter({ subsets: ["latin"] })
-
-export const metadata: Metadata = {
-  title: "CodeLeaf - Coding Challenge Platform",
-  description: "Explore and solve coding challenges to improve your skills",
-  generator: 'v0.dev'
-}
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap'
+});
 
 export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+  children
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.className}>
-      <body data-gptw="">
-          {children}
+    <html lang="id" className={inter.className}>
+      <body data-gptw="" cz-shortcut-listen="true">
+        {/*<ThemeProvider*/}
+        {/*  attribute="class"*/}
+        {/*  defaultTheme="system"*/}
+        {/*  enableSystem*/}
+        {/*  disableTransitionOnChange*/}
+        {/*>*/}
+        <TooltipProvider>{children}</TooltipProvider>
+
+        <Toaster />
+        {/*</ThemeProvider>*/}
       </body>
     </html>
-  )
+  );
 }
