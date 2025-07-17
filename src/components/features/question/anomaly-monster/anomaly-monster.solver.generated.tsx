@@ -35,6 +35,14 @@ export default function GeneratedAnomalyMonsterSolver({
     }
   }, [question]);
 
+  useEffect(() => {
+    if (!question) return;
+
+    question.setAnomaly(anomalies);
+    question.setNormal(normals);
+    question.setCurrentIdx(currentIdx);
+  }, [anomalies, normals, currentIdx, question]);
+
   const handleReset = useCallback(() => {
     setAnomalies([]);
     setNormals([]);
@@ -45,16 +53,22 @@ export default function GeneratedAnomalyMonsterSolver({
   }, [question]);
 
   const handleMarkAsNormal = useCallback(() => {
-    if (normals.includes(currentIdx)) return;
-    setNormals((prev) => [...prev, currentIdx]);
-    setAnomalies((prev) => prev.filter((idx) => idx !== currentIdx));
-  }, [currentIdx, normals]);
+    if (!question) return;
+    if (normals.includes(question.content.choices[currentIdx].id)) return;
+    setNormals((prev) => [...prev, question.content.choices[currentIdx].id]);
+    setAnomalies((prev) =>
+      prev.filter((idx) => idx !== question.content.choices[currentIdx].id)
+    );
+  }, [currentIdx, normals, question]);
 
   const handleMarkAsAnomaly = useCallback(() => {
-    if (anomalies.includes(currentIdx)) return;
-    setAnomalies((prev) => [...prev, currentIdx]);
-    setNormals((prev) => prev.filter((idx) => idx !== currentIdx));
-  }, [currentIdx, anomalies]);
+    if (!question) return;
+    if (anomalies.includes(question.content.choices[currentIdx].id)) return;
+    setAnomalies((prev) => [...prev, question.content.choices[currentIdx].id]);
+    setNormals((prev) =>
+      prev.filter((idx) => idx !== question.content.choices[currentIdx].id)
+    );
+  }, [question, anomalies, currentIdx]);
 
   const handlePrevious = useCallback(() => {
     setCurrentIdx((prev) => Math.max(0, prev - 1));
@@ -173,18 +187,26 @@ export default function GeneratedAnomalyMonsterSolver({
                     Monster {currentIdx + 1} dari {totalMonsters}
                   </h3>
                   <div className="mt-2">
-                    {normals.includes(currentIdx) && (
+                    {normals.includes(
+                      question.content.choices[currentIdx].id
+                    ) && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                         ✓ Diklasifikasikan sebagai Normal
                       </span>
                     )}
-                    {anomalies.includes(currentIdx) && (
+                    {anomalies.includes(
+                      question.content.choices[currentIdx].id
+                    ) && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
                         ⚠ Diklasifikasikan sebagai Terinfeksi
                       </span>
                     )}
-                    {!normals.includes(currentIdx) &&
-                      !anomalies.includes(currentIdx) && (
+                    {!normals.includes(
+                      question.content.choices[currentIdx].id
+                    ) &&
+                      !anomalies.includes(
+                        question.content.choices[currentIdx].id
+                      ) && (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
                           ? Belum diklasifikasikan
                         </span>
@@ -245,7 +267,9 @@ export default function GeneratedAnomalyMonsterSolver({
                     <Button
                       onClick={handleMarkAsNormal}
                       className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
-                        normals.includes(currentIdx)
+                        normals.includes(
+                          question.content.choices[currentIdx].id
+                        )
                           ? 'bg-green-500 text-white shadow-xl hover:bg-green-600'
                           : 'border-2 border-green-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105'
                       }`}
@@ -253,7 +277,9 @@ export default function GeneratedAnomalyMonsterSolver({
                     >
                       <Check
                         className={`mr-1 ${
-                          normals.includes(currentIdx)
+                          normals.includes(
+                            question.content.choices[currentIdx].id
+                          )
                             ? 'stroke-white'
                             : 'stroke-green-600'
                         }`}
@@ -265,7 +291,9 @@ export default function GeneratedAnomalyMonsterSolver({
                     <Button
                       onClick={handleMarkAsAnomaly}
                       className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
-                        anomalies.includes(currentIdx)
+                        anomalies.includes(
+                          question.content.choices[currentIdx].id
+                        )
                           ? 'bg-red-500 text-white shadow-xl hover:bg-red-600'
                           : 'border-2 border-red-400 text-red-600 bg-white hover:bg-red-50 hover:scale-105'
                       }`}
@@ -273,7 +301,9 @@ export default function GeneratedAnomalyMonsterSolver({
                     >
                       <Worm
                         className={`mr-1 ${
-                          anomalies.includes(currentIdx)
+                          anomalies.includes(
+                            question.content.choices[currentIdx].id
+                          )
                             ? 'stroke-white'
                             : 'stroke-red-600'
                         }`}

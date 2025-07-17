@@ -78,7 +78,15 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
 
   loadAnswer(json: string) {
     const answer = JSON.parse(json) as AnomalyMonsterAnswer;
-    this.answer = answer || {};
+    if (!answer.normal || !answer.anomaly || answer.currentIdx) {
+      this.answer = {
+        normal: [],
+        anomaly: [],
+        currentIdx: 0
+      };
+    } else {
+      this.answer = answer;
+    }
   }
 
   populateQuestionFromString(questionString: string): void {

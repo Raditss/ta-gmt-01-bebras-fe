@@ -278,8 +278,8 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
 
   return (
     <div className="w-full border rounded-lg bg-white p-4">
-      <div className="mb-2 text-sm font-semibold text-gray-700">
-        Pohon Keputusan Monster Normal
+      <div className="mb-2 text-lg text-center font-semibold text-gray-700">
+        Pohon Keputusan Monster yang Normal
       </div>
       {/*<div className="mb-3 text-xs text-gray-500">*/}
       {/*  {Object.keys(selections).length > 0*/}
