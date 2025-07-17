@@ -9,15 +9,15 @@ import { TimeProgressBar } from '@/components/ui/time-progress-bar';
 import {
   MonsterPartOptionType,
   MonsterPartType
-} from '@/components/features/question/decision-tree/monster-part.type';
+} from '@/components/features/question/anomaly-monster/monster-part.type';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree-trace/tree';
 import { DecisionTreeTraceSolveModel } from '@/models/decision-tree-trace/decision-tree-trace.solve.model';
 import { useSolveQuestion } from '@/hooks/useSolveQuestion';
-import MonsterCharacter from '@/components/features/question/decision-tree/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/decision-tree/monster-part-wardrobe';
+import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
+import MonsterPartWardrobe from '@/components/features/question/anomaly-monster/monster-part-wardrobe';
 import { capitalizeFirst } from '@/utils/helpers/common.helper';
 
 export default function DecisionTreeTraceSolver({

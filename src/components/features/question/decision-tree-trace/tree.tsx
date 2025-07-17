@@ -54,11 +54,11 @@ const buildDecisionTree = (
   goals: number[]
 ): TreeNode => {
   const attributeOrder = [
-    'body',
-    'arms',
-    'legs',
+    'Body',
+    'Arm',
+    'Leg',
     // 'horns',
-    'color'
+    'Color'
   ];
 
   const findMatchingRules = (conditions: Record<string, string>): Rule[] => {
