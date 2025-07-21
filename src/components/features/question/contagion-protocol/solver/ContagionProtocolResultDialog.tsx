@@ -1,25 +1,30 @@
 import { Microscope, Shield, Skull, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SubmissionResult } from '@/components/features/question/contagion-protocol/solver/submit-button';
 
-interface GeneratedResultDialogProps {
+interface ContagionProtocolResultDialogProps {
   isOpen: boolean;
-  isCorrect?: boolean | null;
   onClose?: () => void;
+  submissionResult?: SubmissionResult | null;
 }
 
-const GeneratedContagionProtocolResultDialog = ({
+const ContagionProtocolResultDialog = ({
   isOpen,
-  isCorrect,
-  onClose
-}: GeneratedResultDialogProps) => {
+  onClose,
+  submissionResult
+}: ContagionProtocolResultDialogProps) => {
   const router = useRouter();
   if (!isOpen) return null;
 
   const getStatusInfo = () => {
-    if (isCorrect) {
+    if (submissionResult?.isCorrect) {
       return {
         status: 'BENAR',
-        threat: 'ANALISIS BERHASIL',
+        threat: 'MONSTER BERHASIL DIEVAKUASI',
+        message:
+          'Protokol kontainmen berhasil! Monster telah diamankan dan dipindahkan ke fasilitas karantina. Laboratorium tetap aman.',
+        points: submissionResult.points,
+        streak: submissionResult.streak,
         color: 'text-emerald-400',
         bgGlow: 'bg-emerald-500/20',
         borderGlow: 'border-emerald-500/50',
@@ -29,7 +34,11 @@ const GeneratedContagionProtocolResultDialog = ({
     }
     return {
       status: 'SALAH',
-      threat: 'ANALISIS GAGAL',
+      threat: 'VIRUS MENYEBAR KE LABORATORIUM',
+      message:
+        'Kontainmen gagal! Virus telah menyebar ke seluruh fasilitas laboratorium. Tim dekontaminasi darurat telah dikerahkan.',
+      points: 0,
+      streak: submissionResult?.streak || 0,
       color: 'text-red-400',
       bgGlow: 'bg-red-500/20',
       borderGlow: 'border-red-500/50',
@@ -89,6 +98,27 @@ const GeneratedContagionProtocolResultDialog = ({
               <p className={`text-lg ${statusInfo.color} opacity-80 mb-6`}>
                 {statusInfo.threat}
               </p>
+
+              <div className="bg-slate-800/40 border border-slate-600/30 rounded-lg p-4 mb-6 max-w-lg mx-auto">
+                <p className="text-slate-200 text-sm leading-relaxed">
+                  {statusInfo.message}
+                </p>
+              </div>
+
+              <div className="flex w-full items-center justify-center gap-8">
+                <div className="bg-slate-800/60 rounded-lg p-4 inline-block">
+                  <div className="text-3xl font-mono font-bold text-cyan-300">
+                    {statusInfo.points}
+                  </div>
+                  <div className="text-sm text-slate-400">POIN</div>
+                </div>
+                <div className="bg-slate-800/60 rounded-lg p-4 inline-block">
+                  <div className="text-3xl font-mono font-bold text-cyan-300">
+                    {statusInfo.streak ?? 0}
+                  </div>
+                  <div className="text-sm text-slate-400">STREAK</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -102,4 +132,4 @@ const GeneratedContagionProtocolResultDialog = ({
   );
 };
 
-export default GeneratedContagionProtocolResultDialog;
+export default ContagionProtocolResultDialog;

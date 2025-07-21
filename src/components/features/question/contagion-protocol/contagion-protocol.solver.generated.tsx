@@ -7,7 +7,7 @@ import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 import MonsterList from '@/components/features/question/contagion-protocol/monster-list';
 import { useCallback, useState } from 'react';
 import MonsterCharacter from '@/components/features/question/contagion-protocol/monster-character';
-import EmergencyActionButton from '@/components/features/question/contagion-protocol/submit-button';
+import GeneratedContagionProtocolSubmitButton from '@/components/features/question/contagion-protocol/generated/submit-button';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,7 +25,7 @@ import {
 import { CytoscapeTree } from '@/components/features/question/contagion-protocol/contagion-protocol-tree';
 import MissionBriefingDialog from '@/components/features/question/contagion-protocol/mission-briefing-dialog';
 import MonsterPlaceholder from '@/components/features/question/contagion-protocol/monster-placeholder';
-import GeneratedContagionProtocolResultDialog from '@/components/features/question/contagion-protocol/generated-contagion-protocol-result-dialog';
+import GeneratedContagionProtocolResultDialog from '@/components/features/question/contagion-protocol/generated/generated-contagion-protocol-result-dialog';
 import { cn } from '@/utils/helpers/style.helper';
 import { useAuthStore } from '@/store/auth.store';
 
@@ -200,6 +200,12 @@ export default function GeneratedContagionProtocolSolver({
     setResultDialogOpen(true);
   };
 
+  const handleNewQuestion = async () => {
+    setCurrentIdx(null);
+    setIsFormOpen(false);
+    await regenerate();
+  };
+
   if (!question) {
     return (
       <GeneratedSolverWrapper loading={loading} error={error} type={type}>
@@ -234,7 +240,7 @@ export default function GeneratedContagionProtocolSolver({
               monstersAnswer={question.answer.monsters}
               onClick={handleMonsterListOnClick}
             />
-            <EmergencyActionButton
+            <GeneratedContagionProtocolSubmitButton
               question={question}
               type={type}
               questionContent={questionContent}
@@ -572,7 +578,7 @@ export default function GeneratedContagionProtocolSolver({
                 </span>
               </Button>
               <Button
-                onClick={regenerate}
+                onClick={handleNewQuestion}
                 variant="outline"
                 className={cn(
                   'ml-3 bg-slate-600 py-3 text-base font-mono text-cyan-300 border-cyan-500 hover:bg-cyan-800/30 hover:text-gray-200 hover:shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all duration-300'

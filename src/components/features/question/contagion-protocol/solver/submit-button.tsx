@@ -3,36 +3,54 @@ import {
   MonsterAnswer
 } from '@/models/contagion-protocol/contagion-protocol.model.type';
 import { useCallback, useState } from 'react';
-import { AlertTriangle, Zap } from 'lucide-react';
 import { questionAttemptApi } from '@/lib/api/question-attempt.api';
-import { QuestionTypeEnum } from '@/types/question-type.type';
+import { AlertTriangle, Zap } from 'lucide-react';
+import ContagionProtocolResultDialog from '@/components/features/question/contagion-protocol/solver/ContagionProtocolResultDialog';
+import { useRouter } from 'next/navigation';
 
-interface QuestionModel {
-  toJSON: () => unknown;
+export interface SubmissionResult {
+  isCorrect: boolean;
+  points: number;
+  streak: number;
+  timeTaken: number;
+  scoringDetails?: {
+    explanation: string;
+    timeBonus: number;
+    newTotalScore: number;
+    questionsCompleted: number;
+  };
 }
 
-interface EmergencyActionButtonProps {
-  question: QuestionModel; // The question model instance
-  type: string;
-  questionContent: string;
-  onExecute: (isCorrect: boolean) => void;
+interface QuestionModel {
+  setAttemptData: (duration: number, isDraft: boolean) => void;
+  getAttemptData: () => {
+    questionId: number;
+    duration: number;
+    isDraft: boolean;
+    answer: string;
+  };
+}
+
+interface ContagionProtocolSubmitButtonProps {
+  question: QuestionModel;
+  getCurrentDuration: () => number;
   monstersQuestion: Monster[];
   monstersAnswer: MonsterAnswer[];
 }
 
-const EmergencyActionButton = ({
+const ContagionProtocolSubmitButton = ({
   question,
-  type,
-  questionContent,
-  onExecute,
+  getCurrentDuration,
   monstersQuestion,
   monstersAnswer
-}: EmergencyActionButtonProps) => {
+}: ContagionProtocolSubmitButtonProps) => {
+  const router = useRouter();
   const [isArmed, setIsArmed] = useState(false);
-  const [countdown, setCountdown] = useState(3);
-  const [isCountingDown, setIsCountingDown] = useState(false);
+  const [isSubmit, setIsSubmit] = useState(false);
+  const [submissionResult, setSubmissionResult] =
+    useState<SubmissionResult | null>(null);
+  const [isResultDialogOpen, setIsResultDialogOpen] = useState(false);
 
-  // Check if all specimens are classified
   const totalSpecimens = monstersQuestion.length;
   const classifiedSpecimens = monstersAnswer.length;
   const allClassified =
@@ -44,42 +62,38 @@ const EmergencyActionButton = ({
 
     if (!isArmed) {
       setIsArmed(true);
-    } else if (!isCountingDown) {
-      const response = await questionAttemptApi.checkGeneratedAnswer({
-        type: type as QuestionTypeEnum,
-        questionContent,
-        answer: JSON.stringify(question.toJSON())
+    } else {
+      const duration = getCurrentDuration();
+      question.setAttemptData(duration, false);
+      const attemptData = question.getAttemptData();
+      const response = await questionAttemptApi.submit({
+        questionId: attemptData.questionId,
+        duration: attemptData.duration,
+        answer: JSON.parse(attemptData.answer)
       });
 
-      // Start countdown
-      setIsCountingDown(true);
-      let count = 3;
-      const timer = setInterval(() => {
-        count--;
-        setCountdown(count);
-        if (count <= 0) {
-          clearInterval(timer);
-          onExecute(response.isCorrect ?? false);
-          setIsArmed(false);
-          setIsCountingDown(false);
-          setCountdown(3);
-        }
-      }, 1000);
+      // Take the answer from the response
+      const isCorrect = response.isCorrect;
+      const points = response.points;
+      const scoringDetails = response.scoringDetails;
+
+      const streak = isCorrect ? 1 : 0;
+
+      setSubmissionResult({
+        isCorrect,
+        points,
+        streak,
+        timeTaken: duration,
+        scoringDetails
+      });
+      setIsSubmit(true);
+      setIsResultDialogOpen(true);
     }
-  }, [
-    allClassified,
-    isArmed,
-    isCountingDown,
-    onExecute,
-    question,
-    questionContent,
-    type
-  ]);
+  }, [allClassified, getCurrentDuration, question, isArmed]);
 
   const handleDisarm = () => {
     setIsArmed(false);
-    setIsCountingDown(false);
-    setCountdown(5);
+    setIsSubmit(false);
   };
 
   const panelGlow = allClassified
@@ -117,13 +131,13 @@ const EmergencyActionButton = ({
             <p className="font-mono text-sm text-green-400">
               ✅ Semua monster sudah diklasifikasi — Protokol siap dijalankan
             </p>
-          ) : !isCountingDown ? (
+          ) : !isSubmit ? (
             <p className="font-mono text-sm text-yellow-400 animate-pulse">
               ⚠️ SISTEM SIAP — Klik lagi untuk menjalankan protokol
             </p>
           ) : (
             <p className="font-mono text-lg text-red-400 font-bold animate-pulse">
-              🚨 PROTOKOL BERJALAN DALAM {countdown} DETIK 🚨
+              🚨 PROTOKOL SEDANG BERJALAN... 🚨
             </p>
           )}
         </div>
@@ -132,20 +146,15 @@ const EmergencyActionButton = ({
         <div className="flex justify-center space-x-4">
           <button
             onClick={handleArm}
-            disabled={!allClassified || isCountingDown}
+            disabled={!allClassified}
             className={`
               relative px-8 py-4 rounded-lg font-mono font-bold text-lg
               transition-all duration-200 transform
               ${
                 !allClassified
                   ? 'bg-slate-700 text-slate-500 border-2 border-slate-600 cursor-not-allowed opacity-50'
-                  : !isArmed
-                    ? 'bg-red-600 hover:bg-red-500 text-white border-2 border-red-500 hover:scale-105'
-                    : isCountingDown
-                      ? 'bg-red-700 text-red-200 border-2 border-red-400 animate-pulse cursor-not-allowed'
-                      : 'bg-red-500 hover:bg-red-400 text-white border-2 border-red-300 shadow-lg shadow-red-500/50 animate-pulse'
+                  : 'bg-red-500 hover:bg-red-400 text-white border-2 border-red-300 shadow-lg shadow-red-500/50 animate-pulse'
               }
-              ${isCountingDown ? 'scale-110' : ''}
             `}
           >
             {/* Button glow effect - only when enabled */}
@@ -160,15 +169,13 @@ const EmergencyActionButton = ({
                   ? 'CLASSIFICATION REQUIRED'
                   : !isArmed
                     ? 'INITIATE CONTAINMENT'
-                    : isCountingDown
-                      ? `EXECUTING... ${countdown}`
-                      : 'EXECUTE PROTOCOL'}
+                    : 'EXECUTE PROTOCOL'}
               </span>
               <Zap className="w-5 h-5" />
             </div>
           </button>
 
-          {isArmed && !isCountingDown && allClassified && (
+          {isArmed && !isSubmit && allClassified && (
             <button
               onClick={handleDisarm}
               className="px-6 py-4 bg-slate-600 hover:bg-slate-500 text-white rounded-lg font-mono border-2 border-slate-500 transition-all duration-200"
@@ -199,8 +206,15 @@ const EmergencyActionButton = ({
           </p>
         </div>
       </div>
+      <ContagionProtocolResultDialog
+        isOpen={isResultDialogOpen}
+        onClose={() => {
+          router.push('/problems');
+        }}
+        submissionResult={submissionResult}
+      />
     </div>
   );
 };
 
-export default EmergencyActionButton;
+export default ContagionProtocolSubmitButton;
