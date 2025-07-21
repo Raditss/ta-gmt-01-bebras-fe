@@ -29,7 +29,7 @@ export function RulesSection({
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-center text-foreground">
-          Rule Table
+          Tabel Aturan
         </h2>
         <Button
           onClick={onAddRule}
@@ -37,7 +37,7 @@ export function RulesSection({
           variant="outline"
         >
           <Plus className="h-4 w-4" />
-          Add Rule
+          Tambah Aturan
         </Button>
       </div>
 
@@ -46,22 +46,25 @@ export function RulesSection({
           <div className="mb-4">
             <Plus className="w-12 h-12 mx-auto opacity-50" />
           </div>
-          <p className="text-lg font-medium mb-2">No rules created yet</p>
+          <p className="text-lg font-medium mb-2">
+            Belum ada aturan yang dibuat
+          </p>
           <p className="text-sm">
-            Click &quot;Add Rule&quot; to create your first transformation rule
+            Klik &quot;Tambah Aturan&quot; untuk membuat aturan transformasi
+            pertama
           </p>
         </div>
       ) : (
         <div className="bg-card rounded-lg shadow-sm border overflow-hidden">
           <div className="grid grid-cols-[1fr,1fr,auto] border-b-2 border-muted bg-muted/30">
             <div className="p-4 text-center font-medium border-r-2 border-muted text-foreground">
-              Before
+              Sebelum
             </div>
             <div className="p-4 text-center font-medium border-r-2 border-muted text-foreground">
-              After
+              Sesudah
             </div>
             <div className="p-4 text-center font-medium w-24 text-foreground">
-              Action
+              Aksi
             </div>
           </div>
 

@@ -16,6 +16,8 @@ import {
 
 import { BaseSolverProps, SolverWrapper } from '../../bases/base.solver';
 import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
+import { QuestionTypeEnum } from '@/types/question-type.type';
 
 export default function CfgSolver({ questionId }: BaseSolverProps) {
   const [currentState, setCurrentState] = useState<State[]>([]);
@@ -147,7 +149,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
             {/* Rule Table - Left side (3 columns wide) */}
             <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
               <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-                Rule Table
+                Tabel Aturan
               </h2>
               {/* Remove height constraints to let table flow naturally */}
               <div className="overflow-visible">
@@ -171,7 +173,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
                 {/* Current State */}
                 <div className="bg-card rounded-lg p-4 shadow-lg border">
                   <StateDisplaySolve
-                    title="Current"
+                    title="Sekarang"
                     state={currentState}
                     isInteractive={true}
                     selectedIndices={selectedIndices}
@@ -186,7 +188,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
           {/* Applicable Rules Section - Fixed height */}
           <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
             <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-              Applicable Rules
+              Aturan yang Bisa Diterapkan
             </h2>
 
             <div className="flex items-center justify-center min-h-24">
@@ -228,7 +230,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground">
-                  Select objects to see applicable rules
+                  Pilih objek untuk melihat aturan yang bisa diterapkan
                 </div>
               )}
             </div>
@@ -241,14 +243,14 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
               variant="outline"
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
-              Undo
+              Urungkan
             </Button>
             <Button
               onClick={handleRedo}
               variant="outline"
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
-              Redo
+              Ulangi
             </Button>
             <Button
               onClick={handleReset}
@@ -262,10 +264,13 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
               getCurrentDuration={getCurrentDuration}
               answerArr={currentState}
               className="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
-              buttonText="Submit Answer"
+              buttonText="Kirim Jawaban"
               onSubmissionSuccess={markAsSubmitted}
             />
           </div>
+
+          {/* Help Component */}
+          <DynamicHelp questionType={QuestionTypeEnum.CFG} />
         </div>
       )}
     </SolverWrapper>

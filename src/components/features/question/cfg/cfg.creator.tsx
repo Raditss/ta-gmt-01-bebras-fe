@@ -409,7 +409,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                 {/* Start State */}
                 <div className="bg-card rounded-lg p-4 shadow-lg border mb-8">
                   <StateDisplaySolve
-                    title="Start State"
+                    title="Keadaan Awal"
                     state={startState}
                     isInteractive={true}
                     onObjectClick={() => {
@@ -425,7 +425,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                         variant="outline"
                         className="bg-brand-green/10 hover:bg-brand-green/20 text-brand-green border border-brand-green/30"
                       >
-                        Create Start State
+                        Buat Keadaan Awal
                       </Button>
                     </div>
                   )}
@@ -434,7 +434,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                 {/* End State */}
                 <div className="bg-card rounded-lg p-4 shadow-lg border">
                   <StateDisplaySolve
-                    title="End State"
+                    title="Keadaan Akhir"
                     state={endState}
                     isInteractive={startState.length > 0}
                     selectedIndices={selectedIndices}
@@ -444,13 +444,13 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                   {endState.length === 0 && (
                     <div className="text-center text-muted-foreground py-4 text-sm">
                       {startState.length === 0
-                        ? 'Create start state first'
-                        : 'Transform this state using rules below'}
+                        ? 'Buat keadaan awal terlebih dahulu'
+                        : 'Ubah keadaan ini menggunakan aturan di bawah'}
                     </div>
                   )}
                   {startState.length > 0 && endState.length > 0 && (
                     <div className="text-center text-muted-foreground mt-2 text-xs">
-                      Click objects to select, then apply rules below
+                      Klik objek untuk memilih, lalu terapkan aturan di bawah
                     </div>
                   )}
                 </div>
@@ -461,7 +461,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {/* Applicable Rules Section - Matching solver's "Applicable Rules" section */}
           <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
             <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-              Applicable Rules
+              Aturan yang Bisa Diterapkan
             </h2>
 
             <div className="flex items-center justify-center min-h-24">
@@ -550,10 +550,10 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               ) : (
                 <div className="text-center text-muted-foreground">
                   {startState.length === 0
-                    ? 'Create a start state and add some rules first'
+                    ? 'Buat keadaan awal dan tambahkan beberapa aturan terlebih dahulu'
                     : selectedIndices.length === 0
-                      ? 'Select objects in the end state to see applicable rules'
-                      : 'No applicable rules for selected objects'}
+                      ? 'Pilih objek di keadaan akhir untuk melihat aturan yang bisa diterapkan'
+                      : 'Tidak ada aturan yang bisa diterapkan untuk objek yang dipilih'}
                 </div>
               )}
             </div>
@@ -567,7 +567,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
               disabled={startState.length === 0}
             >
-              Undo
+              Urungkan
             </Button>
             <Button
               onClick={handleRedo}
@@ -575,7 +575,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
               disabled={startState.length === 0}
             >
-              Redo
+              Ulangi
             </Button>
             <Button
               onClick={handleResetEndState}
@@ -583,14 +583,14 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-orange-100 hover:bg-orange-200 text-orange-700 border-orange-300 px-4 py-2 h-10"
               disabled={startState.length === 0 || endState.length === 0}
             >
-              Reset End State
+              Reset Keadaan Akhir
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
               className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
             >
-              Reset All
+              Reset Semua
             </Button>
             <Button
               onClick={handleManualSave}
@@ -599,7 +599,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save Draft
+              Simpan Draft
             </Button>
             {startState.length > 0 &&
               endState.length > 0 &&
@@ -608,7 +608,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                   onClick={handleSubmit}
                   className="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
                 >
-                  Submit Question
+                  Kirim Soal
                 </Button>
               )}
           </div>
@@ -617,7 +617,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {showSaveConfirmation && (
             <Alert className="mt-4 bg-green-50 text-green-800 border-green-200 max-w-md mx-auto">
               <CheckCircle2 className="h-4 w-4" />
-              <AlertDescription>Draft saved successfully!</AlertDescription>
+              <AlertDescription>Draft berhasil disimpan!</AlertDescription>
             </Alert>
           )}
 
