@@ -49,115 +49,110 @@ const MonsterContainer = ({
     return (selections && selections[category]) || defaultValues[category];
   };
 
-  if (isLoading) {
-    return <Container>{children}</Container>;
-  }
-
   return (
     <Container>
-      {/* Back legs (behind body) */}
-      <MonsterLeg
-        texture={getTexture(
-          MonsterPartType.LEG,
-          getCurrentSelection(MonsterPartType.LEG),
-          getCurrentSelection(MonsterPartType.COLOR)
-        )}
-        x={centerX + 40 * scaleFactor}
-        y={centerY + 50 * scaleFactor}
-        scaleX={0.4 * scaleFactor}
-        scaleY={0.4 * scaleFactor}
-      />
-      <MonsterLeg
-        texture={getTexture(
-          MonsterPartType.LEG,
-          getCurrentSelection(MonsterPartType.LEG),
-          getCurrentSelection(MonsterPartType.COLOR)
-        )}
-        x={centerX - 40 * scaleFactor}
-        y={centerY + 50 * scaleFactor}
-        scaleX={-0.4 * scaleFactor}
-        scaleY={0.4 * scaleFactor}
-      />
-
-      {/* Arms */}
-      <MonsterArm
-        texture={getTexture(
-          MonsterPartType.ARM,
-          getCurrentSelection(MonsterPartType.ARM),
-          getCurrentSelection(MonsterPartType.COLOR)
-        )}
-        x={centerX - 95 * scaleFactor}
-        y={centerY + 50 * scaleFactor}
-        scaleX={-0.25 * scaleFactor}
-        scaleY={0.25 * scaleFactor}
-      />
-      <MonsterArm
-        texture={getTexture(
-          MonsterPartType.ARM,
-          getCurrentSelection(MonsterPartType.ARM),
-          getCurrentSelection(MonsterPartType.COLOR)
-        )}
-        x={centerX + 95 * scaleFactor}
-        y={centerY + 50 * scaleFactor}
-        scaleX={0.25 * scaleFactor}
-        scaleY={0.25 * scaleFactor}
-      />
-
-      {/* Body */}
-      <MonsterBody
-        texture={getTexture(
-          MonsterPartType.BODY,
-          getCurrentSelection(MonsterPartType.BODY),
-          getCurrentSelection(MonsterPartType.COLOR)
-        )}
-        x={centerX}
-        y={centerY}
-        scaleX={0.5 * scaleFactor}
-        scaleY={0.5 * scaleFactor}
-      />
-
-      {/* Horn (if present) */}
-      {/*<MonsterHorn*/}
-      {/*  texture={getTexture(*/}
-      {/*    MonsterPartType.HORN,*/}
-      {/*    getCurrentSelection(MonsterPartType.HORN),*/}
-      {/*    getCurrentSelection(MonsterPartType.COLOR)*/}
-      {/*  )}*/}
-      {/*  x={centerX}*/}
-      {/*  y={centerY - 80 * scaleFactor}*/}
-      {/*  scaleX={0.4 * scaleFactor}*/}
-      {/*  scaleY={0.4 * scaleFactor}*/}
-      {/*/>*/}
-
-      {/* Eyes */}
-      {/* Left Eye */}
-      <MonsterEye
-        texture={getStaticTexture('Eye_Red_human.png')}
-        x={centerX - 25 * scaleFactor}
-        y={centerY - 20 * scaleFactor}
-        scaleX={0.4 * scaleFactor}
-        scaleY={0.4 * scaleFactor}
-      />
-
-      {/* Right Eye */}
-      <MonsterEye
-        texture={getStaticTexture('Eye_Red_human.png')}
-        x={centerX + 25 * scaleFactor}
-        y={centerY - 20 * scaleFactor}
-        scaleX={0.4 * scaleFactor}
-        scaleY={0.4 * scaleFactor}
-      />
-
-      {/* Mouth */}
-      <MonsterMouth
-        texture={getStaticTexture('Mouth_closedTeeth.png')}
-        x={centerX}
-        y={centerY + 30 * scaleFactor}
-        scaleX={0.5 * scaleFactor}
-        scaleY={0.5 * scaleFactor}
-      />
-
-      {children}
+      {isLoading ? (
+        children
+      ) : (
+        <>
+          {/* Back legs (behind body) */}
+          <MonsterLeg
+            texture={getTexture(
+              MonsterPartType.LEG,
+              getCurrentSelection(MonsterPartType.LEG),
+              getCurrentSelection(MonsterPartType.COLOR)
+            )}
+            x={centerX + 40 * scaleFactor}
+            y={centerY + 50 * scaleFactor}
+            scaleX={0.4 * scaleFactor}
+            scaleY={0.4 * scaleFactor}
+          />
+          <MonsterLeg
+            texture={getTexture(
+              MonsterPartType.LEG,
+              getCurrentSelection(MonsterPartType.LEG),
+              getCurrentSelection(MonsterPartType.COLOR)
+            )}
+            x={centerX - 40 * scaleFactor}
+            y={centerY + 50 * scaleFactor}
+            scaleX={-0.4 * scaleFactor}
+            scaleY={0.4 * scaleFactor}
+          />
+          {/* Arms */}
+          <MonsterArm
+            texture={getTexture(
+              MonsterPartType.ARM,
+              getCurrentSelection(MonsterPartType.ARM),
+              getCurrentSelection(MonsterPartType.COLOR)
+            )}
+            x={centerX - 95 * scaleFactor}
+            y={centerY + 50 * scaleFactor}
+            scaleX={-0.25 * scaleFactor}
+            scaleY={0.25 * scaleFactor}
+          />
+          <MonsterArm
+            texture={getTexture(
+              MonsterPartType.ARM,
+              getCurrentSelection(MonsterPartType.ARM),
+              getCurrentSelection(MonsterPartType.COLOR)
+            )}
+            x={centerX + 95 * scaleFactor}
+            y={centerY + 50 * scaleFactor}
+            scaleX={0.25 * scaleFactor}
+            scaleY={0.25 * scaleFactor}
+          />
+          {/* Body */}
+          <MonsterBody
+            texture={getTexture(
+              MonsterPartType.BODY,
+              getCurrentSelection(MonsterPartType.BODY),
+              getCurrentSelection(MonsterPartType.COLOR)
+            )}
+            x={centerX}
+            y={centerY}
+            scaleX={0.5 * scaleFactor}
+            scaleY={0.5 * scaleFactor}
+          />
+          {/* Horn (if present) */}
+          {/*<MonsterHorn*/}
+          {/*  texture={getTexture(*/}
+          {/*    MonsterPartType.HORN,*/}
+          {/*    getCurrentSelection(MonsterPartType.HORN),*/}
+          {/*    getCurrentSelection(MonsterPartType.COLOR)*/}
+          {/*  )}*/}
+          {/*  x={centerX}*/}
+          {/*  y={centerY - 80 * scaleFactor}*/}
+          {/*  scaleX={0.4 * scaleFactor}*/}
+          {/*  scaleY={0.4 * scaleFactor}*/}
+          {/*/>*/}
+          {/* Eyes */}
+          {/* Left Eye */}
+          <MonsterEye
+            texture={getStaticTexture('Eye_Red_human.png')}
+            x={centerX - 25 * scaleFactor}
+            y={centerY - 20 * scaleFactor}
+            scaleX={0.4 * scaleFactor}
+            scaleY={0.4 * scaleFactor}
+          />
+          {/* Right Eye */}
+          <MonsterEye
+            texture={getStaticTexture('Eye_Red_human.png')}
+            x={centerX + 25 * scaleFactor}
+            y={centerY - 20 * scaleFactor}
+            scaleX={0.4 * scaleFactor}
+            scaleY={0.4 * scaleFactor}
+          />
+          {/* Mouth */}
+          <MonsterMouth
+            texture={getStaticTexture('Mouth_Closedteeth.png')}
+            x={centerX}
+            y={centerY + 30 * scaleFactor}
+            scaleX={0.5 * scaleFactor}
+            scaleY={0.5 * scaleFactor}
+          />
+          {children}
+        </>
+      )}
     </Container>
   );
 };

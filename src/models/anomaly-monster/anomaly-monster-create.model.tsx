@@ -50,7 +50,8 @@ export class AnomalyMonsterCreateModel extends ICreateQuestion {
         'Error parsing Decision Tree Anomaly creation content:',
         error
       );
-      throw new Error('Invalid Decision Tree Anomaly creation content format');
+      this.content.tree = this.content.tree || [];
+      this.content.choices = this.content.choices || [];
     }
   }
 

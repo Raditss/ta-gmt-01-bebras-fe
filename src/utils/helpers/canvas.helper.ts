@@ -7,6 +7,6 @@ export const calculateCanvasSize = () => {
 
   return {
     width: maxSize,
-    height: maxSize * 1.5 // Make it slightly taller than wide for better proportions
+    height: maxSize // Make it slightly taller than wide for better proportions
   };
 };

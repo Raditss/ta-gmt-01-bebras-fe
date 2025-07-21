@@ -3,7 +3,8 @@ export enum QuestionTypeEnum {
   CIPHER_N = 'cipher-n',
   RING_CIPHER = 'ring-cipher',
   ANOMALY_MONSTER = 'decision-tree-anomaly',
-  DECISION_TREE_TRACE = 'decision-tree-trace'
+  DECISION_TREE_TRACE = 'decision-tree-trace',
+  CONTAGION_PROTOCOL = 'contagion-protocol'
 }
 
 export const getQuestionTypeByName = (

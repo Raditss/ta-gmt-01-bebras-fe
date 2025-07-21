@@ -19,6 +19,9 @@ import GeneratedAnomalyMonsterSolver from '@/components/features/question/anomal
 import DecisionTreeTraceCreator from '@/components/features/question/decision-tree-trace/decision-tree-trace.creator';
 import DecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver';
 import GeneratedDecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver.generated';
+import GeneratedContagionProtocolSolver from '@/components/features/question/contagion-protocol/contagion-protocol.solver.generated';
+import ContagionProtocolCreator from '@/components/features/question/contagion-protocol/contagion-protocol.creator';
+import ContagionProtocolSolver from '@/components/features/question/contagion-protocol/contagion-protocol.solver';
 // import GeneratedNotImplementedSolver from '@/components/features/question/fallbacks/not-implemented.solver.generated';
 
 export const createQuestionComponent: Record<
@@ -29,7 +32,8 @@ export const createQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: CipherNCreator,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherCreator,
   [QuestionTypeEnum.ANOMALY_MONSTER]: AnomalyMonsterCreator,
-  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceCreator
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceCreator,
+  [QuestionTypeEnum.CONTAGION_PROTOCOL]: ContagionProtocolCreator
 };
 
 export const solveQuestionComponent: Record<
@@ -40,7 +44,8 @@ export const solveQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: CipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: RingCipherSolver,
   [QuestionTypeEnum.ANOMALY_MONSTER]: DecisionTreeAnomalySolver,
-  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceSolver
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceSolver,
+  [QuestionTypeEnum.CONTAGION_PROTOCOL]: ContagionProtocolSolver
 };
 
 export const solveGeneratedQuestionComponent: Record<
@@ -51,5 +56,6 @@ export const solveGeneratedQuestionComponent: Record<
   [QuestionTypeEnum.CIPHER_N]: GeneratedCipherNSolver,
   [QuestionTypeEnum.RING_CIPHER]: GeneratedRingCipherSolver,
   [QuestionTypeEnum.ANOMALY_MONSTER]: GeneratedAnomalyMonsterSolver,
-  [QuestionTypeEnum.DECISION_TREE_TRACE]: GeneratedDecisionTreeTraceSolver
+  [QuestionTypeEnum.DECISION_TREE_TRACE]: GeneratedDecisionTreeTraceSolver,
+  [QuestionTypeEnum.CONTAGION_PROTOCOL]: GeneratedContagionProtocolSolver
 };
