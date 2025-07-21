@@ -1,26 +1,26 @@
-import { useEffect, useState } from 'react';
 import { Assets, Spritesheet, Texture } from 'pixi.js';
 import {
-  defaultColor,
+  ContagionProtocolMonsterAttributeType,
+  ContagionProtocolMonsterColorType,
+  ContagionProtocolTreeAttributeEnum,
+  ContagionProtocolTreeAttributeType
+} from '@/models/contagion-protocol/contagion-protocol.model.type';
+import {
   monsterAssetUrl,
   MonsterPartType
 } from '@/components/features/question/anomaly-monster/monster-part.type';
 import KenneyMonsterSpritesheet from '@/components/features/question/anomaly-monster/kenney-monster-spritesheet';
+import { useEffect, useState } from 'react';
 
 interface UseMonsterSpritesReturn {
   spritesheet: Spritesheet | null;
   isLoading: boolean;
   getTexture: (
-    type: MonsterPartType,
-    value?: string,
-    color?: string
+    attribute: ContagionProtocolTreeAttributeType,
+    type: ContagionProtocolMonsterAttributeType,
+    color: ContagionProtocolMonsterColorType
   ) => Texture | null;
   getStaticTexture: (textureName: string) => Texture | null;
-  getTextureName: (
-    type: MonsterPartType,
-    value: string,
-    color?: string
-  ) => string | null;
 }
 
 interface TextureData {
@@ -31,7 +31,6 @@ interface TextureData {
   height: number;
 }
 
-// Singleton cache
 let cachedSpritesheet: Spritesheet | null = null;
 let spritesheetPromise: Promise<Spritesheet> | null = null;
 
@@ -73,7 +72,7 @@ async function loadMonsterSpritesheet(): Promise<Spritesheet> {
   return spritesheetPromise;
 }
 
-export function useMonsterSprites(): UseMonsterSpritesReturn {
+export function useMonsterSprite(): UseMonsterSpritesReturn {
   const [spritesheet, setSpritesheet] = useState<Spritesheet | null>(
     cachedSpritesheet
   );
@@ -95,37 +94,16 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
   }, []);
 
   const getTextureName = (
-    type: MonsterPartType,
-    value: string,
-    color?: string
+    attribute: ContagionProtocolTreeAttributeType,
+    value: ContagionProtocolMonsterAttributeType,
+    color: ContagionProtocolMonsterColorType
   ): string | null => {
-    const currentColor = color || defaultColor;
-
-    switch (type) {
-      case MonsterPartType.BODY:
-        return `${MonsterPartType.BODY}_${currentColor}_${value}.png`;
-      case MonsterPartType.LEG:
-        return `${MonsterPartType.LEG}_${currentColor}_${value}.png`;
-      case MonsterPartType.ARM:
-        return `${MonsterPartType.ARM}_${currentColor}_${value}.png`;
-      // case MonsterPartType.HORN:
-      //   return value === 'none' ? null : `horn_${currentColor}_${value}.png`;
+    switch (attribute) {
+      case ContagionProtocolTreeAttributeEnum.BODY:
+        return `${MonsterPartType.BODY}_${color}_${value}.png`;
       default:
         return null;
     }
-  };
-
-  const getTexture = (
-    type: MonsterPartType,
-    value?: string,
-    color?: string
-  ): Texture | null => {
-    if (!spritesheet || !value) return null;
-
-    const textureName = getTextureName(type, value, color);
-    if (!textureName) return null;
-
-    return spritesheet.textures[textureName] || null;
   };
 
   const getStaticTexture = (textureName: string): Texture | null => {
@@ -133,11 +111,23 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
     return spritesheet.textures[textureName] || null;
   };
 
+  const getTexture = (
+    attribute: ContagionProtocolTreeAttributeType,
+    value: ContagionProtocolMonsterAttributeType,
+    color: ContagionProtocolMonsterColorType
+  ): Texture | null => {
+    if (!spritesheet) return null;
+
+    const textureName = getTextureName(attribute, value, color);
+    if (!textureName) return null;
+
+    return getStaticTexture(textureName);
+  };
+
   return {
     spritesheet,
     isLoading,
     getTexture,
-    getStaticTexture,
-    getTextureName
+    getStaticTexture
   };
 }

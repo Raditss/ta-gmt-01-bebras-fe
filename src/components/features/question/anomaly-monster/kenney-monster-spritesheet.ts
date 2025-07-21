@@ -208,28 +208,28 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
         { source: 'Mouth_I.png', x: 540, y: 2146, width: 148, height: 84 },
         { source: 'Mouth_J.png', x: 732, y: 1274, width: 144, height: 96 },
         {
-          source: 'Mouth_closedFangs.png',
+          source: 'Mouth_Closedfangs.png',
           x: 516,
           y: 2230,
           width: 104,
           height: 40
         },
         {
-          source: 'Mouth_closedHappy.png',
+          source: 'Mouth_Closedhappy.png',
           x: 0,
           y: 2886,
           width: 160,
           height: 48
         },
         {
-          source: 'Mouth_closedSad.png',
+          source: 'Mouth_Closedsad.png',
           x: 864,
           y: 2918,
           width: 104,
           height: 40
         },
         {
-          source: 'Mouth_closedTeeth.png',
+          source: 'Mouth_Closedteeth.png',
           x: 440,
           y: 2886,
           width: 132,
@@ -922,28 +922,28 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
       { source: 'Mouth_I.png', x: 540, y: 2146, width: 148, height: 84 },
       { source: 'Mouth_J.png', x: 732, y: 1274, width: 144, height: 96 },
       {
-        source: 'Mouth_closedFangs.png',
+        source: 'Mouth_Closedfangs.png',
         x: 516,
         y: 2230,
         width: 104,
         height: 40
       },
       {
-        source: 'Mouth_closedHappy.png',
+        source: 'Mouth_Closedhappy.png',
         x: 0,
         y: 2886,
         width: 160,
         height: 48
       },
       {
-        source: 'Mouth_closedSad.png',
+        source: 'Mouth_Closedsad.png',
         x: 864,
         y: 2918,
         width: 104,
         height: 40
       },
       {
-        source: 'Mouth_closedTeeth.png',
+        source: 'Mouth_Closedteeth.png',
         x: 440,
         y: 2886,
         width: 132,
