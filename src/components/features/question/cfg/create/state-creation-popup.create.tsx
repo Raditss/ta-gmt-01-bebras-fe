@@ -154,7 +154,7 @@ export function StateCreationPopupCreate({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-card rounded-lg p-6 w-full max-w-5xl max-h-[85vh] overflow-y-auto border shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-center text-foreground">
-          {mode === 'start' ? 'Create Start State' : 'Create End State'}
+          {mode === 'start' ? 'Buat Keadaan Awal' : 'Buat Keadaan Akhir'}
         </h2>
 
         {/* Undo/Redo/Reset Buttons */}
@@ -164,13 +164,13 @@ export function StateCreationPopupCreate({
               onClick={onUndo}
               className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
-              Undo
+              Urungkan
             </button>
             <button
               onClick={onRedo}
               className="bg-secondary hover:bg-secondary/80 text-secondary-foreground font-medium py-2 px-4 rounded-md transition-colors"
             >
-              Redo
+              Ulangi
             </button>
           </div>
         )}
@@ -223,7 +223,7 @@ export function StateCreationPopupCreate({
         {mode === 'start' ? (
           <div className="text-center mb-6">
             <h3 className="font-semibold mb-4 text-foreground">
-              Available Objects
+              Objek yang Tersedia
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
               {availableObjects.map((obj, idx) => (
@@ -240,7 +240,7 @@ export function StateCreationPopupCreate({
         ) : (
           <div className="text-center mb-6">
             <h3 className="font-semibold mb-4 text-foreground">
-              Available Rules for Selected Objects
+              Aturan yang Tersedia untuk Objek yang Dipilih
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
               {applicableRules.length > 0 ? (
@@ -273,7 +273,7 @@ export function StateCreationPopupCreate({
                 ))
               ) : (
                 <p className="text-muted-foreground">
-                  No matching rules for selected objects
+                  Tidak ada aturan yang cocok untuk objek yang dipilih
                 </p>
               )}
             </div>
@@ -291,7 +291,7 @@ export function StateCreationPopupCreate({
             }}
             className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-3 px-8 rounded-lg transition-colors"
           >
-            Done
+            Selesai
           </button>
         </div>
       </div>

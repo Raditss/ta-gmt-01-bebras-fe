@@ -31,17 +31,17 @@ export function RulesTableShared({
         } border-b-4 border-gray-600`}
       >
         <div className="p-4 text-center font-medium border-r-4 border-gray-600">
-          Before
+          Sebelum
         </div>
         <div
           className={`p-4 text-center font-medium ${
             showActions ? 'border-r-4 border-gray-600' : ''
           }`}
         >
-          After
+          Sesudah
         </div>
         {showActions && (
-          <div className="p-4 text-center font-medium w-24">Action</div>
+          <div className="p-4 text-center font-medium w-24">Aksi</div>
         )}
       </div>
 

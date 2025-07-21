@@ -22,6 +22,11 @@ export function DynamicHelp({ questionType }: DynamicHelpProps) {
         setError(null);
 
         switch (questionType) {
+          case QuestionTypeEnum.CFG: {
+            const mod = await import('./help-content/cfg-help');
+            setHelpContent(() => mod.CfgHelp);
+            break;
+          }
           case QuestionTypeEnum.CIPHER_N: {
             const mod = await import('./help-content/cipher-n-help');
             setHelpContent(() => mod.CipherNHelp);
