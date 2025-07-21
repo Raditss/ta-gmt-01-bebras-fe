@@ -89,3 +89,46 @@ export interface ContagionProtocolAnswer {
   monsters: MonsterAnswer[];
   currentId?: Monster['id'];
 }
+
+export const getColorLabel = (
+  color: ContagionProtocolMonsterColorType
+): string => {
+  switch (color) {
+    case ContagionProtocolMonsterColorEnum.GREEN:
+      return 'Hijau';
+    case ContagionProtocolMonsterColorEnum.BLUE:
+      return 'Biru';
+    case ContagionProtocolMonsterColorEnum.RED:
+      return 'Merah';
+    default:
+      return 'tidak diketahui';
+  }
+};
+
+export const getBodyLabel = (
+  body: ContagionProtocolMonsterBodyType
+): string => {
+  switch (body) {
+    case ContagionProtocolMonsterBodyEnum.ORB:
+      return 'Bulat';
+    case ContagionProtocolMonsterBodyEnum.CUBE:
+      return 'Kotak';
+    default:
+      return 'tidak diketahui';
+  }
+};
+
+export const getMouthLabel = (
+  mouth: ContagionProtocolMonsterMouthType
+): string => {
+  switch (mouth) {
+    case ContagionProtocolMonsterMouthEnum.SAD:
+      return 'Sedih';
+    case ContagionProtocolMonsterMouthEnum.FANGS:
+      return 'Bertaring';
+    case ContagionProtocolMonsterMouthEnum.HAPPY:
+      return 'Tersenyum';
+    default:
+      return 'tidak diketahui';
+  }
+};

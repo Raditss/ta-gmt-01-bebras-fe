@@ -19,9 +19,9 @@ import GeneratedAnomalyMonsterSolver from '@/components/features/question/anomal
 import DecisionTreeTraceCreator from '@/components/features/question/decision-tree-trace/decision-tree-trace.creator';
 import DecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver';
 import GeneratedDecisionTreeTraceSolver from '@/components/features/question/decision-tree-trace/decision-tree-trace.solver.generated';
-import NotImplementedCreator from '@/components/features/question/fallbacks/not-implemented.creator';
 import NotImplementedSolver from '@/components/features/question/fallbacks/not-implemented.solver';
 import GeneratedContagionProtocolSolver from '@/components/features/question/contagion-protocol/contagion-protocol.solver.generated';
+import ContagionProtocolCreator from '@/components/features/question/contagion-protocol/contagion-protocol.creator';
 // import GeneratedNotImplementedSolver from '@/components/features/question/fallbacks/not-implemented.solver.generated';
 
 export const createQuestionComponent: Record<
@@ -33,7 +33,7 @@ export const createQuestionComponent: Record<
   [QuestionTypeEnum.RING_CIPHER]: RingCipherCreator,
   [QuestionTypeEnum.ANOMALY_MONSTER]: AnomalyMonsterCreator,
   [QuestionTypeEnum.DECISION_TREE_TRACE]: DecisionTreeTraceCreator,
-  [QuestionTypeEnum.CONTAGION_PROTOCOL]: NotImplementedCreator
+  [QuestionTypeEnum.CONTAGION_PROTOCOL]: ContagionProtocolCreator
 };
 
 export const solveQuestionComponent: Record<
