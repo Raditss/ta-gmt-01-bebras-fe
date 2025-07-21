@@ -337,8 +337,8 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                   {content.question.prompt}
                 </h1>
                 <p className="text-lg text-gray-600 mt-2">
-                  <strong>Message to encrypt:</strong>{' '}
-                  {content.question.plaintext}
+                  Kamu ditugaskan untuk menemukan kode (enkripsi) dari Kata{' '}
+                  <strong>{content.question.plaintext.toUpperCase()}</strong>
                 </p>
               </div>
 
@@ -360,9 +360,11 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                           isClockwise ? 'bg-blue-500' : 'bg-orange-500'
                         }`}
                       ></div>
-                      <span className="mr-2">Rotation Direction:</span>
+                      <span className="mr-2">Arah Rotasi:</span>
                       <span className="font-bold">
-                        {isClockwise ? 'Clockwise' : 'Counter-clockwise'}
+                        {isClockwise
+                          ? 'Searah Jarum Jam'
+                          : 'Berlawanan Jarum Jam'}
                       </span>
                       {isClockwise ? (
                         <svg
@@ -419,20 +421,20 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                 {/* Right Side - Encryption Controls */}
                 <div className="bg-white rounded-lg p-8 shadow-sm">
                   <h2 className="text-2xl font-semibold mb-8">
-                    Encryption Controls
+                    Kontrol Enkripsi
                   </h2>
 
                   <div className="space-y-6">
                     {/* Rotation Input */}
                     <div>
                       <label className="block text-base font-medium mb-3">
-                        Rotation (0-{maxRotation}):
+                        Rotasi (0-{maxRotation}):
                       </label>
                       <Input
                         type="text"
                         value={rotationValue}
                         onChange={(e) => handleRotationChange(e.target.value)}
-                        placeholder={`Enter 0-${maxRotation}`}
+                        placeholder={`Masukkan 0-${maxRotation}`}
                         className="w-full text-lg py-3 px-4"
                       />
                     </div>
@@ -440,7 +442,7 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                     {/* Position Input */}
                     <div>
                       <label className="block text-base font-medium mb-3">
-                        Position (1-
+                        Posisi (1-
                         {vertices[targetVertex]?.letters.length || 0}
                         ):
                       </label>
@@ -448,7 +450,7 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                         type="text"
                         value={positionValue}
                         onChange={(e) => handlePositionChange(e.target.value)}
-                        placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
+                        placeholder={`Masukkan 1-${vertices[targetVertex]?.letters.length || 0}`}
                         className="w-full text-lg py-3 px-4"
                         disabled={!vertices[targetVertex]}
                       />
@@ -460,13 +462,13 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                       disabled={!isValidInputs()}
                       className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                     >
-                      Add to Final Answer
+                      Tambahkan ke Jawaban Akhir
                     </Button>
 
                     {/* Final Answer Section */}
                     <div className="mt-8">
                       <label className="block text-base font-medium mb-3">
-                        Final Answer:
+                        Jawaban Akhir:
                       </label>
                       <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
                         {finalAnswerDisplay || ''}
@@ -485,7 +487,7 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                           onClick={handleClearAnswer}
                           className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
                         >
-                          Clear
+                          Hapus
                         </Button>
                       </div>
                     </div>

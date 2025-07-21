@@ -359,20 +359,20 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                 {/* Right Side - Encryption Controls */}
                 <div className="bg-white rounded-lg p-8 shadow-sm">
                   <h2 className="text-2xl font-semibold mb-8">
-                    Encryption Controls
+                    Kontrol Enkripsi
                   </h2>
 
                   <div className="space-y-6">
                     {/* Ring Input */}
                     <div>
                       <label className="block text-base font-medium mb-3">
-                        Ring Number (1-{rings.length}):
+                        Nomor Ring (1-{rings.length}):
                       </label>
                       <Input
                         type="text"
                         value={ringValue}
                         onChange={(e) => handleRingChange(e.target.value)}
-                        placeholder={`Enter 1-${rings.length}`}
+                        placeholder={`Masukkan 1-${rings.length}`}
                         className="w-full text-lg py-3 px-4"
                       />
                     </div>
@@ -380,7 +380,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                     {/* Steps Input */}
                     <div>
                       <label className="block text-base font-medium mb-3">
-                        Rotation Steps (0-
+                        Langkah Rotasi (0-
                         {rings[parseInt(ringValue) - 1]?.letters.length - 1 ||
                           0}
                         ):
@@ -389,7 +389,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                         type="text"
                         value={stepsValue}
                         onChange={(e) => handleStepsChange(e.target.value)}
-                        placeholder={`Enter 0-${rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}`}
+                        placeholder={`Masukkan 0-${rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}`}
                         className="w-full text-lg py-3 px-4"
                         disabled={!rings[parseInt(ringValue) - 1]}
                       />
@@ -401,13 +401,13 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                       disabled={!isValidInputs()}
                       className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                     >
-                      Add to Final Answer
+                      Tambahkan ke Jawaban Akhir
                     </Button>
 
                     {/* Final Answer Section */}
                     <div className="mt-8">
                       <label className="block text-base font-medium mb-3">
-                        Final Answer:
+                        Jawaban Akhir:
                       </label>
                       <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
                         {finalAnswerDisplay || ''}
@@ -426,7 +426,7 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                           onClick={handleClearAnswer}
                           className="flex-1 py-3 text-base bg-red-500 hover:bg-red-600 text-white"
                         >
-                          Clear
+                          Hapus
                         </Button>
                       </div>
                     </div>

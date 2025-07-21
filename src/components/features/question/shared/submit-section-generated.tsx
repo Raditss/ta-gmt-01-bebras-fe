@@ -103,7 +103,7 @@ export function GeneratedSubmitSection({
             disabled={isDisabled || answerArr.length === 0 || isSubmitting}
             className={`flex-1 py-3 text-base ${submitButtonClassName || 'bg-green-500 hover:bg-green-600 text-white'}`}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+            {isSubmitting ? 'Submitting...' : 'Submit Jawaban'}
           </Button>
         </div>
       )}

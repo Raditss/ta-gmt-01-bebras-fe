@@ -119,7 +119,7 @@ const Dashboard = () => {
               <div className="flex-1 flex flex-col justify-center pl-12 h-full">
                 <div className="flex items-center mb-2">
                   <span className="text-xl font-bold text-white mr-2">
-                    Your Progress
+                    Poin Kamu
                   </span>
                   <span className="text-xl">🚀</span>
                 </div>
@@ -132,7 +132,7 @@ const Dashboard = () => {
                   />
                   {/* XP badge at top right */}
                   <div className="absolute -top-7 right-0 bg-pink-300 rounded-full px-5 py-1 text-base font-bold text-white shadow">
-                    {points}/{totalPoints} Points
+                    {points}/{totalPoints} Poin
                   </div>
                 </div>
                 {/* Streak and Weekly Grind */}
@@ -149,13 +149,13 @@ const Dashboard = () => {
                       <span className="text-3xl font-bold text-black leading-none">
                         {streakDays}
                       </span>
-                      <span className="text-base text-black">Days</span>
+                      <span className="text-base text-black">Hari</span>
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-medium text-white">
-                        This Week&apos;s Grind
+                        Kegiatanmu Seminggu Terakhir
                       </span>
                     </div>
                     <div className="flex gap-2 mt-1">
@@ -175,14 +175,14 @@ const Dashboard = () => {
           {/* Ready to Solve Card - Takes up 1 column */}
           <div className="lg:col-span-1">
             <div className="h-64 bg-gradient-to-br from-yellow-400 to-yellow-300 rounded-3xl p-8 text-black flex flex-col justify-center items-center shadow-lg">
-              <h3 className="font-semibold text-lg mb-8">Ready to Solve?</h3>
+              <h3 className="font-semibold text-lg mb-8">Siap Mengerjakan?</h3>
               <div className="space-y-4 w-full">
                 <button
                   onClick={() => (window.location.href = '/problems')}
                   className="w-full bg-white text-black rounded-full py-3 px-6 font-semibold flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors text-base shadow"
                 >
                   <Play className="w-4 h-4" />
-                  Let&apos;s Solve
+                  Kerjakan Soal
                 </button>
                 <button className="w-full bg-white text-black rounded-full py-3 px-6 font-semibold flex items-center justify-center gap-3 border border-black/10 hover:bg-gray-50 transition-colors text-base shadow">
                   <span className="inline-block">
@@ -201,7 +201,7 @@ const Dashboard = () => {
                       />
                     </svg>
                   </span>
-                  Random Challenge
+                  Soal Acak
                 </button>
               </div>
             </div>
@@ -215,7 +215,7 @@ const Dashboard = () => {
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <TrendingUp className="w-6 h-6 text-purple-500" />
-                Recent Activity
+                Kegiatan Terbaru
               </h3>
               <div className="space-y-4">
                 {recentActivity.map((activity) => (

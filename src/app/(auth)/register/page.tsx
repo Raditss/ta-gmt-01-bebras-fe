@@ -29,20 +29,20 @@ import Image from 'next/image';
 
 const registerFormSchema = z
   .object({
-    name: z.string().min(1, 'Full name is required'),
-    username: z.string().min(1, 'Username is required'),
+    name: z.string().min(1, 'Nama lengkap harus diisi'),
+    username: z.string().min(1, 'Username harus diisi'),
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[A-Z]/, 'Must contain an uppercase letter')
-      .regex(/[a-z]/, 'Must contain a lowercase letter')
-      .regex(/[0-9]/, 'Must contain a number')
-      .regex(/[^A-Za-z0-9]/, 'Must contain a special character'),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
+      .min(8, 'Password harus minimal 8 karakter')
+      .regex(/[A-Z]/, 'Harus mengandung huruf besar')
+      .regex(/[a-z]/, 'Harus mengandung huruf kecil')
+      .regex(/[0-9]/, 'Harus mengandung angka')
+      .regex(/[^A-Za-z0-9]/, 'Harus mengandung karakter khusus'),
+    confirmPassword: z.string().min(1, 'Harus konfirmasi password'),
     role: z.enum(['STUDENT', 'TEACHER'])
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'Passwords tidak sama',
     path: ['confirmPassword']
   });
 
@@ -153,21 +153,21 @@ export default function RegisterPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Create Account</CardTitle>
+              <CardTitle>Buat Akun</CardTitle>
               <CardDescription>
-                Join Solvio and start your coding journey
+                Bergabung dengan Solvio dan mulai perjalanan belajarmu
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name">Nama Lengkap</Label>
                   <div className="relative">
                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder="Masukkan nama lengkapmu"
                       className="pl-10"
                       {...register('name')}
                       disabled={isSubmitting}
@@ -187,7 +187,7 @@ export default function RegisterPage() {
                     <Input
                       id="username"
                       type="text"
-                      placeholder="Enter your username"
+                      placeholder="Masukkan username-mu"
                       className="pl-10"
                       {...register('username')}
                       disabled={isSubmitting}
@@ -211,11 +211,11 @@ export default function RegisterPage() {
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select your role" />
+                          <SelectValue placeholder="Pilih peranmu" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="STUDENT">Student</SelectItem>
-                          <SelectItem value="TEACHER">Teacher</SelectItem>
+                          <SelectItem value="STUDENT">Siswa</SelectItem>
+                          <SelectItem value="TEACHER">Guru</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
@@ -234,7 +234,7 @@ export default function RegisterPage() {
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Create a password"
+                      placeholder="Buat password-mu"
                       className="pl-10 pr-10"
                       {...register('password')}
                       disabled={isSubmitting}
@@ -254,9 +254,8 @@ export default function RegisterPage() {
                   <p
                     className={`text-xs mt-1 ${password.length > 0 && !passwordMeetsComplexity ? 'text-red-500' : 'text-gray-500'}`}
                   >
-                    Password must contain at least 8 characters, 1 uppercase
-                    letter, 1 lowercase letter, 1 number, and 1 special
-                    character
+                    Password harus berisi minimal 8 karakter, 1 huruf besar, 1
+                    huruf kecil, 1 angka, dan 1 karakter khusus
                   </p>
                   {errors.password && errors.password.message && (
                     <p className="text-xs text-red-500 mt-1">
@@ -266,13 +265,13 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword">Konfirmasi Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Confirm your password"
+                      placeholder="Konfirmasi password-mu"
                       className="pl-10 pr-10"
                       {...register('confirmPassword')}
                       disabled={isSubmitting}
@@ -304,22 +303,22 @@ export default function RegisterPage() {
                   size="lg"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Creating...' : 'Create Account'}
+                  {isSubmitting ? 'Membuat...' : 'Buat Akun'}
                 </Button>
                 {registerError && (
                   <p className="text-xs text-red-500 mt-2 text-center">
-                    Registration failed, please try again
+                    Registrasi gagal, silahkan coba lagi
                   </p>
                 )}
               </form>
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-500">
-                  Already have an account?{' '}
+                  Sudah punya akun?{' '}
                   <Link
                     href="/login"
                     className="text-purple-600 hover:underline"
                   >
-                    Login here
+                    Masuk di sini
                   </Link>
                 </p>
               </div>

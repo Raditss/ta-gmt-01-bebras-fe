@@ -129,10 +129,11 @@ export default function LeaderboardPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="w-5 h-5" />
-                  Global Leaderboard
+                  Peringkat Global
                 </CardTitle>
                 <CardDescription>
-                  Rankings based on total points earned from solving problems
+                  Peringkat berdasarkan total poin yang diperoleh dari
+                  menyelesaikan soal
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -142,9 +143,9 @@ export default function LeaderboardPage() {
                   className="w-full"
                 >
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="all-time">All Time</TabsTrigger>
-                    <TabsTrigger value="monthly">This Month</TabsTrigger>
-                    <TabsTrigger value="weekly">This Week</TabsTrigger>
+                    <TabsTrigger value="all-time">Semua Waktu</TabsTrigger>
+                    <TabsTrigger value="monthly">Bulan Ini</TabsTrigger>
+                    <TabsTrigger value="weekly">Minggu Ini</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="all-time" className="mt-6">
