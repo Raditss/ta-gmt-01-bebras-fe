@@ -1,4 +1,4 @@
-import { MonsterPartOptionType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { MonsterPartOptionType } from '@/components/features/question/anomaly-monster/monster.type';
 import Image from 'next/image';
 
 export interface MonsterPartOptionProps {
@@ -16,7 +16,6 @@ export default function MonsterPartOption({
   onMouseLeave,
   onClick
 }: MonsterPartOptionProps) {
-  console.log('lower', option.label.toLowerCase());
   return (
     <div
       className={`

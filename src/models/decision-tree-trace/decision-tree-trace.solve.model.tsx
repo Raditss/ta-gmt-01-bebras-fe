@@ -58,6 +58,7 @@ export class DecisionTreeTraceSolveModel extends IQuestion implements IAttempt {
   populateQuestionFromString(questionString: string): void {
     try {
       this.content = JSON.parse(questionString) as DecisionTreeTraceContent;
+      this.resetToInitialState();
     } catch (error) {
       console.error('Error parsing question data:', error);
       throw new Error('Invalid question data format');

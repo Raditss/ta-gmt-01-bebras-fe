@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Monster } from '@/models/anomaly-monster/anomaly-monster.model.type';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import {
+  MonsterPartEnum,
+  MonsterPartType,
+  MonsterPartValue
+} from '@/components/features/question/anomaly-monster/monster.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';
@@ -41,13 +45,53 @@ interface EChartsNode {
   isOnPath?: boolean;
 }
 
+export const getLabel = (
+  type: MonsterPartType,
+  value: MonsterPartValue
+): string => {
+  switch (type) {
+    case MonsterPartEnum.COLOR:
+      switch (value) {
+        case 'Red':
+          return 'Berwarna Merah';
+        case 'Green':
+          return 'Berwarna Hijau';
+        case 'Blue':
+          return 'Berwarna Biru';
+        default:
+          return value;
+      }
+    case MonsterPartEnum.BODY:
+      switch (value) {
+        case 'Orb':
+          return 'Berbentuk Bulat';
+        case 'Cube':
+          return 'Berbentuk Kotak';
+        default:
+          return value;
+      }
+    case MonsterPartEnum.MOUTH:
+      switch (value) {
+        case 'Fangs':
+          return 'Bertaring';
+        case 'Closedteeth':
+          return 'Tidak Bertaring';
+        default:
+          return 'Tidak diketahui';
+      }
+    default:
+      return value;
+  }
+};
+
 const buildDecisionTree = (rules: Monster[]): TreeNode => {
   const attributeOrder = [
-    MonsterPartType.BODY,
-    MonsterPartType.ARM,
-    MonsterPartType.LEG,
+    MonsterPartEnum.COLOR,
+    MonsterPartEnum.BODY,
+    MonsterPartEnum.MOUTH
+    // MonsterPartEnum.ARM,
+    // MonsterPartEnum.LEG
     // 'horns',
-    MonsterPartType.COLOR
   ];
 
   const findMatchingRule = (conditions: Record<string, string>): number => {
@@ -197,7 +241,7 @@ const convertToEChartsFormat = (
     // Format: "Attribute: Value" - shows the decision being made
     const attributeLabel =
       tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1);
-    child.name = `${attributeLabel}: ${value}`;
+    child.name = `${getLabel(attributeLabel as MonsterPartType, value as MonsterPartValue)}`;
 
     const isSelectedPath = selectedValue === value;
 
@@ -252,7 +296,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
             position: 'top',
             verticalAlign: 'bottom',
             align: 'center',
-            fontSize: 12,
+            fontSize: 11,
             distance: 10
             // rotate: 90
           },

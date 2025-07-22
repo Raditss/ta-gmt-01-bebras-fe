@@ -3,6 +3,7 @@ import { IAttempt, IQuestion } from '@/models/interfaces/question.model';
 import { QuestionAttemptData } from '@/types/question-attempt.type';
 import {
   AnomalyMonsterAnswer,
+  AnomalyMonsterForm,
   AnomalyMonsterQuestion,
   Monster
 } from '@/models/anomaly-monster/anomaly-monster.model.type';
@@ -24,6 +25,7 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
     this.answer = {
       anomaly: [],
       normal: [],
+      forms: [],
       currentIdx: 0
     };
     this.attemptDuration = 0;
@@ -55,6 +57,14 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
     this.answer.normal = normal;
   }
 
+  get forms() {
+    return this.answer.forms;
+  }
+
+  setForms(anomalyMonsterForms: AnomalyMonsterForm[]) {
+    this.answer.forms = anomalyMonsterForms;
+  }
+
   get currentIdx() {
     return this.answer.currentIdx;
   }
@@ -82,7 +92,8 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
       this.answer = {
         normal: [],
         anomaly: [],
-        currentIdx: 0
+        currentIdx: 0,
+        forms: []
       };
     } else {
       this.answer = answer;
@@ -95,7 +106,6 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
       this.resetToInitialState();
     } catch (error) {
       console.error('Error parsing question data:', error);
-      throw new Error('Invalid question data format');
     }
   }
 
@@ -103,7 +113,8 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
     this.answer = {
       anomaly: [],
       normal: [],
-      currentIdx: 0
+      currentIdx: 0,
+      forms: []
     };
   }
 

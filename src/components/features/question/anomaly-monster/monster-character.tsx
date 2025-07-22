@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { MonsterPartEnum } from '@/components/features/question/anomaly-monster/monster.type';
 import { Stage } from '@pixi/react';
 import { calculateCanvasSize } from '@/utils/helpers/canvas.helper';
 import MonsterContainer from './monster-container';
@@ -9,7 +9,7 @@ import MonsterContainer from './monster-container';
 interface MonsterCharacterProps {
   selections: Record<string, string>;
   hovered: {
-    category: MonsterPartType;
+    category: MonsterPartEnum;
     value: string;
   } | null;
 }
