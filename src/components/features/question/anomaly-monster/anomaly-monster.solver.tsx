@@ -134,8 +134,9 @@ export default function DecisionTreeAnomalySolver({
                 Monster yang Aneh
               </h1>
               <h3 className="mt-3 text-xl font-semibold text-gray-500">
-                Kamu ditugaskan membantu para saintis! Teliti setiap monster dan
-                tentukan: normal atau terinfeksi?
+                Kamu ditugaskan membantu para saintis apakah monster terkena
+                virus atau tidak! Teliti setiap monster menggunakan pohon
+                keputusan dan tentukan: normal atau terinfeksi?
               </h3>
             </div>
 
@@ -309,7 +310,7 @@ export default function DecisionTreeAnomalySolver({
                     <Button
                       className="flex items-center justify-center w-36 h-14 rounded-xl font-semibold transition-all duration-200 transform
                       border-2 border-gray-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105"
-                      onClick={() => setIsFormOpen(true)}
+                      onClick={() => setIsFormOpen(!isFormOpen)}
                     >
                       <Search size={20} />
                       Klasifikasikan

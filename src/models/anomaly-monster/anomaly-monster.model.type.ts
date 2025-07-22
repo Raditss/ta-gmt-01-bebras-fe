@@ -1,13 +1,13 @@
 import {
   BodyType,
   ColorType,
-  MonsterPartEnum,
+  MonsterPartType,
   MonsterPartValue,
   MouthType
 } from '@/components/features/question/anomaly-monster/monster.type';
 
 export interface MonsterCondition {
-  attribute: MonsterPartEnum;
+  attribute: MonsterPartType;
   value: MonsterPartValue;
 }
 

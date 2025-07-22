@@ -18,6 +18,7 @@ interface TreeNode {
 interface TreeProps {
   rules: Branch[];
   selections: Record<string, string>;
+  height?: string;
 }
 
 interface EChartsNode {
@@ -273,7 +274,11 @@ const convertToEChartsFormat = (
   };
 };
 
-export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
+export function DecisionTreeAnomalyTree({
+  rules,
+  selections,
+  height = '400px'
+}: TreeProps) {
   const option = useMemo(() => {
     const tree = buildDecisionTree(rules);
     const data = convertToEChartsFormat(tree, selections);
@@ -334,7 +339,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
       {/*</div>*/}
       <ReactECharts
         option={option}
-        style={{ height: '400px', width: '100%' }}
+        style={{ height: height, width: '100%' }}
         opts={{ renderer: 'svg' }}
       />
     </div>
