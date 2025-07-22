@@ -1,4 +1,4 @@
-import { MonsterPartOptionType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { MonsterPartOptionType } from '@/components/features/question/anomaly-monster/monster.type';
 import MonsterPartOption from '@/components/features/question/anomaly-monster/monster-part-option';
 import {
   Carousel,

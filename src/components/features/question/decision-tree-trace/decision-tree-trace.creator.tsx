@@ -4,9 +4,9 @@ import { DecisionTreeTraceTree } from '@/components/features/question/decision-t
 import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
 import MonsterPartWardrobe from '@/components/features/question/anomaly-monster/monster-part-wardrobe';
 import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+  MonsterPartEnum,
+  MonsterPartOptionType
+} from '@/components/features/question/anomaly-monster/monster.type';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -106,7 +106,7 @@ export default function DecisionTreeTraceCreator({
     null
   );
   const [hovered, setHovered] = useState<{
-    category: MonsterPartType;
+    category: MonsterPartEnum;
     value: string;
   } | null>(null);
   const [isRuleDrawerOpen, setIsRuleDrawerOpen] = useState(false);
@@ -145,7 +145,7 @@ export default function DecisionTreeTraceCreator({
 
   // Handle monster part selection for rule creation
   const handleSelection = useCallback(
-    (category: MonsterPartType, value: MonsterPartOptionType) => {
+    (category: MonsterPartEnum, value: MonsterPartOptionType) => {
       setSelections((prev) => ({
         ...prev,
         [category]: value.value
@@ -156,7 +156,7 @@ export default function DecisionTreeTraceCreator({
   );
 
   const handleHover = useCallback(
-    (category: MonsterPartType, value: string) => {
+    (category: MonsterPartEnum, value: string) => {
       setHovered({ category, value });
     },
     []
@@ -169,7 +169,7 @@ export default function DecisionTreeTraceCreator({
   // Check if current rule is valid
   const isCurrentRuleValid = () => {
     const hasAllSelections =
-      Object.keys(selections).length === Object.values(MonsterPartType).length;
+      Object.keys(selections).length === Object.values(MonsterPartEnum).length;
     const hasFinishSelected = currentRuleFinish !== null;
     return hasAllSelections && hasFinishSelected;
   };

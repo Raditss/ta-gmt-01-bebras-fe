@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Monster } from '@/models/anomaly-monster/anomaly-monster.model.type';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { Branch } from '@/models/anomaly-monster/anomaly-monster.model.type';
+import {
+  MonsterPartEnum,
+  MonsterPartType,
+  MonsterPartValue
+} from '@/components/features/question/anomaly-monster/monster.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';
@@ -12,8 +16,9 @@ interface TreeNode {
 }
 
 interface TreeProps {
-  rules: Monster[];
+  rules: Branch[];
   selections: Record<string, string>;
+  height?: string;
 }
 
 interface EChartsNode {
@@ -41,13 +46,53 @@ interface EChartsNode {
   isOnPath?: boolean;
 }
 
-const buildDecisionTree = (rules: Monster[]): TreeNode => {
+export const getLabel = (
+  type: MonsterPartType,
+  value: MonsterPartValue
+): string => {
+  switch (type) {
+    case MonsterPartEnum.COLOR:
+      switch (value) {
+        case 'Red':
+          return 'Berwarna Merah';
+        case 'Green':
+          return 'Berwarna Hijau';
+        case 'Blue':
+          return 'Berwarna Biru';
+        default:
+          return value;
+      }
+    case MonsterPartEnum.BODY:
+      switch (value) {
+        case 'Orb':
+          return 'Berbentuk Bulat';
+        case 'Cube':
+          return 'Berbentuk Kotak';
+        default:
+          return value;
+      }
+    case MonsterPartEnum.MOUTH:
+      switch (value) {
+        case 'Fangs':
+          return 'Bertaring';
+        case 'Closedteeth':
+          return 'Tidak Bertaring';
+        default:
+          return 'Tidak diketahui';
+      }
+    default:
+      return value;
+  }
+};
+
+const buildDecisionTree = (rules: Branch[]): TreeNode => {
   const attributeOrder = [
-    MonsterPartType.BODY,
-    MonsterPartType.ARM,
-    MonsterPartType.LEG,
+    MonsterPartEnum.COLOR,
+    MonsterPartEnum.BODY,
+    MonsterPartEnum.MOUTH
+    // MonsterPartEnum.ARM,
+    // MonsterPartEnum.LEG
     // 'horns',
-    MonsterPartType.COLOR
   ];
 
   const findMatchingRule = (conditions: Record<string, string>): number => {
@@ -197,7 +242,7 @@ const convertToEChartsFormat = (
     // Format: "Attribute: Value" - shows the decision being made
     const attributeLabel =
       tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1);
-    child.name = `${attributeLabel}: ${value}`;
+    child.name = `${getLabel(attributeLabel as MonsterPartType, value as MonsterPartValue)}`;
 
     const isSelectedPath = selectedValue === value;
 
@@ -229,7 +274,11 @@ const convertToEChartsFormat = (
   };
 };
 
-export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
+export function DecisionTreeAnomalyTree({
+  rules,
+  selections,
+  height = '400px'
+}: TreeProps) {
   const option = useMemo(() => {
     const tree = buildDecisionTree(rules);
     const data = convertToEChartsFormat(tree, selections);
@@ -252,7 +301,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
             position: 'top',
             verticalAlign: 'bottom',
             align: 'center',
-            fontSize: 12,
+            fontSize: 11,
             distance: 10
             // rotate: 90
           },
@@ -290,7 +339,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
       {/*</div>*/}
       <ReactECharts
         option={option}
-        style={{ height: '400px', width: '100%' }}
+        style={{ height: height, width: '100%' }}
         opts={{ renderer: 'svg' }}
       />
     </div>

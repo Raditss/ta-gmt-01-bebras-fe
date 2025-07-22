@@ -3,21 +3,21 @@ import { Assets, Spritesheet, Texture } from 'pixi.js';
 import {
   defaultColor,
   monsterAssetUrl,
-  MonsterPartType
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+  MonsterPartEnum
+} from '@/components/features/question/anomaly-monster/monster.type';
 import KenneyMonsterSpritesheet from '@/components/features/question/anomaly-monster/kenney-monster-spritesheet';
 
 interface UseMonsterSpritesReturn {
   spritesheet: Spritesheet | null;
   isLoading: boolean;
   getTexture: (
-    type: MonsterPartType,
+    type: MonsterPartEnum,
     value?: string,
     color?: string
   ) => Texture | null;
   getStaticTexture: (textureName: string) => Texture | null;
   getTextureName: (
-    type: MonsterPartType,
+    type: MonsterPartEnum,
     value: string,
     color?: string
   ) => string | null;
@@ -95,19 +95,19 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
   }, []);
 
   const getTextureName = (
-    type: MonsterPartType,
+    type: MonsterPartEnum,
     value: string,
     color?: string
   ): string | null => {
     const currentColor = color || defaultColor;
 
     switch (type) {
-      case MonsterPartType.BODY:
-        return `${MonsterPartType.BODY}_${currentColor}_${value}.png`;
-      case MonsterPartType.LEG:
-        return `${MonsterPartType.LEG}_${currentColor}_${value}.png`;
-      case MonsterPartType.ARM:
-        return `${MonsterPartType.ARM}_${currentColor}_${value}.png`;
+      case MonsterPartEnum.BODY:
+        return `${MonsterPartEnum.BODY}_${currentColor}_${value}.png`;
+      // case MonsterPartEnum.LEG:
+      //   return `${MonsterPartEnum.LEG}_${currentColor}_${value}.png`;
+      // case MonsterPartEnum.ARM:
+      //   return `${MonsterPartEnum.ARM}_${currentColor}_${value}.png`;
       // case MonsterPartType.HORN:
       //   return value === 'none' ? null : `horn_${currentColor}_${value}.png`;
       default:
@@ -116,7 +116,7 @@ export function useMonsterSprites(): UseMonsterSpritesReturn {
   };
 
   const getTexture = (
-    type: MonsterPartType,
+    type: MonsterPartEnum,
     value?: string,
     color?: string
   ): Texture | null => {

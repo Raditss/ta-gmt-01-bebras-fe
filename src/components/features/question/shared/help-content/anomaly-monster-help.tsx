@@ -1,7 +1,18 @@
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowRight, Check, Info, Lightbulb, Target, Worm } from 'lucide-react';
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle,
+  Info,
+  Lightbulb,
+  Search,
+  Target
+} from 'lucide-react';
+import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
+import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
+import { Button } from '@/components/ui/button';
 
 export function AnomalyMonsterHelp() {
   return (
@@ -33,19 +44,28 @@ export function AnomalyMonsterHelp() {
             </h4>
             <p className="text-blue-700 text-sm">
               Pohon keputusan di sebelah kiri menunjukkan aturan logis untuk
-              mengklasifikasikan monster. Perhatikan setiap cabang yang mengarah
-              ke hasil <strong>Normal</strong> atau <strong>Terinfeksi</strong>.
+              mengklasifikasikan monster. Cabang-cabang yang terdapat pada Pohon
+              Keputusan merupakan Monster yang <strong>Normal</strong>.
             </p>
           </div>
 
           <div className="bg-green-50 p-4 rounded-lg">
             <h4 className="font-medium text-green-800 mb-2">
-              Langkah 2: Periksa Monster Satu per Satu
+              Langkah 2: Periksa Monster dengan menekan tombol
             </h4>
+            <Button
+              className="flex self-center justify-self-center
+               border-2 border-gray-400 text-green-600 bg-white
+               hover:bg-white hover:text-green-600 hover:border-gray-400 cursor-default"
+            >
+              <Search size={12} />
+              Klasifikasikan
+            </Button>
             <p className="text-green-700 text-sm">
               Gunakan tombol panah untuk navigasi antar monster. Amati
-              karakteristik setiap monster: bentuk tubuh, bentuk tangan, bentuk
-              kaki, dan warna. Progress akan ditampilkan di bagian kiri bawah.
+              karakteristik setiap monster: warna, bentuk tubuh, dan mulut
+              monster. Lalu, pilih opsi yang tersedia pada form analisis sesuai
+              dengan yang kamu amati pada monster.
             </p>
           </div>
 
@@ -54,16 +74,17 @@ export function AnomalyMonsterHelp() {
               Langkah 3: Klasifikasikan dengan Tombol
             </h4>
             <p className="text-purple-700 text-sm">
-              Setelah menganalisis monster menggunakan pohon keputusan, klik
-              tombol
+              Analisis hasil dengan menggunakan pohon keputusan yang ada di
+              sebelah kiri, Setelah menganalisis monster menggunakan pohon
+              keputusan, klik tombol
               <span className="inline-flex items-center mx-1 px-2 py-1 bg-green-100 rounded text-xs">
-                <Check size={12} className="mr-1" />
-                Normal
+                <CheckCircle size={12} className="mr-1" />
+                Tandai Normal
               </span>{' '}
               atau
               <span className="inline-flex items-center mx-1 px-2 py-1 bg-red-100 rounded text-xs">
-                <Worm size={12} className="mr-1" />
-                Terinfeksi
+                <AlertTriangle size={12} className="mr-1" />
+                Tandai Terinfeksi
               </span>{' '}
               sesuai hasil analisis.
             </p>
@@ -122,8 +143,9 @@ export function AnomalyMonsterHelp() {
           <Alert>
             <AlertDescription>
               <strong>Teliti Karakteristik:</strong> Perhatikan setiap detail
-              monster - bentuk tubuh, bentuk tangan, bentuk kaki, dan warna.
-              Karakteristik ini akan membantu navigasi pohon keputusan.
+              monster - warna, bentuk tubuh, dan mulut dan masukkan pada form
+              analisis. Karakteristik ini akan membantu navigasi pohon
+              keputusan.
             </AlertDescription>
           </Alert>
 
@@ -159,19 +181,70 @@ export function AnomalyMonsterHelp() {
           Contoh Klasifikasi
         </h3>
         <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+          <div className="flex justify-center">
+            <MonsterCharacter
+              selections={{
+                Color: 'Blue',
+                Body: 'Orb',
+                Mouth: 'Fangs'
+              }}
+            />
+          </div>
           <p className="text-sm text-gray-700">
-            <strong>Diberikan:</strong> Monster dengan karakteristik: bentuk
-            tubuh Cube, bentuk tangan Twizzle, bentuk kaki Stomp, warna Green.
+            <strong>Diberikan:</strong> Monster dengan karakteristik: warna
+            biru, bentuk tubuh bulat, dan bertaring.
           </p>
           <p className="text-sm text-gray-700">
-            <strong>Analisis:</strong> Mulai dari akar pohon keputusan → Cek
-            bentuk tubuh (Cube) → Cek bentuk tangan (Twizzle) → Cek bentuk kaki
-            (Stomp) → Cek warna (Green) → Ikuti cabang hingga hasil.
+            <strong>Analisis:</strong> Masukkan pada form analisis yang diminta,
+            Lalu lihat pada pohon keputusan
           </p>
+          <DecisionTreeAnomalyTree
+            rules={[
+              {
+                id: 1,
+                conditions: [
+                  { attribute: 'Color', value: 'Green' },
+                  { attribute: 'Body', value: 'Orb' },
+                  { attribute: 'Mouth', value: 'Closedteeth' }
+                ]
+              },
+              {
+                id: 2,
+                conditions: [
+                  { attribute: 'Color', value: 'Red' },
+                  { attribute: 'Body', value: 'Cube' },
+                  { attribute: 'Mouth', value: 'Closedteeth' }
+                ]
+              },
+              {
+                id: 3,
+                conditions: [
+                  { attribute: 'Color', value: 'Blue' },
+                  { attribute: 'Body', value: 'Orb' },
+                  { attribute: 'Mouth', value: 'Fangs' }
+                ]
+              },
+              {
+                id: 4,
+                conditions: [
+                  { attribute: 'Color', value: 'Blue' },
+                  { attribute: 'Body', value: 'Orb' },
+                  { attribute: 'Mouth', value: 'Closedteeth' }
+                ]
+              }
+            ]}
+            selections={{
+              Color: 'Blue',
+              Body: 'Orb',
+              Mouth: 'Fangs'
+            }}
+            height="300px"
+          />
           <p className="text-sm text-gray-700">
             <strong>Aksi:</strong> Berdasarkan hasil pohon keputusan, klik
             tombol yang sesuai: <strong>Normal</strong> atau{' '}
-            <strong>Terinfeksi</strong>.
+            <strong>Terinfeksi</strong>. Pada kasus ini Jawabannya adalah{' '}
+            <strong>Normal</strong>.
           </p>
         </div>
       </div>

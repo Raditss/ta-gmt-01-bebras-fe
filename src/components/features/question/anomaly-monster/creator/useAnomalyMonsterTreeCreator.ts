@@ -1,14 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnomalyMonsterCreateModel } from '@/models/anomaly-monster/anomaly-monster-create.model';
 import {
+  Branch,
   Monster,
   MonsterCondition
 } from '@/models/anomaly-monster/anomaly-monster.model.type';
 import {
-  MonsterPartOptionType,
+  BodyType,
+  ColorType,
+  MonsterPartEnum,
   MonsterPartType,
-  MonsterPartValue
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+  MonsterPartValue,
+  MouthType
+} from '@/components/features/question/anomaly-monster/monster.type';
 
 interface UseDecisionTreeCreatorProps {
   question: AnomalyMonsterCreateModel;
@@ -20,7 +24,7 @@ export const useAnomalyMonsterTreeCreator = ({
   markAsChanged
 }: UseDecisionTreeCreatorProps) => {
   // Tree rules state
-  const [rules, setRules] = useState<Monster[]>([]);
+  const [rules, setRules] = useState<Branch[]>([]);
   const [currentRuleSelections, setCurrentRuleSelections] = useState<
     Record<string, string>
   >({});
@@ -36,6 +40,7 @@ export const useAnomalyMonsterTreeCreator = ({
   const [currentChoiceSelections, setCurrentChoiceSelections] = useState<
     Record<string, string>
   >({});
+  const [currentChoiceName, setCurrentChoiceName] = useState<string>('');
   const [isCreatingChoice, setIsCreatingChoice] = useState(false);
   const [editingChoiceId, setEditingChoiceId] = useState<number | null>(null);
   const [selectedChoiceId, setSelectedChoiceId] = useState<number | null>(null);
@@ -68,10 +73,9 @@ export const useAnomalyMonsterTreeCreator = ({
   // Validate current rule selections
   const isCurrentRuleValid = useCallback(() => {
     const requiredParts = [
-      MonsterPartType.BODY,
-      MonsterPartType.ARM,
-      MonsterPartType.LEG,
-      MonsterPartType.COLOR
+      MonsterPartEnum.COLOR,
+      MonsterPartEnum.BODY,
+      MonsterPartEnum.MOUTH
     ];
     return requiredParts.every((part) => currentRuleSelections[part]);
   }, [currentRuleSelections]);
@@ -79,33 +83,29 @@ export const useAnomalyMonsterTreeCreator = ({
   // Validate current choice selections
   const isCurrentChoiceValid = useCallback(() => {
     const requiredParts = [
-      MonsterPartType.BODY,
-      MonsterPartType.ARM,
-      MonsterPartType.LEG,
-      MonsterPartType.COLOR
+      MonsterPartEnum.COLOR,
+      MonsterPartEnum.BODY,
+      MonsterPartEnum.MOUTH
     ];
+    if (currentChoiceName.length === 0) return false;
     return requiredParts.every((part) => currentChoiceSelections[part]);
-  }, [currentChoiceSelections]);
+  }, [currentChoiceName, currentChoiceSelections]);
 
   // Create conditions from current selections
   const createConditionsFromSelections = useCallback(
     (selections: Record<string, string>): MonsterCondition[] => {
       return [
         {
-          attribute: MonsterPartType.BODY,
-          value: (selections[MonsterPartType.BODY] || '') as MonsterPartValue
+          attribute: MonsterPartEnum.COLOR,
+          value: (selections[MonsterPartEnum.COLOR] || '') as ColorType
         },
         {
-          attribute: MonsterPartType.ARM,
-          value: (selections[MonsterPartType.ARM] || '') as MonsterPartValue
+          attribute: MonsterPartEnum.BODY,
+          value: (selections[MonsterPartEnum.BODY] || '') as BodyType
         },
         {
-          attribute: MonsterPartType.LEG,
-          value: (selections[MonsterPartType.LEG] || '') as MonsterPartValue
-        },
-        {
-          attribute: MonsterPartType.COLOR,
-          value: (selections[MonsterPartType.COLOR] || '') as MonsterPartValue
+          attribute: MonsterPartEnum.MOUTH,
+          value: (selections[MonsterPartEnum.MOUTH] || '') as MouthType
         }
       ];
     },
@@ -116,7 +116,7 @@ export const useAnomalyMonsterTreeCreator = ({
   const checkForDuplicateMonster = useCallback(
     (
       conditions: MonsterCondition[],
-      monsterArray: Monster[],
+      monsterArray: Branch[],
       excludeId?: number
     ): number | null => {
       const duplicateMonster = monsterArray.find((monster) => {
@@ -150,10 +150,10 @@ export const useAnomalyMonsterTreeCreator = ({
 
   // Handle monster part selection for rules
   const handleRuleSelection = useCallback(
-    (category: MonsterPartType, value: MonsterPartOptionType) => {
+    (category: MonsterPartType, value: MonsterPartValue) => {
       setCurrentRuleSelections((prev) => ({
         ...prev,
-        [category]: value.value
+        [category]: value
       }));
       setDuplicateRuleError(null);
     },
@@ -162,10 +162,10 @@ export const useAnomalyMonsterTreeCreator = ({
 
   // Handle monster part selection for choices
   const handleChoiceSelection = useCallback(
-    (category: MonsterPartType, value: MonsterPartOptionType) => {
+    (category: MonsterPartType, value: MonsterPartValue) => {
       setCurrentChoiceSelections((prev) => ({
         ...prev,
-        [category]: value.value
+        [category]: value
       }));
       setDuplicateChoiceError(null);
     },
@@ -182,12 +182,12 @@ export const useAnomalyMonsterTreeCreator = ({
     if (duplicateRuleId) {
       const ruleIndex = rules.findIndex((r) => r.id === duplicateRuleId) + 1;
       setDuplicateRuleError(
-        `This rule already exists as Rule #${ruleIndex}. Please modify the monster characteristics to create a unique rule.`
+        `Cabang ini telah dibuat pada Cabang ke-${ruleIndex}. Silahkan ubah cabang ini agar menjadi unik terhadap cabang lain`
       );
       return;
     }
 
-    const newRule: Monster = {
+    const newRule: Branch = {
       id: Date.now(),
       conditions
     };
@@ -198,6 +198,7 @@ export const useAnomalyMonsterTreeCreator = ({
     setIsCreatingRule(false);
     setDuplicateRuleError(null);
     markAsChanged();
+    setSelectedRuleId(null);
   }, [
     rules,
     createConditionsFromSelections,
@@ -225,6 +226,7 @@ export const useAnomalyMonsterTreeCreator = ({
 
     const newChoice: Monster = {
       id: Date.now(),
+      name: currentChoiceName,
       conditions
     };
 
@@ -233,14 +235,16 @@ export const useAnomalyMonsterTreeCreator = ({
     setCurrentChoiceSelections({});
     setIsCreatingChoice(false);
     setDuplicateChoiceError(null);
+    setCurrentChoiceName('');
     markAsChanged();
   }, [
-    choices,
-    createConditionsFromSelections,
-    checkForDuplicateMonster,
     isCurrentChoiceValid,
-    markAsChanged,
-    currentChoiceSelections
+    createConditionsFromSelections,
+    currentChoiceSelections,
+    checkForDuplicateMonster,
+    choices,
+    currentChoiceName,
+    markAsChanged
   ]);
 
   // Edit existing rule
@@ -275,6 +279,7 @@ export const useAnomalyMonsterTreeCreator = ({
       setCurrentChoiceSelections(selections);
       setEditingChoiceId(choiceId);
       setIsCreatingChoice(true);
+      setCurrentChoiceName(choice.name);
     },
     [choices]
   );
@@ -298,7 +303,7 @@ export const useAnomalyMonsterTreeCreator = ({
       return;
     }
 
-    const updatedRule: Monster = {
+    const updatedRule: Branch = {
       id: editingRuleId,
       conditions
     };
@@ -312,6 +317,7 @@ export const useAnomalyMonsterTreeCreator = ({
     setEditingRuleId(null);
     setIsCreatingRule(false);
     setDuplicateRuleError(null);
+    setSelectedRuleId(null);
     markAsChanged();
   }, [
     rules,
@@ -345,6 +351,7 @@ export const useAnomalyMonsterTreeCreator = ({
 
     const updatedChoice: Monster = {
       id: editingChoiceId,
+      name: currentChoiceName,
       conditions
     };
 
@@ -357,15 +364,17 @@ export const useAnomalyMonsterTreeCreator = ({
     setEditingChoiceId(null);
     setIsCreatingChoice(false);
     setDuplicateChoiceError(null);
+    setCurrentChoiceName('');
     markAsChanged();
   }, [
-    choices,
-    createConditionsFromSelections,
-    checkForDuplicateMonster,
     isCurrentChoiceValid,
     editingChoiceId,
-    markAsChanged,
-    currentChoiceSelections
+    createConditionsFromSelections,
+    currentChoiceSelections,
+    checkForDuplicateMonster,
+    choices,
+    currentChoiceName,
+    markAsChanged
   ]);
 
   // Delete rule
@@ -404,6 +413,7 @@ export const useAnomalyMonsterTreeCreator = ({
     setEditingRuleId(null);
     setIsCreatingRule(false);
     setDuplicateRuleError(null);
+    setSelectedRuleId(null);
   }, []);
 
   // Cancel choice creation/editing
@@ -412,6 +422,8 @@ export const useAnomalyMonsterTreeCreator = ({
     setEditingChoiceId(null);
     setIsCreatingChoice(false);
     setDuplicateChoiceError(null);
+    setSelectedChoiceId(null);
+    setCurrentChoiceName('');
   }, []);
 
   // Start creating a new rule
@@ -420,6 +432,7 @@ export const useAnomalyMonsterTreeCreator = ({
     setEditingRuleId(null);
     setCurrentRuleSelections({});
     setDuplicateRuleError(null);
+    setSelectedRuleId(null);
   }, []);
 
   // Start creating a new choice
@@ -428,6 +441,8 @@ export const useAnomalyMonsterTreeCreator = ({
     setEditingChoiceId(null);
     setCurrentChoiceSelections({});
     setDuplicateChoiceError(null);
+    setSelectedChoiceId(null);
+    setCurrentChoiceName('');
   }, []);
 
   return {
@@ -458,6 +473,8 @@ export const useAnomalyMonsterTreeCreator = ({
     selectedChoiceId,
     duplicateChoiceError,
     isCurrentChoiceValid: isCurrentChoiceValid(),
+    currentChoiceName,
+    setCurrentChoiceName,
 
     // Choices Actions
     handleChoiceSelection,

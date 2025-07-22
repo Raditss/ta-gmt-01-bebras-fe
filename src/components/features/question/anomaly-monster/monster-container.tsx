@@ -1,6 +1,6 @@
 import { Container } from '@pixi/react';
 import { PropsWithChildren } from 'react';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { MonsterPartEnum } from '@/components/features/question/anomaly-monster/monster.type';
 import { useMonsterSprites } from './useMonsterSprites';
 import {
   MonsterArm,
@@ -12,9 +12,9 @@ import {
 
 interface IMainContainerProps {
   canvasSize: { width: number; height: number };
-  selections?: Record<string, string>;
+  selections: Record<string, string>;
   hovered?: {
-    category: MonsterPartType;
+    category: MonsterPartEnum;
     value: string;
   } | null;
 }
@@ -34,15 +34,16 @@ const MonsterContainer = ({
   // Calculate scale factor based on canvas size
   const scaleFactor = Math.min(canvasSize.width, canvasSize.height) / 300;
 
-  const getCurrentSelection = (category: MonsterPartType) => {
+  const getCurrentSelection = (category: MonsterPartEnum) => {
     if (hovered && hovered.category === category) return hovered.value;
 
     // Provide default values if no selection is available
     const defaultValues = {
-      [MonsterPartType.COLOR]: 'White',
-      [MonsterPartType.BODY]: 'Orb',
-      [MonsterPartType.LEG]: 'Paddle',
-      [MonsterPartType.ARM]: 'Clampfin'
+      [MonsterPartEnum.COLOR]: 'White',
+      [MonsterPartEnum.BODY]: 'Orb',
+      [MonsterPartEnum.MOUTH]: 'Closedteeth'
+      // [MonsterPartEnum.LEG]: 'Paddle',
+      // [MonsterPartEnum.ARM]: 'Clampfin'
       // [MonsterPartType.HORN]: 'none'
     };
 
@@ -57,10 +58,8 @@ const MonsterContainer = ({
         <>
           {/* Back legs (behind body) */}
           <MonsterLeg
-            texture={getTexture(
-              MonsterPartType.LEG,
-              getCurrentSelection(MonsterPartType.LEG),
-              getCurrentSelection(MonsterPartType.COLOR)
+            texture={getStaticTexture(
+              `Leg_${getCurrentSelection(MonsterPartEnum.COLOR)}_Paddle.png`
             )}
             x={centerX + 40 * scaleFactor}
             y={centerY + 50 * scaleFactor}
@@ -68,10 +67,8 @@ const MonsterContainer = ({
             scaleY={0.4 * scaleFactor}
           />
           <MonsterLeg
-            texture={getTexture(
-              MonsterPartType.LEG,
-              getCurrentSelection(MonsterPartType.LEG),
-              getCurrentSelection(MonsterPartType.COLOR)
+            texture={getStaticTexture(
+              `Leg_${getCurrentSelection(MonsterPartEnum.COLOR)}_Paddle.png`
             )}
             x={centerX - 40 * scaleFactor}
             y={centerY + 50 * scaleFactor}
@@ -80,10 +77,8 @@ const MonsterContainer = ({
           />
           {/* Arms */}
           <MonsterArm
-            texture={getTexture(
-              MonsterPartType.ARM,
-              getCurrentSelection(MonsterPartType.ARM),
-              getCurrentSelection(MonsterPartType.COLOR)
+            texture={getStaticTexture(
+              `Arm_${getCurrentSelection(MonsterPartEnum.COLOR)}_Grabbie.png`
             )}
             x={centerX - 95 * scaleFactor}
             y={centerY + 50 * scaleFactor}
@@ -91,10 +86,8 @@ const MonsterContainer = ({
             scaleY={0.25 * scaleFactor}
           />
           <MonsterArm
-            texture={getTexture(
-              MonsterPartType.ARM,
-              getCurrentSelection(MonsterPartType.ARM),
-              getCurrentSelection(MonsterPartType.COLOR)
+            texture={getStaticTexture(
+              `Arm_${getCurrentSelection(MonsterPartEnum.COLOR)}_Grabbie.png`
             )}
             x={centerX + 95 * scaleFactor}
             y={centerY + 50 * scaleFactor}
@@ -104,9 +97,9 @@ const MonsterContainer = ({
           {/* Body */}
           <MonsterBody
             texture={getTexture(
-              MonsterPartType.BODY,
-              getCurrentSelection(MonsterPartType.BODY),
-              getCurrentSelection(MonsterPartType.COLOR)
+              MonsterPartEnum.BODY,
+              getCurrentSelection(MonsterPartEnum.BODY),
+              getCurrentSelection(MonsterPartEnum.COLOR)
             )}
             x={centerX}
             y={centerY}
@@ -144,7 +137,11 @@ const MonsterContainer = ({
           />
           {/* Mouth */}
           <MonsterMouth
-            texture={getStaticTexture('Mouth_Closedteeth.png')}
+            texture={getStaticTexture(
+              selections[MonsterPartEnum.MOUTH] === 'Closedteeth'
+                ? 'Mouth_Closedteeth.png'
+                : 'Mouth_Fangs.png'
+            )}
             x={centerX}
             y={centerY + 30 * scaleFactor}
             scaleX={0.5 * scaleFactor}

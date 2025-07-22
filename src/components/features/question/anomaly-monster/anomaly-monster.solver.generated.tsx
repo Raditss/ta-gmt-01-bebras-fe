@@ -11,9 +11,11 @@ import Monster from '@/components/features/question/anomaly-monster/monster';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import { Button } from '@/components/ui/button';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
-import { ArrowLeft, ArrowRight, Check, Worm } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
 import { QuestionTypeEnum } from '@/types/question-type.type';
 import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
+import MonsterClassificationForm from '@/components/features/question/anomaly-monster/monster-classification-form';
+import { AnomalyMonsterForm } from '@/models/anomaly-monster/anomaly-monster.model.type';
 
 export default function GeneratedAnomalyMonsterSolver({
   type
@@ -27,6 +29,8 @@ export default function GeneratedAnomalyMonsterSolver({
   const [anomalies, setAnomalies] = useState<number[]>([]);
   const [normals, setNormals] = useState<number[]>([]);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
+  const [forms, setForms] = useState<AnomalyMonsterForm[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
 
   // Sync local state with model when question loads
   useEffect(() => {
@@ -34,6 +38,7 @@ export default function GeneratedAnomalyMonsterSolver({
       setAnomalies(question.anomaly);
       setNormals(question.normal);
       setCurrentIdx(question.currentIdx);
+      setForms(question.forms);
     }
   }, [question]);
 
@@ -43,12 +48,15 @@ export default function GeneratedAnomalyMonsterSolver({
     question.setAnomaly(anomalies);
     question.setNormal(normals);
     question.setCurrentIdx(currentIdx);
-  }, [anomalies, normals, currentIdx, question]);
+    question.setForms(forms);
+  }, [anomalies, normals, currentIdx, question, forms]);
 
   const handleReset = useCallback(() => {
     setAnomalies([]);
     setNormals([]);
     setCurrentIdx(0);
+    setForms([]);
+    setIsFormOpen(false);
     if (question) {
       question.resetToInitialState();
     }
@@ -61,6 +69,9 @@ export default function GeneratedAnomalyMonsterSolver({
     setAnomalies((prev) =>
       prev.filter((idx) => idx !== question.content.choices[currentIdx].id)
     );
+    setCurrentIdx((prev) =>
+      Math.min(question.content.choices.length - 1, prev + 1)
+    );
   }, [currentIdx, normals, question]);
 
   const handleMarkAsAnomaly = useCallback(() => {
@@ -69,6 +80,9 @@ export default function GeneratedAnomalyMonsterSolver({
     setAnomalies((prev) => [...prev, question.content.choices[currentIdx].id]);
     setNormals((prev) =>
       prev.filter((idx) => idx !== question.content.choices[currentIdx].id)
+    );
+    setCurrentIdx((prev) =>
+      Math.min(question.content.choices.length - 1, prev + 1)
     );
   }, [question, anomalies, currentIdx]);
 
@@ -94,6 +108,7 @@ export default function GeneratedAnomalyMonsterSolver({
   const totalMonsters = question.content.choices.length;
   const classifiedCount = normals.length + anomalies.length;
   const currentMonster = question.content.choices[currentIdx];
+  const currentForm = forms.find((form) => form.id === currentMonster.id);
 
   // For submit section, answerArr is [ ["anomaly", ...], ["normal", ...] ]
   const answerArr = [
@@ -111,19 +126,26 @@ export default function GeneratedAnomalyMonsterSolver({
               Monster yang Aneh
             </h1>
             <h3 className="mt-3 text-xl font-semibold text-gray-500">
-              Kamu ditugaskan membantu para saintis! Teliti setiap monster dan
+              Kamu ditugaskan membantu para saintis apakah monster terkena virus
+              atau tidak! Teliti setiap monster menggunakan pohon keputusan dan
               tentukan: normal atau terinfeksi?
             </h3>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div
+            className={`grid grid-cols-1 ${isFormOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}
+          >
             {/* Left side - Tree and Progress */}
             <div className="flex flex-col gap-6">
               {/* Tree */}
               <div className="bg-white rounded-xl shadow-lg p-4">
                 <DecisionTreeAnomalyTree
                   rules={question.getMonsterTree()}
-                  selections={{}}
+                  selections={{
+                    Color: currentForm?.Color || '',
+                    Body: currentForm?.Body || '',
+                    Mouth: currentForm?.Mouth || ''
+                  }}
                 />
               </div>
 
@@ -180,6 +202,28 @@ export default function GeneratedAnomalyMonsterSolver({
               </div>
             </div>
 
+            {/* Form */}
+            {isFormOpen && (
+              <div className="h-fit bg-white rounded-xl shadow-lg p-0">
+                <MonsterClassificationForm
+                  currentMonster={currentMonster}
+                  currentForm={currentForm}
+                  setForms={setForms}
+                  onClose={() => setIsFormOpen(false)}
+                  onClassifyAsNormal={handleMarkAsNormal}
+                  onClassifyAsAnomaly={handleMarkAsAnomaly}
+                  isAlreadyClassified={{
+                    isNormal: normals.includes(
+                      question.content.choices[currentIdx].id
+                    ),
+                    isAnomaly: anomalies.includes(
+                      question.content.choices[currentIdx].id
+                    )
+                  }}
+                />
+              </div>
+            )}
+
             {/* Right side - Monster Preview and Classification */}
             <div className="flex flex-col gap-6">
               {/* Monster Preview */}
@@ -217,21 +261,6 @@ export default function GeneratedAnomalyMonsterSolver({
                 </div>
                 {currentMonster && (
                   <>
-                    <div className="text-center mb-4">
-                      <p className="text-sm text-gray-600">
-                        Karakteristik monster:
-                      </p>
-                      <div className="flex flex-wrap justify-center gap-2 mt-2">
-                        {currentMonster.conditions.map((condition, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800"
-                          >
-                            {condition.attribute}: {condition.value}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
                     <div className="flex justify-center mb-6">
                       <Monster
                         selections={currentMonster.conditions.reduce(
@@ -243,6 +272,9 @@ export default function GeneratedAnomalyMonsterSolver({
                         )}
                       />
                     </div>
+                    <p className="text-center font-semibold">
+                      {currentMonster.name}
+                    </p>
                   </>
                 )}
               </div>
@@ -265,55 +297,15 @@ export default function GeneratedAnomalyMonsterSolver({
                   >
                     <ArrowLeft />
                   </Button>
-                  <div className="flex gap-4">
-                    <Button
-                      onClick={handleMarkAsNormal}
-                      className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
-                        normals.includes(
-                          question.content.choices[currentIdx].id
-                        )
-                          ? 'bg-green-500 text-white shadow-xl hover:bg-green-600'
-                          : 'border-2 border-green-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105'
-                      }`}
-                      size="lg"
-                    >
-                      <Check
-                        className={`mr-1 ${
-                          normals.includes(
-                            question.content.choices[currentIdx].id
-                          )
-                            ? 'stroke-white'
-                            : 'stroke-green-600'
-                        }`}
-                        size={20}
-                      />
-                      Normal
-                    </Button>
 
-                    <Button
-                      onClick={handleMarkAsAnomaly}
-                      className={`flex items-center justify-center w-28 h-14 rounded-xl font-semibold transition-all duration-200 transform ${
-                        anomalies.includes(
-                          question.content.choices[currentIdx].id
-                        )
-                          ? 'bg-red-500 text-white shadow-xl hover:bg-red-600'
-                          : 'border-2 border-red-400 text-red-600 bg-white hover:bg-red-50 hover:scale-105'
-                      }`}
-                      size="lg"
-                    >
-                      <Worm
-                        className={`mr-1 ${
-                          anomalies.includes(
-                            question.content.choices[currentIdx].id
-                          )
-                            ? 'stroke-white'
-                            : 'stroke-red-600'
-                        }`}
-                        size={20}
-                      />
-                      Terinfeksi
-                    </Button>
-                  </div>
+                  <Button
+                    className="flex items-center justify-center w-36 h-14 rounded-xl font-semibold transition-all duration-200 transform
+                      border-2 border-gray-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105"
+                    onClick={() => setIsFormOpen(!isFormOpen)}
+                  >
+                    <Search size={20} />
+                    Klasifikasikan
+                  </Button>
 
                   <Button
                     onClick={handleNext}

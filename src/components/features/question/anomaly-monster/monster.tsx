@@ -1,17 +1,17 @@
 import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+  MonsterPartEnum,
+  MonsterPartOptionType
+} from '@/components/features/question/anomaly-monster/monster.type';
 import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
 
 interface MonsterProps {
   selections: Record<string, string>;
   onSelection?: (
-    category: MonsterPartType,
+    category: MonsterPartEnum,
     value: MonsterPartOptionType
   ) => void;
   hovered?: {
-    category: MonsterPartType;
+    category: MonsterPartEnum;
     value: string;
   } | null;
 }

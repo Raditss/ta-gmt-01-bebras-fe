@@ -1,9 +1,10 @@
 import { ICreateQuestion } from '../interfaces/create-question.model';
 import {
   AnomalyMonsterQuestion,
+  Branch,
   Monster
 } from '@/models/anomaly-monster/anomaly-monster.model.type';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { MonsterPartEnum } from '@/components/features/question/anomaly-monster/monster.type';
 import { Question } from '@/types/question.type';
 
 export class AnomalyMonsterCreateModel extends ICreateQuestion {
@@ -18,11 +19,11 @@ export class AnomalyMonsterCreateModel extends ICreateQuestion {
     this.populateFromContentString(this.draft.content);
   }
 
-  get monsterTree(): Monster[] {
+  get monsterTree(): Branch[] {
     return this.content.tree;
   }
 
-  set monsterTree(value: Monster[]) {
+  set monsterTree(value: Branch[]) {
     this.content.tree = value;
   }
 
@@ -58,7 +59,7 @@ export class AnomalyMonsterCreateModel extends ICreateQuestion {
   validateContent(): boolean {
     return (
       this.hasRequiredContent() &&
-      this.content.tree.every((rule) => this.validateMonster(rule)) &&
+      this.content.tree.every((rule) => this.validateBranch(rule)) &&
       this.content.choices.every((choice) => this.validateMonster(choice))
     );
   }
@@ -72,11 +73,22 @@ export class AnomalyMonsterCreateModel extends ICreateQuestion {
     );
   }
 
-  validateMonster(monster: Monster): boolean {
-    if (Object.values(MonsterPartType).length != monster.conditions.length)
+  validateBranch(branch: Branch): boolean {
+    if (Object.values(MonsterPartEnum).length != branch.conditions.length)
       return false;
 
-    return Object.values(MonsterPartType).every((part) =>
+    return Object.values(MonsterPartEnum).every((part) =>
+      branch.conditions.some(
+        (condition) => condition.attribute === part && condition.value
+      )
+    );
+  }
+
+  validateMonster(monster: Monster): boolean {
+    if (Object.values(MonsterPartEnum).length != monster.conditions.length)
+      return false;
+
+    return Object.values(MonsterPartEnum).every((part) =>
       monster.conditions.some(
         (condition) => condition.attribute === part && condition.value
       )

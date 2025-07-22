@@ -5,10 +5,7 @@ import {
   ContagionProtocolTreeAttributeEnum,
   ContagionProtocolTreeAttributeType
 } from '@/models/contagion-protocol/contagion-protocol.model.type';
-import {
-  monsterAssetUrl,
-  MonsterPartType
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+import { monsterAssetUrl } from '@/components/features/question/anomaly-monster/monster.type';
 import KenneyMonsterSpritesheet from '@/components/features/question/anomaly-monster/kenney-monster-spritesheet';
 import { useEffect, useState } from 'react';
 
@@ -100,7 +97,7 @@ export function useMonsterSprite(): UseMonsterSpritesReturn {
   ): string | null => {
     switch (attribute) {
       case ContagionProtocolTreeAttributeEnum.BODY:
-        return `${MonsterPartType.BODY}_${color}_${value}.png`;
+        return `${ContagionProtocolTreeAttributeEnum.BODY}_${color}_${value}.png`;
       default:
         return null;
     }
