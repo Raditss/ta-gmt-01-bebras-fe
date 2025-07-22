@@ -187,9 +187,7 @@ export default function MonsterClassificationForm({
                 }}
                 disabled={
                   isAlreadyClassified.isNormal ||
-                  !selectedColor ||
-                  !selectedBody ||
-                  !selectedMouth
+                  (!selectedColor && !selectedBody && !selectedMouth)
                 }
                 className={`flex-1 ${
                   isAlreadyClassified.isNormal
@@ -209,9 +207,7 @@ export default function MonsterClassificationForm({
                 }}
                 disabled={
                   isAlreadyClassified.isAnomaly ||
-                  !selectedColor ||
-                  !selectedBody ||
-                  !selectedMouth
+                  (!selectedColor && !selectedBody && !selectedMouth)
                 }
                 className={`flex-1 ${
                   isAlreadyClassified.isAnomaly

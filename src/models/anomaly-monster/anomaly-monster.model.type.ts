@@ -17,8 +17,13 @@ export interface Monster {
   readonly conditions: MonsterCondition[];
 }
 
+export interface Branch {
+  readonly id: number;
+  readonly conditions: MonsterCondition[];
+}
+
 export interface AnomalyMonsterQuestion {
-  tree: Monster[];
+  tree: Branch[];
   choices: Monster[];
 }
 

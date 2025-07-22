@@ -5,7 +5,7 @@ import {
   AnomalyMonsterAnswer,
   AnomalyMonsterForm,
   AnomalyMonsterQuestion,
-  Monster
+  Branch
 } from '@/models/anomaly-monster/anomaly-monster.model.type';
 
 export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
@@ -118,7 +118,7 @@ export class AnomalyMonsterSolveModel extends IQuestion implements IAttempt {
     };
   }
 
-  getMonsterTree(): Monster[] {
+  getMonsterTree(): Branch[] {
     return this._content.tree || [];
   }
 

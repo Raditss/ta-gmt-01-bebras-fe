@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Monster } from '@/models/anomaly-monster/anomaly-monster.model.type';
+import { Branch } from '@/models/anomaly-monster/anomaly-monster.model.type';
 import {
   MonsterPartEnum,
   MonsterPartType,
@@ -16,7 +16,7 @@ interface TreeNode {
 }
 
 interface TreeProps {
-  rules: Monster[];
+  rules: Branch[];
   selections: Record<string, string>;
 }
 
@@ -84,7 +84,7 @@ export const getLabel = (
   }
 };
 
-const buildDecisionTree = (rules: Monster[]): TreeNode => {
+const buildDecisionTree = (rules: Branch[]): TreeNode => {
   const attributeOrder = [
     MonsterPartEnum.COLOR,
     MonsterPartEnum.BODY,

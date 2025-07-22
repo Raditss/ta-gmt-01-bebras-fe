@@ -62,6 +62,7 @@ export default function DecisionTreeAnomalySolver({
     setNormals([]);
     setCurrentIdx(0);
     setForms([]);
+    setIsFormOpen(false);
     if (question) {
       question.resetToInitialState();
     }

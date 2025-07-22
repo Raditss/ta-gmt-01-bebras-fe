@@ -8,7 +8,7 @@ import MonsterContainer from './monster-container';
 
 interface MonsterCharacterProps {
   selections: Record<string, string>;
-  hovered: {
+  hovered?: {
     category: MonsterPartEnum;
     value: string;
   } | null;

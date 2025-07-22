@@ -56,6 +56,7 @@ export default function GeneratedAnomalyMonsterSolver({
     setNormals([]);
     setCurrentIdx(0);
     setForms([]);
+    setIsFormOpen(false);
     if (question) {
       question.resetToInitialState();
     }

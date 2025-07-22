@@ -9,12 +9,29 @@ export enum MonsterPartEnum {
 
 export type MonsterPartType = `${MonsterPartEnum}`;
 
-export type ColorType = 'Red' | 'Green' | 'Blue';
+export enum ColorEnum {
+  RED = 'Red',
+  GREEN = 'Green',
+  BLUE = 'Blue'
+}
+
+export type ColorType = `${ColorEnum}`;
+
 /* | 'Yellow' /*| 'Dark'  | 'White' */
 
-export type BodyType = 'Cube' | 'Orb' /* | 'Blob' */;
+export enum BodyEnum {
+  CUBE = 'Cube',
+  ORB = 'Orb'
+}
 
-export type MouthType = 'Closedteeth' | 'Fangs';
+export type BodyType = `${BodyEnum}` /* | 'Blob' */;
+
+export enum MouthEnum {
+  FANGS = 'Fangs',
+  NO_FANGS = 'Closedteeth'
+}
+
+export type MouthType = `${MouthEnum}`;
 
 // export type ArmType = 'Clampfin' | 'Grabbie' | 'Thumpet' | 'Twizzle';
 
@@ -49,3 +66,38 @@ export const MouthOptions: MonsterPartOptionType[] = [
 export const monsterAssetUrl = '/kenney_monster-builder-pack/';
 
 export const defaultColor = 'White';
+
+export const getColorLabel = (color: string): string => {
+  switch (color) {
+    case ColorEnum.GREEN:
+      return 'Hijau';
+    case ColorEnum.BLUE:
+      return 'Biru';
+    case ColorEnum.RED:
+      return 'Merah';
+    default:
+      return 'Tidak diketahui';
+  }
+};
+
+export const getBodyLabel = (body: string): string => {
+  switch (body) {
+    case BodyEnum.ORB:
+      return 'Bulat';
+    case BodyEnum.CUBE:
+      return 'Kotak';
+    default:
+      return 'Tidak diketahui';
+  }
+};
+
+export const getMouthLabel = (mouth: string): string => {
+  switch (mouth) {
+    case MouthEnum.NO_FANGS:
+      return 'Tidak Bertaring';
+    case MouthEnum.FANGS:
+      return 'Bertaring';
+    default:
+      return 'Tidak diketahui';
+  }
+};
