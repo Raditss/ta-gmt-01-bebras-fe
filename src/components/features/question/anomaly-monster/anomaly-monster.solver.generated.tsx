@@ -16,6 +16,7 @@ import { QuestionTypeEnum } from '@/types/question-type.type';
 import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 import MonsterClassificationForm from '@/components/features/question/anomaly-monster/monster-classification-form';
 import { AnomalyMonsterForm } from '@/models/anomaly-monster/anomaly-monster.model.type';
+import { useInView } from 'react-intersection-observer';
 
 export default function GeneratedAnomalyMonsterSolver({
   type
@@ -31,6 +32,10 @@ export default function GeneratedAnomalyMonsterSolver({
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [forms, setForms] = useState<AnomalyMonsterForm[]>([]);
   const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+
+  const { ref: progressRef, inView: isProgressVisible } = useInView({
+    threshold: 0.1
+  });
 
   // Sync local state with model when question loads
   useEffect(() => {
@@ -120,12 +125,12 @@ export default function GeneratedAnomalyMonsterSolver({
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       <div className="min-h-screen bg-gray-100">
-        <div className="max-w-[95%] mx-auto p-4">
-          <div className="text-center mt-6 mb-8">
-            <h1 className="text-3xl font-bold text-gray-800">
+        <div className="max-w-[95%] mx-auto p-1">
+          <div className="text-center mt-2 mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">
               Monster yang Aneh
             </h1>
-            <h3 className="mt-3 text-xl font-semibold text-gray-500">
+            <h3 className="mt-1 text-base font-semibold text-gray-500">
               Kamu ditugaskan membantu para saintis apakah monster terkena virus
               atau tidak! Teliti setiap monster menggunakan pohon keputusan dan
               tentukan: normal atau terinfeksi?
@@ -136,132 +141,50 @@ export default function GeneratedAnomalyMonsterSolver({
             className={`grid grid-cols-1 ${isFormOpen ? 'lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}
           >
             {/* Left side - Tree and Progress */}
-            <div className="flex flex-col gap-6">
-              {/* Tree */}
-              <div className="bg-white rounded-xl shadow-lg p-4">
-                <DecisionTreeAnomalyTree
-                  rules={question.getMonsterTree()}
-                  selections={{
-                    Color: currentForm?.Color || '',
-                    Body: currentForm?.Body || '',
-                    Mouth: currentForm?.Mouth || ''
-                  }}
-                />
-              </div>
-
-              {/* Progress and Actions */}
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex flex-col gap-4">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-2">Progres</h3>
-                    <p className="text-gray-600">
-                      Kamu telah memeriksa {classifiedCount} dari{' '}
-                      {totalMonsters} monster
-                    </p>
-                    <div className="w-full bg-gray-200 rounded-full h-3 mt-3">
-                      <div
-                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
-                        style={{
-                          width: `${(classifiedCount / totalMonsters) * 100}%`
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-center gap-6 mt-4">
-                      <div className="text-center">
-                        <div className="text-green-600 font-bold text-xl">
-                          {normals.length}
-                        </div>
-                        <div className="text-sm text-gray-500">Normal</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-red-600 font-bold text-xl">
-                          {anomalies.length}
-                        </div>
-                        <div className="text-sm text-gray-500">Terinfeksi</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={handleReset}
-                      className="w-full"
-                    >
-                      🔄 Klasifikasi Ulang Semua Monster
-                    </Button>
-                    <GeneratedSubmitSection
-                      question={question}
-                      answerArr={answerArr}
-                      type={type}
-                      questionContent={questionContent}
-                      onRegenerate={regenerate}
-                      isDisabled={classifiedCount !== totalMonsters}
-                    />
-                  </div>
-                </div>
-              </div>
+            {/* Tree */}
+            <div className="bg-white flex-1 rounded-xl shadow-lg p-4 content-center">
+              <DecisionTreeAnomalyTree
+                rules={question.getMonsterTree()}
+                selections={{
+                  Color: currentForm?.Color || '',
+                  Body: currentForm?.Body || '',
+                  Mouth: currentForm?.Mouth || ''
+                }}
+              />
             </div>
 
             {/* Form */}
             {isFormOpen && (
-              <div className="h-fit bg-white rounded-xl shadow-lg p-0">
-                <MonsterClassificationForm
-                  currentMonster={currentMonster}
-                  currentForm={currentForm}
-                  setForms={setForms}
-                  onClose={() => setIsFormOpen(false)}
-                  onClassifyAsNormal={handleMarkAsNormal}
-                  onClassifyAsAnomaly={handleMarkAsAnomaly}
-                  isAlreadyClassified={{
-                    isNormal: normals.includes(
-                      question.content.choices[currentIdx].id
-                    ),
-                    isAnomaly: anomalies.includes(
-                      question.content.choices[currentIdx].id
-                    )
-                  }}
-                />
-              </div>
+              <MonsterClassificationForm
+                currentMonster={currentMonster}
+                currentForm={currentForm}
+                setForms={setForms}
+                onClose={() => setIsFormOpen(false)}
+                onClassifyAsNormal={handleMarkAsNormal}
+                onClassifyAsAnomaly={handleMarkAsAnomaly}
+                isAlreadyClassified={{
+                  isNormal: normals.includes(
+                    question.content.choices[currentIdx].id
+                  ),
+                  isAnomaly: anomalies.includes(
+                    question.content.choices[currentIdx].id
+                  )
+                }}
+              />
             )}
 
             {/* Right side - Monster Preview and Classification */}
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col flex-1 gap-3">
               {/* Monster Preview */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold">
                     Monster {currentIdx + 1} dari {totalMonsters}
                   </h3>
-                  <div className="mt-2">
-                    {normals.includes(
-                      question.content.choices[currentIdx].id
-                    ) && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        ✓ Diklasifikasikan sebagai Normal
-                      </span>
-                    )}
-                    {anomalies.includes(
-                      question.content.choices[currentIdx].id
-                    ) && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-                        ⚠ Diklasifikasikan sebagai Terinfeksi
-                      </span>
-                    )}
-                    {!normals.includes(
-                      question.content.choices[currentIdx].id
-                    ) &&
-                      !anomalies.includes(
-                        question.content.choices[currentIdx].id
-                      ) && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
-                          ? Belum diklasifikasikan
-                        </span>
-                      )}
-                  </div>
                 </div>
                 {currentMonster && (
                   <>
-                    <div className="flex justify-center mb-6">
+                    <div className="flex justify-center mb-3">
                       <Monster
                         selections={currentMonster.conditions.reduce(
                           (acc, condition) => {
@@ -275,12 +198,50 @@ export default function GeneratedAnomalyMonsterSolver({
                     <p className="text-center font-semibold">
                       {currentMonster.name}
                     </p>
+                    <div className="text-center">
+                      {normals.includes(
+                        question.content.choices[currentIdx].id
+                      ) && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                          ✓ Diklasifikasikan sebagai Normal
+                        </span>
+                      )}
+                      {anomalies.includes(
+                        question.content.choices[currentIdx].id
+                      ) && (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                          ⚠ Diklasifikasikan sebagai Terinfeksi
+                        </span>
+                      )}
+                      {!normals.includes(
+                        question.content.choices[currentIdx].id
+                      ) &&
+                        !anomalies.includes(
+                          question.content.choices[currentIdx].id
+                        ) && (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
+                            ? Belum diklasifikasikan
+                          </span>
+                        )}
+                      <p className="text-gray-600 mt-4">
+                        Kamu telah memeriksa {classifiedCount} dari{' '}
+                        {totalMonsters} monster
+                      </p>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${(classifiedCount / totalMonsters) * 100}%`
+                          }}
+                        />
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="text-center mb-4">
-                  <h3 className="text-lg font-semibold mb-2">
+              <div className="bg-white rounded-xl flex-1 shadow-lg p-3 content-center">
+                <div className="text-center mb-2">
+                  <h3 className="text-lg font-semibold">
                     Apakah monster ini terinfeksi?
                   </h3>
                   <p className="text-sm text-gray-600">
@@ -299,11 +260,12 @@ export default function GeneratedAnomalyMonsterSolver({
                   </Button>
 
                   <Button
-                    className="flex items-center justify-center w-36 h-14 rounded-xl font-semibold transition-all duration-200 transform
-                      border-2 border-gray-400 text-green-600 bg-white hover:bg-green-50 hover:scale-105"
+                    className="relative z-50 flex items-center justify-center w-40 h-14 rounded-xl font-semibold
+    text-green-700 border-2 border-green-500 bg-white
+    animate-pulseGlow hover:scale-105 transition-transform duration-200"
                     onClick={() => setIsFormOpen(!isFormOpen)}
                   >
-                    <Search size={20} />
+                    <Search size={20} className="mr-2" />
                     Klasifikasikan
                   </Button>
 
@@ -315,6 +277,72 @@ export default function GeneratedAnomalyMonsterSolver({
                   >
                     <ArrowRight />
                   </Button>
+                </div>
+              </div>
+            </div>
+
+            {classifiedCount === totalMonsters && !isProgressVisible && (
+              <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+                <div className="bg-black/70 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-bounce">
+                  <span className="text-sm">⬇ Sudah selesai? Submit</span>
+                  <button
+                    className="underline"
+                    onClick={() =>
+                      document
+                        .getElementById('progress-section')
+                        ?.scrollIntoView({
+                          behavior: 'smooth'
+                        })
+                    }
+                  >
+                    Klik di sini
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Progress and Actions */}
+            <div
+              className="lg:col-span-full bg-white rounded-xl shadow-lg p-6"
+              id="progress-section"
+              ref={progressRef}
+            >
+              <div className="flex flex-col gap-4">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-2">
+                    Sudah Siap Submit?
+                  </h3>
+                  <div className="flex justify-center gap-6 mt-2">
+                    <div className="text-center">
+                      <div className="text-green-600 font-bold text-xl">
+                        {normals.length}
+                      </div>
+                      <div className="text-sm text-gray-500">Normal</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-red-600 font-bold text-xl">
+                        {anomalies.length}
+                      </div>
+                      <div className="text-sm text-gray-500">Terinfeksi</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <Button
+                    variant="outline"
+                    onClick={handleReset}
+                    className="w-full"
+                  >
+                    🔄 Klasifikasi Ulang Semua Monster
+                  </Button>
+                  <GeneratedSubmitSection
+                    question={question}
+                    answerArr={answerArr}
+                    type={type}
+                    questionContent={questionContent}
+                    onRegenerate={regenerate}
+                    isDisabled={classifiedCount !== totalMonsters}
+                  />
                 </div>
               </div>
             </div>

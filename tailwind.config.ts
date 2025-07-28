@@ -145,6 +145,10 @@ const config = {
         pulse: {
           '0%, 100%': { boxShadow: '0 0 20px 5px rgba(255,0,80,0.5)' },
           '50%': { boxShadow: '0 0 30px 10px rgba(255,0,80,0.8)' }
+        },
+        pulseGlow: {
+          '0%, 100%': { boxShadow: '0 0 0 4px rgba(34,197,94,0.3)' },
+          '50%': { boxShadow: '0 0 0 8px rgba(34,197,94,0.6)' }
         }
       },
       animation: {
@@ -154,7 +158,9 @@ const config = {
         shimmer: 'shimmer 2s infinite',
         'fade-in': 'fade-in 0.5s ease-out',
         'slide-in': 'slide-in 0.3s ease-out',
-        pulse: 'pulse 2s ease-in-out infinite'
+        pulse: 'pulse 2s ease-in-out infinite',
+        pulseGlow: 'pulseGlow 2s ease-in-out infinite',
+        bounce: 'bounce 2s infinite'
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',
