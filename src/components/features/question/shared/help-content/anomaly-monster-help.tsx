@@ -99,6 +99,11 @@ export function AnomalyMonsterHelp() {
               akan menunjukkan jumlah monster yang telah diperiksa. Tombol
               submit akan aktif setelah semua monster selesai diklasifikasikan.
             </p>
+            <Button
+              className={`flex justify-self-center flex-1 py-3 text-base bg-green-500 hover:bg-green-500 text-white hover:text-white cursor-default`}
+            >
+              Submit Jawaban
+            </Button>
           </div>
         </div>
       </div>
