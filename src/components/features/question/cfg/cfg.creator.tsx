@@ -11,7 +11,11 @@ import { CheckCircle2, Save } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AVAILABLE_SHAPES } from '@/constants/shapes';
+import { AVAILABLE_FISH } from '@/constants/shapes';
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
 
 import { BaseCreatorProps, CreatorWrapper } from '../../bases/base.creator';
 import { CreationSubmissionModal } from '../submission-modal.creator';
@@ -475,35 +479,12 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                       variant="outline"
                     >
                       <div className="flex items-center gap-2">
-                        {/* Before shapes */}
+                        {/* Before fish */}
                         <div className="flex gap-1">
                           {rule.before.map((obj, idx) => (
-                            <div
-                              key={idx}
-                              className="w-8 h-8 flex items-center justify-center"
-                            >
-                              <div
-                                className={`w-6 h-6 border-2 shadow-sm ${
-                                  obj.type === 'circle'
-                                    ? 'rounded-full bg-blue-500 border-blue-600'
-                                    : obj.type === 'triangle'
-                                      ? 'bg-green-500 border-green-600 clip-triangle'
-                                      : obj.type === 'square'
-                                        ? 'bg-purple-500 border-purple-600'
-                                        : obj.type === 'star'
-                                          ? 'bg-yellow-500 border-yellow-600 clip-star'
-                                          : obj.type === 'hexagon'
-                                            ? 'bg-orange-500 border-orange-600 clip-hexagon'
-                                            : obj.type === 'pentagon'
-                                              ? 'bg-pink-500 border-pink-600 clip-pentagon'
-                                              : obj.type === 'octagon'
-                                                ? 'bg-indigo-500 border-indigo-600 clip-octagon'
-                                                : obj.type === 'diamond'
-                                                  ? 'bg-red-500 border-red-600 clip-diamond'
-                                                  : 'bg-gray-600 border-gray-700'
-                                }`}
-                              />
-                            </div>
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
                           ))}
                         </div>
 
@@ -512,35 +493,12 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                           →
                         </span>
 
-                        {/* After shapes */}
+                        {/* After fish */}
                         <div className="flex gap-1">
                           {rule.after.map((obj, idx) => (
-                            <div
-                              key={idx}
-                              className="w-8 h-8 flex items-center justify-center"
-                            >
-                              <div
-                                className={`w-6 h-6 border-2 shadow-sm ${
-                                  obj.type === 'circle'
-                                    ? 'rounded-full bg-blue-500 border-blue-600'
-                                    : obj.type === 'triangle'
-                                      ? 'bg-green-500 border-green-600 clip-triangle'
-                                      : obj.type === 'square'
-                                        ? 'bg-purple-500 border-purple-600'
-                                        : obj.type === 'star'
-                                          ? 'bg-yellow-500 border-yellow-600 clip-star'
-                                          : obj.type === 'hexagon'
-                                            ? 'bg-orange-500 border-orange-600 clip-hexagon'
-                                            : obj.type === 'pentagon'
-                                              ? 'bg-pink-500 border-pink-600 clip-pentagon'
-                                              : obj.type === 'octagon'
-                                                ? 'bg-indigo-500 border-indigo-600 clip-octagon'
-                                                : obj.type === 'diamond'
-                                                  ? 'bg-red-500 border-red-600 clip-diamond'
-                                                  : 'bg-gray-600 border-gray-700'
-                                }`}
-                              />
-                            </div>
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
                           ))}
                         </div>
                       </div>
@@ -624,7 +582,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {/* Rule creation modal */}
           {showRuleModal && (
             <RuleModalCreate
-              availableObjects={AVAILABLE_SHAPES}
+              availableObjects={AVAILABLE_FISH}
               onClose={() => setShowRuleModal(false)}
               onAddRule={handleAddRule}
             />
@@ -634,7 +592,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {showStartStateModal && (
             <StateCreationPopupCreate
               mode="start"
-              availableObjects={AVAILABLE_SHAPES}
+              availableObjects={AVAILABLE_FISH}
               rules={rules}
               startState={startState}
               endState={endState}

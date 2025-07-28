@@ -1,5 +1,8 @@
 'use client';
 
+import Image from 'next/image';
+import { AVAILABLE_FISH } from '@/constants/shapes';
+
 export interface ShapeProps {
   type: string;
   size?: 'sm' | 'md' | 'lg';
@@ -7,6 +10,7 @@ export interface ShapeProps {
   onClick?: () => void;
   selected?: boolean;
   interactive?: boolean;
+  isFloating?: boolean; // New prop for floating animation
 }
 
 export function Shape({
@@ -15,16 +19,17 @@ export function Shape({
   className = '',
   onClick,
   selected = false,
-  interactive = false
+  interactive = false,
+  isFloating = false
 }: ShapeProps) {
   // Validate that type is provided
   if (!type || typeof type !== 'string') {
-    console.error('ShapeShared component received invalid type:', type);
+    console.error('Shape component received invalid type:', type);
     return (
       <div
         className={`w-10 h-10 bg-red-300 border border-red-500 flex items-center justify-center text-xs`}
         onClick={onClick}
-        title="Invalid shape type"
+        title="Invalid type"
       >
         ?
       </div>
@@ -32,57 +37,82 @@ export function Shape({
   }
 
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-10 h-10',
-    lg: 'w-12 h-12'
+    sm: 'w-8 h-8',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16'
   };
 
-  // Define shape-specific colors for better visibility and distinction
-  const getShapeColor = (shapeType: string) => {
-    switch (shapeType) {
-      case 'circle':
-        return 'bg-blue-500 border-blue-600';
-      case 'triangle':
-        return 'bg-green-500 border-green-600';
-      case 'square':
-        return 'bg-purple-500 border-purple-600';
-      case 'star':
-        return 'bg-yellow-500 border-yellow-600';
-      case 'hexagon':
-        return 'bg-orange-500 border-orange-600';
-      case 'pentagon':
-        return 'bg-pink-500 border-pink-600';
-      case 'octagon':
-        return 'bg-indigo-500 border-indigo-600';
-      case 'diamond':
-        return 'bg-red-500 border-red-600';
-      default:
-        return 'bg-gray-600 border-gray-700';
-    }
+  const sizeValues = {
+    sm: 32,
+    md: 48,
+    lg: 64
   };
 
-  const shapeColorClasses = getShapeColor(type);
+  // Find fish data
+  const fishData = AVAILABLE_FISH.find((fish) => fish.type === type);
 
-  const baseClasses = `
-    ${sizeClasses[size]}
-    ${shapeColorClasses}
-    border-2
-    shadow-sm
-    ${type === 'circle' ? 'rounded-full' : ''}
-    ${type === 'triangle' ? 'clip-triangle' : ''}
-    ${type === 'star' ? 'clip-star' : ''}
-    ${type === 'hexagon' ? 'clip-hexagon' : ''}
-    ${type === 'pentagon' ? 'clip-pentagon' : ''}
-    ${type === 'octagon' ? 'clip-octagon' : ''}
-    ${type === 'diamond' ? 'clip-diamond' : ''}
-    ${interactive ? 'cursor-pointer hover:scale-110 hover:shadow-md transition-all duration-200' : ''}
-    ${selected ? 'ring-2 ring-brand-purple ring-offset-2 scale-110' : ''}
-    ${className}
-  `
-    .trim()
-    .replace(/\s+/g, ' ');
+  if (fishData) {
+    // Render fish image
+    const baseClasses = `
+      ${sizeClasses[size]}
+      relative
+      transition-all duration-300 ease-in-out
+      ${interactive ? 'cursor-pointer hover:scale-110' : ''}
+      ${selected || isFloating ? 'scale-125' : ''}
+      ${className}
+    `
+      .trim()
+      .replace(/\s+/g, ' ');
 
-  return <div className={baseClasses} onClick={onClick} />;
+    return (
+      <div
+        className={baseClasses}
+        onClick={onClick}
+        title={fishData.name}
+        style={{
+          transform:
+            selected || isFloating ? 'scale(1.2) rotateY(5deg)' : undefined,
+          animation:
+            selected || isFloating
+              ? 'gentleFloat 2s ease-in-out infinite'
+              : undefined
+        }}
+      >
+        <Image
+          src={fishData.path}
+          alt={fishData.name}
+          width={sizeValues[size]}
+          height={sizeValues[size]}
+          className="object-contain w-full h-full filter drop-shadow-sm"
+          priority={size === 'md'} // Prioritize medium size (most common)
+        />
+
+        {/* Add the gentle floating animation */}
+        <style jsx>{`
+          @keyframes gentleFloat {
+            0%,
+            100% {
+              transform: scale(1.2) translateY(0px) rotateY(5deg);
+            }
+            50% {
+              transform: scale(1.2) translateY(-2px) rotateY(-3deg);
+            }
+          }
+        `}</style>
+      </div>
+    );
+  } else {
+    // Unknown type - show error state
+    return (
+      <div
+        className={`${sizeClasses[size]} bg-red-300 border border-red-500 flex items-center justify-center text-xs`}
+        onClick={onClick}
+        title={`Unknown fish type: ${type}`}
+      >
+        ?
+      </div>
+    );
+  }
 }
 
 export function ShapeContainer({
@@ -96,7 +126,7 @@ export function ShapeContainer({
   interactive?: boolean;
   onClick?: () => void;
 }) {
-  const containerSize = children ? 'w-12 h-12' : 'w-8 h-8';
+  const containerSize = children ? 'w-16 h-16' : 'w-12 h-12'; // Made slightly bigger for fish images
 
   return (
     <div
