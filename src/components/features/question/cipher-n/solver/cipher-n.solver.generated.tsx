@@ -352,12 +352,12 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                       className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-lg ${
                         isClockwise
                           ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
-                          : 'bg-Purple-100 text-Purple-800 border-2 border-Purple-300'
+                          : 'bg-purple-100 text-purple-800 border-2 border-purple-300'
                       }`}
                     >
                       <div
                         className={`w-4 h-4 rounded-full mr-3 ${
-                          isClockwise ? 'bg-blue-500' : 'bg-Purple-500'
+                          isClockwise ? 'bg-blue-500' : 'bg-purple-500'
                         }`}
                       ></div>
                       <span className="mr-2">Arah Rotasi:</span>
@@ -380,7 +380,7 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                         </svg>
                       ) : (
                         <svg
-                          className="w-5 h-5 ml-2 text-Purple-600"
+                          className="w-5 h-5 ml-2 text-purple-600"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
