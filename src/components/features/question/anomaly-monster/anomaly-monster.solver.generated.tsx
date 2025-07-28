@@ -226,18 +226,6 @@ export default function GeneratedAnomalyMonsterSolver({
                             ? Belum diklasifikasikan
                           </span>
                         )}
-                      {/*<p className="text-gray-600 mt-4">*/}
-                      {/*  Kamu telah memeriksa {classifiedCount} dari{' '}*/}
-                      {/*  {totalMonsters} monster*/}
-                      {/*</p>*/}
-                      {/*<div className="w-full bg-gray-200 rounded-full h-2 mt-2">*/}
-                      {/*  <div*/}
-                      {/*    className="bg-blue-500 h-2 rounded-full transition-all duration-300"*/}
-                      {/*    style={{*/}
-                      {/*      width: `${(classifiedCount / totalMonsters) * 100}%`*/}
-                      {/*    }}*/}
-                      {/*  />*/}
-                      {/*</div>*/}
                     </div>
                   </>
                 )}
