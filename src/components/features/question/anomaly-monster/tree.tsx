@@ -85,6 +85,19 @@ export const getLabel = (
   }
 };
 
+const getLabelColor = (value: MonsterPartValue): string | undefined => {
+  switch (value) {
+    case 'Red':
+      return '#ef4444'; // Red
+    case 'Green':
+      return '#22c55e'; // Green
+    case 'Blue':
+      return '#3b82f6'; // Blue
+    default:
+      return undefined; // Default color for unknown values
+  }
+};
+
 const buildDecisionTree = (rules: Branch[]): TreeNode => {
   const attributeOrder = [
     MonsterPartEnum.COLOR,
@@ -220,7 +233,7 @@ const convertToEChartsFormat = (
       ruleId: tree.ruleId,
       isOnPath: checkIfOnPath(path),
       itemStyle: {
-        color: hasRule ? '#dcfce7' : '#f3f4f6',
+        color: hasRule ? '#000000' : '#f3f4f6',
         borderColor: hasRule ? '#16a34a' : '#9ca3af',
         borderWidth: 2
       },
@@ -251,6 +264,12 @@ const convertToEChartsFormat = (
       width: isSelectedPath ? 3 : 2
     };
 
+    child.label = {
+      ...(child.label || {}),
+      color: getLabelColor(value as MonsterPartValue) ?? '#000000',
+      fontWeight: 'bold'
+    };
+
     children.push(child);
   });
 
@@ -263,12 +282,12 @@ const convertToEChartsFormat = (
     nodeType: 'decision',
     isOnPath: checkIfOnPath(path),
     itemStyle: {
-      color: hasSelection ? '#fef3c7' : '#dbeafe',
+      color: hasSelection ? '#000000' : '#dbeafe',
       borderColor: hasSelection ? '#f59e0b' : '#3b82f6',
       borderWidth: 2
     },
     label: {
-      color: hasSelection ? '#92400e' : '#1e40af',
+      color: hasSelection ? '#000000' : '#000000',
       fontWeight: 'bold'
     }
   };
@@ -326,7 +345,7 @@ export function DecisionTreeAnomalyTree({
   }, [rules, selections]);
 
   return (
-    <div className="w-full border rounded-lg bg-white p-4">
+    <div className="w-full flex-1 border rounded-lg bg-white p-4">
       <div className="mb-2 text-lg text-center font-semibold text-gray-700">
         Pohon Keputusan Monster yang Normal
       </div>
