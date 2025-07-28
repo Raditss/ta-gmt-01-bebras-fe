@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Trophy, TrendingUp, Play } from 'lucide-react';
+import { TrendingUp, Play } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useDashboard } from '@/hooks/useDashboard';
 import Image from 'next/image';
@@ -12,9 +12,9 @@ const Dashboard = () => {
 
   // Use the dashboard hook to get all data
   const {
-    level,
-    trophyCurrent,
-    trophyTotal,
+    // level,
+    // trophyCurrent,
+    // trophyTotal,
     points,
     totalPoints,
     progressPercent,
@@ -99,21 +99,8 @@ const Dashboard = () => {
             <div className="relative h-64 bg-gradient-to-br from-pink-400 via-pink-300 to-pink-400 rounded-3xl p-8 flex items-center border-2 shadow-lg overflow-hidden">
               {/* Level Circle + Trophy */}
               <div className="relative flex-shrink-0" style={{ width: 180 }}>
-                <div className="w-40 h-40 bg-teal-400 rounded-full flex flex-col items-center justify-center border-8 border-white mx-auto">
-                  <div className="text-7xl font-bold text-white leading-none">
-                    {level}
-                  </div>
-                  <div className="text-2xl text-white font-medium mt-1">
-                    Level
-                  </div>
-                </div>
+                <div className="w-40 h-40 bg-teal-400 rounded-full flex flex-col items-center justify-center border-8 border-white mx-auto"></div>
                 {/* Trophy badge */}
-                <div className="absolute left-1/2 -bottom-6 -translate-x-1/2 w-28 h-12 bg-yellow-300 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                  <Trophy className="w-6 h-6 text-black mr-2" />
-                  <span className="text-lg font-bold text-black">
-                    {trophyCurrent}/{trophyTotal}
-                  </span>
-                </div>
               </div>
               {/* Progress and Streak */}
               <div className="flex-1 flex flex-col justify-center pl-12 h-full">
