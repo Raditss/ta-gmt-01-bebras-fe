@@ -201,25 +201,41 @@ const buildDecisionTree = (rules: Branch[]): TreeNode => {
   return buildTreeRecursive(0, {});
 };
 
+const getCurrentPath = (selections: Record<string, string>) => {
+  const path: string[] = [];
+  const order = [
+    MonsterPartEnum.COLOR,
+    MonsterPartEnum.BODY,
+    MonsterPartEnum.MOUTH
+  ];
+  for (const key of order) {
+    const value = selections[key];
+    if (value) {
+      path.push(`${key}=${value}`);
+    } else {
+      break;
+    }
+  }
+  return path;
+};
+
 // Convert to ECharts format
 const convertToEChartsFormat = (
   tree: TreeNode,
   selections: Record<string, string>,
-  path: string[] = []
+  path: string[] = [],
+  currentPath: string[]
 ): EChartsNode => {
-  const checkIfOnPath = (currentPath: string[]): boolean => {
-    return currentPath.every((condition) => {
-      const [attr, value] = condition.split('=');
-      return selections[attr] === value;
-    });
+  const checkIfOnPath = (currentNodePath: string[]): boolean => {
+    return currentNodePath.every(
+      (condition, i) => condition === currentPath[i]
+    );
   };
 
   if (tree.type === 'leaf') {
     const hasRule = tree.ruleId !== undefined;
-
-    // For leaf nodes, we need to show the final decision that led here
-    // Extract the last decision from the path
     let leafName = hasRule ? `Rule #${tree.ruleId}` : 'No Rule';
+
     if (path.length > 0) {
       const lastDecision = path[path.length - 1];
       const [attr, value] = lastDecision.split('=');
@@ -227,41 +243,43 @@ const convertToEChartsFormat = (
       leafName = `${attrLabel}: ${value} → ${leafName}`;
     }
 
+    const isOnExactPath = checkIfOnPath(path);
+
     return {
       name: leafName,
       nodeType: 'leaf',
       ruleId: tree.ruleId,
-      isOnPath: checkIfOnPath(path),
+      isOnPath: isOnExactPath,
       itemStyle: {
         color: hasRule ? '#000000' : '#f3f4f6',
-        borderColor: hasRule ? '#16a34a' : '#9ca3af',
+        borderColor: isOnExactPath ? '#16a34a' : '#9ca3af',
         borderWidth: 2
       },
       label: {
-        color: hasRule ? '#15803d' : '#6b7280',
-        fontWeight: 'bold'
+        color: isOnExactPath ? '#15803d' : '#6b7280',
+        fontWeight: isOnExactPath ? 'bold' : 'normal'
       }
     };
   }
 
   const children: EChartsNode[] = [];
-  const hasSelection = selections[tree.attribute!] !== undefined;
-  const selectedValue = selections[tree.attribute!];
 
   tree.children?.forEach((childNode, value) => {
     const childPath = [...path, `${tree.attribute}=${value}`];
-    const child = convertToEChartsFormat(childNode, selections, childPath);
+    const child = convertToEChartsFormat(
+      childNode,
+      selections,
+      childPath,
+      currentPath
+    );
 
-    // Format: "Attribute: Value" - shows the decision being made
-    const attributeLabel =
-      tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1);
-    child.name = `${getLabel(attributeLabel as MonsterPartType, value as MonsterPartValue)}`;
+    const isOnExactPath = checkIfOnPath(childPath);
 
-    const isSelectedPath = selectedValue === value;
+    child.name = `${getLabel(tree.attribute as MonsterPartType, value as MonsterPartValue)}`;
 
     child.lineStyle = {
-      color: isSelectedPath ? '#16a34a' : hasSelection ? '#cbd5e1' : '#6b7280',
-      width: isSelectedPath ? 3 : 2
+      color: isOnExactPath ? '#16a34a' : '#d1d5db',
+      width: isOnExactPath ? 3 : 1
     };
 
     child.label = {
@@ -273,21 +291,20 @@ const convertToEChartsFormat = (
     children.push(child);
   });
 
+  const isOnExactPath = checkIfOnPath(path);
+
   return {
-    name:
-      path.length === 0
-        ? 'Start'
-        : tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1),
+    name: path.length === 0 ? 'Start' : tree.attribute!,
     children,
     nodeType: 'decision',
-    isOnPath: checkIfOnPath(path),
+    isOnPath: isOnExactPath,
     itemStyle: {
-      color: hasSelection ? '#000000' : '#dbeafe',
-      borderColor: hasSelection ? '#f59e0b' : '#3b82f6',
+      color: isOnExactPath ? '#000000' : '#dbeafe',
+      borderColor: isOnExactPath ? '#f59e0b' : '#3b82f6',
       borderWidth: 2
     },
     label: {
-      color: hasSelection ? '#000000' : '#000000',
+      color: '#000000',
       fontWeight: 'bold'
     }
   };
@@ -300,7 +317,8 @@ export function DecisionTreeAnomalyTree({
 }: TreeProps) {
   const option = useMemo(() => {
     const tree = buildDecisionTree(rules);
-    const data = convertToEChartsFormat(tree, selections);
+    const currentPath = getCurrentPath(selections);
+    const data = convertToEChartsFormat(tree, selections, [], currentPath);
 
     return {
       tooltip: {
