@@ -11,7 +11,11 @@ import { CheckCircle2, Save } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { AVAILABLE_SHAPES } from '@/constants/shapes';
+import { AVAILABLE_FISH } from '@/constants/shapes';
+import {
+  Shape,
+  ShapeContainer
+} from '@/components/features/question/cfg/shared/shape';
 
 import { BaseCreatorProps, CreatorWrapper } from '../../bases/base.creator';
 import { CreationSubmissionModal } from '../submission-modal.creator';
@@ -409,7 +413,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                 {/* Start State */}
                 <div className="bg-card rounded-lg p-4 shadow-lg border mb-8">
                   <StateDisplaySolve
-                    title="Start State"
+                    title="Keadaan Awal"
                     state={startState}
                     isInteractive={true}
                     onObjectClick={() => {
@@ -425,7 +429,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                         variant="outline"
                         className="bg-brand-green/10 hover:bg-brand-green/20 text-brand-green border border-brand-green/30"
                       >
-                        Create Start State
+                        Buat Keadaan Awal
                       </Button>
                     </div>
                   )}
@@ -434,7 +438,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                 {/* End State */}
                 <div className="bg-card rounded-lg p-4 shadow-lg border">
                   <StateDisplaySolve
-                    title="End State"
+                    title="Keadaan Akhir"
                     state={endState}
                     isInteractive={startState.length > 0}
                     selectedIndices={selectedIndices}
@@ -444,13 +448,13 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                   {endState.length === 0 && (
                     <div className="text-center text-muted-foreground py-4 text-sm">
                       {startState.length === 0
-                        ? 'Create start state first'
-                        : 'Transform this state using rules below'}
+                        ? 'Buat keadaan awal terlebih dahulu'
+                        : 'Ubah keadaan ini menggunakan aturan di bawah'}
                     </div>
                   )}
                   {startState.length > 0 && endState.length > 0 && (
                     <div className="text-center text-muted-foreground mt-2 text-xs">
-                      Click objects to select, then apply rules below
+                      Klik objek untuk memilih, lalu terapkan aturan di bawah
                     </div>
                   )}
                 </div>
@@ -461,7 +465,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {/* Applicable Rules Section - Matching solver's "Applicable Rules" section */}
           <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
             <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-              Applicable Rules
+              Aturan yang Bisa Diterapkan
             </h2>
 
             <div className="flex items-center justify-center min-h-24">
@@ -475,35 +479,12 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                       variant="outline"
                     >
                       <div className="flex items-center gap-2">
-                        {/* Before shapes */}
+                        {/* Before fish */}
                         <div className="flex gap-1">
                           {rule.before.map((obj, idx) => (
-                            <div
-                              key={idx}
-                              className="w-8 h-8 flex items-center justify-center"
-                            >
-                              <div
-                                className={`w-6 h-6 border-2 shadow-sm ${
-                                  obj.type === 'circle'
-                                    ? 'rounded-full bg-blue-500 border-blue-600'
-                                    : obj.type === 'triangle'
-                                      ? 'bg-green-500 border-green-600 clip-triangle'
-                                      : obj.type === 'square'
-                                        ? 'bg-purple-500 border-purple-600'
-                                        : obj.type === 'star'
-                                          ? 'bg-yellow-500 border-yellow-600 clip-star'
-                                          : obj.type === 'hexagon'
-                                            ? 'bg-orange-500 border-orange-600 clip-hexagon'
-                                            : obj.type === 'pentagon'
-                                              ? 'bg-pink-500 border-pink-600 clip-pentagon'
-                                              : obj.type === 'octagon'
-                                                ? 'bg-indigo-500 border-indigo-600 clip-octagon'
-                                                : obj.type === 'diamond'
-                                                  ? 'bg-red-500 border-red-600 clip-diamond'
-                                                  : 'bg-gray-600 border-gray-700'
-                                }`}
-                              />
-                            </div>
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
                           ))}
                         </div>
 
@@ -512,35 +493,12 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                           →
                         </span>
 
-                        {/* After shapes */}
+                        {/* After fish */}
                         <div className="flex gap-1">
                           {rule.after.map((obj, idx) => (
-                            <div
-                              key={idx}
-                              className="w-8 h-8 flex items-center justify-center"
-                            >
-                              <div
-                                className={`w-6 h-6 border-2 shadow-sm ${
-                                  obj.type === 'circle'
-                                    ? 'rounded-full bg-blue-500 border-blue-600'
-                                    : obj.type === 'triangle'
-                                      ? 'bg-green-500 border-green-600 clip-triangle'
-                                      : obj.type === 'square'
-                                        ? 'bg-purple-500 border-purple-600'
-                                        : obj.type === 'star'
-                                          ? 'bg-yellow-500 border-yellow-600 clip-star'
-                                          : obj.type === 'hexagon'
-                                            ? 'bg-orange-500 border-orange-600 clip-hexagon'
-                                            : obj.type === 'pentagon'
-                                              ? 'bg-pink-500 border-pink-600 clip-pentagon'
-                                              : obj.type === 'octagon'
-                                                ? 'bg-indigo-500 border-indigo-600 clip-octagon'
-                                                : obj.type === 'diamond'
-                                                  ? 'bg-red-500 border-red-600 clip-diamond'
-                                                  : 'bg-gray-600 border-gray-700'
-                                }`}
-                              />
-                            </div>
+                            <ShapeContainer key={idx}>
+                              <Shape type={obj.type} size="sm" />
+                            </ShapeContainer>
                           ))}
                         </div>
                       </div>
@@ -550,10 +508,10 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               ) : (
                 <div className="text-center text-muted-foreground">
                   {startState.length === 0
-                    ? 'Create a start state and add some rules first'
+                    ? 'Buat keadaan awal dan tambahkan beberapa aturan terlebih dahulu'
                     : selectedIndices.length === 0
-                      ? 'Select objects in the end state to see applicable rules'
-                      : 'No applicable rules for selected objects'}
+                      ? 'Pilih objek di keadaan akhir untuk melihat aturan yang bisa diterapkan'
+                      : 'Tidak ada aturan yang bisa diterapkan untuk objek yang dipilih'}
                 </div>
               )}
             </div>
@@ -567,7 +525,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
               disabled={startState.length === 0}
             >
-              Undo
+              Urungkan
             </Button>
             <Button
               onClick={handleRedo}
@@ -575,7 +533,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
               disabled={startState.length === 0}
             >
-              Redo
+              Ulangi
             </Button>
             <Button
               onClick={handleResetEndState}
@@ -583,14 +541,14 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-orange-100 hover:bg-orange-200 text-orange-700 border-orange-300 px-4 py-2 h-10"
               disabled={startState.length === 0 || endState.length === 0}
             >
-              Reset End State
+              Reset Keadaan Akhir
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
               className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
             >
-              Reset All
+              Reset Semua
             </Button>
             <Button
               onClick={handleManualSave}
@@ -599,7 +557,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
               className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save Draft
+              Simpan Draft
             </Button>
             {startState.length > 0 &&
               endState.length > 0 &&
@@ -608,7 +566,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
                   onClick={handleSubmit}
                   className="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
                 >
-                  Submit Question
+                  Kirim Soal
                 </Button>
               )}
           </div>
@@ -617,14 +575,14 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {showSaveConfirmation && (
             <Alert className="mt-4 bg-green-50 text-green-800 border-green-200 max-w-md mx-auto">
               <CheckCircle2 className="h-4 w-4" />
-              <AlertDescription>Draft saved successfully!</AlertDescription>
+              <AlertDescription>Draft berhasil disimpan!</AlertDescription>
             </Alert>
           )}
 
           {/* Rule creation modal */}
           {showRuleModal && (
             <RuleModalCreate
-              availableObjects={AVAILABLE_SHAPES}
+              availableObjects={AVAILABLE_FISH}
               onClose={() => setShowRuleModal(false)}
               onAddRule={handleAddRule}
             />
@@ -634,7 +592,7 @@ export default function CfgCreator({ initialDataQuestion }: BaseCreatorProps) {
           {showStartStateModal && (
             <StateCreationPopupCreate
               mode="start"
-              availableObjects={AVAILABLE_SHAPES}
+              availableObjects={AVAILABLE_FISH}
               rules={rules}
               startState={startState}
               endState={endState}

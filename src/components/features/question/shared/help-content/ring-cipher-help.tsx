@@ -9,62 +9,60 @@ export function RingCipherHelp() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-blue-600 flex items-center gap-2">
           <Target className="w-5 h-5" />
-          Objective
+          Tujuan
         </h3>
         <p className="text-gray-700">
-          Decrypt the message by rotating the concentric rings to align the
-          correct letters and find the letter at the specified position on the
-          target ring.
+          Kamu ditugaskan untuk menemukan kode (enkripsi) dari Kata yang
+          diberikan dengan menggunakan cincin sandi.
         </p>
       </div>
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-green-600 flex items-center gap-2">
           <Info className="w-5 h-5" />
-          How to Solve
+          Cara Menyelesaikan
         </h3>
         <div className="space-y-3">
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-medium text-blue-800 mb-2">
-              Step 1: Understand the Rings
+              Langkah 1: Pahami Cincin
             </h4>
             <p className="text-blue-700 text-sm">
-              The cipher consists of multiple concentric rings, each with
-              letters arranged in a circle. Each ring can rotate independently.
-              The red arrow at the top indicates the reference position.
+              Terdapat beberapa cincin konsentris, masing-masing berisi
+              huruf-huruf yang tersusun melingkar. Setiap cincin dapat diputar
+              secara independen. Panah merah di atas menunjukkan posisi
+              referensi.
             </p>
           </div>
 
           <div className="bg-green-50 p-4 rounded-lg">
             <h4 className="font-medium text-green-800 mb-2">
-              Step 2: Select Target Ring
+              Langkah 2: Pilih Nomor Cincin
             </h4>
             <p className="text-green-700 text-sm">
-              Enter the ring number (1, 2, 3, etc.) that you want to rotate.
-              Ring 1 is the innermost ring, and the numbers increase outward.
+              Masukkan nomor cincin (1, 2, 3, dst.) yang ingin kamu putar.
+              Cincin 1 adalah cincin paling dalam, dan nomor bertambah ke arah
+              luar.
             </p>
           </div>
 
           <div className="bg-purple-50 p-4 rounded-lg">
             <h4 className="font-medium text-purple-800 mb-2">
-              Step 3: Calculate Rotation Steps
+              Langkah 3: Tentukan Langkah Rotasi
             </h4>
             <p className="text-purple-700 text-sm">
-              Enter the number of steps to rotate the selected ring. Positive
-              numbers rotate clockwise, negative numbers rotate
-              counter-clockwise. Each step moves the ring by one letter
-              position.
+              Masukkan jumlah langkah rotasi pada cincin yang dipilih. Setiap
+              langkah memutar cincin satu posisi huruf searah jarum jam.
             </p>
           </div>
 
           <div className="bg-orange-50 p-4 rounded-lg">
             <h4 className="font-medium text-orange-800 mb-2">
-              Step 4: Find the Letter
+              Langkah 4: Temukan Huruf
             </h4>
             <p className="text-orange-700 text-sm">
-              After rotating, identify the letter at the reference position
-              (marked by the red arrow) on the target ring. This letter is your
-              answer.
+              Setelah diputar, huruf pada posisi referensi (ditandai panah
+              merah) pada cincin target adalah huruf hasil enkripsi.
             </p>
           </div>
         </div>
@@ -78,49 +76,156 @@ export function RingCipherHelp() {
         <div className="space-y-2">
           <Alert>
             <AlertDescription>
-              <strong>Ring Numbering:</strong> Rings are numbered from inside
-              out. Ring 1 is the innermost, Ring 2 is the second ring, and so
-              on.
+              <strong>Penomoran Cincin:</strong> Cincin dinomori dari dalam ke
+              luar. Cincin 1 adalah yang paling dalam.
             </AlertDescription>
           </Alert>
 
           <Alert>
             <AlertDescription>
-              <strong>Reference Position:</strong> The red arrow at the top of
-              the visualization shows the reference position where you need to
-              read the final letter.
+              <strong>Posisi Referensi:</strong> Panah merah di atas visualisasi
+              menunjukkan posisi referensi tempat membaca huruf hasil enkripsi.
             </AlertDescription>
           </Alert>
 
           <Alert>
             <AlertDescription>
-              <strong>Rotation Direction:</strong> You&apos;re counting the
-              steps clockwise from the reference position. You can use the
-              preview to see how the rotation affects the ring positions.
+              <strong>Arah Rotasi:</strong> Setiap langkah rotasi memutar cincin
+              searah jarum jam.
             </AlertDescription>
           </Alert>
 
           <Alert>
             <AlertDescription>
-              <strong>Visual Feedback:</strong> The selected ring will be
-              highlighted with a different color and border to help you track
-              which ring you&apos;re working with.
+              <strong>Umpan Balik Visual:</strong> Cincin yang dipilih akan
+              disorot dengan warna dan border berbeda agar mudah dilacak.
             </AlertDescription>
           </Alert>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-red-600">Example</h3>
-        <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+        <h3 className="text-lg font-semibold text-red-600">Contoh</h3>
+        <div className="bg-gray-50 p-4 rounded-lg space-y-2 flex flex-col items-center">
+          {/* Ilustrasi sederhana dua cincin */}
+          <svg width="120" height="120" viewBox="0 0 120 120" className="mb-2">
+            {/* Outer ring */}
+            <circle
+              cx="60"
+              cy="60"
+              r="50"
+              fill="#e0e7ff"
+              stroke="#6366f1"
+              strokeWidth="2"
+            />
+            {/* Inner ring */}
+            <circle
+              cx="60"
+              cy="60"
+              r="30"
+              fill="#f3e8ff"
+              stroke="#a21caf"
+              strokeWidth="2"
+            />
+            {/* Reference arrow */}
+            <polygon points="60,10 56,2 64,2" fill="red" />
+            {/* Letters on outer ring */}
+            <text
+              x="60"
+              y="18"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              A
+            </text>
+            <text
+              x="100"
+              y="60"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              B
+            </text>
+            <text
+              x="60"
+              y="110"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              C
+            </text>
+            <text
+              x="20"
+              y="60"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              D
+            </text>
+            {/* Letters on inner ring */}
+            <text
+              x="60"
+              y="38"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              E
+            </text>
+            <text
+              x="80"
+              y="60"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              F
+            </text>
+            <text
+              x="60"
+              y="82"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              G
+            </text>
+            <text
+              x="40"
+              y="60"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="bold"
+              fill="#111827"
+            >
+              H
+            </text>
+          </svg>
           <p className="text-sm text-gray-700">
-            <strong>Given:</strong> Ring 2 has letters &quot;ABCDEF&quot;,
-            rotate by 3 steps clockwise
+            <b>Diberikan:</b> Cincin 2 (luar) berisi huruf &quot;ABCD&quot;,
+            diputar 2 langkah searah jarum jam
           </p>
           <p className="text-sm text-gray-700">
-            <strong>Solution:</strong> After rotating 3 steps clockwise, the
-            letter at the reference position (marked by the red arrow) on Ring 2
-            will be your answer.
+            <b>Penyelesaian:</b> Setelah diputar 2 langkah, huruf pada posisi
+            referensi (panah merah) pada Cincin 2 adalah huruf &quot;C&quot;.
+            Maka kode (enkripsi) untuk huruf tersebut adalah 22 (2 = nomor
+            cincin, 2 = langkah rotasi).
+          </p>
+          <p className="text-sm text-gray-700">
+            Jika ingin mengenkripsi kata &quot;EG&quot;, lakukan langkah serupa
+            pada cincin dan langkah rotasi yang sesuai untuk setiap huruf, lalu
+            gabungkan hasilnya dengan tanda &quot;-&quot;.
           </p>
         </div>
       </div>
@@ -128,14 +233,15 @@ export function RingCipherHelp() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-indigo-600 flex items-center gap-2">
           <RotateCcw className="w-5 h-5" />
-          Ring Mechanics
+          Mekanisme Cincin
         </h3>
         <div className="bg-indigo-50 p-4 rounded-lg">
           <p className="text-indigo-700 text-sm">
-            Each ring rotates independently around the center. When you rotate a
-            ring, all the letters on that ring move together while other rings
-            remain stationary. The goal is to align the correct letters across
-            all rings to form the decrypted message.
+            Setiap cincin dapat diputar secara independen. Ketika kamu memutar
+            sebuah cincin, semua huruf pada cincin tersebut ikut bergerak,
+            sementara cincin lain tetap diam. Tujuan akhirnya adalah menyusun
+            huruf-huruf hasil enkripsi dari setiap langkah untuk membentuk pesan
+            sandi.
           </p>
         </div>
       </div>

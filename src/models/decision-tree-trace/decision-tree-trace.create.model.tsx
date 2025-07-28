@@ -136,8 +136,7 @@ export class DecisionTreeTraceCreateModel extends ICreateQuestion {
 
     // Check if all conditions have required fields
     const conditionsValid = rule.conditions.every(
-      (condition) =>
-        condition.attribute && condition.operator && condition.value
+      (condition) => condition.attribute && condition.value
     );
 
     // Check if finish exists

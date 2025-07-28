@@ -4,8 +4,6 @@ import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,10 +17,11 @@ import {
   AlertTriangle,
   CheckCircle2,
   Eye,
+  Plus,
   Save,
+  Trash2,
   TreePine,
-  Users,
-  Wand2
+  Users
 } from 'lucide-react';
 
 // Hooks
@@ -32,7 +31,6 @@ import { usePageNavigationGuard } from '@/hooks/usePageNavigationGuard';
 
 // Models and Types
 import { AnomalyMonsterCreateModel } from '@/models/anomaly-monster/anomaly-monster-create.model';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
 
 // Components
 import {
@@ -42,11 +40,22 @@ import {
 import { CreationSubmissionModal } from '@/components/features/question/submission-modal.creator';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import MonsterCharacter from '@/components/features/question/anomaly-monster/monster-character';
-import MonsterPartWardrobe from '@/components/features/question/anomaly-monster/monster-part-wardrobe';
-import RuleManagement from './rule-management';
-import RulesList from './rules-list';
-import ChoiceManagement from './choice-management';
-import ChoicesList from './choices-list';
+import {
+  BodyEnum,
+  BodyType,
+  ColorEnum,
+  ColorType,
+  getBodyLabel,
+  getColorLabel,
+  getMouthLabel,
+  MonsterPartEnum,
+  MouthEnum,
+  MouthType
+} from '@/components/features/question/anomaly-monster/monster.type';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { ContagionProtocolMonsterBodyEnum } from '@/models/contagion-protocol/contagion-protocol.model.type';
+import { Input } from '@/components/ui/input';
 
 export default function AnomalyMonsterCreator({
   initialDataQuestion
@@ -62,7 +71,8 @@ export default function AnomalyMonsterCreator({
     saveDraft,
     submitCreation,
     markAsChanged,
-    clearError
+    clearError,
+    isLoading
   } = useCreateQuestion<AnomalyMonsterCreateModel>(
     initialDataQuestion,
     AnomalyMonsterCreateModel
@@ -89,6 +99,8 @@ export default function AnomalyMonsterCreator({
 
     // Choices
     choices,
+    currentChoiceName,
+    setCurrentChoiceName,
     currentChoiceSelections,
     isCreatingChoice,
     editingChoiceId,
@@ -118,11 +130,7 @@ export default function AnomalyMonsterCreator({
   });
 
   // Component state
-  const [activeTab, setActiveTab] = useState('rules');
-  const [hovered, setHovered] = useState<{
-    category: MonsterPartType;
-    value: string;
-  } | null>(null);
+  const [activeView, setActiveView] = useState<'rules' | 'choices'>('rules');
   const [showSaveConfirmation, setShowSaveConfirmation] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [validationDialog, setValidationDialog] = useState<{
@@ -134,18 +142,6 @@ export default function AnomalyMonsterCreator({
     title: '',
     message: ''
   });
-
-  // Monster interaction handlers
-  const handleHover = useCallback(
-    (category: MonsterPartType, value: string) => {
-      setHovered({ category, value });
-    },
-    []
-  );
-
-  const handleMouseLeave = useCallback(() => {
-    setHovered(null);
-  }, []);
 
   // Action handlers
   const handleManualSave = useCallback(async () => {
@@ -181,52 +177,13 @@ export default function AnomalyMonsterCreator({
     await submitCreation();
   }, [submitCreation]);
 
-  const handleEditRule = useCallback(
-    (ruleId: number) => {
-      setActiveTab('rules');
-      editRule(ruleId);
-    },
-    [editRule]
-  );
-
-  const handleEditChoice = useCallback(
-    (choiceId: number) => {
-      setActiveTab('choices');
-      editChoice(choiceId);
-    },
-    [editChoice]
-  );
-
-  // Get current selections based on active tab
-  const getCurrentSelections = useCallback(() => {
-    return activeTab === 'rules'
-      ? currentRuleSelections
-      : currentChoiceSelections;
-  }, [activeTab, currentRuleSelections, currentChoiceSelections]);
-
-  // Get appropriate selection handler based on active tab
-  const getSelectionHandler = useCallback(() => {
-    return activeTab === 'rules' ? handleRuleSelection : handleChoiceSelection;
-  }, [activeTab, handleRuleSelection, handleChoiceSelection]);
-
-  // Convert current selections to format expected by DecisionTree
-  const getTreeSelections = useCallback((): Record<string, string> => {
-    const selections = getCurrentSelections();
-    return {
-      body: selections[MonsterPartType.BODY] || '',
-      arms: selections[MonsterPartType.ARM] || '',
-      legs: selections[MonsterPartType.LEG] || '',
-      color: selections[MonsterPartType.COLOR] || ''
-    };
-  }, [getCurrentSelections]);
-
   const closeValidationDialog = useCallback(() => {
     setValidationDialog({ isOpen: false, title: '', message: '' });
   }, []);
 
   return (
     <CreatorWrapper
-      loading={false}
+      loading={isLoading}
       error={creationError}
       hasUnsavedChanges={hasUnsavedChanges}
       showNavigationDialog={showNavigationDialog}
@@ -236,290 +193,616 @@ export default function AnomalyMonsterCreator({
       onSetShowDialog={setShowDialog}
     >
       <div className="min-h-screen bg-gray-100">
-        <div className="max-w-[95%] mx-auto p-4">
+        <div className="max-w-[98%] mx-auto p-4">
           {/* Header */}
           <div className="text-center mt-6 mb-8">
             <h1 className="text-3xl font-bold text-gray-800">
               Pembuat Soal Monster yang Aneh
             </h1>
 
-            {/* Description Card */}
-            <Card className="max-w-4xl mx-auto mt-6 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <Wand2 className="h-6 w-6 text-purple-600" />
-                  <h3 className="text-lg font-semibold text-gray-800">
-                    Deskripsi Pembuatan Soal
-                  </h3>
-                </div>
-                <div className="flex flex-col gap-1 text-gray-700 leading-relaxed text-left">
-                  <p>
-                    Soal ini menggunakan konsep pohon keputusan untuk menguji
-                    kemampuan siswa dalam mengklasifikasikan objek berdasarkan
-                    aturan logis.
-                  </p>
-                  <div>
-                    <p>Sebagai pembuat soal, Anda diminta untuk:</p>
-                    <ol className="list-disc ml-6">
-                      <li>
-                        Menyusun aturan klasifikasi untuk membentuk pohon
-                        keputusan.
-                      </li>
-                      <li>
-                        Membuat kumpulan monster dengan atribut tertentu (body,
-                        arm, leg, dan color).
-                      </li>
-                    </ol>
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4 mt-6">
+              <Button
+                onClick={handleManualSave}
+                disabled={!hasUnsavedChanges}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Save className="h-4 w-4" />
+                Simpan Draft
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={rules.length === 0 || choices.length === 0}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                Submit Soal
+              </Button>
+            </div>
+
+            {/* Status Messages */}
+            {showSaveConfirmation && (
+              <Alert className="mt-4 max-w-md mx-auto bg-green-50 text-green-800 border-green-200">
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>Draft berhasil disimpan!</AlertDescription>
+              </Alert>
+            )}
+            {lastSavedDraft && !showSaveConfirmation && (
+              <Alert className="mt-4 max-w-md mx-auto bg-gray-50 text-gray-800 border-gray-200">
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertDescription>
+                  Terakhir disimpan pada {lastSavedDraft.toString()}
+                </AlertDescription>
+              </Alert>
+            )}
+            {/* Validation Status */}
+            {(rules.length === 0 || choices.length === 0) && (
+              <Alert className="mt-4 max-w-2xl mx-auto bg-orange-50 text-orange-800 border-orange-200">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  <div className="text-sm">
+                    <strong>Masalah yang ditemukan:</strong>
+                    <ul className="mt-1 list-disc list-inside">
+                      {rules.length === 0 && (
+                        <li>Perlu minimal 1 aturan pohon keputusan</li>
+                      )}
+                      {choices.length === 0 && <li>Perlu minimal 1 monster</li>}
+                    </ul>
                   </div>
-                  <p>
-                    Tugas siswa adalah menentukan apakah setiap monster termasuk
-                    normal atau terinfeksi, berdasarkan aturan pohon keputusan
-                    yang telah Anda buat.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left side - Monster Preview and Wardrobe */}
-            <div className="lg:col-span-1">
-              <div className="flex flex-col gap-6">
-                {/* Monster Preview */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                  <div className="text-center mb-4">
-                    <h3 className="text-lg font-semibold mb-2">
-                      Preview Monster
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {activeTab === 'rules'
-                        ? 'Konfigurasi Aturan'
-                        : 'Konfigurasi Pilihan Monster'}
-                    </p>
+          {/* Main Layout - 3 Columns */}
+          <div className="grid grid-cols-12 gap-4 h-[800px]">
+            {/* Left Panel - Navigation Tabs */}
+            <div className="col-span-3 bg-white rounded-xl shadow-lg flex flex-col">
+              {/* Tab Headers */}
+              <div className="flex border-b border-gray-200">
+                <button
+                  onClick={() => setActiveView('rules')}
+                  className={`flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
+                    activeView === 'rules'
+                      ? 'border-blue-500 text-blue-600 bg-blue-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <TreePine className="h-4 w-4" />
+                    Aturan Pohon
                   </div>
-                  <div className="flex justify-center">
-                    <MonsterCharacter
-                      selections={getCurrentSelections()}
-                      hovered={hovered}
-                    />
+                  <div className="text-xs mt-1">({rules.length} aturan)</div>
+                </button>
+                <button
+                  onClick={() => setActiveView('choices')}
+                  className={`flex-1 py-3 px-4 text-sm font-medium border-b-2 transition-colors ${
+                    activeView === 'choices'
+                      ? 'border-purple-500 text-purple-600 bg-purple-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <Users className="h-4 w-4" />
+                    Daftar Monster
                   </div>
-                </div>
+                  <div className="text-xs mt-1">({choices.length} monster)</div>
+                </button>
+              </div>
 
-                {/* Monster Wardrobe */}
-                <div className="bg-white rounded-xl shadow-lg p-4">
-                  <h3 className="text-lg font-semibold mb-4 text-center">
-                    Lemari Monster
-                  </h3>
-                  <MonsterPartWardrobe
-                    selections={getCurrentSelections()}
-                    onSelection={getSelectionHandler()}
-                    onHover={handleHover}
-                    onMouseLeave={handleMouseLeave}
-                  />
-                </div>
+              {/* Tab Content */}
+              <div className="flex-1 p-4 overflow-y-auto">
+                {activeView === 'rules' ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-800">
+                        Daftar Aturan
+                      </h3>
+                      <Button
+                        size="sm"
+                        onClick={startCreatingRule}
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Tambah Aturan
+                      </Button>
+                    </div>
+
+                    {rules.map((rule, idx) => (
+                      <div
+                        key={rule.id}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          selectedRuleId === rule.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => {
+                          setSelectedRuleId(rule.id);
+                          editRule(rule.id);
+                        }}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm mb-2">
+                              Cabang ke-{idx + 1}
+                            </div>
+                            <div className="text-xs text-gray-500 space-y-1">
+                              <div>
+                                🎨 Warna:{' '}
+                                {getColorLabel(
+                                  rule.conditions.find(
+                                    (condition) =>
+                                      condition.attribute ===
+                                      MonsterPartEnum.COLOR
+                                  )?.value ?? ''
+                                )}{' '}
+                              </div>
+                              <div>
+                                🎲 Bentuk Badan:{' '}
+                                {getBodyLabel(
+                                  rule.conditions.find(
+                                    (condition) =>
+                                      condition.attribute ===
+                                      MonsterPartEnum.BODY
+                                  )?.value ?? ''
+                                )}{' '}
+                              </div>
+                              <div>
+                                😊 Mulut:{' '}
+                                {getMouthLabel(
+                                  rule.conditions.find(
+                                    (condition) =>
+                                      condition.attribute ===
+                                      MonsterPartEnum.MOUTH
+                                  )?.value ?? ''
+                                )}{' '}
+                              </div>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteRule(rule.id);
+                            }}
+                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/*<RulesList*/}
+                    {/*  rules={rules}*/}
+                    {/*  selectedRuleId={selectedRuleId}*/}
+                    {/*  editingRuleId={editingRuleId}*/}
+                    {/*  isCreatingRule={isCreatingRule}*/}
+                    {/*  onEditRule={editRule}*/}
+                    {/*  onDeleteRule={deleteRule}*/}
+                    {/*  onSelectRule={setSelectedRuleId}*/}
+                    {/*/>*/}
+
+                    {rules.length === 0 && (
+                      <div className="text-center text-gray-500 py-8">
+                        <TreePine className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">
+                          Belum ada aturan pohon keputusan
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-800">
+                        Daftar Monster
+                      </h3>
+                      <Button
+                        size="sm"
+                        onClick={startCreatingChoice}
+                        className="flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Tambah Monster
+                      </Button>
+                    </div>
+                    {choices.map((monster) => (
+                      <div
+                        key={monster.id}
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                          selectedChoiceId === monster.id
+                            ? 'border-purple-500 bg-purple-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => {
+                          setSelectedChoiceId(monster.id);
+                          editChoice(monster.id);
+                        }}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">
+                              {monster.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {getColorLabel(
+                                monster.conditions.find(
+                                  (condition) =>
+                                    condition.attribute ===
+                                    MonsterPartEnum.COLOR
+                                )?.value ?? ''
+                              )}{' '}
+                              •{' '}
+                              {getBodyLabel(
+                                monster.conditions.find(
+                                  (condition) =>
+                                    condition.attribute === MonsterPartEnum.BODY
+                                )?.value ?? ''
+                              )}{' '}
+                              •{' '}
+                              {getMouthLabel(
+                                monster.conditions.find(
+                                  (condition) =>
+                                    condition.attribute ===
+                                    MonsterPartEnum.MOUTH
+                                )?.value ?? ''
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteChoice(monster.id);
+                            }}
+                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/*<ChoicesList*/}
+                    {/*  choices={choices}*/}
+                    {/*  selectedChoiceId={selectedChoiceId}*/}
+                    {/*  editingChoiceId={editingChoiceId}*/}
+                    {/*  isCreatingChoice={isCreatingChoice}*/}
+                    {/*  onEditChoice={editChoice}*/}
+                    {/*  onDeleteChoice={deleteChoice}*/}
+                    {/*  onSelectChoice={setSelectedChoiceId}*/}
+                    {/*/>*/}
+                    {choices.length === 0 && (
+                      <div className="text-center text-gray-500 py-8">
+                        <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">
+                          Belum ada monster yang ditambahkan
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Right side - Management Tabs and Progress */}
-            <div className="lg:col-span-2">
-              <div className="flex flex-col gap-6">
-                {/* Progress Overview */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                  <h3 className="text-lg font-semibold mb-4 text-center">
-                    Progres Pembuatan
-                  </h3>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Rules Progress */}
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <TreePine className="h-5 w-5 text-blue-600" />
-                        <span className="font-semibold text-gray-800">
-                          Aturan Pohon
-                        </span>
-                      </div>
-                      <div className="text-3xl font-bold text-blue-600 mb-2">
-                        {rules.length}
-                      </div>
-                      <div className="text-sm text-gray-500">Aturan dibuat</div>
-                      {rules.length === 0 && (
-                        <div className="mt-2">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
-                            Perlu minimal 1 aturan
-                          </span>
-                        </div>
-                      )}
+            {/* Middle Panel - Visualization */}
+            <div className="col-span-5 bg-white rounded-xl shadow-lg p-6">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <Eye className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-semibold">
+                  {activeView === 'rules'
+                    ? 'Preview Pohon Keputusan'
+                    : 'Preview Monster'}
+                </h3>
+              </div>
+              <div className="h-[700px] flex items-center justify-center border border-gray-200 rounded-lg">
+                {activeView === 'rules' ? (
+                  rules.length > 0 ? (
+                    <DecisionTreeAnomalyTree rules={rules} selections={{}} />
+                  ) : (
+                    <div className="text-center text-gray-500">
+                      <TreePine className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p>Buat aturan pertama untuk melihat pohon keputusan</p>
                     </div>
+                  )
+                ) : currentChoiceSelections ? (
+                  <div className="text-center">
+                    <h4 className="text-xl font-bold mb-6">Preview Monster</h4>
+                    <MonsterCharacter
+                      selections={{
+                        Color: currentChoiceSelections[MonsterPartEnum.COLOR],
+                        Body: currentChoiceSelections[MonsterPartEnum.BODY],
+                        Mouth: currentChoiceSelections[MonsterPartEnum.MOUTH]
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-500">
+                    <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p>Pilih monster dari daftar untuk melihat preview</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
-                    {/* Choices Progress */}
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <Users className="h-5 w-5 text-purple-600" />
-                        <span className="font-semibold text-gray-800">
-                          Pilihan Monster
-                        </span>
-                      </div>
-                      <div className="text-3xl font-bold text-purple-600 mb-2">
-                        {choices.length}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Monster dibuat
-                      </div>
-                      {choices.length === 0 && (
-                        <div className="mt-2">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
-                            Perlu minimal 1 monster
-                          </span>
+            {/* Right Panel - Forms */}
+            <div className="col-span-4 bg-white rounded-xl shadow-lg p-6">
+              <h3 className="text-lg font-semibold mb-4">
+                {activeView === 'rules'
+                  ? isCreatingRule || editingRuleId
+                    ? 'Manajemen Aturan Pohon Keputusan'
+                    : 'Pengaturan Aturan Pohon Keputusan'
+                  : isCreatingChoice || editingChoiceId
+                    ? 'Manajemen Monster'
+                    : 'Pengaturan Monster'}
+              </h3>
+              <div className="space-y-6 h-[700px] overflow-y-auto">
+                {activeView === 'rules' ? (
+                  isCreatingRule || editingRuleId ? (
+                    <Card>
+                      <CardContent className="space-y-4 pt-6">
+                        <div className="grid grid-cols-1 gap-4">
+                          <p className="mt-2 text-sm text-red-600 font-medium">
+                            {duplicateRuleError}
+                          </p>
+                          <div className="p-3 bg-red-50 rounded-lg border border-red-200">
+                            <Label htmlFor="colorValue" className="font-medium">
+                              🎨 Warna
+                            </Label>
+                            <select
+                              id="colorValue"
+                              value={
+                                currentRuleSelections[MonsterPartEnum.COLOR]
+                              }
+                              onChange={(e) =>
+                                handleRuleSelection(
+                                  MonsterPartEnum.COLOR,
+                                  e.target.value as ColorType
+                                )
+                              }
+                              className="w-full p-2 mt-1 border border-gray-300 rounded-md"
+                            >
+                              <option value="">-- Pilih warna --</option>
+                              <option value={ColorEnum.RED}>Merah</option>
+                              <option value={ColorEnum.GREEN}>Hijau</option>
+                              <option value={ColorEnum.BLUE}>Biru</option>
+                            </select>
+                          </div>
+
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <Label htmlFor="bodyValue" className="font-medium">
+                              🎲 Bentuk Badan
+                            </Label>
+
+                            <select
+                              id="bodyValue"
+                              value={
+                                currentRuleSelections[MonsterPartEnum.BODY]
+                              }
+                              onChange={(e) =>
+                                handleRuleSelection(
+                                  MonsterPartEnum.BODY,
+                                  e.target.value as BodyType
+                                )
+                              }
+                              className="w-full p-2 mt-1 border border-gray-300 rounded-md"
+                            >
+                              <option value="">-- Pilih bentuk tubuh --</option>
+                              <option
+                                value={ContagionProtocolMonsterBodyEnum.CUBE}
+                              >
+                                Kotak
+                              </option>
+                              <option
+                                value={ContagionProtocolMonsterBodyEnum.ORB}
+                              >
+                                Bulat
+                              </option>
+                            </select>
+                          </div>
+
+                          <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <Label htmlFor="mouthValue" className="font-medium">
+                              😊 Bentuk Mulut
+                            </Label>
+                            <select
+                              id="mouthValue"
+                              value={
+                                currentRuleSelections[MonsterPartEnum.MOUTH]
+                              }
+                              onChange={(e) =>
+                                handleRuleSelection(
+                                  MonsterPartEnum.MOUTH,
+                                  e.target.value as MouthType
+                                )
+                              }
+                              className="w-full p-2 mt-1 border border-gray-300 rounded-md"
+                            >
+                              <option value="">-- Pilih mulut --</option>
+                              <option value={MouthEnum.NO_FANGS}>
+                                Tidak Bertaring
+                              </option>
+                              <option value={MouthEnum.FANGS}>Bertaring</option>
+                            </select>
+                          </div>
                         </div>
-                      )}
+
+                        <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+                          <strong>Preview Cabang:</strong>
+                          <br />
+                          Berwarna:{' '}
+                          {getColorLabel(
+                            currentRuleSelections[MonsterPartEnum.COLOR]
+                          )}{' '}
+                          → Berbentuk:{' '}
+                          {getBodyLabel(
+                            currentRuleSelections[MonsterPartEnum.BODY]
+                          )}{' '}
+                          → Mulut:{' '}
+                          {getMouthLabel(
+                            currentRuleSelections[MonsterPartEnum.MOUTH]
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={editingRuleId ? updateRule : addRule}
+                            className="flex-1"
+                            disabled={!isCurrentRuleValid}
+                          >
+                            {editingRuleId ? 'Update Cabang' : 'Tambah Cabang'}
+                          </Button>
+                          <Button
+                            onClick={cancelRule}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            Batal
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    // <RuleManagement
+                    //   currentRuleSelections={currentRuleSelections}
+                    //   duplicateRuleError={duplicateRuleError}
+                    //   editingRuleId={editingRuleId}
+                    //   isCreatingRule={isCreatingRule}
+                    //   isCurrentRuleValid={isCurrentRuleValid}
+                    //   rulesCount={rules.length}
+                    //   onAddRule={addRule}
+                    //   onUpdateRule={updateRule}
+                    //   onStartCreating={startCreatingRule}
+                    //   onCancel={cancelRule}
+                    // />
+                    <div className="text-center text-gray-500 py-8">
+                      <p className="text-sm">
+                        Klik item di tab untuk mengedit atau tambahkan aturan
+                        baru
+                      </p>
                     </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex justify-center gap-4 mt-6">
-                    <Button
-                      onClick={handleManualSave}
-                      disabled={!hasUnsavedChanges}
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <Save className="h-4 w-4" />
-                      Simpan Draft
-                    </Button>
-
-                    <Button
-                      onClick={handleSubmit}
-                      disabled={rules.length === 0 || choices.length === 0}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                    >
-                      Kirim Soal
-                    </Button>
-                  </div>
-
-                  {/* Status Messages */}
-                  {showSaveConfirmation && (
-                    <Alert className="mt-4 bg-green-50 text-green-800 border-green-200">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <AlertDescription>
-                        Draft berhasil disimpan!
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {lastSavedDraft && !showSaveConfirmation && (
-                    <Alert className="mt-4 bg-gray-50 text-gray-800 border-gray-200">
-                      <CheckCircle2 className="h-4 w-4" />
-                      <AlertDescription>
-                        Terakhir disimpan pada {lastSavedDraft.toString()}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </div>
-
-                {/* Management Tabs */}
-                <Tabs
-                  value={activeTab}
-                  onValueChange={setActiveTab}
-                  className="w-full"
-                >
-                  <TabsList className="grid w-full grid-cols-2 h-12">
-                    <TabsTrigger
-                      value="rules"
-                      className="flex items-center gap-2 text-base"
-                    >
-                      <TreePine className="h-4 w-4" />
-                      Aturan Pohon ({rules.length})
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="choices"
-                      className="flex items-center gap-2 text-base"
-                    >
-                      <Users className="h-4 w-4" />
-                      Pilihan Monster ({choices.length})
-                    </TabsTrigger>
-                  </TabsList>
-
-                  {/* Decision Tree Visualization */}
-                  {rules.length > 0 && (
-                    <div className="bg-white rounded-xl shadow-lg p-6 mt-6">
-                      <div className="flex items-center justify-center gap-2 mb-4">
-                        <Eye className="h-5 w-5 text-blue-600" />
-                        <h3 className="text-lg font-semibold">
-                          Preview Pohon Keputusan
-                        </h3>
-                      </div>
-                      <div className="flex justify-center overflow-x-auto min-h-[300px]">
-                        <DecisionTreeAnomalyTree
-                          rules={rules}
-                          selections={getTreeSelections()}
+                  )
+                ) : isCreatingChoice || editingChoiceId ? (
+                  // <ChoiceManagement
+                  //   currentChoiceSelections={currentChoiceSelections}
+                  //   duplicateChoiceError={duplicateChoiceError}
+                  //   editingChoiceId={editingChoiceId}
+                  //   isCreatingChoice={isCreatingChoice}
+                  //   isCurrentChoiceValid={isCurrentChoiceValid}
+                  //   choicesCount={choices.length}
+                  //   onAddChoice={addChoice}
+                  //   onUpdateChoice={updateChoice}
+                  //   onStartCreating={startCreatingChoice}
+                  //   onCancel={cancelChoice}
+                  // />
+                  <Card>
+                    <CardContent className="space-y-4 pt-6">
+                      <p className="mt-2 text-sm text-red-600 font-medium">
+                        {duplicateChoiceError}
+                      </p>
+                      <div>
+                        <Label htmlFor="monsterName">Nama Monster</Label>
+                        <Input
+                          id="monsterName"
+                          value={currentChoiceName}
+                          onChange={(e) => {
+                            setCurrentChoiceName(e.target.value);
+                          }}
+                          placeholder="contoh: Monster Alpha-68"
                         />
                       </div>
-                      {isCreatingRule && (
-                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <p className="text-sm text-blue-700 text-center">
-                            Pohon akan terupdate saat kamu membuat aturan baru
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
 
-                  <TabsContent value="rules" className="space-y-6 mt-6">
-                    {/* Rule Management */}
-                    <RuleManagement
-                      currentRuleSelections={currentRuleSelections}
-                      duplicateRuleError={duplicateRuleError}
-                      editingRuleId={editingRuleId}
-                      isCreatingRule={isCreatingRule}
-                      isCurrentRuleValid={isCurrentRuleValid}
-                      rulesCount={rules.length}
-                      onAddRule={addRule}
-                      onUpdateRule={updateRule}
-                      onStartCreating={startCreatingRule}
-                      onCancel={cancelRule}
-                    />
+                      <div>
+                        <Label htmlFor="monsterColor">Warna</Label>
+                        <select
+                          id="monsterColor"
+                          value={currentChoiceSelections[MonsterPartEnum.COLOR]}
+                          onChange={(e) =>
+                            handleChoiceSelection(
+                              MonsterPartEnum.COLOR,
+                              e.target.value as ColorType
+                            )
+                          }
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value="">-- Pilih warna --</option>
+                          <option value={ColorEnum.RED}>Merah</option>
+                          <option value={ColorEnum.GREEN}>Hijau</option>
+                          <option value={ColorEnum.BLUE}>Biru</option>
+                        </select>
+                      </div>
 
-                    {/* Rules List */}
-                    <RulesList
-                      rules={rules}
-                      selectedRuleId={selectedRuleId}
-                      editingRuleId={editingRuleId}
-                      isCreatingRule={isCreatingRule}
-                      onEditRule={handleEditRule}
-                      onDeleteRule={deleteRule}
-                      onSelectRule={setSelectedRuleId}
-                    />
-                  </TabsContent>
+                      <div>
+                        <Label htmlFor="monsterBody">Bentuk Tubuh</Label>
+                        <select
+                          id="monsterBody"
+                          value={currentChoiceSelections[MonsterPartEnum.BODY]}
+                          onChange={(e) =>
+                            handleChoiceSelection(
+                              MonsterPartEnum.BODY,
+                              e.target.value as BodyType
+                            )
+                          }
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value="">-- Pilih Bentuk Badan --</option>
+                          <option value={BodyEnum.CUBE}>Kotak</option>
+                          <option value={BodyEnum.ORB}>Bulat</option>
+                        </select>
+                      </div>
 
-                  <TabsContent value="choices" className="space-y-6 mt-6">
-                    {/* Choice Management */}
-                    <ChoiceManagement
-                      currentChoiceSelections={currentChoiceSelections}
-                      duplicateChoiceError={duplicateChoiceError}
-                      editingChoiceId={editingChoiceId}
-                      isCreatingChoice={isCreatingChoice}
-                      isCurrentChoiceValid={isCurrentChoiceValid}
-                      choicesCount={choices.length}
-                      onAddChoice={addChoice}
-                      onUpdateChoice={updateChoice}
-                      onStartCreating={startCreatingChoice}
-                      onCancel={cancelChoice}
-                    />
+                      <div>
+                        <Label htmlFor="monsterMouth">Bentuk Mulut</Label>
+                        <select
+                          id="monsterMouth"
+                          value={currentChoiceSelections[MonsterPartEnum.MOUTH]}
+                          onChange={(e) =>
+                            handleChoiceSelection(
+                              MonsterPartEnum.MOUTH,
+                              e.target.value as MouthType
+                            )
+                          }
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option value="">-- Pilih mulut --</option>
+                          <option value={MouthEnum.NO_FANGS}>
+                            Tidak Bertaring
+                          </option>
+                          <option value={MouthEnum.FANGS}>Bertaring</option>
+                        </select>
+                      </div>
 
-                    {/* Choices List */}
-                    <ChoicesList
-                      choices={choices}
-                      selectedChoiceId={selectedChoiceId}
-                      editingChoiceId={editingChoiceId}
-                      isCreatingChoice={isCreatingChoice}
-                      onEditChoice={handleEditChoice}
-                      onDeleteChoice={deleteChoice}
-                      onSelectChoice={setSelectedChoiceId}
-                    />
-                  </TabsContent>
-                </Tabs>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={editingChoiceId ? updateChoice : addChoice}
+                          disabled={!isCurrentChoiceValid}
+                          className="flex-1"
+                        >
+                          {editingChoiceId
+                            ? 'Update Monster'
+                            : 'Tambah Monster'}
+                        </Button>
+                        <Button
+                          onClick={cancelChoice}
+                          variant="outline"
+                          className="flex-1"
+                        >
+                          Batal
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="text-center text-gray-500 py-8">
+                    <p className="text-sm">
+                      Klik item di tab untuk mengedit atau tambahkan monster
+                      baru
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

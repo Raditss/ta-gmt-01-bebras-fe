@@ -1,7 +1,7 @@
 import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+  MonsterPartEnum,
+  MonsterPartOptionType
+} from '@/components/features/question/anomaly-monster/monster.type';
 import MonsterPartOptions from './monster-part-options';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { monsterParts } from '@/components/features/question/anomaly-monster/helper';
@@ -9,10 +9,10 @@ import { monsterParts } from '@/components/features/question/anomaly-monster/hel
 export interface MonsterPartWardrobeProps {
   selections: Record<string, string>;
   onSelection: (
-    category: MonsterPartType,
+    category: MonsterPartEnum,
     value: MonsterPartOptionType
   ) => void;
-  onHover: (category: MonsterPartType, value: string) => void;
+  onHover: (category: MonsterPartEnum, value: string) => void;
   onMouseLeave: () => void;
 }
 
@@ -45,12 +45,12 @@ export default function MonsterPartWardrobe({
       {partKeys.map((part) => (
         <TabsContent key={part} value={part} className="w-full h-full">
           <MonsterPartOptions
-            options={monsterParts[part as MonsterPartType]}
+            options={monsterParts[part as MonsterPartEnum]}
             selectedOption={selections[part]}
             onSelection={(option) =>
-              onSelection(part as MonsterPartType, option)
+              onSelection(part as MonsterPartEnum, option)
             }
-            onHover={(value) => onHover(part as MonsterPartType, value)}
+            onHover={(value) => onHover(part as MonsterPartEnum, value)}
             onMouseLeave={onMouseLeave}
           />
         </TabsContent>

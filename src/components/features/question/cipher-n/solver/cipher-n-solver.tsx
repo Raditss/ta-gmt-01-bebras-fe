@@ -350,17 +350,19 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                       className={`inline-flex items-center px-4 py-2 rounded-lg font-semibold text-lg ${
                         isClockwise
                           ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
-                          : 'bg-orange-100 text-orange-800 border-2 border-orange-300'
+                          : 'bg-purple-100 text-purple-800 border-2 border-purple-300'
                       }`}
                     >
                       <div
                         className={`w-4 h-4 rounded-full mr-3 ${
-                          isClockwise ? 'bg-blue-500' : 'bg-orange-500'
+                          isClockwise ? 'bg-blue-500' : 'bg-purple-500'
                         }`}
                       ></div>
                       <span className="mr-2">Rotation Direction:</span>
                       <span className="font-bold">
-                        {isClockwise ? 'Clockwise' : 'Counter-clockwise'}
+                        {isClockwise
+                          ? 'Searah Jarum Jam'
+                          : 'Berlawanan Jarum Jam'}
                       </span>
                       {isClockwise ? (
                         <svg
@@ -376,7 +378,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                         </svg>
                       ) : (
                         <svg
-                          className="w-5 h-5 ml-2 text-orange-600"
+                          className="w-5 h-5 ml-2 text-purple-600"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -417,20 +419,20 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                 {/* Right Side - Encryption Controls */}
                 <div className="bg-white rounded-lg p-8 shadow-sm">
                   <h2 className="text-2xl font-semibold mb-8">
-                    Encryption Controls
+                    Kontrol Enkripsi
                   </h2>
 
                   <div className="space-y-6">
                     {/* Rotation Input */}
                     <div>
                       <label className="block text-base font-medium mb-3">
-                        Rotation (0-{maxRotation}):
+                        Rotasi (0-{maxRotation}):
                       </label>
                       <Input
                         type="text"
                         value={rotationValue}
                         onChange={(e) => handleRotationChange(e.target.value)}
-                        placeholder={`Enter 0-${maxRotation}`}
+                        placeholder={`Masukkan 0-${maxRotation}`}
                         className="w-full text-lg py-3 px-4"
                       />
                     </div>
@@ -438,7 +440,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                     {/* Position Input */}
                     <div>
                       <label className="block text-base font-medium mb-3">
-                        Position (1-
+                        Posisi (1-
                         {vertices[targetVertex]?.letters.length || 0}
                         ):
                       </label>
@@ -446,7 +448,7 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                         type="text"
                         value={positionValue}
                         onChange={(e) => handlePositionChange(e.target.value)}
-                        placeholder={`Enter 1-${vertices[targetVertex]?.letters.length || 0}`}
+                        placeholder={`Masukkan 1-${vertices[targetVertex]?.letters.length || 0}`}
                         className="w-full text-lg py-3 px-4"
                         disabled={!vertices[targetVertex]}
                       />
@@ -458,13 +460,13 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                       disabled={!isValidInputs()}
                       className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                     >
-                      Add to Final Answer
+                      Tambahkan ke Jawaban Akhir
                     </Button>
 
                     {/* Final Answer Section */}
                     <div className="mt-8">
                       <label className="block text-base font-medium mb-3">
-                        Final Answer:
+                        Jawaban Akhir:
                       </label>
                       <div className="p-6 bg-gray-50 rounded-lg border min-h-[100px] font-mono text-xl">
                         {finalAnswerDisplay || ''}

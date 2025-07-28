@@ -113,21 +113,21 @@ const LoginPage: React.FC = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Welcome Back</CardTitle>
+              <CardTitle>Selamat Datang Kembali</CardTitle>
               <CardDescription>
-                Enter your credentials to access your account
+                Masukkan username dan passwordmu untuk mengakses akunmu
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="username">Username or Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                     <Input
                       id="username"
                       type="text"
-                      placeholder="Enter your username or email"
+                      placeholder="Masukkan username-mu"
                       className="pl-10"
                       {...register('username')}
                       autoComplete="username"
@@ -148,7 +148,7 @@ const LoginPage: React.FC = () => {
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
+                      placeholder="Masukkan password-mu"
                       className="pl-10 pr-10"
                       {...register('password')}
                       autoComplete="current-password"
@@ -179,24 +179,24 @@ const LoginPage: React.FC = () => {
                   className="w-full"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Signing in...' : 'Sign In'}
+                  {isSubmitting ? 'Tunggu sebentar...' : 'Masuk'}
                 </Button>
 
                 {loginError && (
                   <p className="text-xs text-red-500 mt-2 text-center">
-                    Login failed, please check your credential
+                    Login gagal, silahkan cek kembali username dan passwordmu
                   </p>
                 )}
               </form>
 
               <div className="mt-6 text-center text-sm">
                 <p className="text-gray-500">
-                  Don&apos;t have an account?{' '}
+                  Belum punya akun?{' '}
                   <Link
                     href="/register"
                     className="text-purple-600 hover:underline"
                   >
-                    Register here
+                    Daftar di sini
                   </Link>
                 </p>
               </div>

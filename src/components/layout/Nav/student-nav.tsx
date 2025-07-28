@@ -17,8 +17,8 @@ import Image from 'next/image';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/problems', label: 'Problems', icon: BookOpen },
-  { href: '/leaderboard', label: 'Leaderboard', icon: Trophy }
+  { href: '/problems', label: 'Soal', icon: BookOpen },
+  { href: '/leaderboard', label: 'Peringkat', icon: Trophy }
 ];
 
 export function StudentNav() {
@@ -78,14 +78,14 @@ export function StudentNav() {
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>Profil</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/" className="flex items-center" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Keluar</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -136,14 +136,14 @@ export function StudentNavLinks() {
             <DropdownMenuItem asChild>
               <Link href="/profile" className="flex items-center">
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Profil</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/" className="flex items-center">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>Keluar</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

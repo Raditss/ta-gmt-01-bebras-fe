@@ -1,6 +1,6 @@
 // Types for the kenneyMonsterSpritesheet structure
 
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { MonsterPartEnum } from '@/components/features/question/anomaly-monster/monster.type';
 
 export type Texture = {
   source: string;
@@ -27,9 +27,9 @@ export type KenneyMonsterSpritesheet = {
       ['Antenna']: Texture[];
       ['Accessories']: Texture[];
     };
-    [MonsterPartType.BODY]: Texture[];
-    [MonsterPartType.LEG]: Texture[];
-    [MonsterPartType.ARM]: Texture[];
+    [MonsterPartEnum.BODY]: Texture[];
+    ['Leg']: Texture[];
+    ['Arm']: Texture[];
     ['Horn']: Texture[];
     ['Eye']: Texture[];
     ['Ear']: Texture[];
@@ -208,28 +208,28 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
         { source: 'Mouth_I.png', x: 540, y: 2146, width: 148, height: 84 },
         { source: 'Mouth_J.png', x: 732, y: 1274, width: 144, height: 96 },
         {
-          source: 'Mouth_closedFangs.png',
+          source: 'Mouth_Closedfangs.png',
           x: 516,
           y: 2230,
           width: 104,
           height: 40
         },
         {
-          source: 'Mouth_closedHappy.png',
+          source: 'Mouth_Closedhappy.png',
           x: 0,
           y: 2886,
           width: 160,
           height: 48
         },
         {
-          source: 'Mouth_closedSad.png',
+          source: 'Mouth_Closedsad.png',
           x: 864,
           y: 2918,
           width: 104,
           height: 40
         },
         {
-          source: 'Mouth_closedTeeth.png',
+          source: 'Mouth_Closedteeth.png',
           x: 440,
           y: 2886,
           width: 132,
@@ -243,7 +243,7 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
         { source: 'Snot_small.png', x: 1598, y: 1276, width: 42, height: 88 }
       ]
     },
-    [MonsterPartType.BODY]: [
+    [MonsterPartEnum.BODY]: [
       { source: 'Body_Blue_Cube.png', x: 732, y: 944, width: 330, height: 330 },
       { source: 'Body_Blue_Orb.png', x: 0, y: 384, width: 384, height: 384 },
       { source: 'Body_Blue_Egg.png', x: 1354, y: 0, width: 282, height: 388 },
@@ -359,7 +359,7 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
       },
       { source: 'Body_Yellow_F.png', x: 696, y: 1928, width: 340, height: 472 }
     ],
-    [MonsterPartType.LEG]: [
+    ['Leg']: [
       { source: 'Leg_Blue_A.png', x: 2398, y: 248, width: 144, height: 334 },
       { source: 'Leg_Blue_B.png', x: 2702, y: 1374, width: 110, height: 298 },
       {
@@ -463,7 +463,7 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
       },
       { source: 'Leg_Yellow_Flop.png', x: 0, y: 2668, width: 204, height: 218 }
     ],
-    [MonsterPartType.ARM]: [
+    ['Arm']: [
       {
         source: 'Arm_Blue_Clampfin.png',
         x: 2234,
@@ -912,7 +912,7 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
       { source: 'Eyebrow_B.png', x: 760, y: 2872, width: 104, height: 66 },
       { source: 'Eyebrow_C.png', x: 856, y: 1390, width: 114, height: 66 },
       { source: 'Mouth_A.png', x: 160, y: 2886, width: 140, height: 68 },
-      { source: 'Mouth_B.png', x: 300, y: 2886, width: 140, height: 68 },
+      { source: 'Mouth_Fangs.png', x: 300, y: 2886, width: 140, height: 68 },
       { source: 'Mouth_C.png', x: 384, y: 2146, width: 156, height: 76 },
       { source: 'Mouth_D.png', x: 384, y: 2230, width: 132, height: 54 },
       { source: 'Mouth_E.png', x: 732, y: 1370, width: 124, height: 78 },
@@ -922,28 +922,28 @@ const kenneyMonsterSpritesheet: KenneyMonsterSpritesheet = {
       { source: 'Mouth_I.png', x: 540, y: 2146, width: 148, height: 84 },
       { source: 'Mouth_J.png', x: 732, y: 1274, width: 144, height: 96 },
       {
-        source: 'Mouth_closedFangs.png',
+        source: 'Mouth_Closedfangs.png',
         x: 516,
         y: 2230,
         width: 104,
         height: 40
       },
       {
-        source: 'Mouth_closedHappy.png',
+        source: 'Mouth_Closedhappy.png',
         x: 0,
         y: 2886,
         width: 160,
         height: 48
       },
       {
-        source: 'Mouth_closedSad.png',
+        source: 'Mouth_Closedsad.png',
         x: 864,
         y: 2918,
         width: 104,
         height: 40
       },
       {
-        source: 'Mouth_closedTeeth.png',
+        source: 'Mouth_Closedteeth.png',
         x: 440,
         y: 2886,
         width: 132,

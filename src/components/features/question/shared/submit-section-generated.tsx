@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { SubmissionModalSolver } from '@/components/features/question/submission-modal.solver';
@@ -90,20 +90,20 @@ export function GeneratedSubmitSection({
           {isSubmitting ? 'Submitting...' : 'Submit Answer'}
         </Button>
       ) : (
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4 mt-3">
           <Button
             onClick={onRegenerate}
             variant="outline"
             className={`flex-1 py-3 text-base ${regenerateButtonClassName || ''}`}
           >
-            New Question
+            ⟳ Soal Baru
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={isDisabled || answerArr.length === 0 || isSubmitting}
             className={`flex-1 py-3 text-base ${submitButtonClassName || 'bg-green-500 hover:bg-green-600 text-white'}`}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Answer'}
+            {isSubmitting ? 'Submitting...' : 'Submit Jawaban'}
           </Button>
         </div>
       )}

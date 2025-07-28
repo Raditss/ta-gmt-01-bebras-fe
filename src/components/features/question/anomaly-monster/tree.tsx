@@ -1,7 +1,11 @@
 import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Monster } from '@/models/anomaly-monster/anomaly-monster.model.type';
-import { MonsterPartType } from '@/components/features/question/anomaly-monster/monster-part.type';
+import { Branch } from '@/models/anomaly-monster/anomaly-monster.model.type';
+import {
+  MonsterPartEnum,
+  MonsterPartType,
+  MonsterPartValue
+} from '@/components/features/question/anomaly-monster/monster.type';
 
 interface TreeNode {
   type: 'decision' | 'leaf';
@@ -12,8 +16,9 @@ interface TreeNode {
 }
 
 interface TreeProps {
-  rules: Monster[];
+  rules: Branch[];
   selections: Record<string, string>;
+  height?: string;
 }
 
 interface EChartsNode {
@@ -41,13 +46,66 @@ interface EChartsNode {
   isOnPath?: boolean;
 }
 
-const buildDecisionTree = (rules: Monster[]): TreeNode => {
+export const getLabel = (
+  type: MonsterPartType,
+  value: MonsterPartValue
+): string => {
+  switch (type) {
+    case MonsterPartEnum.COLOR:
+      switch (value) {
+        case 'Red':
+          return 'Berwarna Merah';
+        case 'Green':
+          return 'Berwarna Hijau';
+        case 'Blue':
+          return 'Berwarna Biru';
+        default:
+          return value;
+      }
+    case MonsterPartEnum.BODY:
+      switch (value) {
+        case 'Orb':
+          return 'Berbentuk Bulat';
+        case 'Cube':
+          return 'Berbentuk Kotak';
+        default:
+          return value;
+      }
+    case MonsterPartEnum.MOUTH:
+      switch (value) {
+        case 'Fangs':
+          return 'Bertaring';
+        case 'Closedteeth':
+          return 'Tidak Bertaring';
+        default:
+          return 'Tidak diketahui';
+      }
+    default:
+      return value;
+  }
+};
+
+const getLabelColor = (value: MonsterPartValue): string | undefined => {
+  switch (value) {
+    case 'Red':
+      return '#ef4444'; // Red
+    case 'Green':
+      return '#22c55e'; // Green
+    case 'Blue':
+      return '#3b82f6'; // Blue
+    default:
+      return undefined; // Default color for unknown values
+  }
+};
+
+const buildDecisionTree = (rules: Branch[]): TreeNode => {
   const attributeOrder = [
-    MonsterPartType.BODY,
-    MonsterPartType.ARM,
-    MonsterPartType.LEG,
+    MonsterPartEnum.COLOR,
+    MonsterPartEnum.BODY,
+    MonsterPartEnum.MOUTH
+    // MonsterPartEnum.ARM,
+    // MonsterPartEnum.LEG
     // 'horns',
-    MonsterPartType.COLOR
   ];
 
   const findMatchingRule = (conditions: Record<string, string>): number => {
@@ -143,25 +201,41 @@ const buildDecisionTree = (rules: Monster[]): TreeNode => {
   return buildTreeRecursive(0, {});
 };
 
+const getCurrentPath = (selections: Record<string, string>) => {
+  const path: string[] = [];
+  const order = [
+    MonsterPartEnum.COLOR,
+    MonsterPartEnum.BODY,
+    MonsterPartEnum.MOUTH
+  ];
+  for (const key of order) {
+    const value = selections[key];
+    if (value) {
+      path.push(`${key}=${value}`);
+    } else {
+      break;
+    }
+  }
+  return path;
+};
+
 // Convert to ECharts format
 const convertToEChartsFormat = (
   tree: TreeNode,
   selections: Record<string, string>,
-  path: string[] = []
+  path: string[] = [],
+  currentPath: string[]
 ): EChartsNode => {
-  const checkIfOnPath = (currentPath: string[]): boolean => {
-    return currentPath.every((condition) => {
-      const [attr, value] = condition.split('=');
-      return selections[attr] === value;
-    });
+  const checkIfOnPath = (currentNodePath: string[]): boolean => {
+    return currentNodePath.every(
+      (condition, i) => condition === currentPath[i]
+    );
   };
 
   if (tree.type === 'leaf') {
     const hasRule = tree.ruleId !== undefined;
-
-    // For leaf nodes, we need to show the final decision that led here
-    // Extract the last decision from the path
     let leafName = hasRule ? `Rule #${tree.ruleId}` : 'No Rule';
+
     if (path.length > 0) {
       const lastDecision = path[path.length - 1];
       const [attr, value] = lastDecision.split('=');
@@ -169,70 +243,82 @@ const convertToEChartsFormat = (
       leafName = `${attrLabel}: ${value} → ${leafName}`;
     }
 
+    const isOnExactPath = checkIfOnPath(path);
+
     return {
       name: leafName,
       nodeType: 'leaf',
       ruleId: tree.ruleId,
-      isOnPath: checkIfOnPath(path),
+      isOnPath: isOnExactPath,
       itemStyle: {
-        color: hasRule ? '#dcfce7' : '#f3f4f6',
-        borderColor: hasRule ? '#16a34a' : '#9ca3af',
+        color: hasRule ? '#000000' : '#f3f4f6',
+        borderColor: isOnExactPath ? '#16a34a' : '#9ca3af',
         borderWidth: 2
       },
       label: {
-        color: hasRule ? '#15803d' : '#6b7280',
-        fontWeight: 'bold'
+        color: isOnExactPath ? '#15803d' : '#6b7280',
+        fontWeight: isOnExactPath ? 'bold' : 'normal'
       }
     };
   }
 
   const children: EChartsNode[] = [];
-  const hasSelection = selections[tree.attribute!] !== undefined;
-  const selectedValue = selections[tree.attribute!];
 
   tree.children?.forEach((childNode, value) => {
     const childPath = [...path, `${tree.attribute}=${value}`];
-    const child = convertToEChartsFormat(childNode, selections, childPath);
+    const child = convertToEChartsFormat(
+      childNode,
+      selections,
+      childPath,
+      currentPath
+    );
 
-    // Format: "Attribute: Value" - shows the decision being made
-    const attributeLabel =
-      tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1);
-    child.name = `${attributeLabel}: ${value}`;
+    const isOnExactPath = checkIfOnPath(childPath);
 
-    const isSelectedPath = selectedValue === value;
+    child.name = `${getLabel(tree.attribute as MonsterPartType, value as MonsterPartValue)}`;
 
     child.lineStyle = {
-      color: isSelectedPath ? '#16a34a' : hasSelection ? '#cbd5e1' : '#6b7280',
-      width: isSelectedPath ? 3 : 2
+      color: isOnExactPath ? '#16a34a' : '#d1d5db',
+      width: isOnExactPath ? 3 : 1
+    };
+
+    child.label = {
+      ...(child.label || {}),
+      color: getLabelColor(value as MonsterPartValue) ?? '#000000',
+      fontWeight: 'bold'
     };
 
     children.push(child);
   });
 
+  const isOnExactPath = checkIfOnPath(path);
+
   return {
-    name:
-      path.length === 0
-        ? 'Start'
-        : tree.attribute!.charAt(0).toUpperCase() + tree.attribute!.slice(1),
+    name: path.length === 0 ? 'Start' : tree.attribute!,
     children,
     nodeType: 'decision',
-    isOnPath: checkIfOnPath(path),
+    isOnPath: isOnExactPath,
     itemStyle: {
-      color: hasSelection ? '#fef3c7' : '#dbeafe',
-      borderColor: hasSelection ? '#f59e0b' : '#3b82f6',
+      color: isOnExactPath ? '#000000' : '#dbeafe',
+      borderColor: isOnExactPath ? '#f59e0b' : '#3b82f6',
       borderWidth: 2
     },
     label: {
-      color: hasSelection ? '#92400e' : '#1e40af',
+      color: '#000000',
       fontWeight: 'bold'
     }
   };
 };
 
-export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
+export function DecisionTreeAnomalyTree({
+  rules,
+  selections,
+  height = '400px'
+}: TreeProps) {
   const option = useMemo(() => {
     const tree = buildDecisionTree(rules);
-    const data = convertToEChartsFormat(tree, selections);
+    const currentPath = getCurrentPath(selections);
+    const data = convertToEChartsFormat(tree, selections, [], currentPath);
 
     return {
       tooltip: {
@@ -252,7 +338,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
             position: 'top',
             verticalAlign: 'bottom',
             align: 'center',
-            fontSize: 12,
+            fontSize: 11,
             distance: 10
             // rotate: 90
           },
@@ -277,7 +363,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
   }, [rules, selections]);
 
   return (
-    <div className="w-full border rounded-lg bg-white p-4">
+    <div className="w-full flex-1 border rounded-lg bg-white p-4">
       <div className="mb-2 text-lg text-center font-semibold text-gray-700">
         Pohon Keputusan Monster yang Normal
       </div>
@@ -290,7 +376,7 @@ export function DecisionTreeAnomalyTree({ rules, selections }: TreeProps) {
       {/*</div>*/}
       <ReactECharts
         option={option}
-        style={{ height: '400px', width: '100%' }}
+        style={{ height: height, width: '100%' }}
         opts={{ renderer: 'svg' }}
       />
     </div>

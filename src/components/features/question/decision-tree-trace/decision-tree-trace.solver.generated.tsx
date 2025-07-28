@@ -8,9 +8,9 @@ import {
 } from '@/components/features/bases/base.solver.generated';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 import {
-  MonsterPartOptionType,
-  MonsterPartType
-} from '@/components/features/question/anomaly-monster/monster-part.type';
+  MonsterPartEnum,
+  MonsterPartOptionType
+} from '@/components/features/question/anomaly-monster/monster.type';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DecisionTreeTraceTree } from '@/components/features/question/decision-tree-trace/tree';
@@ -31,7 +31,7 @@ export default function GeneratedDecisionTreeTraceSolver({
 
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [hovered, setHovered] = useState<{
-    category: MonsterPartType;
+    category: MonsterPartEnum;
     value: string;
   } | null>(null);
 
@@ -39,11 +39,11 @@ export default function GeneratedDecisionTreeTraceSolver({
     if (!question) return;
 
     // Check if all monster parts are selected
-    if (Object.keys(selections).length !== Object.keys(MonsterPartType).length)
+    if (Object.keys(selections).length !== Object.keys(MonsterPartEnum).length)
       return;
 
     // Check if the selections satisfy all of the monster parts
-    const isSatisfied = Object.values(MonsterPartType).every(
+    const isSatisfied = Object.values(MonsterPartEnum).every(
       (part) => !!selections[part]
     );
 
@@ -74,7 +74,7 @@ export default function GeneratedDecisionTreeTraceSolver({
   );
 
   const handleSelection = useCallback(
-    (category: MonsterPartType, value: MonsterPartOptionType) => {
+    (category: MonsterPartEnum, value: MonsterPartOptionType) => {
       if (!question) return;
 
       setSelections((prev) => {
@@ -86,7 +86,7 @@ export default function GeneratedDecisionTreeTraceSolver({
   );
 
   const handleHover = useCallback(
-    (category: MonsterPartType, value: string) => {
+    (category: MonsterPartEnum, value: string) => {
       setHovered({ category, value });
     },
     []
@@ -173,12 +173,12 @@ export default function GeneratedDecisionTreeTraceSolver({
                     <div className="text-center">
                       <h3 className="text-base font-medium mb-3">
                         Current Monster ({Object.keys(selections).length}/
-                        {Object.keys(MonsterPartType).length} parts)
+                        {Object.keys(MonsterPartEnum).length} parts)
                       </h3>
                       <div className="text-sm text-gray-500">
                         Selected Parts:
                         <div className="mt-2 grid grid-cols-2 gap-2">
-                          {Object.values(MonsterPartType).map((part) => (
+                          {Object.values(MonsterPartEnum).map((part) => (
                             <div
                               key={part}
                               className="flex items-center bg-gray-50 px-3 py-1.5 rounded-lg"
@@ -264,7 +264,7 @@ export default function GeneratedDecisionTreeTraceSolver({
                       onClick={handleAddCombination}
                       disabled={
                         Object.keys(selections).length !==
-                        Object.keys(MonsterPartType).length
+                        Object.keys(MonsterPartEnum).length
                       }
                       className="w-full bg-purple-500 hover:bg-purple-600 text-white font-regular py-3 text-lg"
                     >

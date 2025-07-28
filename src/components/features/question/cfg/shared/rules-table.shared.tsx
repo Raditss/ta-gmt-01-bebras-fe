@@ -24,24 +24,26 @@ export function RulesTableShared({
   );
 
   return (
-    <div className="bg-white rounded-md shadow-md overflow-hidden border-4 border-gray-600">
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden border-4 border-blue-400">
       <div
         className={`grid ${
           showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
-        } border-b-4 border-gray-600`}
+        } border-b-4 border-blue-400`}
       >
-        <div className="p-4 text-center font-medium border-r-4 border-gray-600">
-          Before
+        <div className="p-6 text-center font-bold text-lg border-r-4 border-blue-400 bg-slate-600 text-white">
+          🐟 Ikan yang Ditukar
         </div>
         <div
-          className={`p-4 text-center font-medium ${
-            showActions ? 'border-r-4 border-gray-600' : ''
+          className={`p-6 text-center font-bold text-lg bg-slate-700 text-white ${
+            showActions ? 'border-r-4 border-blue-400' : ''
           }`}
         >
-          After
+          🎣 Ikan yang Diterima
         </div>
         {showActions && (
-          <div className="p-4 text-center font-medium w-24">Action</div>
+          <div className="p-6 text-center font-bold text-lg w-32 bg-red-50">
+            Aksi
+          </div>
         )}
       </div>
 
@@ -50,35 +52,46 @@ export function RulesTableShared({
           key={rule.id}
           className={`grid ${
             showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
-          } border-b-4 border-gray-600 last:border-b-0`}
+          } border-b-4 border-blue-400 last:border-b-0 hover:bg-slate-500 transition-colors`}
         >
-          <div className="p-6 flex justify-center items-center border-r-4 border-gray-600">
-            <div className="flex flex-wrap justify-center gap-2 max-w-full">
+          <div className="p-8 flex justify-center items-center border-r-4 border-blue-400 min-h-[120px] bg-gradient-to-r from-slate-700 to-slate-800">
+            <div className="flex flex-wrap justify-center gap-3 max-w-full">
               {rule.before.map((obj, idx) => (
-                <RuleShape key={idx} type={obj.type} />
+                <div
+                  key={idx}
+                  className="transform hover:scale-105 transition-transform"
+                >
+                  <RuleShape type={obj.type} />
+                </div>
               ))}
             </div>
           </div>
           <div
-            className={`p-6 flex justify-center items-center ${
-              showActions ? 'border-r-4 border-gray-600' : ''
+            className={`p-8 flex justify-center items-center min-h-[120px] bg-gradient-to-r from-slate-800 to-slate-900 ${
+              showActions ? 'border-r-4 border-blue-400' : ''
             }`}
           >
-            <div className="flex flex-wrap justify-center gap-2 max-w-full">
+            <div className="flex flex-wrap justify-center gap-3 max-w-full">
               {rule.after.map((obj, idx) => (
-                <RuleShape key={idx} type={obj.type} />
+                <div
+                  key={idx}
+                  className="transform hover:scale-105 transition-transform"
+                >
+                  <RuleShape type={obj.type} />
+                </div>
               ))}
             </div>
           </div>
           {showActions && (
-            <div className="p-6 flex justify-center items-center w-24">
+            <div className="p-8 flex justify-center items-center w-32 min-h-[120px]">
               <button
                 onClick={() => onDeleteRule?.(rule.id)}
-                className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition-colors"
+                className="text-red-500 hover:text-red-700 p-3 rounded-full hover:bg-red-100 transition-colors"
+                title="Hapus aturan perdagangan"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
+                  className="h-6 w-6"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
