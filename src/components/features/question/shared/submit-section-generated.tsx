@@ -90,7 +90,7 @@ export function GeneratedSubmitSection({
           {isSubmitting ? 'Submitting...' : 'Submit Answer'}
         </Button>
       ) : (
-        <div className="flex gap-4 mt-6">
+        <div className="flex gap-4 mt-3">
           <Button
             onClick={onRegenerate}
             variant="outline"
