@@ -25,18 +25,20 @@ export function StateDisplaySolve({
 }: StateDisplayProps) {
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{title}</h2>
+      <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
       <div
-        className={`p-4 rounded-md shadow-md min-h-32 flex items-center justify-center ${containerClassName}`}
+        className={`p-6 rounded-lg shadow-md min-h-32 flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-600 ${containerClassName}`}
       >
-        <div className="flex flex-wrap justify-center gap-2 max-w-full">
+        <div className="flex flex-wrap justify-center gap-3 max-w-full">
           {state.map((obj, idx) => (
             <ShapeContainer
               key={idx}
               interactive={isInteractive}
-              className={
-                selectedIndices.includes(idx) ? 'ring-2 ring-blue-500' : ''
-              }
+              className={`
+                transition-all duration-300 
+                ${selectedIndices.includes(idx) ? 'transform scale-110' : ''}
+                ${isInteractive ? 'hover:scale-105 hover:shadow-md' : ''}
+              `}
               onClick={() => isInteractive && onObjectClick?.(idx)}
             >
               <Shape
@@ -44,9 +46,13 @@ export function StateDisplaySolve({
                 size="md"
                 interactive={isInteractive}
                 selected={selectedIndices.includes(idx)}
+                isFloating={selectedIndices.includes(idx)}
               />
             </ShapeContainer>
           ))}
+          {state.length === 0 && (
+            <div className="text-slate-300 text-lg italic">Tidak ada ikan</div>
+          )}
         </div>
       </div>
     </div>

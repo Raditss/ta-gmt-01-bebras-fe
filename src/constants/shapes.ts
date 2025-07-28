@@ -1,37 +1,121 @@
-// Centralized shape constants that match backend supported shapes
-export const SUPPORTED_SHAPES = [
-  'circle',
-  'triangle',
-  'square',
-  'star',
-  'hexagon',
-  'pentagon',
-  'octagon',
-  'diamond'
+// Centralized fish constants that match available fish images and backend supported types
+export const SUPPORTED_FISH = [
+  'fish_blue',
+  'fish_brown',
+  'fish_green',
+  'fish_grey',
+  'fish_orange',
+  'fish_pink',
+  'fish_red',
+  'fish_blue_skeleton',
+  'fish_green_skeleton',
+  'fish_orange_skeleton',
+  'fish_pink_skeleton',
+  'fish_red_skeleton'
 ] as const;
 
-export type ShapeType = (typeof SUPPORTED_SHAPES)[number];
+export type FishType = (typeof SUPPORTED_FISH)[number];
 
-// Shape definitions for creation UI
-export const AVAILABLE_SHAPES = [
-  { id: 1, type: 'circle' as ShapeType, icon: '⚪' },
-  { id: 2, type: 'triangle' as ShapeType, icon: '△' },
-  { id: 3, type: 'square' as ShapeType, icon: '⬜' },
-  { id: 4, type: 'star' as ShapeType, icon: '⭐' },
-  { id: 5, type: 'hexagon' as ShapeType, icon: '⬡' },
-  { id: 6, type: 'pentagon' as ShapeType, icon: '⬟' },
-  { id: 7, type: 'octagon' as ShapeType, icon: '⬢' },
-  { id: 8, type: 'diamond' as ShapeType, icon: '♦️' }
+// Fish definitions for creation UI
+export const AVAILABLE_FISH = [
+  {
+    id: 1,
+    type: 'fish_blue' as FishType,
+    name: 'Ikan Biru',
+    path: '/kenney_fish-pack_2/Double/fish_blue.png'
+  },
+  {
+    id: 2,
+    type: 'fish_brown' as FishType,
+    name: 'Ikan Cokelat',
+    path: '/kenney_fish-pack_2/Double/fish_brown.png'
+  },
+  {
+    id: 3,
+    type: 'fish_green' as FishType,
+    name: 'Ikan Hijau',
+    path: '/kenney_fish-pack_2/Double/fish_green.png'
+  },
+  {
+    id: 4,
+    type: 'fish_grey' as FishType,
+    name: 'Ikan Abu-abu',
+    path: '/kenney_fish-pack_2/Double/fish_grey.png'
+  },
+  {
+    id: 5,
+    type: 'fish_orange' as FishType,
+    name: 'Ikan Oranye',
+    path: '/kenney_fish-pack_2/Double/fish_orange.png'
+  },
+  {
+    id: 6,
+    type: 'fish_pink' as FishType,
+    name: 'Ikan Pink',
+    path: '/kenney_fish-pack_2/Double/fish_pink.png'
+  },
+  {
+    id: 7,
+    type: 'fish_red' as FishType,
+    name: 'Ikan Merah',
+    path: '/kenney_fish-pack_2/Double/fish_red.png'
+  },
+  {
+    id: 8,
+    type: 'fish_blue_skeleton' as FishType,
+    name: 'Tulang Ikan Biru',
+    path: '/kenney_fish-pack_2/Double/fish_blue_skeleton.png'
+  },
+  {
+    id: 9,
+    type: 'fish_green_skeleton' as FishType,
+    name: 'Tulang Ikan Hijau',
+    path: '/kenney_fish-pack_2/Double/fish_green_skeleton.png'
+  },
+  {
+    id: 10,
+    type: 'fish_orange_skeleton' as FishType,
+    name: 'Tulang Ikan Oranye',
+    path: '/kenney_fish-pack_2/Double/fish_orange_skeleton.png'
+  },
+  {
+    id: 11,
+    type: 'fish_pink_skeleton' as FishType,
+    name: 'Tulang Ikan Pink',
+    path: '/kenney_fish-pack_2/Double/fish_pink_skeleton.png'
+  },
+  {
+    id: 12,
+    type: 'fish_red_skeleton' as FishType,
+    name: 'Tulang Ikan Merah',
+    path: '/kenney_fish-pack_2/Double/fish_red_skeleton.png'
+  }
 ];
 
-// Shape display names for UI
-export const SHAPE_NAMES: Record<ShapeType, string> = {
-  circle: 'Circle',
-  triangle: 'Triangle',
-  square: 'Square',
-  star: 'Star',
-  hexagon: 'Hexagon',
-  pentagon: 'Pentagon',
-  octagon: 'Octagon',
-  diamond: 'Diamond'
+// Fish display names for UI
+export const FISH_NAMES: Record<FishType, string> = {
+  fish_blue: 'Ikan Biru',
+  fish_brown: 'Ikan Cokelat',
+  fish_green: 'Ikan Hijau',
+  fish_grey: 'Ikan Abu-abu',
+  fish_orange: 'Ikan Oranye',
+  fish_pink: 'Ikan Pink',
+  fish_red: 'Ikan Merah',
+  fish_blue_skeleton: 'Tulang Ikan Biru',
+  fish_green_skeleton: 'Tulang Ikan Hijau',
+  fish_orange_skeleton: 'Tulang Ikan Oranye',
+  fish_pink_skeleton: 'Tulang Ikan Pink',
+  fish_red_skeleton: 'Tulang Ikan Merah'
 };
+
+// Sound queue types for interaction feedback
+export const SOUND_TYPES = {
+  FISH_SELECT: 'fish_select',
+  FISH_DESELECT: 'fish_deselect',
+  TRADE_APPLY: 'trade_apply',
+  TRADE_SUCCESS: 'trade_success',
+  GAME_COMPLETE: 'game_complete',
+  ERROR: 'error'
+} as const;
+
+export type SoundType = (typeof SOUND_TYPES)[keyof typeof SOUND_TYPES];

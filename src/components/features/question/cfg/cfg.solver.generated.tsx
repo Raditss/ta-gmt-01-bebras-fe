@@ -1,182 +1,179 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  GeneratedSolverProps,
-  GeneratedSolverWrapper
-} from '@/components/features/bases/base.solver.generated';
-import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
-import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
-import { QuestionTypeEnum } from '@/types/question-type.type';
-import { Rule, State } from '@/types/cfg.type';
 import { RulesTableShared } from '@/components/features/question/cfg/shared/rules-table.shared';
 import { StateDisplaySolve } from '@/components/features/question/cfg/solve/state-display.solve';
+import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
+import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
+import { useSoundQueue } from '@/hooks/useSoundQueue';
+import { Rule, State } from '@/types/cfg.type';
+import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Shape,
   ShapeContainer
 } from '@/components/features/question/cfg/shared/shape';
-import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
-import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
+
+import {
+  GeneratedSolverProps,
+  GeneratedSolverWrapper
+} from '../../bases/base.solver.generated';
+import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import {
+  FishermanStory,
+  Fisherman,
+  FishermanMood
+} from '@/components/features/question/cfg/shared/fisherman';
 
 export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
+  const { question, loading, error, regenerate } = useGeneratedQuestion(
+    type,
+    CfgSolveModel
+  );
+
+  const { playFishSelect, playFishDeselect, playTradeApply } = useSoundQueue();
+
   const [currentState, setCurrentState] = useState<State[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
+  const [fishermanMood, setFishermanMood] = useState<FishermanMood>('wave');
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  // Use the new hook for generated questions
-  const { question, questionContent, loading, error, regenerate } =
-    useGeneratedQuestion<CfgSolveModel>(type, CfgSolveModel);
-
-  // Initialize current state when question loads and keep it synced
   useEffect(() => {
     if (question) {
-      const questionState = question.getCurrentState();
-      setCurrentState(questionState);
+      const questionSetup = question.getQuestionSetup();
+      setCurrentState([...questionSetup.startState]);
     }
   }, [question]);
 
-  // Sync local state with question model state periodically (in case they get out of sync)
   useEffect(() => {
-    if (question) {
-      const questionState = question.getCurrentState();
-      const localStateStr = JSON.stringify(currentState);
-      const questionStateStr = JSON.stringify(questionState);
-
-      if (localStateStr !== questionStateStr) {
-        console.log('⚠️ State mismatch detected! Syncing...');
-        setCurrentState(questionState);
+    if (question && currentState.length > 0) {
+      // Filter available rules based on selected indices and current state
+      const availableRules = question.getAvailableRules();
+      if (selectedIndices.length > 0) {
+        // Find rules that match the selected elements
+        const selectedTypes = selectedIndices
+          .map((index) => currentState[index]?.type)
+          .filter(Boolean);
+        const applicable = availableRules.filter((rule) => {
+          return (
+            rule.before.length === selectedTypes.length &&
+            rule.before.every((obj, i) => obj.type === selectedTypes[i])
+          );
+        });
+        setApplicableRules(applicable);
+      } else {
+        setApplicableRules([]);
       }
     }
-  }, [selectedIndices, question, currentState]);
+  }, [question, currentState, selectedIndices]);
 
-  // Update applicable rules when selection changes
+  // Update fisherman mood based on game state
   useEffect(() => {
-    if (!question || selectedIndices.length === 0) {
-      setApplicableRules([]);
-      return;
-    }
-
-    // Use the question model state as the source of truth
-    const actualCurrentState = question.getCurrentState();
-
-    // Sort selected indices to get them in positional order (not selection order)
-    const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
-
-    // Check if selected objects are consecutive (if more than one selected)
-    if (sortedIndices.length > 1) {
-      for (let i = 1; i < sortedIndices.length; i++) {
-        if (sortedIndices[i] !== sortedIndices[i - 1] + 1) {
-          setApplicableRules([]); // Not consecutive, no rules applicable
-          return;
-        }
+    if (selectedIndices.length > 0) {
+      setFishermanMood('thinking');
+    } else if (question && currentState.length > 0) {
+      const targetState = question.getQuestionSetup().endState;
+      const isGameComplete =
+        JSON.stringify(currentState.map((s) => s.type).sort()) ===
+        JSON.stringify(targetState.map((s) => s.type).sort());
+      if (isGameComplete) {
+        setFishermanMood('happy');
+      } else {
+        setFishermanMood('wave');
       }
     }
-
-    // Get selected types from the question model state (source of truth)
-    const selectedTypes = sortedIndices
-      .map((index) => actualCurrentState[index]?.type)
-      .filter(Boolean);
-
-    if (selectedTypes.length === 0) {
-      setApplicableRules([]);
-      return;
-    }
-
-    const rules = question.getAvailableRules();
-
-    const applicable = rules.filter((rule) => {
-      // Check if the selected objects match the rule's "before" pattern exactly
-      if (rule.before.length !== selectedTypes.length) return false;
-
-      // Check if the types match the rule pattern exactly (in position order)
-      return rule.before.every((obj, i) => obj.type === selectedTypes[i]);
-    });
-
-    setApplicableRules(applicable);
   }, [selectedIndices, currentState, question]);
 
-  const handleObjectClick = (index: number) => {
-    if (selectedIndices.includes(index)) {
-      setSelectedIndices(selectedIndices.filter((i) => i !== index));
-    } else {
-      // Ensure selections are consecutive
-      if (
-        selectedIndices.length === 0 ||
-        Math.abs(index - selectedIndices[selectedIndices.length - 1]) === 1 ||
-        Math.abs(index - selectedIndices[0]) === 1
-      ) {
-        const allIndices = [...selectedIndices, index].sort((a, b) => a - b);
-        if (
-          allIndices[allIndices.length - 1] - allIndices[0] ===
-          allIndices.length - 1
-        ) {
-          setSelectedIndices(allIndices);
+  const handleObjectClick = useCallback(
+    (index: number) => {
+      setSelectedIndices((prev) => {
+        const newSelected = prev.includes(index)
+          ? prev.filter((i) => i !== index)
+          : [...prev, index];
+
+        // Play sound feedback
+        if (prev.includes(index)) {
+          playFishDeselect();
+        } else {
+          playFishSelect();
         }
+
+        return newSelected;
+      });
+    },
+    [playFishSelect, playFishDeselect]
+  );
+
+  const handleApplyRule = useCallback(
+    (rule: Rule) => {
+      if (!question || selectedIndices.length === 0) return;
+
+      setIsAnimating(true);
+      playTradeApply();
+
+      // Add animation delay for better UX
+      setTimeout(() => {
+        const success = question.applyRule(
+          rule.id,
+          selectedIndices[0],
+          selectedIndices.length
+        );
+        if (success) {
+          setCurrentState([...question.getCurrentState()]);
+          setSelectedIndices([]);
+        }
+        setIsAnimating(false);
+      }, 500);
+    },
+    [question, selectedIndices, playTradeApply]
+  );
+
+  const handleUndo = useCallback(() => {
+    if (question) {
+      const success = question.undo();
+      if (success) {
+        setCurrentState([...question.getCurrentState()]);
+        setSelectedIndices([]);
       }
     }
-  };
+  }, [question]);
 
-  const handleApplyRule = (rule: Rule) => {
-    if (!question || selectedIndices.length === 0) return;
-
-    // Use the lowest index as the starting position for rule application
-    const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
-    const startIndex = sortedIndices[0];
-
-    const success = question.applyRule(
-      rule.id,
-      startIndex,
-      selectedIndices.length
-    );
-    if (success) {
-      const newState = question.getCurrentState();
-      setCurrentState(newState);
-      setSelectedIndices([]);
+  const handleRedo = useCallback(() => {
+    if (question) {
+      const success = question.redo();
+      if (success) {
+        setCurrentState([...question.getCurrentState()]);
+        setSelectedIndices([]);
+      }
     }
-  };
+  }, [question]);
 
-  const handleUndo = () => {
-    if (!question) return;
-
-    const success = question.undo();
-    if (success) {
-      const newState = question.getCurrentState();
-      setCurrentState(newState);
+  const handleReset = useCallback(() => {
+    if (question) {
+      question.resetToInitialState();
+      setCurrentState([...question.getCurrentState()]);
       setSelectedIndices([]);
+      setFishermanMood('wave');
     }
-  };
-
-  const handleRedo = () => {
-    if (!question) return;
-
-    const success = question.redo();
-    if (success) {
-      const newState = question.getCurrentState();
-      setCurrentState(newState);
-      setSelectedIndices([]);
-    }
-  };
-
-  const handleReset = () => {
-    if (!question) return;
-
-    question.resetToInitialState();
-    const newState = question.getCurrentState();
-    setCurrentState(newState);
-    setSelectedIndices([]);
-  };
+  }, [question]);
 
   return (
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       {question && (
         <div className="max-w-full mx-auto p-6">
+          {/* Fisherman Story Section */}
+          <div className="mb-8">
+            <FishermanStory />
+          </div>
+
           {/* Main Layout - Flexible Grid (No time progress bar for generated questions) */}
           <div className="grid grid-cols-4 gap-8">
-            {/* Rule Table - Left side (3 columns wide) */}
+            {/* Trading Table - Left side (3 columns wide) */}
             <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
               <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-                Tabel Aturan
+                📋 Meja Perdagangan Ikan
               </h2>
               {/* Remove height constraints to let table flow naturally */}
               <div className="overflow-visible">
@@ -184,27 +181,58 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
               </div>
             </div>
 
-            {/* Right side - Target and Current states (sticky container) */}
+            {/* Right side - Current and Target states (sticky container) */}
             <div className="space-y-4">
-              {/* Sticky container for both target and current */}
+              {/* Sticky container for both current and target */}
               <div className="sticky top-[15vh]">
-                {/* Target State */}
-                <div className="bg-card rounded-lg p-4 shadow-lg border mb-8">
-                  <StateDisplaySolve
-                    title="Target"
-                    state={question.getQuestionSetup().endState}
-                    containerClassName="bg-transparent border-none p-0"
-                  />
-                </div>
+                {/* Current State Title - moved outside to avoid overlap */}
+                <h2 className="text-xl font-bold mb-7 text-center">
+                  🐟 Koleksi Ikan Sekarang
+                </h2>
 
-                {/* Current State */}
-                <div className="bg-card rounded-lg p-4 shadow-lg border">
+                {/* Current State with half-covered Fisherman */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border mb-8 relative">
+                  {/* Fisherman positioned so half body is covered by the box */}
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-0">
+                    <Fisherman
+                      mood={fishermanMood}
+                      size="lg"
+                      showHalfBody={true}
+                      position="behind"
+                      className="opacity-90"
+                    />
+                  </div>
                   <StateDisplaySolve
-                    title="Sekarang"
+                    title=""
                     state={currentState}
                     isInteractive={true}
                     selectedIndices={selectedIndices}
                     onObjectClick={handleObjectClick}
+                    containerClassName="bg-transparent border-none p-0 relative z-10"
+                  />
+                </div>
+
+                {/* Blinking Arrow */}
+                <div className="flex justify-center mb-4">
+                  <div className="animate-bounce text-4xl">⬇️</div>
+                  <div className="ml-2 flex items-center">
+                    <span className="text-lg font-bold text-white bg-blue-600 px-3 py-1 rounded-full">
+                      Tukar menjadi
+                    </span>
+                  </div>
+                  <div className="animate-bounce text-4xl">⬇️</div>
+                </div>
+
+                {/* Target State Title - moved outside for consistency */}
+                <h2 className="text-xl font-bold mb-4 text-center">
+                  🎯 Target Koleksi Ikan
+                </h2>
+
+                {/* Target State */}
+                <div className="bg-card rounded-lg p-4 shadow-lg border">
+                  <StateDisplaySolve
+                    title=""
+                    state={question.getQuestionSetup().endState}
                     containerClassName="bg-transparent border-none p-0"
                   />
                 </div>
@@ -212,100 +240,94 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
             </div>
           </div>
 
-          {/* Applicable Rules Section - Fixed height */}
-          <div className="bg-muted/50 rounded-lg p-6 mt-6 mb-6 min-h-48 shadow-sm border">
-            <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-              Aturan yang Bisa Diterapkan
+          {/* Available Trades Section */}
+          <div className="mt-8 bg-card rounded-lg p-6 shadow-sm border">
+            <h2 className="text-xl font-bold mb-4 text-center">
+              🔄 Perdagangan yang Tersedia
             </h2>
 
-            <div className="flex items-center justify-center min-h-24">
-              {applicableRules.length > 0 ? (
-                <div className="flex flex-wrap gap-4 justify-center">
-                  {applicableRules.map((rule) => (
-                    <Button
-                      key={rule.id}
-                      onClick={() => handleApplyRule(rule)}
-                      className="p-4 bg-brand-green/10 hover:bg-brand-green/20 text-foreground border border-brand-green/30 flex items-center gap-3 transition-colors"
-                      variant="outline"
-                    >
-                      <div className="flex items-center gap-2">
-                        {/* Before shapes */}
-                        <div className="flex gap-1">
-                          {rule.before.map((obj, idx) => (
-                            <ShapeContainer key={idx}>
-                              <Shape type={obj.type} size="sm" />
-                            </ShapeContainer>
-                          ))}
-                        </div>
-
-                        {/* Arrow */}
-                        <span className="text-lg font-semibold text-muted-foreground">
-                          →
-                        </span>
-
-                        {/* After shapes */}
-                        <div className="flex gap-1">
-                          {rule.after.map((obj, idx) => (
-                            <ShapeContainer key={idx}>
-                              <Shape type={obj.type} size="sm" />
-                            </ShapeContainer>
-                          ))}
-                        </div>
-                      </div>
-                    </Button>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center text-muted-foreground">
-                  Pilih objek untuk melihat aturan yang bisa diterapkan
-                </div>
-              )}
-            </div>
+            {applicableRules.length > 0 ? (
+              <div className="flex flex-wrap gap-4 justify-center">
+                {applicableRules.map((rule, idx) => (
+                  <Button
+                    key={idx}
+                    onClick={() => handleApplyRule(rule)}
+                    disabled={isAnimating}
+                    className="p-6 bg-blue-100 hover:bg-blue-200 border-2 border-blue-300 rounded-lg flex items-center space-x-4 min-h-[100px] transition-all duration-200 hover:scale-105"
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {rule.before.map((obj, idx) => (
+                        <ShapeContainer key={idx}>
+                          <Shape type={obj.type} size="md" />
+                        </ShapeContainer>
+                      ))}
+                    </div>
+                    <span className="text-2xl font-bold text-gray-700">→</span>
+                    <div className="flex flex-wrap gap-2">
+                      {rule.after.map((obj, idx) => (
+                        <ShapeContainer key={idx}>
+                          <Shape type={obj.type} size="md" />
+                        </ShapeContainer>
+                      ))}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-lg">
+                  {selectedIndices.length === 0
+                    ? '🐟 Pilih ikan yang ingin ditukar terlebih dahulu'
+                    : '🚫 Tidak ada perdagangan yang tersedia untuk ikan yang dipilih'}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 justify-center">
+          <div className="mt-6 flex justify-center space-x-4">
             <Button
               onClick={handleUndo}
               variant="outline"
-              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
+              disabled={isAnimating}
             >
-              Urungkan
+              ↶ Batalkan
             </Button>
             <Button
               onClick={handleRedo}
               variant="outline"
-              className="bg-muted/50 hover:bg-muted/70 text-foreground border-muted-foreground/20 px-4 py-2 h-10"
+              disabled={isAnimating}
             >
-              Ulangi
+              ↷ Ulangi
             </Button>
             <Button
               onClick={handleReset}
               variant="outline"
-              className="bg-destructive/10 hover:bg-destructive/20 text-destructive border-destructive/30 px-4 py-2 h-10"
+              disabled={isAnimating}
             >
-              Reset
+              🔄 Reset
             </Button>
-            <Button
-              onClick={regenerate}
-              variant="outline"
-              className="bg-brand-blue/10 hover:bg-brand-blue/20 text-brand-blue border-brand-blue/30 px-4 py-2 h-10"
-            >
-              Soal Baru
-            </Button>
-            <GeneratedSubmitSection
-              question={question}
-              answerArr={currentState}
-              type={type}
-              questionContent={questionContent}
-              onRegenerate={regenerate}
-              submitButtonClassName="bg-brand-green hover:bg-brand-green-dark text-white border-0 px-4 py-2 h-10 font-medium"
-              renderButtonOnly={true}
-            />
           </div>
 
-          {/* Help Component */}
-          <DynamicHelp questionType={QuestionTypeEnum.CFG} />
+          {/* Submit Section */}
+          <div className="mt-6 flex justify-center">
+            <div className="w-full max-w-lg">
+              <GeneratedSubmitSection
+                question={question}
+                answerArr={currentState}
+                type={type}
+                questionContent={JSON.stringify(question?.getQuestionSetup())}
+                onRegenerate={regenerate}
+                submitButtonClassName="bg-green-500 hover:bg-green-600 text-white"
+                regenerateButtonClassName="border-blue-400 text-blue-600 hover:bg-blue-50"
+              />
+            </div>
+          </div>
+
+          {/* Help Section */}
+          <div className="mt-8">
+            <DynamicHelp questionType={QuestionTypeEnum.CFG} />
+          </div>
         </div>
       )}
     </GeneratedSolverWrapper>
