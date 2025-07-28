@@ -6,7 +6,9 @@ const config = {
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
     '*.{js,ts,jsx,tsx,mdx}'
   ],
   prefix: '',
@@ -149,6 +151,16 @@ const config = {
         pulseGlow: {
           '0%, 100%': { boxShadow: '0 0 0 4px rgba(34,197,94,0.3)' },
           '50%': { boxShadow: '0 0 0 8px rgba(34,197,94,0.6)' }
+        },
+        bounce: {
+          '0%, 100%': {
+            transform: 'translateY(-25%)',
+            'animation-timing-function': 'cubic-bezier(0.8, 0, 1, 1)'
+          },
+          '50%': {
+            transform: 'none',
+            'animation-timing-function': 'cubic-bezier(0, 0, 0.2, 1)'
+          }
         }
       },
       animation: {

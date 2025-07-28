@@ -215,6 +215,11 @@
     animation: gradient 3s ease infinite;
   }
 
+  .animate-bounce {
+    -webkit-animation: bounce 1s infinite;
+    animation: bounce 1s infinite;
+  }
+
   @keyframes gradient {
     0% {
       background-position: 0% 50%;

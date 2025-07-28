@@ -1,17 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import {
   GeneratedSolverProps,
   GeneratedSolverWrapper
 } from '@/components/features/bases/base.solver.generated';
+import { motion } from 'framer-motion';
 import { useGeneratedQuestion } from '@/hooks/useGeneratedQuestion';
 import { AnomalyMonsterSolveModel } from '@/models/anomaly-monster/anomaly-monster.solve.model';
 import Monster from '@/components/features/question/anomaly-monster/monster';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import { Button } from '@/components/ui/button';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
-import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
 import { QuestionTypeEnum } from '@/types/question-type.type';
 import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 import MonsterClassificationForm from '@/components/features/question/anomaly-monster/monster-classification-form';
@@ -31,10 +31,10 @@ export default function GeneratedAnomalyMonsterSolver({
   const [normals, setNormals] = useState<number[]>([]);
   const [currentIdx, setCurrentIdx] = useState<number>(0);
   const [forms, setForms] = useState<AnomalyMonsterForm[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState<boolean>(false);
+  const [isFormOpen, setIsFormOpen] = useState<boolean>(true);
 
   const { ref: progressRef, inView: isProgressVisible } = useInView({
-    threshold: 0.1
+    threshold: 0.5
   });
 
   // Sync local state with model when question loads
@@ -91,17 +91,6 @@ export default function GeneratedAnomalyMonsterSolver({
     );
   }, [question, anomalies, currentIdx]);
 
-  const handlePrevious = useCallback(() => {
-    setCurrentIdx((prev) => Math.max(0, prev - 1));
-  }, []);
-
-  const handleNext = useCallback(() => {
-    if (!question) return;
-    setCurrentIdx((prev) =>
-      Math.min(question.content.choices.length - 1, prev + 1)
-    );
-  }, [question]);
-
   if (!question) {
     return (
       <GeneratedSolverWrapper loading={loading} error={error} type={type}>
@@ -127,13 +116,27 @@ export default function GeneratedAnomalyMonsterSolver({
       <div className="min-h-screen bg-gray-100">
         <div className="max-w-[95%] mx-auto p-1">
           <div className="text-center mt-2 mb-4">
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-2xl font-bold text-gray-900">
               Monster yang Aneh
             </h1>
-            <h3 className="mt-1 text-base font-semibold text-gray-500">
-              Kamu ditugaskan membantu para saintis apakah monster terkena virus
-              atau tidak! Teliti setiap monster menggunakan pohon keputusan dan
-              tentukan: normal atau terinfeksi?
+            <h3 className="mt-1 text-lg text-gray-700 font-medium leading-relaxed tracking-tight">
+              Di <strong>Pulau Monster</strong>, muncul{' '}
+              <strong>virus misterius</strong> yang membuat beberapa monster
+              berubah bentuk. Untungnya, para ilmuwan punya{' '}
+              <strong>pohon keputusan</strong> berdasarkan monster yang{' '}
+              <strong>normal</strong>. Pohon ini menunjukkan aturan berdasarkan{' '}
+              <strong>warna</strong>, <strong>bentuk tubuh</strong>, dan{' '}
+              <strong>mulut</strong> monster. Gunakan pohon tersebut untuk
+              meneliti setiap monster. Isi <strong>form analisis</strong> untuk
+              mencatat ciri-ciri mereka, lalu tentukan apakah monster tersebut{' '}
+              <strong className="italic font-semibold text-gray-500">
+                normal
+              </strong>{' '}
+              atau {'  '}
+              <strong className="italic underline text-gray-400">
+                terinfeksi
+              </strong>
+              !
             </h3>
           </div>
 
@@ -223,68 +226,172 @@ export default function GeneratedAnomalyMonsterSolver({
                             ? Belum diklasifikasikan
                           </span>
                         )}
-                      <p className="text-gray-600 mt-4">
-                        Kamu telah memeriksa {classifiedCount} dari{' '}
-                        {totalMonsters} monster
-                      </p>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                        <div
-                          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                          style={{
-                            width: `${(classifiedCount / totalMonsters) * 100}%`
-                          }}
-                        />
-                      </div>
+                      {/*<p className="text-gray-600 mt-4">*/}
+                      {/*  Kamu telah memeriksa {classifiedCount} dari{' '}*/}
+                      {/*  {totalMonsters} monster*/}
+                      {/*</p>*/}
+                      {/*<div className="w-full bg-gray-200 rounded-full h-2 mt-2">*/}
+                      {/*  <div*/}
+                      {/*    className="bg-blue-500 h-2 rounded-full transition-all duration-300"*/}
+                      {/*    style={{*/}
+                      {/*      width: `${(classifiedCount / totalMonsters) * 100}%`*/}
+                      {/*    }}*/}
+                      {/*  />*/}
+                      {/*</div>*/}
                     </div>
                   </>
                 )}
               </div>
-              <div className="bg-white rounded-xl flex-1 shadow-lg p-3 content-center">
-                <div className="text-center mb-2">
+
+              <div className="bg-white rounded-xl flex-1 shadow-lg p-4">
+                <div className="text-center mb-3">
                   <h3 className="text-lg font-semibold">
-                    Apakah monster ini terinfeksi?
+                    Periksa Status Setiap Monster!!
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Gunakan pohon keputusan untuk membantu menentukan
-                    klasifikasi
+                    🕵️ Klik setiap lingkaran untuk menganalisis monster!
                   </p>
                 </div>
-                <div className="flex justify-center items-center gap-4">
-                  <Button
-                    onClick={handlePrevious}
-                    disabled={currentIdx === 0}
-                    variant="outline"
-                    size="lg"
-                  >
-                    <ArrowLeft />
-                  </Button>
 
-                  <Button
-                    className="relative z-50 flex items-center justify-center w-40 h-14 rounded-xl font-semibold
-    text-green-700 border-2 border-green-500 bg-white
-    animate-pulseGlow hover:scale-105 transition-transform duration-200"
-                    onClick={() => setIsFormOpen(!isFormOpen)}
-                  >
-                    <Search size={20} className="mr-2" />
-                    Klasifikasikan
-                  </Button>
+                {/* Trailing list */}
+                <div className="flex justify-center items-center gap-1 mb-4">
+                  {Array.from({ length: totalMonsters }).map((_, idx) => {
+                    const monsterId = question.content.choices[idx].id;
+                    const isCurrent = currentIdx === idx;
 
-                  <Button
-                    onClick={handleNext}
-                    disabled={currentIdx === totalMonsters - 1}
-                    variant="outline"
-                    size="lg"
-                  >
-                    <ArrowRight />
-                  </Button>
+                    const isNormal = normals.includes(monsterId);
+                    const isAnomaly = anomalies.includes(monsterId);
+
+                    return (
+                      <Fragment
+                        key={`${monsterId}-${normals.join()}-${anomalies.join()}-${currentIdx}`}
+                      >
+                        <motion.div
+                          className={`relative w-10 h-10 flex items-center justify-center rounded-full text-xl font-bold cursor-pointer transition-all
+                            ${
+                              isCurrent
+                                ? 'bg-yellow-400 scale-110'
+                                : isNormal
+                                  ? 'bg-green-400 hover:scale-110'
+                                  : isAnomaly
+                                    ? 'bg-red-400 hover:scale-110'
+                                    : 'bg-gray-300 hover:scale-110'
+                            }
+                          `}
+                          title={`Klik untuk monster ${question.content.choices[idx].name}`}
+                          onClick={() => {
+                            setCurrentIdx(idx);
+                            setIsFormOpen(
+                              currentIdx === idx ? !isFormOpen : true
+                            );
+                          }}
+                          animate={
+                            !isCurrent && !isNormal && !isAnomaly
+                              ? {
+                                  background: [
+                                    'linear-gradient(90deg, #d0d0d0 0%, #ffffff 50%, #d0d0d0 100%)',
+                                    'linear-gradient(90deg, #ffffff 0%, #f0f0f0 50%, #ffffff 100%)',
+                                    'linear-gradient(90deg, #f0f0f0 0%, #ffffff 50%, #f0f0f0 100%)'
+                                  ],
+                                  backgroundSize: '200% 100%',
+                                  boxShadow: [
+                                    '0 0 0 rgba(255,255,255,0)',
+                                    '0 0 8px rgba(255,255,255,0.7)',
+                                    '0 0 0 rgba(255,255,255,0)'
+                                  ],
+                                  opacity: [0.9, 1, 0.9]
+                                }
+                              : {}
+                          }
+                          transition={
+                            !isCurrent && !isNormal && !isAnomaly
+                              ? {
+                                  duration: 1.2,
+                                  repeat: Infinity,
+                                  ease: 'linear',
+                                  repeatType: 'loop'
+                                }
+                              : {}
+                          }
+                          whileHover={{
+                            scale: 1.15,
+                            transition: { duration: 0.15 }
+                          }}
+                          aria-label={`Pilihan ${idx + 1}: ${question.content.choices[idx].name}`}
+                        >
+                          {isCurrent && (
+                            <motion.span
+                              className="absolute -top-1 -right-1 text-yellow-400 text-xl pointer-events-none select-none"
+                              animate={{
+                                opacity: [0, 1, 0],
+                                scale: [1, 1.6, 1],
+                                rotate: [0, 20, 0],
+                                textShadow: [
+                                  '0 0 0 rgba(255,215,0,0)',
+                                  '0 0 8px rgba(255,215,0,0.8)',
+                                  '0 0 0 rgba(255,215,0,0)'
+                                ]
+                              }}
+                              transition={{
+                                duration: 1.8,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                                times: [0, 0.5, 1]
+                              }}
+                            >
+                              ✨
+                            </motion.span>
+                          )}
+
+                          <div className="scale-125">
+                            {isCurrent
+                              ? '🔍'
+                              : isNormal
+                                ? '😊'
+                                : isAnomaly
+                                  ? '👾'
+                                  : '❓'}
+                          </div>
+                        </motion.div>
+
+                        {idx < totalMonsters - 1 && (
+                          <div className="w-4 h-px bg-gray-400" />
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                </div>
+
+                <p className="text-gray-600 mt-4 text-center">
+                  Kamu telah memeriksa {classifiedCount} dari {totalMonsters}{' '}
+                  monster
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div
+                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${(classifiedCount / totalMonsters) * 100}%`
+                    }}
+                  />
                 </div>
               </div>
             </div>
 
             {classifiedCount === totalMonsters && !isProgressVisible && (
               <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-                <div className="bg-black/70 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg animate-bounce">
-                  <span className="text-sm">⬇ Sudah selesai? Submit</span>
+                <motion.div
+                  className="bg-black/70 text-white px-4 py-2 rounded-full flex items-center gap-2 shadow-lg"
+                  animate={{
+                    y: ['-20%', '0%', '-20%'] // Kurangi jarak bounce
+                  }}
+                  transition={{
+                    duration: 0.8, // Lebih cepat
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                  whileHover={{ y: 0 }}
+                >
+                  <span className="text-sm">⬇ Sudah selesai?</span>
                   <button
                     className="underline"
                     onClick={() =>
@@ -295,9 +402,9 @@ export default function GeneratedAnomalyMonsterSolver({
                         })
                     }
                   >
-                    Klik di sini
+                    Lanjut ke bawah
                   </button>
-                </div>
+                </motion.div>
               </div>
             )}
 
