@@ -8,6 +8,7 @@ import { useSoundQueue } from '@/hooks/useSoundQueue';
 import { Rule, State } from '@/types/cfg.type';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 import {
   Shape,
   ShapeContainer
@@ -213,14 +214,30 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
                 </div>
 
                 {/* Blinking Arrow */}
-                <div className="flex justify-center mb-4">
-                  <div className="animate-bounce text-4xl">⬇️</div>
-                  <div className="ml-2 flex items-center">
+                <div className="flex justify-center mb-4 items-center gap-4">
+                  <div className="animate-bounce">
+                    <Image
+                      src="/graphic/arrow.png"
+                      alt="Arrow pointing down"
+                      width={40}
+                      height={40}
+                      className="transform rotate-90"
+                    />
+                  </div>
+                  <div className="flex items-center">
                     <span className="text-lg font-bold text-white bg-blue-600 px-3 py-1 rounded-full">
                       Tukar menjadi
                     </span>
                   </div>
-                  <div className="animate-bounce text-4xl">⬇️</div>
+                  <div className="animate-bounce">
+                    <Image
+                      src="/graphic/arrow.png"
+                      alt="Arrow pointing down"
+                      width={40}
+                      height={40}
+                      className="transform rotate-90"
+                    />
+                  </div>
                 </div>
 
                 {/* Target State Title - moved outside for consistency */}
