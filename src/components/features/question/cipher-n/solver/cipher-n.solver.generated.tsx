@@ -173,6 +173,29 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   const { question, questionContent, loading, error, regenerate } =
     useGeneratedQuestion<CipherNSolveModel>(type, CipherNSolveModel);
 
+  // Add breathing glow animation
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes breathing-glow {
+        0%, 100% {
+          box-shadow: 0 0 5px rgba(147, 51, 234, 0.3), 0 0 10px rgba(147, 51, 234, 0.2);
+          border-color: rgb(147, 51, 234);
+        }
+        50% {
+          box-shadow: 0 0 20px rgba(147, 51, 234, 0.6), 0 0 30px rgba(147, 51, 234, 0.4);
+          border-color: rgb(168, 85, 247);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
+
   // UI state only
   const [rotationValue, setRotationValue] = useState<string>('');
   const [positionValue, setPositionValue] = useState<string>('');
@@ -329,6 +352,46 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
       {question && content && (
         <>
           <div className="min-h-screen bg-gray-100 p-8">
+            {/* Backstory Section */}
+            <div className="max-w-7xl mx-auto mb-8">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6 shadow-sm">
+                <div className="flex items-start space-x-4">
+                  <div className="text-3xl">🏛️</div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-blue-800 mb-3">
+                      🗺️ Sandi Poligon: Kuil Sandikala
+                    </h2>
+                    <p className="text-blue-700 leading-relaxed">
+                      Di jantung hutan yang belum pernah dipetakan, tim arkeolog
+                      internasional menemukan reruntuhan kuil kuno dari
+                      Peradaban Sandikala—peradaban yang hilang ribuan tahun
+                      lalu. Di dalamnya, mereka menemukan peta menuju harta
+                      karun legendaris yang tersembunyi di dalam ruang rahasia
+                      kuil.
+                    </p>
+                    <p className="text-blue-700 leading-relaxed mt-3">
+                      Namun, untuk membuka gerbangnya, mereka harus
+                      menyelesaikan teka-teki yang ditinggalkan para penjaga
+                      kuno: sebuah <strong>Roda Poligon Enkripsi</strong> dengan
+                      delapan sisi yang bisa diputar. Hanya mereka yang tahu
+                      aturan rotasi dan urutan simbol yang bisa membuka jalan
+                      menuju ruang penyimpanan emas dan artefak suci.
+                    </p>
+                    <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-300">
+                      <p className="text-blue-800 font-semibold">
+                        📜 Misi Anda: Sebagai bagian dari tim ekspedisi, kamu
+                        ditugaskan mengenkripsi pesan kuno{' '}
+                        <strong>
+                          &quot;{content.question.plaintext.toUpperCase()}&quot;
+                        </strong>{' '}
+                        dengan menggunakan Roda Poligon Enkripsi.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Main Content */}
             <div className="max-w-7xl mx-auto">
               {/* Question Title */}
@@ -336,10 +399,6 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                 <h1 className="text-3xl font-bold text-gray-800">
                   {content.question.prompt}
                 </h1>
-                <p className="text-lg text-gray-600 mt-2">
-                  Kamu ditugaskan untuk menemukan kode (enkripsi) dari Kata{' '}
-                  <strong>{content.question.plaintext.toUpperCase()}</strong>
-                </p>
               </div>
 
               {/* Main Grid Layout */}
@@ -419,8 +478,13 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                 </div>
 
                 {/* Right Side - Encryption Controls */}
-                <div className="bg-white rounded-lg p-8 shadow-sm">
-                  <h2 className="text-2xl font-semibold mb-8">
+                <div className="bg-white rounded-lg p-8 shadow-sm relative">
+                  {/* Help Component - Top Right */}
+                  <div className="absolute top-2 right-2 z-10">
+                    <DynamicHelp questionType={QuestionTypeEnum.CIPHER_N} />
+                  </div>
+
+                  <h2 className="text-2xl font-semibold mb-8 pr-12">
                     Kontrol Enkripsi
                   </h2>
 
@@ -435,7 +499,10 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                         value={rotationValue}
                         onChange={(e) => handleRotationChange(e.target.value)}
                         placeholder={`Masukkan 0-${maxRotation}`}
-                        className="w-full text-lg py-3 px-4"
+                        className="w-full text-lg py-3 px-4 border-2 border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 shadow-lg hover:shadow-xl"
+                        style={{
+                          animation: 'breathing-glow 2s ease-in-out infinite'
+                        }}
                       />
                     </div>
 
@@ -451,7 +518,12 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
                         value={positionValue}
                         onChange={(e) => handlePositionChange(e.target.value)}
                         placeholder={`Masukkan 1-${vertices[targetVertex]?.letters.length || 0}`}
-                        className="w-full text-lg py-3 px-4"
+                        className="w-full text-lg py-3 px-4 border-2 border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          animation: !vertices[targetVertex]
+                            ? 'none'
+                            : 'breathing-glow 2s ease-in-out infinite'
+                        }}
                         disabled={!vertices[targetVertex]}
                       />
                     </div>
@@ -505,9 +577,6 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
               </div>
             </div>
           </div>
-
-          {/* Help Component */}
-          <DynamicHelp questionType={QuestionTypeEnum.CIPHER_N} />
         </>
       )}
     </GeneratedSolverWrapper>
