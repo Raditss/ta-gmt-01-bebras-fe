@@ -115,7 +115,7 @@ export default function MonsterClassificationForm({
                       ? 'bg-red-500'
                       : option.value === 'Green'
                         ? 'bg-green-500'
-                        : 'bg-blue-500'
+                        : 'bg-[#43d7e5]'
                   }`}
                 />
                 {option.label}

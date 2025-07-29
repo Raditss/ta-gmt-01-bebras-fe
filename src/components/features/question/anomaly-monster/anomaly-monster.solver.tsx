@@ -128,7 +128,7 @@ export default function DecisionTreeAnomalySolver({
                 <div className="text-3xl">🏝️</div>
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-blue-800 mb-3">
-                    👾 Monster yang Aneh: Pulau Monster
+                    🦠 Monster yang Aneh
                   </h2>
                   <p className="text-blue-700 leading-relaxed">
                     Di <strong>Pulau Monster</strong>, muncul{' '}
@@ -369,7 +369,7 @@ export default function DecisionTreeAnomalySolver({
                                 : isNormal
                                   ? '😊'
                                   : isAnomaly
-                                    ? '👾'
+                                    ? '🦠'
                                     : '❓'}
                             </div>
                           </motion.div>

@@ -113,7 +113,7 @@ export function AnomalyMonsterHelp() {
                   </span>
                   <span className="inline-flex items-center">
                     <div className="w-5 h-5 bg-red-400 rounded-full flex items-center justify-center mr-1">
-                      👾
+                      🦠
                     </div>
                     Terinfeksi
                   </span>
@@ -172,7 +172,7 @@ export function AnomalyMonsterHelp() {
             <AlertDescription>
               <strong>Status Badge:</strong> Setiap monster menampilkan status
               klasifikasi: Belum diklasifikasikan (❓), Normal (😊), atau
-              Terinfeksi (👾).
+              Terinfeksi (🦠).
             </AlertDescription>
           </Alert>
 
