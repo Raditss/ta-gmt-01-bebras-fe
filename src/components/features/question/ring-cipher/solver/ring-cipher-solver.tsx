@@ -52,9 +52,25 @@ function RingVisualization({
           .map((ring, reverseIndex) => {
             const ringIndex = rings.length - 1 - reverseIndex;
             // Better spacing calculation for multiple rings
-            const radiusStep =
-              (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
-            const radius = minRadius + radiusStep * ringIndex;
+            let radiusStep;
+            let radius;
+
+            if (rings.length === 2) {
+              // For 2 rings, give more space to the first ring
+              radiusStep = (maxRadius - minRadius) / 2;
+              if (ringIndex === 0) {
+                // First ring gets more space
+                radius = minRadius + radiusStep * 0.3;
+              } else {
+                // Second ring gets the full space
+                radius = minRadius + radiusStep * 1.7;
+              }
+            } else {
+              // Original logic for 3+ rings
+              radiusStep =
+                (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
+              radius = minRadius + radiusStep * ringIndex;
+            }
             const isHighlighted = ringIndex === highlightedRing;
             const currentPosition = ringPositions[ringIndex] || 0;
             const angleStep = (2 * Math.PI) / ring.letters.length;
@@ -353,10 +369,10 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                     <p className="text-amber-700 leading-relaxed">
                       Di jantung hutan yang belum pernah dipetakan, tim arkeolog
                       internasional menemukan reruntuhan kuil kuno dari
-                      Peradaban Sandikala—peradaban yang hilang ribuan tahun
-                      lalu. Di dalamnya, mereka menemukan peta menuju harta
-                      karun legendaris yang tersembunyi di dalam ruang rahasia
-                      kuil.
+                      Peradaban Sandikala, sebuah peradaban yang hilang ribuan
+                      tahun lalu. Di dalamnya, mereka menemukan peta menuju
+                      harta karun legendaris yang tersembunyi di dalam ruang
+                      rahasia kuil.
                     </p>
                     <p className="text-amber-700 leading-relaxed mt-3">
                       Namun, untuk membuka gerbangnya, mereka harus
@@ -374,7 +390,15 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                         <strong>
                           &quot;{content.question.plaintext.toUpperCase()}&quot;
                         </strong>{' '}
-                        dengan menggunakan Cincin Enkripsi.
+                        dengan menggunakan Cincin Enkripsi. <br />
+                        <br />
+                        <strong>
+                          <span className="text-amber-800 font-semibold">
+                            Tips: untuk berinteraksi dengan Cincin Enkripsi,
+                            kamu harus memasukkan nomor ring dan langkah rotasi
+                            di kotak sebelah kanan.
+                          </span>
+                        </strong>
                       </p>
                     </div>
                   </div>
