@@ -366,15 +366,15 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                     <p className="text-blue-700 leading-relaxed">
                       Di jantung hutan yang belum pernah dipetakan, tim arkeolog
                       internasional menemukan reruntuhan kuil kuno dari
-                      Peradaban Sandikala—peradaban yang hilang ribuan tahun
-                      lalu. Di dalamnya, mereka menemukan peta menuju harta
-                      karun legendaris yang tersembunyi di dalam ruang rahasia
-                      kuil.
+                      Peradaban Sandikala, sebuah peradaban yang hilang ribuan
+                      tahun lalu. Di dalamnya, mereka menemukan peta menuju
+                      harta karun legendaris yang tersembunyi di dalam ruang
+                      rahasia kuil.
                     </p>
                     <p className="text-blue-700 leading-relaxed mt-3">
                       Namun, untuk membuka gerbangnya, mereka harus
                       menyelesaikan teka-teki yang ditinggalkan para penjaga
-                      kuno: sebuah <strong>Roda Poligon Enkripsi</strong> dengan
+                      kuno: sebuah <strong>Poligon Enkripsi</strong> dengan
                       delapan sisi yang bisa diputar. Hanya mereka yang tahu
                       aturan rotasi dan urutan simbol yang bisa membuka jalan
                       menuju ruang penyimpanan emas dan artefak suci.
@@ -386,7 +386,15 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                         <strong>
                           &quot;{content.question.plaintext.toUpperCase()}&quot;
                         </strong>{' '}
-                        dengan menggunakan Roda Poligon Enkripsi.
+                        dengan menggunakan Poligon Enkripsi. <br />
+                        <br />
+                        <strong>
+                          <span className="text-blue-800 font-semibold">
+                            Tips: untuk berinteraksi dengan Poligon Enkripsi,
+                            kamu harus memasukkan nomor rotasi dan posisi di
+                            kotak sebelah kanan.
+                          </span>
+                        </strong>
                       </p>
                     </div>
                   </div>

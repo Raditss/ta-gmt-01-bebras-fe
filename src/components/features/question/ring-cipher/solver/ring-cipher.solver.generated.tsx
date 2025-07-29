@@ -345,10 +345,10 @@ export default function GeneratedRingCipherSolver({
                     <p className="text-amber-700 leading-relaxed">
                       Di jantung hutan yang belum pernah dipetakan, tim arkeolog
                       internasional menemukan reruntuhan kuil kuno dari
-                      Peradaban Sandikala—peradaban yang hilang ribuan tahun
-                      lalu. Di dalamnya, mereka menemukan peta menuju harta
-                      karun legendaris yang tersembunyi di dalam ruang rahasia
-                      kuil.
+                      Peradaban Sandikala, sebuah peradaban yang hilang ribuan
+                      tahun lalu. Di dalamnya, mereka menemukan peta menuju
+                      harta karun legendaris yang tersembunyi di dalam ruang
+                      rahasia kuil.
                     </p>
                     <p className="text-amber-700 leading-relaxed mt-3">
                       Namun, untuk membuka gerbangnya, mereka harus
@@ -366,7 +366,13 @@ export default function GeneratedRingCipherSolver({
                         <strong>
                           &quot;{content.question.plaintext.toUpperCase()}&quot;
                         </strong>{' '}
-                        dengan menggunakan Cincin Enkripsi.
+                        dengan menggunakan Cincin Enkripsi. <br />
+                        <br />
+                        <span className="text-amber-800 font-semibold">
+                          Tips: untuk berinteraksi dengan Cincin Enkripsi, kamu
+                          harus memasukkan nomor ring dan langkah rotasi di
+                          kotak sebelah kanan.
+                        </span>
                       </p>
                     </div>
                   </div>
