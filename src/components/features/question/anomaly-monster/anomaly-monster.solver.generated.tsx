@@ -12,11 +12,11 @@ import Monster from '@/components/features/question/anomaly-monster/monster';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import { Button } from '@/components/ui/button';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
-import { QuestionTypeEnum } from '@/types/question-type.type';
-import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 import MonsterClassificationForm from '@/components/features/question/anomaly-monster/monster-classification-form';
 import { AnomalyMonsterForm } from '@/models/anomaly-monster/anomaly-monster.model.type';
 import { useInView } from 'react-intersection-observer';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 
 export default function GeneratedAnomalyMonsterSolver({
   type
@@ -196,7 +196,10 @@ export default function GeneratedAnomalyMonsterSolver({
             )}
 
             {/* Right side - Monster Preview and Classification */}
-            <div className="flex flex-col flex-1 gap-3">
+            <div className="flex flex-col flex-1 gap-3 relative">
+              <div className="absolute top-3 right-5 z-10">
+                <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
+              </div>
               {/* Monster Preview */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <div className="text-center mb-4">
@@ -463,7 +466,6 @@ export default function GeneratedAnomalyMonsterSolver({
           </div>
         </div>
       </div>
-      <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
     </GeneratedSolverWrapper>
   );
 }

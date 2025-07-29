@@ -204,7 +204,12 @@ export default function DecisionTreeAnomalySolver({
               )}
 
               {/* Right side - Monster Preview and Classification */}
-              <div className="flex flex-col flex-1 gap-3">
+              <div className="flex flex-col flex-1 gap-3 relative">
+                <div className="absolute top-3 right-5 z-10">
+                  <DynamicHelp
+                    questionType={QuestionTypeEnum.ANOMALY_MONSTER}
+                  />
+                </div>
                 {/* Monster Preview */}
                 <div className="bg-white rounded-xl shadow-lg p-6">
                   <div className="text-center mb-4">
@@ -471,7 +476,6 @@ export default function DecisionTreeAnomalySolver({
           </div>
         </div>
       )}
-      <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
     </SolverWrapper>
   );
 }
