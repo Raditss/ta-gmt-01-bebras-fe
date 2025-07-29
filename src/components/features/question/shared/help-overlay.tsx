@@ -20,7 +20,7 @@ export function HelpOverlay({ questionType, children }: HelpOverlayProps) {
   return (
     <>
       {/* Floating Help Button */}
-      <div className="fixed top-1/2 right-4 transform -translate-y-1/2 z-40">
+      <div className="">
         <Button
           onClick={toggleHelp}
           size="icon"

@@ -397,11 +397,11 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
             {/* Main Content */}
             <div className="max-w-7xl mx-auto">
               {/* Question Title */}
-              <div className="text-center mb-10">
+              {/* <div className="text-center mb-10">
                 <h1 className="text-3xl font-bold text-gray-800">
                   {content.question.prompt}
                 </h1>
-              </div>
+              </div> */}
 
               {/* Main Grid Layout */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -482,12 +482,14 @@ export default function CipherNSolver({ questionId }: BaseSolverProps) {
                 {/* Right Side - Encryption Controls */}
                 <div className="bg-white rounded-lg p-8 shadow-sm relative">
                   {/* Help Component - Top Right */}
-                  <div className="absolute top-2 right-2 z-10">
+                  <div className="absolute top-5 right-5 z-10">
                     <DynamicHelp questionType={QuestionTypeEnum.CIPHER_N} />
                   </div>
 
                   <h2 className="text-2xl font-semibold mb-8 pr-12">
-                    Kontrol Enkripsi
+                    Kata yang harus anda enkripsi:
+                    <br />
+                    &quot;{content.question.plaintext.toUpperCase()}&quot;
                   </h2>
 
                   <div className="space-y-6">
