@@ -20,9 +20,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/api/auth/register": {
@@ -44,9 +42,7 @@
             "description": ""
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/api/auth/logout": {
@@ -63,9 +59,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/api/profile": {
@@ -82,9 +76,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Profile"
-        ]
+        "tags": ["Profile"]
       }
     },
     "/api/questions": {
@@ -114,9 +106,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Questions"
-        ]
+        "tags": ["Questions"]
       },
       "get": {
         "operationId": "QuestionsController_findMany",
@@ -131,9 +121,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Questions"
-        ]
+        "tags": ["Questions"]
       }
     },
     "/api/questions/{id}": {
@@ -159,9 +147,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Questions"
-        ]
+        "tags": ["Questions"]
       },
       "patch": {
         "operationId": "QuestionsController_update",
@@ -195,9 +181,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Questions"
-        ]
+        "tags": ["Questions"]
       },
       "delete": {
         "operationId": "QuestionsController_remove",
@@ -221,9 +205,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Questions"
-        ]
+        "tags": ["Questions"]
       }
     },
     "/api/questions/generate": {
@@ -250,9 +232,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Questions"
-        ]
+        "tags": ["Questions"]
       }
     },
     "/api/question-types": {
@@ -279,9 +259,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionTypes"
-        ]
+        "tags": ["QuestionTypes"]
       },
       "get": {
         "operationId": "QuestionTypesController_findMany",
@@ -296,9 +274,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionTypes"
-        ]
+        "tags": ["QuestionTypes"]
       }
     },
     "/api/question-types/{id}": {
@@ -324,9 +300,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionTypes"
-        ]
+        "tags": ["QuestionTypes"]
       },
       "patch": {
         "operationId": "QuestionTypesController_update",
@@ -360,9 +334,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionTypes"
-        ]
+        "tags": ["QuestionTypes"]
       },
       "delete": {
         "operationId": "QuestionTypesController_remove",
@@ -386,9 +358,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionTypes"
-        ]
+        "tags": ["QuestionTypes"]
       }
     },
     "/api/question-attempts": {
@@ -415,9 +385,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       },
       "get": {
         "operationId": "QuestionAttemptsController_findMany",
@@ -432,9 +400,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/question-attempts/{id}": {
@@ -460,9 +426,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       },
       "patch": {
         "operationId": "QuestionAttemptsController_update",
@@ -496,9 +460,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/question-attempts/save-draft": {
@@ -525,9 +487,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/question-attempts/submit": {
@@ -554,9 +514,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/question-attempts/latest/{questionId}": {
@@ -582,9 +540,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/question-attempts/history/{questionId}": {
@@ -610,9 +566,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/question-attempts/check-answer": {
@@ -639,9 +593,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "QuestionAttempts"
-        ]
+        "tags": ["QuestionAttempts"]
       }
     },
     "/api/scores/my-score": {
@@ -658,9 +610,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Scores"
-        ]
+        "tags": ["Scores"]
       }
     },
     "/api/scores/user/{userId}": {
@@ -686,9 +636,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Scores"
-        ]
+        "tags": ["Scores"]
       }
     },
     "/api/scores/leaderboard": {
@@ -722,9 +670,7 @@
             "bearer": []
           }
         ],
-        "tags": [
-          "Scores"
-        ]
+        "tags": ["Scores"]
       }
     }
   },
@@ -732,9 +678,7 @@
     "title": "TA GMT 01 API",
     "description": "TA GMT 01 API description",
     "version": "1.0",
-    "contact": {
-
-    }
+    "contact": {}
   },
   "tags": [
     {
@@ -766,10 +710,7 @@
             "example": "Password1@"
           }
         },
-        "required": [
-          "username",
-          "password"
-        ]
+        "required": ["username", "password"]
       },
       "RegisterRequest": {
         "type": "object",
@@ -793,19 +734,10 @@
             "type": "string",
             "title": "Role",
             "example": "STUDENT",
-            "enum": [
-              "ADMIN",
-              "STUDENT",
-              "TEACHER"
-            ]
+            "enum": ["ADMIN", "STUDENT", "TEACHER"]
           }
         },
-        "required": [
-          "username",
-          "password",
-          "name",
-          "role"
-        ]
+        "required": ["username", "password", "name", "role"]
       },
       "Create Question Request": {
         "type": "object",
@@ -829,7 +761,7 @@
           "title": {
             "type": "string",
             "title": "Question Title",
-            "example": "Context-Free Grammar Exercise"
+            "example": "Fish Trader Exercise"
           },
           "points": {
             "type": "number",
@@ -873,7 +805,7 @@
           "title": {
             "type": "string",
             "title": "Question Title",
-            "example": "Context-Free Grammar Exercise"
+            "example": "Fish Trader Exercise"
           },
           "points": {
             "type": "number",
@@ -896,9 +828,7 @@
             "example": "cfg"
           }
         },
-        "required": [
-          "type"
-        ]
+        "required": ["type"]
       },
       "Create Question Type Request": {
         "type": "object",
@@ -914,10 +844,7 @@
             "example": "Decision Tree"
           }
         },
-        "required": [
-          "name",
-          "description"
-        ]
+        "required": ["name", "description"]
       },
       "Update Question Type Request": {
         "type": "object",
@@ -943,9 +870,7 @@
             "example": 1
           }
         },
-        "required": [
-          "questionId"
-        ]
+        "required": ["questionId"]
       },
       "Update Question Attempt Request": {
         "type": "object",
@@ -963,9 +888,7 @@
             }
           }
         },
-        "required": [
-          "answer"
-        ]
+        "required": ["answer"]
       },
       "Save Draft Attempt Request": {
         "type": "object",
@@ -989,10 +912,7 @@
             }
           }
         },
-        "required": [
-          "questionId",
-          "duration"
-        ]
+        "required": ["questionId", "duration"]
       },
       "Submit Attempt Request": {
         "type": "object",
@@ -1016,11 +936,7 @@
             }
           }
         },
-        "required": [
-          "questionId",
-          "duration",
-          "answer"
-        ]
+        "required": ["questionId", "duration", "answer"]
       },
       "Check Answer Request": {
         "type": "object",
@@ -1028,12 +944,12 @@
           "questionId": {
             "type": "string",
             "title": "Question ID",
-            "example": "cfg-abc123"
+            "example": "fish-trader-abc123"
           },
           "type": {
             "type": "string",
             "title": "Question Type",
-            "example": "cfg"
+            "example": "fish-trader"
           },
           "duration": {
             "type": "number",
@@ -1046,12 +962,7 @@
             "example": "{\"steps\": [], \"currentState\": []}"
           }
         },
-        "required": [
-          "questionId",
-          "type",
-          "duration",
-          "solution"
-        ]
+        "required": ["questionId", "type", "duration", "solution"]
       }
     }
   }

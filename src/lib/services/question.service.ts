@@ -39,7 +39,7 @@ export const questionService = {
     const questionTypeName = question.questionType.name;
     const isCfgQuestion =
       questionTypeName === QuestionTypeEnum.CFG ||
-      questionTypeName === 'context-free-grammar' ||
+      questionTypeName === 'fish-trader' ||
       questionTypeName === 'CFG';
 
     if (isCfgQuestion) {

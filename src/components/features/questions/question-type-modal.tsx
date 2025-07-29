@@ -72,6 +72,10 @@ export function QuestionTypeModal({
   }, [open, questionTypes.length, fetchQuestionTypes]);
 
   const formatTypeTitle = (name: string): string => {
+    // Special case for fish-trader
+    if (name === 'fish-trader') {
+      return 'Fish Trader';
+    }
     return name
       .split('-')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
