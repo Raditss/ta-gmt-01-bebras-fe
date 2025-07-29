@@ -12,11 +12,11 @@ import Monster from '@/components/features/question/anomaly-monster/monster';
 import { DecisionTreeAnomalyTree } from '@/components/features/question/anomaly-monster/tree';
 import { Button } from '@/components/ui/button';
 import { GeneratedSubmitSection } from '@/components/features/question/shared/submit-section-generated';
-import { QuestionTypeEnum } from '@/types/question-type.type';
-import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 import MonsterClassificationForm from '@/components/features/question/anomaly-monster/monster-classification-form';
 import { AnomalyMonsterForm } from '@/models/anomaly-monster/anomaly-monster.model.type';
 import { useInView } from 'react-intersection-observer';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { DynamicHelp } from '@/components/features/question/shared/dynamic-help';
 
 export default function GeneratedAnomalyMonsterSolver({
   type
@@ -115,29 +115,48 @@ export default function GeneratedAnomalyMonsterSolver({
     <GeneratedSolverWrapper loading={loading} error={error} type={type}>
       <div className="min-h-screen bg-gray-100">
         <div className="max-w-[95%] mx-auto p-1">
-          <div className="text-center mt-2 mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Monster yang Aneh
-            </h1>
-            <h3 className="mt-1 text-lg text-gray-700 font-medium leading-relaxed tracking-tight">
-              Di <strong>Pulau Monster</strong>, muncul{' '}
-              <strong>virus misterius</strong> yang membuat beberapa monster
-              berubah bentuk. Untungnya, para ilmuwan punya{' '}
-              <strong>pohon keputusan</strong> berdasarkan monster yang{' '}
-              <strong>normal</strong>. Pohon ini menunjukkan aturan berdasarkan{' '}
-              <strong>warna</strong>, <strong>bentuk tubuh</strong>, dan{' '}
-              <strong>mulut</strong> monster. Gunakan pohon tersebut untuk
-              meneliti setiap monster. Isi <strong>form analisis</strong> untuk
-              mencatat ciri-ciri mereka, lalu tentukan apakah monster tersebut{' '}
-              <strong className="italic font-semibold text-gray-500">
-                normal
-              </strong>{' '}
-              atau {'  '}
-              <strong className="italic underline text-gray-400">
-                terinfeksi
-              </strong>
-              !
-            </h3>
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6 shadow-sm mb-3">
+            <div className="flex items-start space-x-4">
+              <div className="text-3xl">🏝️</div>
+              <div className="flex-1">
+                <h2 className="text-xl font-bold text-blue-800 mb-3">
+                  👾 Monster yang Aneh: Pulau Monster
+                </h2>
+                <p className="text-blue-700 leading-relaxed">
+                  Di <strong>Pulau Monster</strong>, muncul{' '}
+                  <strong>virus misterius</strong> yang membuat beberapa monster
+                  berubah bentuk. Untungnya, para ilmuwan punya{' '}
+                  <strong>pohon keputusan</strong> berdasarkan monster yang{' '}
+                  {'  '}
+                  <strong>normal</strong>. Pohon ini menunjukkan aturan
+                  berdasarkan <strong>warna</strong>,{' '}
+                  <strong>bentuk tubuh</strong>, dan {'  '}
+                  <strong>mulut</strong> monster.
+                </p>
+                <p className="text-blue-700 leading-relaxed mt-3">
+                  Gunakan pohon tersebut untuk meneliti setiap monster. Isi{' '}
+                  <strong>form analisis</strong> untuk mencatat ciri-ciri
+                  mereka, lalu tentukan apakah monster tersebut {'  '}
+                  <strong className="italic font-semibold text-blue-600">
+                    normal
+                  </strong>{' '}
+                  atau {'  '}
+                  <strong className="italic underline text-blue-500">
+                    terinfeksi
+                  </strong>
+                  !
+                </p>
+                <div className="mt-4 p-3 bg-blue-100 rounded-lg border border-blue-300">
+                  <p className="text-blue-800 font-semibold">
+                    🔬 Misi Anda: Sebagai peneliti monster, kamu ditugaskan
+                    untuk menganalisis setiap monster yang ditemukan dan
+                    menentukan status kesehatan mereka menggunakan{' '}
+                    <strong>pohon keputusan monster yang normal</strong> yang
+                    telah disediakan.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div
@@ -177,7 +196,10 @@ export default function GeneratedAnomalyMonsterSolver({
             )}
 
             {/* Right side - Monster Preview and Classification */}
-            <div className="flex flex-col flex-1 gap-3">
+            <div className="flex flex-col flex-1 gap-3 relative">
+              <div className="absolute top-3 right-5 z-10">
+                <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
+              </div>
               {/* Monster Preview */}
               <div className="bg-white rounded-xl shadow-lg p-6">
                 <div className="text-center mb-4">
@@ -444,7 +466,6 @@ export default function GeneratedAnomalyMonsterSolver({
           </div>
         </div>
       </div>
-      <DynamicHelp questionType={QuestionTypeEnum.ANOMALY_MONSTER} />
     </GeneratedSolverWrapper>
   );
 }
