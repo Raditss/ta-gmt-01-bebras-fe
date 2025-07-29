@@ -52,9 +52,25 @@ function RingVisualization({
           .map((ring, reverseIndex) => {
             const ringIndex = rings.length - 1 - reverseIndex;
             // Better spacing calculation for multiple rings
-            const radiusStep =
-              (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
-            const radius = minRadius + radiusStep * ringIndex;
+            let radiusStep;
+            let radius;
+
+            if (rings.length === 2) {
+              // For 2 rings, give more space to the first ring
+              radiusStep = (maxRadius - minRadius) / 2;
+              if (ringIndex === 0) {
+                // First ring gets more space
+                radius = minRadius + radiusStep * 0.3;
+              } else {
+                // Second ring gets the full space
+                radius = minRadius + radiusStep * 1.7;
+              }
+            } else {
+              // Original logic for 3+ rings
+              radiusStep =
+                (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
+              radius = minRadius + radiusStep * ringIndex;
+            }
             const isHighlighted = ringIndex === highlightedRing;
             const currentPosition = ringPositions[ringIndex] || 0;
             const angleStep = (2 * Math.PI) / ring.letters.length;
