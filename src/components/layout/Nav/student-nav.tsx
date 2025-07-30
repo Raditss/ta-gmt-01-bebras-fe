@@ -23,7 +23,8 @@ const navItems = [
 
 export function StudentNav() {
   const pathname = usePathname();
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
+
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -62,6 +63,10 @@ export function StudentNav() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
+            {/* Username */}
+            <span className="text-sm text-gray-600 font-medium">
+              {user?.username || 'User'}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -69,7 +74,10 @@ export function StudentNav() {
                   className="relative h-8 w-8 rounded-full"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
+                    <AvatarImage
+                      src={user?.photoUrl || '/placeholder-user.jpg'}
+                      alt="Profile"
+                    />
                     <AvatarFallback>SV</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -99,6 +107,7 @@ export function StudentNav() {
 
 export function StudentNavLinks() {
   const pathname = usePathname();
+  const { user } = useAuthStore();
   return (
     <>
       {/* Navigation Links */}
@@ -122,12 +131,19 @@ export function StudentNavLinks() {
         })}
       </div>
       {/* Right Side */}
+      {/* add the username */}
+      <div className="flex items-center space-x-4">
+        <span className="text-sm text-gray-500">{user?.username}</span>
+      </div>
       <div className="flex items-center space-x-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
+                <AvatarImage
+                  src={user?.photoUrl || '/placeholder-user.jpg'}
+                  alt="Profile"
+                />
                 <AvatarFallback>SV</AvatarFallback>
               </Avatar>
             </Button>

@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { TrendingUp, Play } from 'lucide-react';
+import { TrendingUp, Play, Target } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useDashboard } from '@/hooks/useDashboard';
 import Image from 'next/image';
 import RandomQuote from '@/components/ui/random-quotes';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
@@ -23,7 +24,8 @@ const Dashboard = () => {
     // achievements,
     recentActivity,
     isLoading,
-    error
+    error,
+    questionStatistics
   } = useDashboard();
 
   // Show loading state
@@ -99,7 +101,17 @@ const Dashboard = () => {
             <div className="relative h-64 bg-gradient-to-br from-pink-400 via-pink-300 to-pink-400 rounded-3xl p-8 flex items-center border-2 shadow-lg overflow-hidden">
               {/* Level Circle + Trophy */}
               <div className="relative flex-shrink-0" style={{ width: 180 }}>
-                <div className="w-40 h-40 bg-teal-400 rounded-full flex flex-col items-center justify-center border-8 border-white mx-auto"></div>
+                <div className="w-40 h-40 bg-teal-400 rounded-full flex flex-col items-center justify-center border-8 border-white mx-auto relative">
+                  <Avatar className="w-32 h-32 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-lg border-4 border-white">
+                    <AvatarImage
+                      src={user?.photoUrl || '/placeholder-user.jpg'}
+                      alt={user?.username || 'Avatar'}
+                    />
+                    <AvatarFallback className="text-3xl">
+                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
                 {/* Trophy badge */}
               </div>
               {/* Progress and Streak */}
@@ -198,7 +210,7 @@ const Dashboard = () => {
         {/* Bottom Section */}
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Recent Activity */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-2">
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
                 <TrendingUp className="w-6 h-6 text-purple-500" />
@@ -244,44 +256,46 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Achievements */}
-          {/* <div className="lg:col-span-1">
+          {/* Progress Tracking */}
+          <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl p-8 shadow-sm">
               <h3 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                <Award className="w-6 h-6 text-purple-500" />
-                Achievements 🏆
+                <Target className="w-6 h-6 text-purple-500" />
+                Progress Tracking
               </h3>
-              <div className="space-y-4">
-                {achievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className={`p-4 rounded-2xl ${achievement.bgColor} ${
-                      achievement.earned ? 'opacity-100' : 'opacity-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
+              <div className="space-y-6">
+                {questionStatistics.map((stat) => (
+                  <div key={stat.questionTypeId} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-purple-500" />
+                        <span className="font-semibold text-sm capitalize">
+                          {stat.questionTypeName.replace('-', ' ')}
+                        </span>
+                      </div>
+                      <span className="text-xs text-gray-600">
+                        {stat.completedQuestions}/{stat.totalQuestions}
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${achievement.color}`}
-                      >
-                        <achievement.icon className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-semibold">{achievement.title}</div>
-                        <div className="text-sm text-gray-600">
-                          {achievement.description}
-                        </div>
-                      </div>
-                      {achievement.earned && (
-                        <div className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                          Earned
-                        </div>
+                        className="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all duration-300"
+                        style={{
+                          width: `${(stat.completedQuestions / stat.totalQuestions) * 100}%`
+                        }}
+                      />
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {Math.round(
+                        (stat.completedQuestions / stat.totalQuestions) * 100
                       )}
+                      % Complete
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

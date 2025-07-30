@@ -6,6 +6,7 @@ export interface UpdateProfileRequest {
   name?: string;
   password?: string;
   confirmPassword?: string;
+  photoUrl?: string;
 }
 
 export interface UpdateProfileResponse {
@@ -16,6 +17,7 @@ export interface UpdateProfileResponse {
     username: string;
     name: string;
     role: UserRole;
+    photoUrl: string | null;
   };
 }
 

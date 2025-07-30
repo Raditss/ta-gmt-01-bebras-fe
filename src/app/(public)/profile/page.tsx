@@ -29,12 +29,25 @@ export default function ProfilePage() {
     useProfile();
   const router = useRouter();
 
+  const AVATAR_LIST = Array.from(
+    { length: 10 },
+    (_, i) => `/avatar/${i + 1}.png`
+  );
+
   const [formData, setFormData] = useState<ProfileFormData>({
     username: '',
     name: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    photoUrl: ''
   });
+
+  const noChanges =
+    formData.username === user?.username &&
+    formData.name === user?.name &&
+    formData.photoUrl === (user?.photoUrl || '') &&
+    !formData.password &&
+    !formData.confirmPassword;
 
   useEffect(() => {
     setMounted(true);
@@ -46,7 +59,8 @@ export default function ProfilePage() {
         username: user.username || '',
         name: user.name || '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        photoUrl: user.photoUrl || ''
       });
     }
   }, [isAuthenticated, mounted, router, user, isHydrated]);
@@ -74,7 +88,8 @@ export default function ProfilePage() {
         username: user.username || '',
         name: user.name || '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        photoUrl: user.photoUrl || ''
       });
     }
   };
@@ -123,7 +138,10 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src="/placeholder.svg" alt={user.username} />
+                    <AvatarImage
+                      src={formData.photoUrl || '/placeholder.svg'}
+                      alt={user.username}
+                    />
                     <AvatarFallback className="text-lg">
                       {user.username?.charAt(0).toUpperCase() || 'U'}
                     </AvatarFallback>
@@ -209,6 +227,30 @@ export default function ProfilePage() {
                 </div>
 
                 {isEditing && (
+                  <div className="mb-6">
+                    <Label className="mb-2 block">Pilih Avatar</Label>
+                    <div className="grid grid-cols-5 gap-3">
+                      {AVATAR_LIST.map((src) => (
+                        <button
+                          type="button"
+                          key={src}
+                          className={`border-2 rounded-full p-1 transition-all ${formData.photoUrl === src ? 'border-cyan-500 ring-2 ring-cyan-300' : 'border-transparent'}`}
+                          onClick={() =>
+                            setFormData((prev) => ({ ...prev, photoUrl: src }))
+                          }
+                        >
+                          <img
+                            src={src}
+                            alt="avatar"
+                            className="w-14 h-14 rounded-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {isEditing && (
                   <div className="space-y-4 pt-4 border-t">
                     <h3 className="text-lg font-medium">Change Password</h3>
                     <p className="text-sm text-gray-600">
@@ -281,6 +323,16 @@ export default function ProfilePage() {
                   </div>
                 )}
 
+                {isEditing && noChanges && (
+                  <div className="mb-4">
+                    <Alert className="border-red-200 bg-red-50">
+                      <AlertDescription className="text-red-700">
+                        No changes to save
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                )}
+
                 {isEditing && (
                   <div className="flex justify-end gap-4 pt-4">
                     <Button
@@ -294,7 +346,7 @@ export default function ProfilePage() {
                     </Button>
                     <Button
                       type="submit"
-                      disabled={isLoading}
+                      disabled={isLoading || noChanges}
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />

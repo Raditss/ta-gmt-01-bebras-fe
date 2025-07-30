@@ -22,4 +22,10 @@ export interface DashboardApiResponse {
     completedAt: string;
     pointsEarned: number;
   }>;
+  questionStatistics: Array<{
+    questionTypeId: number;
+    questionTypeName: string;
+    completedQuestions: number;
+    totalQuestions: number;
+  }>;
 }
