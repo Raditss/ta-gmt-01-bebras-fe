@@ -50,9 +50,25 @@ function RingVisualization({
           .map((ring, reverseIndex) => {
             const ringIndex = rings.length - 1 - reverseIndex;
             // Better spacing calculation for multiple rings
-            const radiusStep =
-              (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
-            const radius = minRadius + radiusStep * ringIndex;
+            let radiusStep;
+            let radius;
+
+            if (rings.length === 2) {
+              // For 2 rings, give more space to the first ring
+              radiusStep = (maxRadius - minRadius) / 2;
+              if (ringIndex === 0) {
+                // First ring gets more space
+                radius = minRadius + radiusStep * 0.3;
+              } else {
+                // Second ring gets the full space
+                radius = minRadius + radiusStep * 1.7;
+              }
+            } else {
+              // Original logic for 3+ rings
+              radiusStep =
+                (maxRadius - minRadius) / Math.max(rings.length - 1, 1);
+              radius = minRadius + radiusStep * ringIndex;
+            }
             const isHighlighted = ringIndex === highlightedRing;
             const currentPosition = ringPositions[ringIndex] || 0;
             const angleStep = (2 * Math.PI) / ring.letters.length;
@@ -116,15 +132,16 @@ function RingVisualization({
                         />
                         <text
                           x={x}
-                          y={y + 5} // Adjusted for smaller circle
+                          y={y + 5}
                           textAnchor="middle"
                           className={`text-sm font-bold transition-all duration-300 ${
                             isTargetLetter
-                              ? 'fill-white'
+                              ? 'fill-black'
                               : isAtMarker
                                 ? 'fill-orange-700'
                                 : 'fill-gray-700'
                           }`}
+                          transform={`rotate(${-rotationAngle} ${x} ${y})`}
                         >
                           {letter}
                         </text>
@@ -165,6 +182,29 @@ export default function GeneratedRingCipherSolver({
   // Use the generated question hook
   const { question, questionContent, loading, error, regenerate } =
     useGeneratedQuestion<RingCipherSolveModel>(type, RingCipherSolveModel);
+
+  // Add breathing glow animation
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes breathing-glow {
+        0%, 100% {
+          box-shadow: 0 0 5px rgba(147, 51, 234, 0.3), 0 0 10px rgba(147, 51, 234, 0.2);
+          border-color: rgb(147, 51, 234);
+        }
+        50% {
+          box-shadow: 0 0 20px rgba(147, 51, 234, 0.6), 0 0 30px rgba(147, 51, 234, 0.4);
+          border-color: rgb(168, 85, 247);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
 
   // UI state only
   const [ringValue, setRingValue] = useState<string>('');
@@ -309,18 +349,61 @@ export default function GeneratedRingCipherSolver({
       {question && content && (
         <>
           <div className="min-h-screen bg-gray-100 p-8">
+            {/* Backstory Section */}
+            <div className="max-w-7xl mx-auto mb-8">
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg p-6 shadow-sm">
+                <div className="flex items-start space-x-4">
+                  <div className="text-3xl">🏛️</div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-amber-800 mb-3">
+                      🗺️ Sandi cincin: Kuil Sandikala
+                    </h2>
+                    <p className="text-amber-700 leading-relaxed">
+                      Di jantung hutan yang belum pernah dipetakan, tim arkeolog
+                      internasional menemukan reruntuhan kuil kuno dari
+                      Peradaban Sandikala, sebuah peradaban yang hilang ribuan
+                      tahun lalu. Di dalamnya, mereka menemukan peta menuju
+                      harta karun legendaris yang tersembunyi di dalam ruang
+                      rahasia kuil.
+                    </p>
+                    <p className="text-amber-700 leading-relaxed mt-3">
+                      Namun, untuk membuka gerbangnya, mereka harus
+                      menyelesaikan teka-teki yang ditinggalkan para penjaga
+                      kuno: sebuah <strong>cincin enkripsi</strong> dengan
+                      cincin-cincin melingkar yang bisa diputar. Hanya mereka
+                      yang tahu aturan rotasi dan urutan simbol yang bisa
+                      membuka jalan menuju ruang penyimpanan emas dan artefak
+                      suci.
+                    </p>
+                    <div className="mt-4 p-3 bg-amber-100 rounded-lg border border-amber-300">
+                      <p className="text-amber-800 font-semibold">
+                        📜 Misi Anda: Sebagai bagian dari tim ekspedisi, kamu
+                        ditugaskan mengenkripsi pesan kuno{' '}
+                        <strong>
+                          &quot;{content.question.plaintext.toUpperCase()}&quot;
+                        </strong>{' '}
+                        dengan menggunakan Cincin Enkripsi. <br />
+                        <br />
+                        <span className="text-amber-800 font-semibold">
+                          Tips: untuk berinteraksi dengan Cincin Enkripsi, kamu
+                          harus memasukkan nomor ring dan langkah rotasi di
+                          kotak sebelah kanan.
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Main Content */}
             <div className="max-w-7xl mx-auto">
-              {/* Question Title */}
+              {/* Question Title
               <div className="text-center mb-10">
                 <h1 className="text-3xl font-bold text-gray-800">
                   {content.question.prompt}
                 </h1>
-                <p className="text-lg text-gray-600 mt-2">
-                  Kamu ditugaskan untuk menemukan kode (enkripsi) dari Kata{' '}
-                  <strong>{content.question.plaintext.toUpperCase()}</strong>
-                </p>
-              </div>
+              </div> */}
 
               {/* Main Grid Layout */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -353,9 +436,16 @@ export default function GeneratedRingCipherSolver({
                 </div>
 
                 {/* Right Side - Encryption Controls */}
-                <div className="bg-white rounded-lg p-8 shadow-sm">
-                  <h2 className="text-2xl font-semibold mb-8">
-                    Kontrol Enkripsi
+                <div className="bg-white rounded-lg p-8 shadow-sm relative">
+                  {/* Help Component - Top Right */}
+                  <div className="absolute top-5 right-5 z-10">
+                    <DynamicHelp questionType={QuestionTypeEnum.RING_CIPHER} />
+                  </div>
+
+                  <h2 className="text-2xl font-semibold mb-8 pr-12">
+                    Kata yang harus anda enkripsi:
+                    <br />
+                    &quot;{content.question.plaintext.toUpperCase()}&quot;
                   </h2>
 
                   <div className="space-y-6">
@@ -369,7 +459,10 @@ export default function GeneratedRingCipherSolver({
                         value={ringValue}
                         onChange={(e) => handleRingChange(e.target.value)}
                         placeholder={`Masukkan 1-${rings.length}`}
-                        className="w-full text-lg py-3 px-4"
+                        className="w-full text-lg py-3 px-4 border-2 border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 shadow-lg hover:shadow-xl"
+                        style={{
+                          animation: 'breathing-glow 2s ease-in-out infinite'
+                        }}
                       />
                     </div>
 
@@ -386,7 +479,12 @@ export default function GeneratedRingCipherSolver({
                         value={stepsValue}
                         onChange={(e) => handleStepsChange(e.target.value)}
                         placeholder={`Masukkan 0-${rings[parseInt(ringValue) - 1]?.letters.length - 1 || 0}`}
-                        className="w-full text-lg py-3 px-4"
+                        className="w-full text-lg py-3 px-4 border-2 border-purple-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          animation: !rings[parseInt(ringValue) - 1]
+                            ? 'none'
+                            : 'breathing-glow 2s ease-in-out infinite'
+                        }}
                         disabled={!rings[parseInt(ringValue) - 1]}
                       />
                     </div>
@@ -440,9 +538,6 @@ export default function GeneratedRingCipherSolver({
               </div>
             </div>
           </div>
-
-          {/* Help Component */}
-          <DynamicHelp questionType={QuestionTypeEnum.RING_CIPHER} />
         </>
       )}
     </GeneratedSolverWrapper>

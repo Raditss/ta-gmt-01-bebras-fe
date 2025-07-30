@@ -92,7 +92,7 @@ const getLabelColor = (value: MonsterPartValue): string | undefined => {
     case 'Green':
       return '#22c55e'; // Green
     case 'Blue':
-      return '#3b82f6'; // Blue
+      return '#43d7e5'; // Blue
     default:
       return undefined; // Default color for unknown values
   }
@@ -339,7 +339,10 @@ export function DecisionTreeAnomalyTree({
             verticalAlign: 'bottom',
             align: 'center',
             fontSize: 11,
-            distance: 10
+            distance: 6,
+            formatter: function (params: EChartsNode) {
+              return params.name.replace(/ /g, '\n');
+            }
             // rotate: 90
           },
           leaves: {
@@ -347,7 +350,7 @@ export function DecisionTreeAnomalyTree({
               position: 'top',
               verticalAlign: 'bottom',
               align: 'center',
-              distance: 10
+              distance: 3
               // rotate: 90
             }
           },
@@ -355,8 +358,10 @@ export function DecisionTreeAnomalyTree({
           animationDuration: 550,
           animationDurationUpdate: 750,
           layout: 'orthogonal',
-          orient: 'LR' // Left to Right
+          orient: 'LR', // Left to Right
           // roam: true // Enable zoom and pan
+          nodeScaleRatio: 0.4, // Smaller ratio = more spacing between siblings
+          layoutSize: '60%' // Smaller layout = more spacing
         }
       ]
     };

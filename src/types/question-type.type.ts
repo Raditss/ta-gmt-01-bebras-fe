@@ -1,8 +1,8 @@
 export enum QuestionTypeEnum {
-  CFG = 'context-free-grammar',
+  CFG = 'fish-trader',
   CIPHER_N = 'cipher-n',
   RING_CIPHER = 'ring-cipher',
-  ANOMALY_MONSTER = 'decision-tree-anomaly',
+  ANOMALY_MONSTER = 'anomaly-monster',
   DECISION_TREE_TRACE = 'decision-tree-trace',
   CONTAGION_PROTOCOL = 'contagion-protocol'
 }

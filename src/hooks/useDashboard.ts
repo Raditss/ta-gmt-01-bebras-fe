@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DashboardData } from '@/models/dashboard/dashboard.model';
-import { dashboardApi } from '@/lib/api/dashboard.api';
-import { Code, Zap, Target } from 'lucide-react';
+import { Code, Target, Zap } from 'lucide-react';
+import { gamificationApi } from '@/lib/api/gamification.api';
 
 // Default achievements with icons - moved outside component to prevent recreation
 const defaultAchievements = [
@@ -59,7 +59,7 @@ export const useDashboard = () => {
       setIsLoading(true);
       setError(null);
 
-      const apiResponse = await dashboardApi.getDashboardData();
+      const apiResponse = await gamificationApi.getDashboardData();
 
       // Create new dashboard data instance
       const newDashboardData = new DashboardData();

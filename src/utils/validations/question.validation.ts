@@ -7,8 +7,10 @@ import {
 export const createQuestionMetadataRequestSchema = z.object({
   questionTypeId: z.number().nonnegative('Question Type ID must be positive'),
   title: z.string().min(1, 'Title is required'),
-  points: z.number().nonnegative('Points must be non-negative'),
-  estimatedTime: z.number().nonnegative('Estimated time must be non-negative')
+  points: z.coerce.number().nonnegative('Points must be non-negative'),
+  estimatedTime: z.coerce
+    .number()
+    .nonnegative('Estimated time must be non-negative')
 });
 
 export const createQuestionDraftRequestSchema = z.object({

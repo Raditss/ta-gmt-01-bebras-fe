@@ -501,7 +501,11 @@ export default function AnomalyMonsterCreator({
               <div className="h-[700px] flex items-center justify-center border border-gray-200 rounded-lg">
                 {activeView === 'rules' ? (
                   rules.length > 0 ? (
-                    <DecisionTreeAnomalyTree rules={rules} selections={{}} />
+                    <DecisionTreeAnomalyTree
+                      rules={rules}
+                      selections={currentRuleSelections}
+                      height={'500px'}
+                    />
                   ) : (
                     <div className="text-center text-gray-500">
                       <TreePine className="h-16 w-16 mx-auto mb-4 opacity-50" />

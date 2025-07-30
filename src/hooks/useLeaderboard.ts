@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   LeaderboardData,
   LeaderboardItem,
   TimeFrame
 } from '@/types/leaderboard.type';
-import { leaderboardApi } from '@/lib/api/leaderboard.api';
+import { gamificationApi } from '@/lib/api';
 
 // Mock data for fields not provided by backend yet
 const mockUserStats = (item: LeaderboardItem): LeaderboardItem => {
@@ -19,7 +19,6 @@ const mockUserStats = (item: LeaderboardItem): LeaderboardItem => {
 
   return {
     ...item,
-    rank: item.order,
     solved,
     badge
   };
@@ -37,14 +36,14 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
       setIsLoading(true);
       setError(null);
 
-      const apiResponse = await leaderboardApi.getLeaderboard(timeFrame);
+      const apiResponse = await gamificationApi.getLeaderboard(timeFrame);
 
       // Add mock data for fields not provided by backend
-      const topTenWithMockData = apiResponse.topTen.map((item, index) =>
-        mockUserStats(item, index)
+      const topTenWithMockData = apiResponse.topTen.map((item) =>
+        mockUserStats(item)
       );
 
-      const currentUserWithMockData = mockUserStats(apiResponse.currentUser, 0);
+      const currentUserWithMockData = mockUserStats(apiResponse.currentUser);
 
       // Calculate total players (mock for now)
       const totalPlayers = Math.max(1247, apiResponse.topTen.length * 125);
@@ -72,7 +71,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 2350,
             streak: 28,
             badges: 12,
-            rank: 1,
             solved: 245,
             badge: 'Expert'
           },
@@ -82,7 +80,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 2120,
             streak: 15,
             badges: 10,
-            rank: 2,
             solved: 198,
             badge: 'Advanced'
           },
@@ -92,7 +89,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 1980,
             streak: 22,
             badges: 9,
-            rank: 3,
             solved: 187,
             badge: 'Advanced'
           },
@@ -102,7 +98,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 1850,
             streak: 12,
             badges: 10,
-            rank: 4,
             solved: 165,
             badge: 'Intermediate'
           },
@@ -112,7 +107,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 1790,
             streak: 8,
             badges: 8,
-            rank: 5,
             solved: 156,
             badge: 'Intermediate'
           },
@@ -122,7 +116,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 1720,
             streak: 18,
             badges: 7,
-            rank: 6,
             solved: 142,
             badge: 'Intermediate'
           },
@@ -132,7 +125,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 1650,
             streak: 5,
             badges: 7,
-            rank: 7,
             solved: 134,
             badge: 'Beginner'
           },
@@ -142,7 +134,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
             points: 1540,
             streak: 14,
             badges: 6,
-            rank: 8,
             solved: 128,
             badge: 'Beginner'
           }
@@ -153,7 +144,6 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
           points: 1285,
           streak: 3,
           badges: 12,
-          rank: 156,
           solved: 128,
           badge: 'Intermediate'
         },

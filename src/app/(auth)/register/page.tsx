@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Select,
@@ -22,7 +22,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { useAuthStore } from '@/store/auth.store';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
@@ -214,8 +214,8 @@ export default function RegisterPage() {
                           <SelectValue placeholder="Pilih peranmu" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="STUDENT">Siswa</SelectItem>
-                          <SelectItem value="TEACHER">Guru</SelectItem>
+                          <SelectItem value="STUDENT">Solver</SelectItem>
+                          <SelectItem value="TEACHER">Creator</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
