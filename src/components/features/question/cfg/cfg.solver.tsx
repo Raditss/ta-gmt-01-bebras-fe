@@ -193,9 +193,16 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
           <div className="grid grid-cols-4 gap-8">
             {/* Trading Table - Left side (3 columns wide) */}
             <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
-              <h2 className="text-2xl font-bold text-center mb-6 text-foreground">
-                📋 Meja Perdagangan Ikan
-              </h2>
+              <div className="flex justify-between items-start mb-2 relative">
+                <div className="absolute left-0 right-0 flex justify-center pointer-events-none">
+                  <h2 className="text-2xl font-bold text-center text-foreground pointer-events-auto">
+                    📋 Meja Perdagangan Ikan
+                  </h2>
+                </div>
+                <div className="ml-auto z-10">
+                  <DynamicHelp questionType={QuestionTypeEnum.CFG} />
+                </div>
+              </div>
               {/* Remove height constraints to let table flow naturally */}
               <div className="overflow-visible">
                 <RulesTableShared rules={question.getAvailableRules()} />
@@ -357,11 +364,6 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
                 onSubmissionSuccess={markAsSubmitted}
               />
             </div>
-          </div>
-
-          {/* Help Section */}
-          <div className="mt-8">
-            <DynamicHelp questionType={QuestionTypeEnum.CFG} />
           </div>
         </div>
       )}
