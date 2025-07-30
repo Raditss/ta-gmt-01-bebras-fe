@@ -169,10 +169,10 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
             <FishermanStory />
           </div>
 
-          {/* Main Layout - Flexible Grid (No time progress bar for generated questions) */}
-          <div className="grid grid-cols-4 gap-8">
-            {/* Trading Table - Left side (3 columns wide) */}
-            <div className="col-span-3 bg-card rounded-lg p-6 shadow-sm border">
+          {/* Main Layout - 50/50 Split (No time progress bar for generated questions) */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* Trading Table - Left side (50% width) */}
+            <div className="bg-card rounded-lg p-6 shadow-sm border">
               <div className="flex justify-between items-start mb-2 relative">
                 <div className="absolute left-0 right-0 flex justify-center pointer-events-none">
                   <h2 className="text-2xl font-bold text-center text-foreground pointer-events-auto">
@@ -189,22 +189,22 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
               </div>
             </div>
 
-            {/* Right side - Current and Target states (sticky container) */}
+            {/* Right side - Current and Target states (50% width) */}
             <div className="space-y-4">
               {/* Sticky container for both current and target */}
-              <div className="sticky top-[15vh]">
+              <div className="sticky top-[12vh]">
                 {/* Current State Title - moved outside to avoid overlap */}
-                <h2 className="text-xl font-bold mb-7 text-center">
+                <h2 className="text-xl font-bold mb-4 text-center">
                   🐟 Koleksi Ikan Sekarang
                 </h2>
 
                 {/* Current State with half-covered Fisherman */}
-                <div className="bg-card rounded-lg p-4 shadow-lg border mb-8 relative">
+                <div className="bg-card rounded-lg p-4 shadow-lg border mb-6 relative">
                   {/* Fisherman positioned so half body is covered by the box */}
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-0">
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-0">
                     <Fisherman
                       mood={fishermanMood}
-                      size="lg"
+                      size="md"
                       showHalfBody={true}
                       position="behind"
                       className="opacity-90"
@@ -221,18 +221,18 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
                 </div>
 
                 {/* Blinking Arrow */}
-                <div className="flex justify-center mb-4 items-center gap-4">
+                <div className="flex justify-center mb-3 items-center gap-3">
                   <div className="animate-bounce">
                     <Image
                       src="/graphic/arrow.png"
                       alt="Arrow pointing down"
-                      width={40}
-                      height={40}
+                      width={32}
+                      height={32}
                       className="transform rotate-90"
                     />
                   </div>
                   <div className="flex items-center">
-                    <span className="text-lg font-bold text-white bg-blue-600 px-3 py-1 rounded-full">
+                    <span className="text-base font-bold text-white bg-blue-600 px-2 py-1 rounded-full">
                       Tukar menjadi
                     </span>
                   </div>
@@ -240,15 +240,15 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
                     <Image
                       src="/graphic/arrow.png"
                       alt="Arrow pointing down"
-                      width={40}
-                      height={40}
+                      width={32}
+                      height={32}
                       className="transform rotate-90"
                     />
                   </div>
                 </div>
 
                 {/* Target State Title - moved outside for consistency */}
-                <h2 className="text-xl font-bold mb-4 text-center">
+                <h2 className="text-xl font-bold mb-3 text-center">
                   🎯 Target Koleksi Ikan
                 </h2>
 
