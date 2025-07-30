@@ -1,28 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import {
-  LeaderboardData,
-  LeaderboardItem,
-  TimeFrame
-} from '@/types/leaderboard.type';
+import { useState, useEffect, useCallback } from 'react';
+import { LeaderboardData, TimeFrame } from '@/types/leaderboard.type';
 import { gamificationApi } from '@/lib/api';
-
-// Mock data for fields not provided by backend yet
-const mockUserStats = (item: LeaderboardItem): LeaderboardItem => {
-  // Mock solved problems based on points (roughly points/10)
-  const solved = Math.floor(item.points / 10) + Math.floor(Math.random() * 20);
-
-  // Mock badge based on points
-  let badge = 'Beginner';
-  if (item.points >= 2000) badge = 'Expert';
-  else if (item.points >= 1500) badge = 'Advanced';
-  else if (item.points >= 1000) badge = 'Intermediate';
-
-  return {
-    ...item,
-    solved,
-    badge
-  };
-};
 
 export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
   const [leaderboardData, setLeaderboardData] =
@@ -38,20 +16,11 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
 
       const apiResponse = await gamificationApi.getLeaderboard(timeFrame);
 
-      // Add mock data for fields not provided by backend
-      const topTenWithMockData = apiResponse.topTen.map((item) =>
-        mockUserStats(item)
-      );
-
-      const currentUserWithMockData = mockUserStats(apiResponse.currentUser);
-
-      // Calculate total players (mock for now)
-      const totalPlayers = Math.max(1247, apiResponse.topTen.length * 125);
-
+      // Use real API data directly without mock processing
       const newLeaderboardData: LeaderboardData = {
-        topTen: topTenWithMockData,
-        currentUser: currentUserWithMockData,
-        totalPlayers
+        topTen: apiResponse.topTen,
+        currentUser: apiResponse.currentUser,
+        totalPlayers: apiResponse.totalPlayers
       };
 
       setLeaderboardData(newLeaderboardData);
@@ -62,92 +31,18 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
         err instanceof Error ? err.message : 'Failed to fetch leaderboard data'
       );
 
-      // Set fallback data on error (the current mock data)
+      // Set fallback data on error
       const fallbackData: LeaderboardData = {
-        topTen: [
-          {
-            order: 1,
-            name: 'Radit',
-            points: 2350,
-            streak: 28,
-            badges: 12,
-            solved: 245,
-            badge: 'Expert'
-          },
-          {
-            order: 2,
-            name: 'Bayu',
-            points: 2120,
-            streak: 15,
-            badges: 10,
-            solved: 198,
-            badge: 'Advanced'
-          },
-          {
-            order: 3,
-            name: 'Rere',
-            points: 1980,
-            streak: 22,
-            badges: 9,
-            solved: 187,
-            badge: 'Advanced'
-          },
-          {
-            order: 4,
-            name: 'Naufal',
-            points: 1850,
-            streak: 12,
-            badges: 10,
-            solved: 165,
-            badge: 'Intermediate'
-          },
-          {
-            order: 5,
-            name: 'Sekar',
-            points: 1790,
-            streak: 8,
-            badges: 8,
-            solved: 156,
-            badge: 'Intermediate'
-          },
-          {
-            order: 6,
-            name: 'Ardhi',
-            points: 1720,
-            streak: 18,
-            badges: 7,
-            solved: 142,
-            badge: 'Intermediate'
-          },
-          {
-            order: 7,
-            name: 'Maya',
-            points: 1650,
-            streak: 5,
-            badges: 7,
-            solved: 134,
-            badge: 'Beginner'
-          },
-          {
-            order: 8,
-            name: 'James',
-            points: 1540,
-            streak: 14,
-            badges: 6,
-            solved: 128,
-            badge: 'Beginner'
-          }
-        ],
+        topTen: [],
         currentUser: {
-          order: 156,
+          order: 0,
           name: 'You',
-          points: 1285,
-          streak: 3,
-          badges: 12,
-          solved: 128,
-          badge: 'Intermediate'
+          points: 0,
+          streak: 0,
+          badges: 0,
+          solved: 0
         },
-        totalPlayers: 1247
+        totalPlayers: 0
       };
       setLeaderboardData(fallbackData);
     } finally {

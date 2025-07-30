@@ -18,6 +18,7 @@ export interface LeaderboardItem {
 export interface LeaderboardApiResponse {
   topTen: LeaderboardItem[];
   currentUser: LeaderboardItem;
+  totalPlayers: number;
 }
 
 export interface LeaderboardData {
