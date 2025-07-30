@@ -111,9 +111,13 @@ export function AnomalyMonsterHelp() {
                     </div>
                     Normal
                   </span>
+
                   <span className="inline-flex items-center">
                     <div className="w-5 h-5 bg-red-400 rounded-full flex items-center justify-center mr-1">
-                      🦠
+                      <AlertTriangle
+                        size={12}
+                        className="text-yellow-300 drop-shadow-[0_0_2px_black]"
+                      />
                     </div>
                     Terinfeksi
                   </span>
@@ -172,7 +176,11 @@ export function AnomalyMonsterHelp() {
             <AlertDescription>
               <strong>Status Badge:</strong> Setiap monster menampilkan status
               klasifikasi: Belum diklasifikasikan (❓), Normal (😊), atau
-              Terinfeksi (🦠).
+              Terinfeksi (
+              <span className="inline-flex items-center justify-center w-4 h-4 bg-red-400 rounded-full ml-0.5">
+                <AlertTriangle size={10} className="text-yellow-300" />
+              </span>
+              ).
             </AlertDescription>
           </Alert>
 

@@ -16,6 +16,7 @@ import { AnomalyMonsterForm } from '@/models/anomaly-monster/anomaly-monster.mod
 import MonsterClassificationForm from '@/components/features/question/anomaly-monster/monster-classification-form';
 import { useInView } from 'react-intersection-observer';
 import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
 
 export default function DecisionTreeAnomalySolver({
   questionId
@@ -127,8 +128,9 @@ export default function DecisionTreeAnomalySolver({
               <div className="flex items-start space-x-4">
                 <div className="text-3xl">🏝️</div>
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-blue-800 mb-3">
-                    🦠 Monster yang Aneh
+                  <h2 className="flex items-center text-xl font-bold text-blue-800 mb-3">
+                    <AlertTriangle size={16} className="mr-2" />
+                    Monster yang Aneh
                   </h2>
                   <p className="text-blue-700 leading-relaxed">
                     Di <strong>Pulau Monster</strong>, muncul{' '}
@@ -364,13 +366,18 @@ export default function DecisionTreeAnomalySolver({
                             )}
 
                             <div className="scale-125">
-                              {isCurrent
-                                ? '🔍'
-                                : isNormal
-                                  ? '😊'
-                                  : isAnomaly
-                                    ? '🦠'
-                                    : '❓'}
+                              {isCurrent ? (
+                                '🔍'
+                              ) : isNormal ? (
+                                '😊'
+                              ) : isAnomaly ? (
+                                <AlertTriangle
+                                  className="text-yellow-300 drop-shadow-[0_0_2px_black]"
+                                  size={22}
+                                />
+                              ) : (
+                                '❓'
+                              )}
                             </div>
                           </motion.div>
 
