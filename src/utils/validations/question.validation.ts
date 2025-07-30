@@ -65,7 +65,8 @@ export const questionResponseSchema = z.object({
     teacher: z.object({
       id: z.number(),
       name: z.string()
-    })
+    }),
+    isSolved: z.boolean()
   })
 });
 

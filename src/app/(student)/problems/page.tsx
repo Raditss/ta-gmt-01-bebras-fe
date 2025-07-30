@@ -224,6 +224,7 @@ export default function ProblemsPage() {
                           type={
                             question.props.questionType.name as QuestionTypeEnum
                           }
+                          isSolved={question.props.isSolved}
                         />
                       ))}
                     </div>

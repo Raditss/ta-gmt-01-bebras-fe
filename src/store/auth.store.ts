@@ -12,6 +12,7 @@ export type User = {
   id: number;
   username: string;
   name: string;
+  photoUrl: string | null;
   role: UserRole;
   status: UserStatus;
   verifiedAt: Date | string | null;

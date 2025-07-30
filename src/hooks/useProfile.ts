@@ -1,12 +1,14 @@
 import { useState, useCallback } from 'react';
 import { profileApi, UpdateProfileRequest } from '@/lib/api/profile.api';
 import { useAuthStore } from '@/store/auth.store';
+import type { User } from '@/store/auth.store';
 
 export interface ProfileFormData {
   username: string;
   name: string;
   password: string;
   confirmPassword: string;
+  photoUrl: string;
 }
 
 export const useProfile = () => {
@@ -33,6 +35,17 @@ export const useProfile = () => {
           updateData.name = data.name;
         }
 
+        // Handle photoUrl - only send if it's a valid path or if it's being changed
+        if (data.photoUrl !== user?.photoUrl) {
+          // Only include if it's a valid path (starts with /avatar/)
+          if (data.photoUrl && data.photoUrl.startsWith('/avatar/')) {
+            updateData.photoUrl = data.photoUrl;
+          } else if (data.photoUrl === '' && user?.photoUrl) {
+            // If clearing the photoUrl, send undefined
+            updateData.photoUrl = undefined;
+          }
+        }
+
         if (data.password) {
           updateData.password = data.password;
           updateData.confirmPassword = data.confirmPassword;
@@ -43,11 +56,19 @@ export const useProfile = () => {
           throw new Error('No changes to save');
         }
 
+        console.log('Sending update data:', updateData); // Debug log
+
         const response = await profileApi.updateProfile(updateData);
 
         if (response.success) {
-          // Update the user in the auth store
-          setUser(response.user);
+          // Update the user in the auth store with the form data that was successfully sent
+          const updatedUser: User = {
+            ...user!, // Keep existing user data (id, role, status, etc.)
+            username: data.username,
+            name: data.name,
+            photoUrl: data.photoUrl || null // Use the form data directly
+          };
+          setUser(updatedUser);
           setSuccess(response.message);
           return { success: true, message: response.message };
         } else {

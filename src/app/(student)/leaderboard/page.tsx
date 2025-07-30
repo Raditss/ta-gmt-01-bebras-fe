@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
               <CardContent className="p-4 text-center">
                 <TrendingUp className="w-8 h-8 text-green-500 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-gray-800">
-                  {currentUser?.order || 'N/A'}
+                  # {currentUser?.order || 'N/A'}
                 </div>
                 <div className="text-sm text-gray-600">Your Rank</div>
               </CardContent>
@@ -110,15 +110,6 @@ export default function LeaderboardPage() {
                   {currentUser?.points?.toLocaleString() || '0'}
                 </div>
                 <div className="text-sm text-gray-600">Your Points</div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4 text-center">
-                <Award className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-                <div className="text-2xl font-bold text-gray-800">
-                  {currentUser?.badges || '0'}
-                </div>
-                <div className="text-sm text-gray-600">Your Badges</div>
               </CardContent>
             </Card>
           </div>
@@ -186,14 +177,6 @@ export default function LeaderboardPage() {
                                 {topThree[1]?.streak}
                               </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500">
-                                Badges
-                              </div>
-                              <div className="font-bold text-yellow-500">
-                                {topThree[1]?.badges}
-                              </div>
-                            </div>
                           </div>
                           <div className="bg-blue-500 text-white w-24 h-20 rounded-t-lg flex items-center justify-center">
                             <span className="text-3xl font-bold">2</span>
@@ -235,14 +218,6 @@ export default function LeaderboardPage() {
                                 {topThree[0]?.streak}
                               </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500">
-                                Badges
-                              </div>
-                              <div className="font-bold text-yellow-500">
-                                {topThree[0]?.badges}
-                              </div>
-                            </div>
                           </div>
                           <div className="bg-red-500 text-white w-24 h-28 rounded-t-lg flex items-center justify-center">
                             <span className="text-4xl font-bold">1</span>
@@ -281,14 +256,6 @@ export default function LeaderboardPage() {
                               </div>
                               <div className="font-bold text-orange-500">
                                 {topThree[2]?.streak}
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xs text-gray-500">
-                                Badges
-                              </div>
-                              <div className="font-bold text-yellow-500">
-                                {topThree[2]?.badges}
                               </div>
                             </div>
                           </div>
@@ -346,14 +313,6 @@ export default function LeaderboardPage() {
                                 {user.streak} days
                               </div>
                             </div>
-                            <div className="text-center">
-                              <div className="text-sm text-gray-500">
-                                Badges
-                              </div>
-                              <div className="font-bold text-yellow-500">
-                                {user.badges}
-                              </div>
-                            </div>
                           </div>
                         </div>
                       ))}
@@ -399,14 +358,6 @@ export default function LeaderboardPage() {
                                   {topThree[1]?.streak}
                                 </div>
                               </div>
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500">
-                                  Badges
-                                </div>
-                                <div className="font-bold text-yellow-500">
-                                  {topThree[1]?.badges}
-                                </div>
-                              </div>
                             </div>
                             <div className="bg-blue-500 text-white w-24 h-20 rounded-t-lg flex items-center justify-center">
                               <span className="text-3xl font-bold">2</span>
@@ -450,14 +401,6 @@ export default function LeaderboardPage() {
                                   {topThree[0]?.streak}
                                 </div>
                               </div>
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500">
-                                  Badges
-                                </div>
-                                <div className="font-bold text-yellow-500">
-                                  {topThree[0]?.badges}
-                                </div>
-                              </div>
                             </div>
                             <div className="bg-red-500 text-white w-24 h-28 rounded-t-lg flex items-center justify-center">
                               <span className="text-4xl font-bold">1</span>
@@ -498,14 +441,6 @@ export default function LeaderboardPage() {
                                 </div>
                                 <div className="font-bold text-orange-500">
                                   {topThree[2]?.streak}
-                                </div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500">
-                                  Badges
-                                </div>
-                                <div className="font-bold text-yellow-500">
-                                  {topThree[2]?.badges}
                                 </div>
                               </div>
                             </div>
@@ -562,14 +497,6 @@ export default function LeaderboardPage() {
                               </div>
                               <div className="font-bold text-orange-500">
                                 {user.streak} days
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-sm text-gray-500">
-                                Badges
-                              </div>
-                              <div className="font-bold text-yellow-500">
-                                {user.badges}
                               </div>
                             </div>
                           </div>
@@ -617,14 +544,6 @@ export default function LeaderboardPage() {
                                   {topThree[1]?.streak}
                                 </div>
                               </div>
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500">
-                                  Badges
-                                </div>
-                                <div className="font-bold text-yellow-500">
-                                  {topThree[1]?.badges}
-                                </div>
-                              </div>
                             </div>
                             <div className="bg-blue-500 text-white w-24 h-20 rounded-t-lg flex items-center justify-center">
                               <span className="text-3xl font-bold">2</span>
@@ -668,14 +587,6 @@ export default function LeaderboardPage() {
                                   {topThree[0]?.streak}
                                 </div>
                               </div>
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500">
-                                  Badges
-                                </div>
-                                <div className="font-bold text-yellow-500">
-                                  {topThree[0]?.badges}
-                                </div>
-                              </div>
                             </div>
                             <div className="bg-red-500 text-white w-24 h-28 rounded-t-lg flex items-center justify-center">
                               <span className="text-4xl font-bold">1</span>
@@ -716,14 +627,6 @@ export default function LeaderboardPage() {
                                 </div>
                                 <div className="font-bold text-orange-500">
                                   {topThree[2]?.streak}
-                                </div>
-                              </div>
-                              <div className="text-center">
-                                <div className="text-xs text-gray-500">
-                                  Badges
-                                </div>
-                                <div className="font-bold text-yellow-500">
-                                  {topThree[2]?.badges}
                                 </div>
                               </div>
                             </div>
@@ -780,14 +683,6 @@ export default function LeaderboardPage() {
                               </div>
                               <div className="font-bold text-orange-500">
                                 {user.streak} days
-                              </div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-sm text-gray-500">
-                                Badges
-                              </div>
-                              <div className="font-bold text-yellow-500">
-                                {user.badges}
                               </div>
                             </div>
                           </div>

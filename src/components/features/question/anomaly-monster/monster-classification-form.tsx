@@ -186,41 +186,36 @@ export default function MonsterClassificationForm({
         </div>
 
         {/* Classification Result */}
-        <div className="flex gap-3 mt-8">
+        <div className="flex flex-col md:flex-row gap-3 mt-8 w-full">
           <Button
-            onClick={() => {
-              onClassifyAsNormal();
-              // onClose();
-            }}
+            onClick={() => onClassifyAsNormal()}
             disabled={
               isAlreadyClassified.isNormal ||
               (!selectedColor && !selectedBody && !selectedMouth)
             }
-            className={`flex-1 ${
+            className={`flex-1 flex items-center justify-center min-w-[150px] ${
               isAlreadyClassified.isNormal
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-green-600 hover:bg-green-700'
             } text-white`}
           >
-            <CheckCircle size={16} className="mr-2" />
+            <CheckCircle size={16} className="mr-2 shrink-0" />
             {isAlreadyClassified.isNormal ? 'Sudah Normal' : 'Tandai Normal'}
           </Button>
+
           <Button
-            onClick={() => {
-              onClassifyAsAnomaly();
-              // onClose();
-            }}
+            onClick={() => onClassifyAsAnomaly()}
             disabled={
               isAlreadyClassified.isAnomaly ||
               (!selectedColor && !selectedBody && !selectedMouth)
             }
-            className={`flex-1 ${
+            className={`flex-1 flex items-center justify-center min-w-[150px] ${
               isAlreadyClassified.isAnomaly
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-red-600 hover:bg-red-700'
             } text-white`}
           >
-            <AlertTriangle size={16} className="mr-2" />
+            <AlertTriangle size={16} className="mr-2 shrink-0" />
             {isAlreadyClassified.isAnomaly
               ? 'Sudah Terinfeksi'
               : 'Tandai Terinfeksi'}

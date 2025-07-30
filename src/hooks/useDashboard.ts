@@ -3,6 +3,14 @@ import { DashboardData } from '@/models/dashboard/dashboard.model';
 import { Code, Target, Zap } from 'lucide-react';
 import { gamificationApi } from '@/lib/api/gamification.api';
 
+// Question statistics type
+interface QuestionStatistic {
+  questionTypeId: number;
+  questionTypeName: string;
+  completedQuestions: number;
+  totalQuestions: number;
+}
+
 // Default achievements with icons - moved outside component to prevent recreation
 const defaultAchievements = [
   {
@@ -50,6 +58,9 @@ export const useDashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(
     null
   );
+  const [questionStatistics, setQuestionStatistics] = useState<
+    QuestionStatistic[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -60,6 +71,9 @@ export const useDashboard = () => {
       setError(null);
 
       const apiResponse = await gamificationApi.getDashboardData();
+
+      // Set question statistics from API response
+      setQuestionStatistics(apiResponse.questionStatistics || []);
 
       // Create new dashboard data instance
       const newDashboardData = new DashboardData();
@@ -176,6 +190,7 @@ export const useDashboard = () => {
     stats,
     achievements,
     recentActivity,
+    questionStatistics,
 
     // Computed values
     progressPercent,

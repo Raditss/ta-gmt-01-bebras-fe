@@ -45,6 +45,7 @@ export const loginResponseSchema = z.object({
       id: z.number(),
       username: z.string(),
       name: z.string(),
+      photoUrl: z.string().nullable(),
       role: z.nativeEnum(UserRole),
       status: z.nativeEnum(UserStatus),
       verifiedAt: z.string().nullable()
