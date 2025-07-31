@@ -38,8 +38,8 @@ export default function RootLayout({
   return (
     <html lang="id" className={inter.className}>
       <head>
-        <link rel="icon" href="/graphic/Solvio-logo.svg" />
-        <link rel="apple-touch-icon" href="/graphic/Solvio-logo.svg" />
+        <link rel="icon" href="/graphic/solvio.ico" />
+        <title>Solvio</title>
       </head>
       <body data-gptw="" cz-shortcut-listen="true">
         {/*<ThemeProvider*/}
