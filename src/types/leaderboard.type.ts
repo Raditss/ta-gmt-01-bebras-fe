@@ -5,14 +5,24 @@ export enum TimeFrame {
 }
 
 export interface LeaderboardItem {
-  name: string;
+  user: {
+    props: {
+      id: number;
+      username: string;
+      name: string;
+      photoUrl: string | null;
+      role: string;
+      status: string;
+      createdAt: string;
+      updatedAt: string;
+      verifiedAt: string | null;
+    };
+  };
   points: number;
   streak: number;
   badges: number;
   order: number;
-  // Mock fields that aren't provided by backend yet
-  solved?: number;
-  badge?: string;
+  solved: number;
 }
 
 export interface LeaderboardApiResponse {
