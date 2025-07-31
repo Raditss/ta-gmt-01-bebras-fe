@@ -71,7 +71,7 @@ export function ProblemCard({
         href={`/problems/${id}`}
         className="mt-auto bg-white text-black font-bold py-2 px-6 rounded-full text-center shadow hover:bg-gray-100 transition"
       >
-        {isSolved ? 'View Solution' : 'View Problem'}
+        {isSolved ? 'View Problem' : 'View Problem'}
       </Link>
     </div>
   );
