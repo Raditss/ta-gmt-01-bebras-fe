@@ -3,7 +3,6 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertTriangle,
-  ArrowRight,
   CheckCircle,
   Info,
   Lightbulb,
@@ -53,12 +52,7 @@ export function AnomalyMonsterHelp() {
             </h4>
             <p className="text-green-700 text-sm">
               Klik pada lingkaran monster di bagian bawah untuk membuka form
-              analisis. Amati karakteristik setiap monster:
-              <ul className="list-disc pl-5 mt-1">
-                <li>Warna monster</li>
-                <li>Bentuk tubuh</li>
-                <li>Bentuk mulut</li>
-              </ul>
+              analisis.
             </p>
             <div className="mt-2 flex justify-center">
               <div className="relative w-10 h-10 flex items-center justify-center rounded-full bg-gray-300 text-xl">
@@ -78,9 +72,9 @@ export function AnomalyMonsterHelp() {
             <p className="text-purple-700 text-sm">
               Isi form analisis dengan karakteristik monster yang kamu amati:
               <ul className="list-disc pl-5 mt-1">
-                <li>Pilih warna monster (Biru, Hijau, Merah)</li>
-                <li>Pilih bentuk tubuh (Bulat, Kubus, Silinder)</li>
-                <li>Pilih bentuk mulut (Taring, Gigi tertutup, Tanpa mulut)</li>
+                <li>Pilih warna monster (Merah, Hijau, Biru)</li>
+                <li>Pilih bentuk tubuh (Bulat, Kotak)</li>
+                <li>Pilih bentuk mulut (Bertaring, Tidak Beratring)</li>
               </ul>
             </p>
           </div>
@@ -150,55 +144,11 @@ export function AnomalyMonsterHelp() {
         </div>
       </div>
 
-      {/* Interface */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-purple-600 flex items-center gap-2">
-          <ArrowRight className="w-5 h-5" />
-          Navigasi Interface
-        </h3>
-        <div className="space-y-2">
-          <Alert>
-            <AlertDescription>
-              <strong>Navigasi Monster:</strong> Klik pada lingkaran monster di
-              bagian bawah untuk berpindah antar monster yang akan
-              diklasifikasikan.
-            </AlertDescription>
-          </Alert>
-
-          <Alert>
-            <AlertDescription>
-              <strong>Progress Bar:</strong> Menunjukkan berapa monster yang
-              telah diklasifikasikan dari total monster yang ada.
-            </AlertDescription>
-          </Alert>
-
-          <Alert>
-            <AlertDescription>
-              <strong>Status Badge:</strong> Setiap monster menampilkan status
-              klasifikasi: Belum diklasifikasikan (❓), Normal (😊), atau
-              Terinfeksi (
-              <span className="inline-flex items-center justify-center w-4 h-4 bg-red-400 rounded-full ml-0.5">
-                <AlertTriangle size={10} className="text-yellow-300" />
-              </span>
-              ).
-            </AlertDescription>
-          </Alert>
-
-          <Alert>
-            <AlertDescription>
-              <strong>Form Analisis:</strong> Muncul ketika mengklik monster,
-              berisi pilihan karakteristik monster yang harus diisi sebelum
-              klasifikasi.
-            </AlertDescription>
-          </Alert>
-        </div>
-      </div>
-
       {/* Tips */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-orange-600 flex items-center gap-2">
           <Lightbulb className="w-5 h-5" />
-          Tips Penting
+          Tips
         </h3>
         <div className="space-y-2">
           <Alert>
@@ -214,13 +164,6 @@ export function AnomalyMonsterHelp() {
               <strong>Ikuti Pohon Step by Step:</strong> Mulai dari akar pohon
               dan ikuti cabang sesuai karakteristik monster hingga mencapai daun
               (hasil klasifikasi).
-            </AlertDescription>
-          </Alert>
-
-          <Alert>
-            <AlertDescription>
-              <strong>Reset Jika Perlu:</strong> Gunakan tombol &#34;Klasifikasi
-              Ulang Semua Monster&#34; jika ingin memulai dari awal.
             </AlertDescription>
           </Alert>
 
@@ -257,7 +200,7 @@ export function AnomalyMonsterHelp() {
             <ul className="list-disc pl-5 mt-1">
               <li>Warna: Biru</li>
               <li>Bentuk Tubuh: Bulat</li>
-              <li>Mulut: Taring</li>
+              <li>Mulut: Bertaring</li>
             </ul>
           </p>
           <DecisionTreeAnomalyTree
@@ -303,8 +246,9 @@ export function AnomalyMonsterHelp() {
             height="250px"
           />
           <p className="text-sm text-gray-700">
-            <strong>Analisis:</strong> Sesuai pohon keputusan, monster biru
-            bulat dengan taring termasuk dalam kategori normal.
+            <strong>Analisis:</strong> Monster ini biru dengan tubuh bulat dan
+            bertaring. Karena terdapat pada pohon keputusan, maka{' '}
+            <strong>sesuai</strong> dengan kriteria <strong>normal</strong>.
           </p>
           <div className="flex justify-center">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -332,7 +276,7 @@ export function AnomalyMonsterHelp() {
             <ul className="list-disc pl-5 mt-1">
               <li>Warna: Merah</li>
               <li>Bentuk Tubuh: Bulat</li>
-              <li>Mulut: Taring</li>
+              <li>Mulut: Bertaring</li>
             </ul>
           </p>
           <DecisionTreeAnomalyTree
@@ -378,56 +322,17 @@ export function AnomalyMonsterHelp() {
             height="250px"
           />
           <p className="text-sm text-gray-700">
-            <strong>Analisis:</strong> Pohon keputusan menunjukkan monster
-            normal harus:
-            <ul className="list-disc pl-5 mt-1">
-              <li>Merah dengan tubuh kubus, atau</li>
-              <li>Hijau dengan tubuh bulat</li>
-            </ul>
-            Monster ini merah dengan tubuh bulat, sehingga{' '}
-            <strong>tidak sesuai</strong> dengan kriteria normal.
+            <strong>Analisis:</strong> {'  '}
+            Monster ini merah dengan tubuh bulat dan bertaring. Karena tidak
+            terdapat pada pohon keputusan, maka <strong>
+              tidak sesuai
+            </strong>{' '}
+            dengan kriteria normal (<strong>terinfeksi</strong>).
           </p>
           <div className="flex justify-center">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
               ⚠ Diklasifikasikan sebagai Terinfeksi
             </span>
-          </div>
-        </div>
-
-        {/* Penjelasan Perbedaan */}
-        <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-medium text-blue-800 mb-2">
-            Perhatikan Perbedaannya:
-          </h4>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <div className="flex justify-center mb-2">
-                <MonsterCharacter
-                  selections={{
-                    Color: 'Blue',
-                    Body: 'Orb',
-                    Mouth: 'Fangs'
-                  }}
-                />
-              </div>
-              <p className="text-sm">
-                Normal: Warna dan bentuk sesuai aturan pohon
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="flex justify-center mb-2">
-                <MonsterCharacter
-                  selections={{
-                    Color: 'Red',
-                    Body: 'Orb',
-                    Mouth: 'Fangs'
-                  }}
-                />
-              </div>
-              <p className="text-sm">
-                Terinfeksi: Kombinasi warna dan bentuk tidak sesuai aturan
-              </p>
-            </div>
           </div>
         </div>
       </div>
