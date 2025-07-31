@@ -35,8 +35,20 @@ export const useLeaderboard = (timeFrame: TimeFrame = TimeFrame.ALL_TIME) => {
       const fallbackData: LeaderboardData = {
         topTen: [],
         currentUser: {
+          user: {
+            props: {
+              id: 0,
+              username: 'user',
+              name: 'You',
+              photoUrl: null,
+              role: 'STUDENT',
+              status: 'ACTIVE',
+              createdAt: '',
+              updatedAt: '',
+              verifiedAt: null
+            }
+          },
           order: 0,
-          name: 'You',
           points: 0,
           streak: 0,
           badges: 0,
