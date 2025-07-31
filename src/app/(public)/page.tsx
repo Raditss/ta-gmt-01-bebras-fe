@@ -134,7 +134,7 @@ export default function HalamanUtama() {
             Siap Memulai Perjalanan Berpikir Komputasionalmu?
           </h2>
           <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
-            Bergabunglah dengan siswa-siswa lainnya yang telah meningkatkan
+            Bergabunglah dengan solver-solver lainnya yang telah meningkatkan
             keterampilan berpikir komputasional mereka.
           </p>
           <Button size="lg" variant="secondary" asChild>

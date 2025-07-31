@@ -90,7 +90,7 @@ export function AdminNav() {
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
                     <Users className="mr-2 h-4 w-4" />
-                    <span>Tampilan Siswa</span>
+                    <span>Solver View</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
