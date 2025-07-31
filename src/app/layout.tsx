@@ -15,6 +15,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" className={inter.className}>
+      <head>
+        <link rel="icon" href="/graphic/solvio.ico" />
+        <title>Solvio</title>
+      </head>
       <body data-gptw="" cz-shortcut-listen="true">
         {/*<ThemeProvider*/}
         {/*  attribute="class"*/}
