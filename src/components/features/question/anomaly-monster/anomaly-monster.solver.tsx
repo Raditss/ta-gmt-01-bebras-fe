@@ -136,8 +136,7 @@ export default function DecisionTreeAnomalySolver({
                     Di <strong>Pulau Monster</strong>, muncul{' '}
                     <strong>virus misterius</strong> yang membuat beberapa
                     monster berubah bentuk. Untungnya, para ilmuwan punya{' '}
-                    <strong>pohon keputusan</strong> berdasarkan monster yang{' '}
-                    {'  '}
+                    <strong>pohon keputusan</strong> monster yang {'  '}
                     <strong>normal</strong>. Pohon ini menunjukkan aturan
                     berdasarkan <strong>warna</strong>,{' '}
                     <strong>bentuk tubuh</strong>, dan {'  '}
