@@ -73,6 +73,12 @@ export function QuestionTypeModal({
 
   const formatTypeTitle = (name: string): string => {
     // Special case for fish-trader
+    switch (name) {
+      case QuestionTypeEnum.CFG:
+        return 'Pedagang Ikan';
+      case QuestionTypeEnum.ANOMALY_MONSTER:
+        return 'Monster yang Aneh';
+    }
     if (name === 'fish-trader') {
       return 'Pedagang Ikan';
     }
