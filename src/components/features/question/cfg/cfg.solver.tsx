@@ -11,10 +11,6 @@ import { Rule, State } from '@/types/cfg.type';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
-import {
-  Shape,
-  ShapeContainer
-} from '@/components/features/question/cfg/shared/shape';
 
 import { BaseSolverProps, SolverWrapper } from '../../bases/base.solver';
 import { CfgSolveModel } from '@/models/cfg/cfg.solve.model';
@@ -45,6 +41,45 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
   const [applicableRules, setApplicableRules] = useState<Rule[]>([]);
   const [fishermanMood, setFishermanMood] = useState<FishermanMood>('wave');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showHints, setShowHints] = useState(true);
+
+  // Helper function to get current hint
+  const getCurrentHint = () => {
+    if (!question || currentState.length === 0) return null;
+
+    const targetState = question.getQuestionSetup().endState;
+    const isGameComplete =
+      JSON.stringify(currentState.map((s) => s.type).sort()) ===
+      JSON.stringify(targetState.map((s) => s.type).sort());
+
+    if (isGameComplete) {
+      return {
+        type: 'success',
+        message: '🎉 Selamat! Anda telah mencapai target koleksi ikan!'
+      };
+    }
+
+    if (selectedIndices.length === 0) {
+      return {
+        type: 'info',
+        message:
+          '👆 Mulai dengan mengklik ikan di "Koleksi Ikan Sekarang" yang ingin Anda tukar. Lihat aturan perdagangan di sebelah kiri untuk mengetahui kombinasi ikan yang bisa ditukar.'
+      };
+    }
+
+    if (applicableRules.length === 0) {
+      return {
+        type: 'warning',
+        message:
+          '⚠️ Tidak ada aturan yang bisa diterapkan untuk ikan yang dipilih. Coba pilih kombinasi ikan lain yang sesuai dengan aturan perdagangan.'
+      };
+    }
+
+    return {
+      type: 'success',
+      message: `✅ Bagus! Ada ${applicableRules.length} aturan perdagangan yang bisa diterapkan. Klik pada baris hijau di tabel aturan perdagangan untuk menerapkannya.`
+    };
+  };
 
   useEffect(() => {
     if (question) {
@@ -57,17 +92,32 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
     if (question && currentState.length > 0) {
       // Filter available rules based on selected indices and current state
       const availableRules = question.getAvailableRules();
+
       if (selectedIndices.length > 0) {
-        // Find rules that match the selected elements
-        const selectedTypes = selectedIndices
+        // Sort selected indices to get the natural order in the state
+        const sortedSelectedIndices = [...selectedIndices].sort(
+          (a, b) => a - b
+        );
+
+        // Get the types in their natural state order
+        const selectedTypesInOrder = sortedSelectedIndices
           .map((index) => currentState[index]?.type)
           .filter(Boolean);
+
         const applicable = availableRules.filter((rule) => {
-          return (
-            rule.before.length === selectedTypes.length &&
-            rule.before.every((obj, i) => obj.type === selectedTypes[i])
+          // Check if the selected types match this rule's before pattern
+          if (rule.before.length !== selectedTypesInOrder.length) {
+            return false;
+          }
+
+          // Check if the selected types (in state order) match the rule's before types exactly
+          const exactMatch = rule.before.every(
+            (obj, i) => obj.type === selectedTypesInOrder[i]
           );
+
+          return exactMatch;
         });
+
         setApplicableRules(applicable);
       } else {
         setApplicableRules([]);
@@ -99,6 +149,10 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
           ? prev.filter((i) => i !== index)
           : [...prev, index];
 
+        // Sort the selected indices by their position in the state array
+        // This ensures the order is always left-to-right regardless of click order
+        const sortedSelected = newSelected.sort((a, b) => a - b);
+
         // Play sound feedback
         if (prev.includes(index)) {
           playFishDeselect();
@@ -106,7 +160,7 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
           playFishSelect();
         }
 
-        return newSelected;
+        return sortedSelected;
       });
     },
     [playFishSelect, playFishDeselect]
@@ -121,10 +175,12 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
 
       // Add animation delay for better UX
       setTimeout(() => {
+        // Use the sorted indices for rule application
+        const sortedIndices = [...selectedIndices].sort((a, b) => a - b);
         const success = question.applyRule(
           rule.id,
-          selectedIndices[0],
-          selectedIndices.length
+          sortedIndices[0],
+          rule.before.length
         );
         if (success) {
           setCurrentState([...question.getCurrentState()]);
@@ -189,6 +245,47 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
             <FishermanStory />
           </div>
 
+          {/* Guided Hints Section */}
+          {showHints && (
+            <div className="mb-6">
+              {(() => {
+                const hint = getCurrentHint();
+                if (!hint) return null;
+
+                const bgColor = {
+                  info: 'bg-blue-50 border-blue-200',
+                  warning: 'bg-yellow-50 border-yellow-200',
+                  success: 'bg-green-50 border-green-200'
+                }[hint.type];
+
+                const textColor = {
+                  info: 'text-blue-800',
+                  warning: 'text-yellow-800',
+                  success: 'text-green-800'
+                }[hint.type];
+
+                return (
+                  <div
+                    className={`${bgColor} border-2 rounded-lg p-4 relative`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className={`${textColor} font-medium flex-1`}>
+                        {hint.message}
+                      </div>
+                      <button
+                        onClick={() => setShowHints(false)}
+                        className="ml-4 text-gray-500 hover:text-gray-700 text-sm"
+                        title="Sembunyikan petunjuk"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
           {/* Main Layout - 50/50 Split */}
           <div className="grid grid-cols-2 gap-6">
             {/* Trading Table - Left side (50% width) */}
@@ -203,9 +300,14 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
                   <DynamicHelp questionType={QuestionTypeEnum.CFG} />
                 </div>
               </div>
-              {/* Remove height constraints to let table flow naturally */}
+              {/* Interactive rules table */}
               <div className="overflow-visible">
-                <RulesTableShared rules={question.getAvailableRules()} />
+                <RulesTableShared
+                  rules={question.getAvailableRules()}
+                  isInteractive={true}
+                  applicableRules={applicableRules}
+                  onApplyRule={handleApplyRule}
+                />
               </div>
             </div>
 
@@ -282,50 +384,6 @@ export default function CfgSolver({ questionId }: BaseSolverProps) {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Available Trades Section - Fixed height */}
-          <div className="mt-8 bg-card rounded-lg p-6 shadow-sm border">
-            <h2 className="text-xl font-bold mb-4 text-center">
-              🔄 Perdagangan yang Tersedia
-            </h2>
-
-            {applicableRules.length > 0 ? (
-              <div className="flex flex-wrap gap-4 justify-center">
-                {applicableRules.map((rule, idx) => (
-                  <Button
-                    key={idx}
-                    onClick={() => handleApplyRule(rule)}
-                    disabled={isAnimating}
-                    className="p-6 bg-blue-100 hover:bg-blue-200 border-2 border-blue-300 rounded-lg flex items-center space-x-4 min-h-[100px] transition-all duration-200 hover:scale-105"
-                  >
-                    <div className="flex flex-wrap gap-2">
-                      {rule.before.map((obj, idx) => (
-                        <ShapeContainer key={idx}>
-                          <Shape type={obj.type} size="md" />
-                        </ShapeContainer>
-                      ))}
-                    </div>
-                    <span className="text-2xl font-bold text-gray-700">→</span>
-                    <div className="flex flex-wrap gap-2">
-                      {rule.after.map((obj, idx) => (
-                        <ShapeContainer key={idx}>
-                          <Shape type={obj.type} size="md" />
-                        </ShapeContainer>
-                      ))}
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500 text-lg">
-                  {selectedIndices.length === 0
-                    ? '🐟 Pilih ikan yang ingin ditukar terlebih dahulu'
-                    : '🚫 Tidak ada perdagangan yang tersedia untuk ikan yang dipilih'}
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Action Buttons */}

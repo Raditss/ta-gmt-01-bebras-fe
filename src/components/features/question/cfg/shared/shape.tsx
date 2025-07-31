@@ -66,7 +66,11 @@ export function Shape({
 
     return (
       <div
-        className={baseClasses}
+        className={`${baseClasses} ${
+          selected || isFloating
+            ? 'ring-4 ring-blue-400 ring-opacity-75 rounded-lg bg-blue-100 bg-opacity-20 shadow-lg shadow-blue-400/50'
+            : ''
+        }`}
         onClick={onClick}
         title={fishData.name}
         style={{
@@ -74,7 +78,7 @@ export function Shape({
             selected || isFloating ? 'scale(1.2) rotateY(5deg)' : undefined,
           animation:
             selected || isFloating
-              ? 'gentleFloat 2s ease-in-out infinite'
+              ? 'gentleFloat 2s ease-in-out infinite, pulse 1.5s ease-in-out infinite'
               : undefined
         }}
       >
@@ -87,7 +91,7 @@ export function Shape({
           priority={size === 'md'} // Prioritize medium size (most common)
         />
 
-        {/* Add the gentle floating animation */}
+        {/* Add the gentle floating animation and pulse effect */}
         <style jsx>{`
           @keyframes gentleFloat {
             0%,
@@ -96,6 +100,16 @@ export function Shape({
             }
             50% {
               transform: scale(1.2) translateY(-2px) rotateY(-3deg);
+            }
+          }
+
+          @keyframes pulse {
+            0%,
+            100% {
+              box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            }
+            50% {
+              box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
             }
           }
         `}</style>
