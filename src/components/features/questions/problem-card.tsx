@@ -63,15 +63,15 @@ export function ProblemCard({
           {truncateWithHyphen(title, maxTitleLength)}
         </h2>
         <p className="text-white/80 text-sm break-all hyphens-auto">
-          By {truncateWithHyphen(author, maxAuthorLength)}
+          Oleh {truncateWithHyphen(author, maxAuthorLength)}
         </p>
       </div>
       <div className="flex-1" />
       <Link
-        href={`/problems/${id}`}
+        href={`/problems/${id}/solve`}
         className="mt-auto bg-white text-black font-bold py-2 px-6 rounded-full text-center shadow hover:bg-gray-100 transition"
       >
-        {isSolved ? 'View Solution' : 'View Problem'}
+        {isSolved ? 'Kembali Mengerjakan Soal' : 'Kerjakan Soal'}
       </Link>
     </div>
   );

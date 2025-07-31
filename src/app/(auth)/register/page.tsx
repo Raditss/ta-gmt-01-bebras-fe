@@ -214,8 +214,8 @@ export default function RegisterPage() {
                           <SelectValue placeholder="Pilih peranmu" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="STUDENT">Solver</SelectItem>
-                          <SelectItem value="TEACHER">Creator</SelectItem>
+                          <SelectItem value="STUDENT">Siswa</SelectItem>
+                          <SelectItem value="TEACHER">Guru</SelectItem>
                         </SelectContent>
                       </Select>
                     )}

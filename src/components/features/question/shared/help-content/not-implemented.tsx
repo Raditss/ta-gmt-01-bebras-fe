@@ -27,34 +27,30 @@ export function NotImplementedHelp() {
         <div className="space-y-3">
           <div className="bg-blue-50 p-4 rounded-lg">
             <h4 className="font-medium text-blue-800 mb-2">
-              Read the Instructions Carefully
+              Baca Instruksi dengan Teliti
             </h4>
             <p className="text-blue-700 text-sm">
-              Make sure to read all the provided instructions and question
-              description thoroughly. The problem description usually contains
-              important clues about how to approach the solution.
+              Pastikan untuk membaca semua instruksi dan deskripsi soal dengan
+              teliti. Deskripsi masalah biasanya berisi petunjuk penting tentang
+              cara mendekati solusi.
             </p>
           </div>
 
           <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-2">
-              Understand the Objective
-            </h4>
+            <h4 className="font-medium text-green-800 mb-2">Pahami Tujuan</h4>
             <p className="text-green-700 text-sm">
-              Identify what the question is asking you to do. Look for keywords
-              like &quot;find&quot;, &quot;calculate&quot;,
-              &quot;determine&quot;, or &quot;solve&quot; to understand the
-              expected outcome.
+              Identifikasi apa yang diminta oleh soal. Cari kata kunci seperti
+              &quot;temukan&quot;, &quot;hitung&quot;, &quot;tentukan&quot;,
+              atau &quot;selesaikan&quot; untuk memahami hasil yang diharapkan.
             </p>
           </div>
 
           <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="font-medium text-purple-800 mb-2">
-              Break Down the Problem
-            </h4>
+            <h4 className="font-medium text-purple-800 mb-2">Pecah Masalah</h4>
             <p className="text-purple-700 text-sm">
-              Try to break the problem into smaller, manageable steps. This
-              often makes complex problems easier to understand and solve.
+              Coba pecah masalah menjadi langkah-langkah yang lebih kecil dan
+              dapat dikelola. Ini sering membuat masalah kompleks lebih mudah
+              dipahami dan diselesaikan.
             </p>
           </div>
         </div>
@@ -63,27 +59,27 @@ export function NotImplementedHelp() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-indigo-600 flex items-center gap-2">
           <BookOpen className="w-5 h-5" />
-          Learning Resources
+          Sumber Belajar
         </h3>
         <div className="space-y-2">
           <Alert>
             <AlertDescription>
-              <strong>Course Materials:</strong> Review your course materials,
-              textbooks, and lecture notes for relevant concepts and examples.
+              <strong>Materi Kursus:</strong> Tinjau materi kursus, buku teks,
+              dan catatan kuliah untuk konsep dan contoh yang relevan.
             </AlertDescription>
           </Alert>
 
           <Alert>
             <AlertDescription>
-              <strong>Practice Problems:</strong> Look for similar practice
-              problems or examples that might help you understand the approach.
+              <strong>Soal Latihan:</strong> Cari soal latihan atau contoh
+              serupa yang mungkin membantu Anda memahami pendekatan.
             </AlertDescription>
           </Alert>
 
           <Alert>
             <AlertDescription>
-              <strong>Ask for Help:</strong> Don&apos;t hesitate to ask your
-              instructor or classmates for clarification if you&apos;re stuck.
+              <strong>Minta Bantuan:</strong> Jangan ragu untuk bertanya kepada
+              instruktur atau teman sekelas untuk klarifikasi jika Anda bingung.
             </AlertDescription>
           </Alert>
         </div>
@@ -91,33 +87,33 @@ export function NotImplementedHelp() {
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-600">
-          Problem-Solving Strategy
+          Strategi Pemecahan Masalah
         </h3>
         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
           <p className="text-sm text-gray-700">
-            <strong>1. Understand:</strong> Read the problem carefully and
-            identify what you need to find.
+            <strong>1. Pahami:</strong> Baca masalah dengan teliti dan
+            identifikasi apa yang perlu Anda temukan.
           </p>
           <p className="text-sm text-gray-700">
-            <strong>2. Plan:</strong> Think about the steps you need to take to
-            reach the solution.
+            <strong>2. Rencanakan:</strong> Pikirkan langkah-langkah yang perlu
+            Anda ambil untuk mencapai solusi.
           </p>
           <p className="text-sm text-gray-700">
-            <strong>3. Execute:</strong> Follow your plan step by step, checking
-            your work as you go.
+            <strong>3. Jalankan:</strong> Ikuti rencana Anda langkah demi
+            langkah, periksa pekerjaan Anda saat berjalan.
           </p>
           <p className="text-sm text-gray-700">
-            <strong>4. Review:</strong> Double-check your answer and make sure
-            it makes sense.
+            <strong>4. Tinjau:</strong> Periksa kembali jawaban Anda dan
+            pastikan masuk akal.
           </p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Badge variant="secondary">General Help</Badge>
-        <Badge variant="secondary">Problem Solving</Badge>
-        <Badge variant="secondary">Learning Resources</Badge>
-        <Badge variant="secondary">Study Tips</Badge>
+        <Badge variant="secondary">Bantuan Umum</Badge>
+        <Badge variant="secondary">Pemecahan Masalah</Badge>
+        <Badge variant="secondary">Sumber Belajar</Badge>
+        <Badge variant="secondary">Tips Belajar</Badge>
       </div>
     </div>
   );

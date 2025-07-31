@@ -16,7 +16,7 @@ import { useAuthStore } from '@/store/auth.store';
 import Image from 'next/image';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
+  { href: '/dashboard', label: 'Beranda', icon: Home },
   { href: '/problems', label: 'Soal', icon: BookOpen },
   { href: '/leaderboard', label: 'Peringkat', icon: Trophy }
 ];

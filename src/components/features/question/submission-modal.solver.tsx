@@ -36,7 +36,7 @@ export function SubmissionModalSolver({
       {isConfirming ? (
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Submission</DialogTitle>
+            <DialogTitle>Konfirmasi Pengiriman</DialogTitle>
             <DialogDescription>
               Are you sure you want to submit your answer? This action cannot be
               undone.
@@ -46,7 +46,7 @@ export function SubmissionModalSolver({
             <Button variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button onClick={onConfirm}>Submit</Button>
+            <Button onClick={onConfirm}>Kirim</Button>
           </DialogFooter>
         </DialogContent>
       ) : result ? (
@@ -87,7 +87,7 @@ export function SubmissionModalSolver({
             )}
           </div>
           <DialogFooter>
-            <Button onClick={onClose}>Close</Button>
+            <Button onClick={onClose}>Tutup</Button>
           </DialogFooter>
         </DialogContent>
       ) : null}

@@ -58,7 +58,7 @@ export function QuestionTypeModal({
       setQuestionTypes(typeOptions);
     } catch (error) {
       console.error('Error fetching question types:', error);
-      setError('Failed to load question types');
+      setError('Gagal memuat jenis soal');
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +74,7 @@ export function QuestionTypeModal({
   const formatTypeTitle = (name: string): string => {
     // Special case for fish-trader
     if (name === 'fish-trader') {
-      return 'Fish Trader';
+      return 'Pedagang Ikan';
     }
     return name
       .split('-')
@@ -111,10 +111,10 @@ export function QuestionTypeModal({
       <DialogContent className="w-full max-w-4xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">
-            Choose Question Type
+            Pilih Jenis Soal
           </DialogTitle>
           <DialogDescription className="text-base">
-            Select the type of question you want to generate and solve
+            Pilih jenis soal yang ingin Anda buat dan selesaikan
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
@@ -130,7 +130,7 @@ export function QuestionTypeModal({
                 variant="outline"
                 className="mt-4"
               >
-                Try Again
+                Coba Lagi
               </Button>
             </div>
           ) : (
