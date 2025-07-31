@@ -26,9 +26,9 @@ export const metadata = {
     }
   },
   icons: {
-    icon: '/graphic/Solvio-logo.svg',
-    shortcut: '/graphic/Solvio-logo.svg',
-    apple: '/graphic/Solvio-logo.svg'
+    icon: '/graphic/logo-only.png',
+    shortcut: '/graphic/logo-only.png',
+    apple: '/graphic/logo-only.png'
   }
 };
 
@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={inter.className}>
       <head>
-        <link rel="icon" href="/graphic/solvio.ico" />
+        <link rel="icon" href="/graphic/logo-only.png" />
         <title>Solvio</title>
       </head>
       <body data-gptw="" cz-shortcut-listen="true">
