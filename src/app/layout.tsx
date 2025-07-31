@@ -12,8 +12,7 @@ const inter = Inter({
 
 export const metadata = {
   title: 'Solvio - Platform Pembelajaran Komputasi',
-  description:
-    'Platform pembelajaran komputasi yang interaktif untuk siswa dan guru.',
+  description: 'Platform pembelajaran komputasi yang interaktif.',
   robots: {
     index: true,
     follow: true,

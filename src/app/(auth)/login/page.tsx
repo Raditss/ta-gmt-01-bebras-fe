@@ -91,7 +91,7 @@ const LoginPage: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Left illustration */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-1 md:p-2">
         <Image
           src="/graphic/login.png"
           alt="Login Illustration"
@@ -102,12 +102,17 @@ const LoginPage: React.FC = () => {
         />
       </div>
       {/* Right: login form (existing content) */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      <div className="flex-1 flex items-center justify-center p-1 md:p-2">
         <div className="w-full max-w-md mx-auto">
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center space-x-2 mb-6">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg"></div>
-              <span className="text-2xl font-bold text-gray-800">Solvio</span>
+          <div className="text-center mb-2">
+            <Link href="/" className="inline-flex items-center space-x-2 mb-1">
+              <Image
+                src="/graphic/Solvio-logo.svg"
+                alt="Solvio Logo"
+                width={120}
+                height={40}
+                className="object-contain"
+              />
             </Link>
           </div>
 
