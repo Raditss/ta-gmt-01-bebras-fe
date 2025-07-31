@@ -79,7 +79,7 @@ export default function ProblemsPage() {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Memuat...</p>
         </div>
       </div>
     );
@@ -126,7 +126,7 @@ export default function ProblemsPage() {
       setIsTypeModalOpen(true);
       // You could show an error toast here
       alert(
-        `Failed to generate question: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Gagal membuat soal: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}`
       );
     }
   };
@@ -146,7 +146,7 @@ export default function ProblemsPage() {
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
               <Input
                 type="search"
-                placeholder="Search problems..."
+                placeholder="Cari soal..."
                 className="pl-8"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -167,7 +167,7 @@ export default function ProblemsPage() {
                 onClick={handleOpenGenerateModal}
                 disabled={!mounted}
               >
-                Generate Random Question
+                Kerjakan Soal Acak
               </Button>
             </div>
           </div>
@@ -175,10 +175,10 @@ export default function ProblemsPage() {
           {/* Problem grid */}
           <div className="md:w-3/4 min-h-[600px]">
             <div className="flex justify-between items-center mb-6">
-              <h1 className="text-2xl font-bold">Problems</h1>
+              <h1 className="text-2xl font-bold">Soal</h1>
               {totalPages > 0 && (
                 <div className="text-sm text-gray-600">
-                  Page {currentPage} of {totalPages}
+                  Halaman {currentPage} dari {totalPages}
                 </div>
               )}
             </div>
@@ -194,21 +194,24 @@ export default function ProblemsPage() {
                   onClick={refresh}
                   className="mt-4 bg-[#F8D15B] text-black hover:bg-[#E8C14B]"
                 >
-                  Try Again
+                  Coba Lagi
                 </Button>
               </div>
             ) : (
               <>
                 {questions.length === 0 ? (
                   <div className="text-center text-gray-500 py-8">
-                    <p>No problems found matching your search criteria.</p>
+                    <p>
+                      Tidak ada soal yang ditemukan sesuai kriteria pencarian
+                      Anda.
+                    </p>
                     {searchTerm && (
                       <Button
                         onClick={() => setSearchTerm('')}
                         variant="outline"
                         className="mt-4"
                       >
-                        Clear Search
+                        Hapus Pencarian
                       </Button>
                     )}
                   </div>

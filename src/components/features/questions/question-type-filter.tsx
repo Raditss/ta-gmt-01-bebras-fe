@@ -1,9 +1,12 @@
-"use client";
+'use client';
 
-import {useEffect, useState} from "react";
-import { FilterGroup, FilterOption } from "@/components/ui/filter-group";
-import {questionTypeApi} from "@/lib/api/question-type.api";
-import { QuestionTypeEnum, getQuestionTypeByName } from "@/types/question-type.type";
+import { useEffect, useState } from 'react';
+import { FilterGroup, FilterOption } from '@/components/ui/filter-group';
+import { questionTypeApi } from '@/lib/api/question-type.api';
+import {
+  QuestionTypeEnum,
+  getQuestionTypeByName
+} from '@/types/question-type.type';
 
 interface QuestionTypeFilterProps {
   selectedQuestionTypes?: Record<QuestionTypeEnum, boolean>;
@@ -12,12 +15,14 @@ interface QuestionTypeFilterProps {
 
 export function QuestionTypeFilter({
   selectedQuestionTypes,
-  onQuestionTypeChange,
+  onQuestionTypeChange
 }: QuestionTypeFilterProps = {}) {
-  const [categoryOptions, setCategoryOptions] = useState<FilterOption[]>([])
+  const [categoryOptions, setCategoryOptions] = useState<FilterOption[]>([]);
   const [enumToId, setEnumToId] = useState<Record<string, number>>({});
   const [idToEnum, setIdToEnum] = useState<Record<number, string>>({});
-  const [internalSelectedCategories, setInternalSelectedCategories] = useState<Record<QuestionTypeEnum, boolean>>({} as Record<QuestionTypeEnum, boolean>);
+  const [internalSelectedCategories, setInternalSelectedCategories] = useState<
+    Record<QuestionTypeEnum, boolean>
+  >({} as Record<QuestionTypeEnum, boolean>);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -25,7 +30,7 @@ export function QuestionTypeFilter({
         const options = await questionTypeApi.getQuestionTypes();
         const optionsFilter = options.map((type) => ({
           id: type.props.id,
-          label: type.props.name,
+          label: type.props.name
         }));
         const enumIdMap: Record<string, number> = {};
         const idEnumMap: Record<number, string> = {};
@@ -39,14 +44,18 @@ export function QuestionTypeFilter({
         setCategoryOptions(optionsFilter);
         setInternalSelectedCategories(
           selectedQuestionTypes
-            ? Object.keys(selectedQuestionTypes).reduce((acc, key) => {
-                acc[key as QuestionTypeEnum] = selectedQuestionTypes[key as QuestionTypeEnum];
-                return acc;
-              }, {} as Record<QuestionTypeEnum, boolean>)
-            : {} as Record<QuestionTypeEnum, boolean>
+            ? Object.keys(selectedQuestionTypes).reduce(
+                (acc, key) => {
+                  acc[key as QuestionTypeEnum] =
+                    selectedQuestionTypes[key as QuestionTypeEnum];
+                  return acc;
+                },
+                {} as Record<QuestionTypeEnum, boolean>
+              )
+            : ({} as Record<QuestionTypeEnum, boolean>)
         );
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error('Error fetching categories:', error);
       }
     };
 
@@ -60,12 +69,10 @@ export function QuestionTypeFilter({
     if (isControlled) {
       onQuestionTypeChange!(questionTypeEnum);
     } else {
-      setInternalSelectedCategories(
-        (prev) => ({
-          ...prev,
-          [questionTypeEnum]: !prev[questionTypeEnum],
-        })
-      )
+      setInternalSelectedCategories((prev) => ({
+        ...prev,
+        [questionTypeEnum]: !prev[questionTypeEnum]
+      }));
     }
   };
 
@@ -73,12 +80,14 @@ export function QuestionTypeFilter({
     <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 w-full max-w-xs mx-auto">
       <h2 className="text-xl font-extrabold mb-4 text-left">Filter</h2>
       <div>
-        <h3 className="text-xl font-bold mb-4 text-left">Question Type</h3>
+        <h3 className="text-xl font-bold mb-4 text-left">Jenis Soal</h3>
         <FilterGroup
           options={categoryOptions}
           selectedOptions={(() => {
             const selected: Record<number, boolean> = {};
-            const source = isControlled ? selectedQuestionTypes! : internalSelectedCategories;
+            const source = isControlled
+              ? selectedQuestionTypes!
+              : internalSelectedCategories;
             Object.entries(source).forEach(([enumKey, value]) => {
               const id = enumToId[enumKey];
               if (id !== undefined) selected[id] = value;

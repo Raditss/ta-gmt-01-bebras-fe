@@ -43,7 +43,7 @@ export default function MyProblemPage() {
         const allQuestions = await questionsApi.getQuestionsByTeacher();
         setQuestions(allQuestions.data);
       } catch (_err) {
-        setError('Failed to load questions');
+        setError('Gagal memuat soal');
       } finally {
         setLoading(false);
       }
@@ -82,8 +82,8 @@ export default function MyProblemPage() {
       aValue = a.props.points ?? 0;
       bValue = b.props.points ?? 0;
     } else if (column === 'status') {
-      aValue = a.props.isPublished ? 'Published' : 'Draft';
-      bValue = b.props.isPublished ? 'Published' : 'Draft';
+      aValue = a.props.isPublished ? 'Dipublikasi' : 'Draft';
+      bValue = b.props.isPublished ? 'Dipublikasi' : 'Draft';
     }
     if (aValue < bValue) return direction === 'asc' ? -1 : 1;
     if (aValue > bValue) return direction === 'asc' ? 1 : -1;
@@ -106,11 +106,11 @@ export default function MyProblemPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6">My Created Problems</h1>
+      <h1 className="text-2xl font-bold mb-6">Soal yang Saya Buat</h1>
       <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6 justify-between">
         <input
           type="text"
-          placeholder="Search by title..."
+          placeholder="Cari berdasarkan judul..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
@@ -121,7 +121,7 @@ export default function MyProblemPage() {
             onChange={(e) => setTypeFilter(e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 w-full md:w-48 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
-            <option value="">All Types</option>
+            <option value="">Semua Jenis</option>
             {questionTypes.map((type) => (
               <option key={type} value={type}>
                 {type}
@@ -131,7 +131,7 @@ export default function MyProblemPage() {
         </div>
       </div>
       {loading ? (
-        <div className="text-center py-12">Loading...</div>
+        <div className="text-center py-12">Memuat...</div>
       ) : error ? (
         <div className="text-center text-red-500 py-12">{error}</div>
       ) : (
@@ -142,19 +142,19 @@ export default function MyProblemPage() {
                 className="cursor-pointer select-none"
                 onClick={() => handleSort('title')}
               >
-                Title {sortArrow('title')}
+                Judul {sortArrow('title')}
               </TableHead>
               <TableHead
                 className="cursor-pointer select-none"
                 onClick={() => handleSort('type')}
               >
-                Type {sortArrow('type')}
+                Jenis {sortArrow('type')}
               </TableHead>
               <TableHead
                 className="cursor-pointer select-none"
                 onClick={() => handleSort('points')}
               >
-                Points {sortArrow('points')}
+                Poin {sortArrow('points')}
               </TableHead>
               <TableHead
                 className="cursor-pointer select-none"
@@ -162,7 +162,7 @@ export default function MyProblemPage() {
               >
                 Status {sortArrow('status')}
               </TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -172,12 +172,12 @@ export default function MyProblemPage() {
                 <TableCell>{q.props.questionType.name}</TableCell>
                 <TableCell>{q.props.points}</TableCell>
                 <TableCell>
-                  {q.props.isPublished ? 'Published' : 'Draft'}
+                  {q.props.isPublished ? 'Dipublikasi' : 'Draft'}
                 </TableCell>
                 <TableCell>
                   <Link href={`/problems/${q.props.id}`}>
                     <Button size="sm" variant="outline">
-                      View
+                      Lihat
                     </Button>
                   </Link>
                   <Link

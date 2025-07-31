@@ -25,7 +25,7 @@ export function HelpOverlay({ questionType, children }: HelpOverlayProps) {
           onClick={toggleHelp}
           size="icon"
           className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg"
-          aria-label="Help"
+          aria-label="Bantuan"
         >
           <HelpCircle className="w-6 h-6" />
         </Button>
@@ -43,7 +43,7 @@ export function HelpOverlay({ questionType, children }: HelpOverlayProps) {
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-xl font-bold">
-                Help - {questionType}
+                Bantuan - {questionType}
               </CardTitle>
               <Button
                 variant="ghost"

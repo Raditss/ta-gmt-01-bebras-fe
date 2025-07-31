@@ -79,7 +79,7 @@ export function AdminNav() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      Admin Account
+                      Akun Admin
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       admin@solvio.com
@@ -90,14 +90,14 @@ export function AdminNav() {
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
                     <Users className="mr-2 h-4 w-4" />
-                    <span>Student View</span>
+                    <span>Tampilan Siswa</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/" className="flex items-center" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Keluar</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>

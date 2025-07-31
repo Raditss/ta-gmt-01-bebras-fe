@@ -93,7 +93,7 @@ export function CipherNHelp() {
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-red-600">Example</h3>
+        <h3 className="text-lg font-semibold text-red-600">Contoh</h3>
         <div className="bg-gray-50 p-4 rounded-lg space-y-2 flex flex-col items-center">
           {/* Small Cipher Wheel Illustration */}
           <svg width="120" height="120" viewBox="0 0 120 120" className="mb-2">

@@ -17,8 +17,8 @@ import { useAuthStore } from '@/store/auth.store';
 import Image from 'next/image';
 
 const navItems = [
-  { href: '/my-problem', label: 'My Problems', icon: BookOpen },
-  { href: '/add-problem', label: 'Add Problem', icon: Plus }
+  { href: '/my-problem', label: 'Soal Saya', icon: BookOpen },
+  { href: '/add-problem', label: 'Tambah Soal', icon: Plus }
 ];
 
 export function TeacherNav() {
@@ -37,7 +37,7 @@ export function TeacherNav() {
               height={100}
               className="object-contain"
             />
-            <span className="text-xl font-bold text-gray-800">Teacher</span>
+            <span className="text-xl font-bold text-gray-800">Guru</span>
           </Link>
 
           {/* Navigation Links */}
@@ -79,7 +79,7 @@ export function TeacherNav() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      Teacher Account
+                      Akun Guru
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       teacher@example.com
@@ -90,20 +90,20 @@ export function TeacherNav() {
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <span>Profil</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/dashboard">
                     <Users className="mr-2 h-4 w-4" />
-                    <span>Student View</span>
+                    <span>Tampilan Siswa</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/" className="flex items-center" onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Keluar</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -153,9 +153,7 @@ export function TeacherNavLinks() {
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  Teacher Account
-                </p>
+                <p className="text-sm font-medium leading-none">Akun Guru</p>
                 <p className="text-xs leading-none text-muted-foreground">
                   teacher@example.com
                 </p>
@@ -165,20 +163,20 @@ export function TeacherNavLinks() {
             <DropdownMenuItem asChild>
               <Link href="/profile" className="flex items-center">
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>Profil</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/dashboard">
                 <Users className="mr-2 h-4 w-4" />
-                <span>Student View</span>
+                <span>Tampilan Siswa</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/" className="flex items-center">
                 <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
+                <span>Keluar</span>
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

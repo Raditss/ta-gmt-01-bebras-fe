@@ -49,7 +49,7 @@ const AddProblemPage = () => {
         setQuestionTypes(types);
       } catch (error) {
         console.error('Failed to fetch question types:', error);
-        toast.error('Failed to load question types. Please try again later.');
+        toast.error('Gagal memuat jenis soal. Silakan coba lagi nanti.');
       }
     };
     fetchQuestionTypes();
@@ -72,7 +72,7 @@ const AddProblemPage = () => {
     event?.preventDefault();
     const question = await questionsApi.createQuestionMetadata(data);
     if (question) {
-      toast.success('You have successfully added new question', {
+      toast.success('Anda berhasil menambahkan soal baru', {
         duration: 2000
       });
       router.push(
@@ -82,7 +82,7 @@ const AddProblemPage = () => {
     } else {
       newQuestionForm.setError('root', {
         type: 'manual',
-        message: 'Failed to create question metadata. Please try again later.'
+        message: 'Gagal membuat metadata soal. Silakan coba lagi nanti.'
       });
     }
   };
@@ -92,9 +92,9 @@ const AddProblemPage = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Add New Problem</CardTitle>
+            <CardTitle>Tambah Soal Baru</CardTitle>
             <CardDescription>
-              Create a new problem and assign it to a specific question type.
+              Buat soal baru dan tetapkan ke jenis soal tertentu.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -109,17 +109,17 @@ const AddProblemPage = () => {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Question Title</FormLabel>
+                        <FormLabel>Judul Soal</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter a title for this problem"
+                            placeholder="Masukkan judul untuk soal ini"
                             required
                           />
                         </FormControl>
                         <FormDescription>
-                          This title will be used to identify the problem in the
-                          system.
+                          Judul ini akan digunakan untuk mengidentifikasi soal
+                          dalam sistem.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -133,7 +133,7 @@ const AddProblemPage = () => {
                     name={'questionTypeId'}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Question Type</FormLabel>
+                        <FormLabel>Jenis Soal</FormLabel>
                         <FormControl>
                           <Select
                             onValueChange={(value) =>
@@ -141,7 +141,7 @@ const AddProblemPage = () => {
                             }
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select a question type" />
+                              <SelectValue placeholder="Pilih jenis soal" />
                             </SelectTrigger>
                             <SelectContent>
                               {questionTypes &&
@@ -157,7 +157,7 @@ const AddProblemPage = () => {
                           </Select>
                         </FormControl>
                         <FormDescription>
-                          Select the type of question you want to create.
+                          Pilih jenis soal yang ingin Anda buat.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -172,7 +172,7 @@ const AddProblemPage = () => {
                       name={'points'}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Points</FormLabel>
+                          <FormLabel>Poin</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -184,7 +184,7 @@ const AddProblemPage = () => {
                             />
                           </FormControl>
                           <FormDescription>
-                            Assign points to this question. Default is 100.
+                            Tetapkan poin untuk soal ini. Default adalah 100.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -198,7 +198,7 @@ const AddProblemPage = () => {
                       name={'estimatedTime'}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Estimated Time (seconds)</FormLabel>
+                          <FormLabel>Perkiraan Waktu (detik)</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
@@ -209,8 +209,8 @@ const AddProblemPage = () => {
                             />
                           </FormControl>
                           <FormDescription>
-                            Estimated time to solve this question in seconds.
-                            Default is 30.
+                            Perkiraan waktu untuk menyelesaikan soal ini dalam
+                            detik. Default adalah 30.
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -226,7 +226,7 @@ const AddProblemPage = () => {
                 )}
 
                 <Button type="submit" className="w-full">
-                  Continue to Question Creation
+                  Lanjut ke Pembuatan Soal
                 </Button>
               </form>
             </Form>

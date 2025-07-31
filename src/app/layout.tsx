@@ -10,11 +10,37 @@ const inter = Inter({
   display: 'swap'
 });
 
+export const metadata = {
+  title: 'Solvio - Platform Pembelajaran Komputasi',
+  description:
+    'Platform pembelajaran komputasi yang interaktif untuk siswa dan guru.',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1
+    }
+  },
+  icons: {
+    icon: '/graphic/Solvio-logo.svg',
+    shortcut: '/graphic/Solvio-logo.svg',
+    apple: '/graphic/Solvio-logo.svg'
+  }
+};
+
 export default function RootLayout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="id" className={inter.className}>
+      <head>
+        <link rel="icon" href="/graphic/Solvio-logo.svg" />
+        <link rel="apple-touch-icon" href="/graphic/Solvio-logo.svg" />
+      </head>
       <body data-gptw="" cz-shortcut-listen="true">
         {/*<ThemeProvider*/}
         {/*  attribute="class"*/}

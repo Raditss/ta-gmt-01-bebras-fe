@@ -72,7 +72,7 @@ export function Pagination({
         className="flex items-center space-x-1"
       >
         <ChevronLeft className="h-4 w-4" />
-        <span className="hidden sm:inline">Previous</span>
+        <span className="hidden sm:inline">Sebelumnya</span>
       </Button>
 
       {/* Page Numbers */}
@@ -107,7 +107,7 @@ export function Pagination({
         disabled={!hasNextPage}
         className="flex items-center space-x-1"
       >
-        <span className="hidden sm:inline">Next</span>
+        <span className="hidden sm:inline">Selanjutnya</span>
         <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
