@@ -178,7 +178,6 @@ const AddProblemPage = () => {
                               {...field}
                               type="number"
                               min="1"
-                              max="100"
                               placeholder="100"
                               required
                             />
