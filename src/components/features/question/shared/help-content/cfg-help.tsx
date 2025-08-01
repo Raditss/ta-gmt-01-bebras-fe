@@ -319,29 +319,31 @@ export function CfgHelp() {
               <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                 3
               </div>
-              LANGKAH 3: Lihat Baris Hijau di Tabel
+              LANGKAH 3: Lihat Baris yang Dapat Diterapkan di Tabel
             </h4>
             <div className="space-y-3">
               <p className="text-purple-700 font-medium">
                 Setelah memilih ikan yang tepat, baris di tabel perdagangan akan
-                MENYALA HIJAU dan BERKILAU.
+                BERKEDIP BIRU dan hanya membesar saat akan diklik.
               </p>
               <div className="bg-white p-4 rounded border-2 border-purple-200">
                 <p className="text-sm text-gray-700 mb-3">
                   <strong>
-                    Contoh baris yang bisa diterapkan (menyala hijau):
+                    Contoh baris yang bisa diterapkan (berkedip biru):
                   </strong>
                 </p>
                 <div
-                  className="border-b-4 border-blue-400 last:border-b-0 transition-all duration-500 bg-gradient-to-r from-green-300 to-green-400 ring-4 ring-green-500 ring-opacity-90 shadow-2xl cursor-pointer animate-pulse border-green-500"
+                  className="border-b-4 border-blue-400 last:border-b-0 transition-all duration-300 cursor-pointer hover:scale-105"
                   style={{
-                    boxShadow:
-                      '0 0 40px rgba(34, 197, 94, 1), 0 0 80px rgba(34, 197, 94, 0.8), 0 0 120px rgba(34, 197, 94, 0.6)',
-                    animation: 'glowOutward 1.5s ease-in-out infinite alternate'
+                    background: 'linear-gradient(to right, #dbeafe, #bfdbfe)',
+                    animation: 'pulseBlueBackground 1.5s ease-in-out infinite'
                   }}
                 >
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="flex justify-center items-center p-4 bg-gradient-to-r from-slate-700 to-slate-800 rounded">
+                    <div
+                      className="flex justify-center items-center p-4 rounded text-white"
+                      style={{ background: 'transparent' }}
+                    >
                       <div className="flex gap-2">
                         <div className="w-10 h-10 flex items-center justify-center">
                           <Shape type="fish_green" size="sm" />
@@ -351,7 +353,10 @@ export function CfgHelp() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex justify-center items-center p-4 bg-gradient-to-r from-slate-800 to-slate-900 rounded">
+                    <div
+                      className="flex justify-center items-center p-4 rounded text-white"
+                      style={{ background: 'transparent' }}
+                    >
                       <div className="flex">
                         <div className="w-10 h-10 flex items-center justify-center">
                           <Shape type="fish_blue" size="sm" />
@@ -361,18 +366,15 @@ export function CfgHelp() {
                   </div>
                 </div>
                 <style jsx>{`
-                  @keyframes glowOutward {
+                  @keyframes pulseBlueBackground {
                     0% {
-                      box-shadow:
-                        0 0 20px rgba(34, 197, 94, 0.7),
-                        0 0 40px rgba(34, 197, 94, 0.5),
-                        0 0 60px rgba(34, 197, 94, 0.3);
+                      background: linear-gradient(to right, #dbeafe, #bfdbfe);
+                    }
+                    50% {
+                      background: linear-gradient(to right, #c7d2fe, #a5b4fc);
                     }
                     100% {
-                      box-shadow:
-                        0 0 40px rgba(34, 197, 94, 1),
-                        0 0 80px rgba(34, 197, 94, 0.8),
-                        0 0 120px rgba(34, 197, 94, 0.6);
+                      background: linear-gradient(to right, #dbeafe, #bfdbfe);
                     }
                   }
                 `}</style>
@@ -380,8 +382,9 @@ export function CfgHelp() {
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>VISUAL YANG HARUS DICARI:</strong> Baris hijau terang
-                  dengan efek berkilau menandakan aturan yang bisa diterapkan!
+                  <strong>VISUAL YANG HARUS DICARI:</strong> Baris yang berkedip
+                  biru dan membesar saat akan diklik menandakan aturan yang bisa
+                  diterapkan!
                 </AlertDescription>
               </Alert>
             </div>
@@ -392,12 +395,12 @@ export function CfgHelp() {
               <div className="bg-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
                 4
               </div>
-              LANGKAH 4: KLIK Baris Hijau
+              LANGKAH 4: KLIK Baris yang Dapat Diterapkan
             </h4>
             <div className="space-y-3">
               <p className="text-orange-700 font-medium">
-                Klik langsung pada baris hijau tersebut untuk menerapkan aturan
-                perdagangan.
+                Klik langsung pada baris yang berkedip biru tersebut untuk
+                menerapkan aturan perdagangan.
               </p>
               <div className="bg-white p-4 rounded border-2 border-orange-200">
                 <p className="text-sm text-gray-700 mb-3">
@@ -424,7 +427,7 @@ export function CfgHelp() {
                     <div className="text-center">
                       <ArrowRight className="w-8 h-8 mx-auto text-orange-600" />
                       <p className="text-sm font-bold text-orange-600">
-                        KLIK BARIS HIJAU
+                        KLIK BARIS BIRU
                       </p>
                     </div>
                     <div className="text-center">
@@ -507,8 +510,8 @@ export function CfgHelp() {
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
               <strong>TANDA SUKSES:</strong> Jika Anda memilih ikan yang benar,
-              akan ada baris hijau berkilau di tabel. Kalau tidak ada yang
-              hijau, berarti pilihan Anda salah.
+              akan ada baris biru berkedip di tabel. Kalau tidak ada yang biru,
+              berarti pilihan Anda salah.
             </AlertDescription>
           </Alert>
 
@@ -535,8 +538,8 @@ export function CfgHelp() {
                 harus bersebelahan di koleksi Anda!
               </li>
               <li>
-                • <strong>Tidak lihat baris hijau:</strong> Kalau tidak ada yang
-                hijau, jangan dipaksa klik!
+                • <strong>Tidak lihat baris biru:</strong> Kalau tidak ada yang
+                biru, jangan dipaksa klik!
               </li>
               <li>
                 • <strong>Terburu-buru:</strong> Ambil waktu untuk merencanakan
@@ -592,8 +595,8 @@ export function CfgHelp() {
             <ol className="list-decimal list-inside text-yellow-700 space-y-1">
               <li>Lihat TARGET di kanan bawah</li>
               <li>Pilih ikan dengan KLIK</li>
-              <li>Cari baris HIJAU di tabel</li>
-              <li>KLIK baris hijau</li>
+              <li>Cari baris BIRU di tabel</li>
+              <li>KLIK baris biru</li>
               <li>Ulangi sampai selesai</li>
             </ol>
           </div>
@@ -603,7 +606,7 @@ export function CfgHelp() {
             </p>
             <ul className="list-disc list-inside text-yellow-700 space-y-1">
               <li>Ikan terpilih: border biru + animasi</li>
-              <li>Aturan bisa dipakai: baris hijau berkilau</li>
+              <li>Aturan bisa dipakai: baris biru berkedip</li>
               <li>Nelayan senang: target tercapai!</li>
             </ul>
           </div>
