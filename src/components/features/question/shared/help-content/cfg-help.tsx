@@ -336,8 +336,8 @@ export function CfgHelp() {
                   className="border-b-4 border-blue-400 last:border-b-0 transition-all duration-500 bg-gradient-to-r from-green-300 to-green-400 ring-4 ring-green-500 ring-opacity-90 shadow-2xl cursor-pointer animate-pulse border-green-500"
                   style={{
                     boxShadow:
-                      'inset 0 0 40px rgba(34, 197, 94, 1), inset 0 0 80px rgba(34, 197, 94, 0.8), 0 0 20px rgba(34, 197, 94, 0.6)',
-                    animation: 'glowInward 1.5s ease-in-out infinite alternate'
+                      '0 0 40px rgba(34, 197, 94, 1), 0 0 80px rgba(34, 197, 94, 0.8), 0 0 120px rgba(34, 197, 94, 0.6)',
+                    animation: 'glowOutward 1.5s ease-in-out infinite alternate'
                   }}
                 >
                   <div className="grid grid-cols-2 gap-4">
@@ -361,18 +361,18 @@ export function CfgHelp() {
                   </div>
                 </div>
                 <style jsx>{`
-                  @keyframes glowInward {
+                  @keyframes glowOutward {
                     0% {
                       box-shadow:
-                        inset 0 0 30px rgba(34, 197, 94, 1),
-                        inset 0 0 60px rgba(34, 197, 94, 0.8),
-                        0 0 15px rgba(34, 197, 94, 0.5);
+                        0 0 20px rgba(34, 197, 94, 0.7),
+                        0 0 40px rgba(34, 197, 94, 0.5),
+                        0 0 60px rgba(34, 197, 94, 0.3);
                     }
                     100% {
                       box-shadow:
-                        inset 0 0 50px rgba(34, 197, 94, 1),
-                        inset 0 0 100px rgba(34, 197, 94, 0.9),
-                        0 0 25px rgba(34, 197, 94, 0.7);
+                        0 0 40px rgba(34, 197, 94, 1),
+                        0 0 80px rgba(34, 197, 94, 0.8),
+                        0 0 120px rgba(34, 197, 94, 0.6);
                     }
                   }
                 `}</style>
