@@ -265,19 +265,23 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
             </div>
           )}
 
+          {/* Help Button - Prominent placement */}
+          <div className="flex justify-center mb-6">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-1 rounded-lg shadow-lg">
+              <div className="bg-white rounded-md p-2">
+                <DynamicHelp questionType={QuestionTypeEnum.CFG} />
+              </div>
+            </div>
+          </div>
+
           {/* Main Layout - 50/50 Split (No time progress bar for generated questions) */}
           <div className="grid grid-cols-2 gap-6">
             {/* Trading Table - Left side (50% width) */}
             <div className="bg-card rounded-lg p-6 shadow-sm border">
-              <div className="flex justify-between items-start mb-2 relative">
-                <div className="absolute left-0 right-0 flex justify-center pointer-events-none">
-                  <h2 className="text-2xl font-bold text-center text-foreground pointer-events-auto">
-                    📋 Meja Perdagangan Ikan
-                  </h2>
-                </div>
-                <div className="ml-auto z-10">
-                  <DynamicHelp questionType={QuestionTypeEnum.CFG} />
-                </div>
+              <div className="flex justify-center items-start mb-2">
+                <h2 className="text-2xl font-bold text-center text-foreground">
+                  📋 Meja Perdagangan Ikan
+                </h2>
               </div>
               {/* Interactive rules table */}
               <div className="overflow-visible">
