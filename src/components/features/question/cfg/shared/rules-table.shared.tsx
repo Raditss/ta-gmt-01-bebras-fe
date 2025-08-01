@@ -32,22 +32,22 @@ export function RulesTableShared({
   return (
     <>
       <style jsx>{`
-        @keyframes glow {
+        @keyframes glowInward {
           0% {
             box-shadow:
-              0 0 20px rgba(34, 197, 94, 0.6),
-              0 0 40px rgba(34, 197, 94, 0.3),
-              inset 0 0 15px rgba(34, 197, 94, 0.1);
+              inset 0 0 30px rgba(34, 197, 94, 1),
+              inset 0 0 60px rgba(34, 197, 94, 0.8),
+              0 0 15px rgba(34, 197, 94, 0.5);
           }
           100% {
             box-shadow:
-              0 0 40px rgba(34, 197, 94, 0.9),
-              0 0 80px rgba(34, 197, 94, 0.6),
-              inset 0 0 25px rgba(34, 197, 94, 0.3);
+              inset 0 0 50px rgba(34, 197, 94, 1),
+              inset 0 0 100px rgba(34, 197, 94, 0.9),
+              0 0 25px rgba(34, 197, 94, 0.7);
           }
         }
       `}</style>
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden border-4 border-blue-400">
+      <div className="bg-white rounded-lg shadow-lg overflow-visible border-4 border-blue-400">
         <div
           className={`grid ${
             showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
@@ -81,15 +81,16 @@ export function RulesTableShared({
                 showActions ? 'grid-cols-[1fr,1fr,auto]' : 'grid-cols-2'
               } border-b-4 border-blue-400 last:border-b-0 transition-all duration-500 ${
                 isApplicable
-                  ? 'bg-gradient-to-r from-green-200 to-green-300 hover:from-green-300 hover:to-green-400 ring-4 ring-green-500 ring-opacity-75 shadow-2xl cursor-pointer animate-pulse border-green-500'
+                  ? 'bg-gradient-to-r from-green-300 to-green-400 ring-4 ring-green-500 ring-opacity-90 shadow-2xl cursor-pointer animate-pulse border-green-500 my-8 relative z-10'
                   : 'hover:bg-slate-500'
-              } ${isClickable ? 'transform hover:scale-[1.03]' : ''}`}
+              }`}
               style={
                 isApplicable
                   ? {
                       boxShadow:
-                        '0 0 30px rgba(34, 197, 94, 0.7), 0 0 60px rgba(34, 197, 94, 0.4), inset 0 0 20px rgba(34, 197, 94, 0.2)',
-                      animation: 'glow 2s ease-in-out infinite alternate'
+                        '0 0 40px rgba(34, 197, 94, 1), 0 0 80px rgba(34, 197, 94, 0.8), 0 0 120px rgba(34, 197, 94, 0.6)',
+                      animation:
+                        'glowOutward 1.5s ease-in-out infinite alternate'
                     }
                   : undefined
               }
@@ -103,10 +104,7 @@ export function RulesTableShared({
               <div className="p-8 flex justify-center items-center border-r-4 border-blue-400 min-h-[120px] bg-gradient-to-r from-slate-700 to-slate-800">
                 <div className="flex flex-wrap justify-center gap-3 max-w-full">
                   {rule.before.map((obj, idx) => (
-                    <div
-                      key={idx}
-                      className="transform hover:scale-105 transition-transform"
-                    >
+                    <div key={idx}>
                       <RuleShape type={obj.type} />
                     </div>
                   ))}
@@ -119,10 +117,7 @@ export function RulesTableShared({
               >
                 <div className="flex flex-wrap justify-center gap-3 max-w-full">
                   {rule.after.map((obj, idx) => (
-                    <div
-                      key={idx}
-                      className="transform hover:scale-105 transition-transform"
-                    >
+                    <div key={idx}>
                       <RuleShape type={obj.type} />
                     </div>
                   ))}
@@ -154,6 +149,22 @@ export function RulesTableShared({
           );
         })}
       </div>
+      <style jsx>{`
+        @keyframes glowOutward {
+          0% {
+            box-shadow:
+              0 0 20px rgba(34, 197, 94, 0.7),
+              0 0 40px rgba(34, 197, 94, 0.5),
+              0 0 60px rgba(34, 197, 94, 0.3);
+          }
+          100% {
+            box-shadow:
+              0 0 40px rgba(34, 197, 94, 1),
+              0 0 80px rgba(34, 197, 94, 0.8),
+              0 0 120px rgba(34, 197, 94, 0.6);
+          }
+        }
+      `}</style>
     </>
   );
 }
