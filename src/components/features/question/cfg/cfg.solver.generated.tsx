@@ -72,7 +72,7 @@ export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
 
     return {
       type: 'success',
-      message: `✅ Bagus! Ada ${applicableRules.length} aturan perdagangan yang bisa diterapkan. Klik pada baris hijau di tabel aturan perdagangan untuk menerapkannya.`
+      message: `✅ Bagus! Ada ${applicableRules.length} aturan perdagangan yang bisa diterapkan. Klik pada baris biru di tabel aturan perdagangan untuk menerapkannya.`
     };
   };
 
