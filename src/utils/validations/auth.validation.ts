@@ -14,8 +14,8 @@ export const loginRequestSchema = z.object({
     .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character'
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (@$!%*?&)'
     )
 });
 
@@ -31,8 +31,8 @@ export const registerRequestSchema = z.object({
     .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
-      'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character'
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (@$!%*?&)'
     ),
   name: z.string().min(1, 'Name is required'),
   role: z.enum(Object.values(UserRole) as [string, ...string[]])

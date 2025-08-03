@@ -34,10 +34,10 @@ const registerFormSchema = z
     password: z
       .string()
       .min(8, 'Password harus minimal 8 karakter')
-      .regex(/[A-Z]/, 'Harus mengandung huruf besar')
-      .regex(/[a-z]/, 'Harus mengandung huruf kecil')
-      .regex(/[0-9]/, 'Harus mengandung angka')
-      .regex(/[^A-Za-z0-9]/, 'Harus mengandung karakter khusus'),
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        'Password harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus (@$!%*?&)'
+      ),
     confirmPassword: z.string().min(1, 'Harus konfirmasi password'),
     role: z.enum(['STUDENT', 'TEACHER'])
   })
@@ -82,11 +82,9 @@ export default function RegisterPage() {
 
   // Password complexity check for guideline
   const passwordMeetsComplexity =
-    password.length >= 8 &&
-    /[A-Z]/.test(password) &&
-    /[a-z]/.test(password) &&
-    /[0-9]/.test(password) &&
-    /[^A-Za-z0-9]/.test(password);
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+      password
+    );
 
   useEffect(() => {
     setMounted(true);
@@ -260,7 +258,7 @@ export default function RegisterPage() {
                     className={`text-xs mt-1 ${password.length > 0 && !passwordMeetsComplexity ? 'text-red-500' : 'text-gray-500'}`}
                   >
                     Password harus berisi minimal 8 karakter, 1 huruf besar, 1
-                    huruf kecil, 1 angka, dan 1 karakter khusus
+                    huruf kecil, 1 angka, dan 1 karakter khusus (@$!%*?&)
                   </p>
                   {errors.password && errors.password.message && (
                     <p className="text-xs text-red-500 mt-1">
