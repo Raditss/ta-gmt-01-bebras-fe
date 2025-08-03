@@ -7,16 +7,23 @@ interface ProblemCardProps {
   title: string;
   author: string;
   type: QuestionTypeEnum;
+  difficulty?: string;
   isSolved?: boolean;
 }
 
 const typeGradientMap: Record<QuestionTypeEnum, string> = {
   [QuestionTypeEnum.CFG]: 'from-pink-500 to-pink-300',
-  [QuestionTypeEnum.CIPHER_N]: 'from-green-500 to-green-300',
+  [QuestionTypeEnum.CIPHER_N]: 'from-blue-500 to-blue-300',
   [QuestionTypeEnum.RING_CIPHER]: 'from-purple-500 to-purple-300',
-  [QuestionTypeEnum.ANOMALY_MONSTER]: 'from-blue-500 to-blue-300',
+  [QuestionTypeEnum.ANOMALY_MONSTER]: 'from-green-500 to-green-300',
   [QuestionTypeEnum.DECISION_TREE_TRACE]: 'from-orange-500 to-orange-300',
   [QuestionTypeEnum.CONTAGION_PROTOCOL]: 'from-red-500 to-yellow-300'
+};
+
+const difficultyColorMap: Record<string, string> = {
+  EASY: 'text-green-800',
+  MEDIUM: 'text-blue-800',
+  HARD: 'text-red-800'
 };
 
 export function ProblemCard({
@@ -24,6 +31,7 @@ export function ProblemCard({
   title,
   author,
   type,
+  difficulty,
   isSolved = false
 }: ProblemCardProps) {
   const bgGradient =
@@ -56,9 +64,20 @@ export function ProblemCard({
       )}
 
       <div className="flex flex-col gap-2 mb-4">
-        <span className="px-3 py-1 self-start rounded-full bg-white/30 text-xs font-semibold text-white border border-white/40 backdrop-blur-sm">
-          {type ? type.replace(/_/g, ' ') : 'unknown'}
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="px-3 py-1 rounded-full bg-white/30 text-xs font-semibold text-white border border-white/40 backdrop-blur-sm">
+            {type ? type.replace(/_/g, ' ') : 'unknown'}
+          </span>
+          {difficulty && (
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md border border-white/40 bg-white/80 shadow-lg ${
+                difficultyColorMap[difficulty] || 'text-gray-800'
+              }`}
+            >
+              {difficulty}
+            </span>
+          )}
+        </div>
         <h2 className="text-2xl font-bold text-white drop-shadow-md break-all hyphens-auto">
           {truncateWithHyphen(title, maxTitleLength)}
         </h2>

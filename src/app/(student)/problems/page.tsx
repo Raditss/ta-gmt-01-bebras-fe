@@ -227,6 +227,7 @@ export default function ProblemsPage() {
                           type={
                             question.props.questionType.name as QuestionTypeEnum
                           }
+                          difficulty={question.props.questionType.difficulty}
                           isSolved={question.props.isSolved}
                         />
                       ))}
