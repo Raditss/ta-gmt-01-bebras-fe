@@ -12,11 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Shield, Users, BookOpen, LogOut } from 'lucide-react';
+import { Users, BookOpen, LogOut } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import Image from 'next/image';
 const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: Shield },
   { href: '/manage-user', label: 'Users', icon: Users },
   { href: '/manage-question', label: 'Questions', icon: BookOpen }
 ];
@@ -86,13 +85,6 @@ export function AdminNav() {
                     </p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard">
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Solver View</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/" className="flex items-center" onClick={logout}>

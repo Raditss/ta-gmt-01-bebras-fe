@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { GraduationCap } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Table,
   TableBody,
@@ -31,11 +31,13 @@ const STATUS_COLORS = {
   BANNED: 'bg-red-100 text-red-800'
 };
 
+type TabType = 'solver' | 'creator';
+
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>('solver');
   const [modal, setModal] = useState<{
     open: boolean;
     userId: number | null;
@@ -90,30 +92,31 @@ export default function ManageUsersPage() {
     return 0;
   });
 
+  // Filter users based on active tab and other filters
   const filteredUsers = sortedUsers.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(search.toLowerCase()) ||
       user.username.toLowerCase().includes(search.toLowerCase());
-    const matchesRole = roleFilter ? user.role === roleFilter : true;
+    const matchesTab =
+      activeTab === 'solver'
+        ? user.role === 'STUDENT'
+        : user.role === 'TEACHER';
     const matchesStatus = statusFilter ? user.status === statusFilter : true;
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch && matchesTab && matchesStatus;
   });
 
-  // Update user status via API
   const updateUserStatus = async (id: number, newStatus: string) => {
     const user = users.find((u) => u.id === id);
     if (!user) return;
-    setLoading(true);
+
     try {
       await usersApi.updateUserStatus({
         username: user.username,
         status: newStatus
       });
-      await fetchUsers(); // Refresh the user list from backend
-    } catch {
-      setError('Failed to update user status');
-    } finally {
-      setLoading(false);
+      await fetchUsers(); // Refresh the list
+    } catch (error) {
+      console.error('Failed to update user status:', error);
     }
   };
 
@@ -125,28 +128,33 @@ export default function ManageUsersPage() {
   };
 
   const confirmActivateDeactivateVerify = async () => {
-    if (modal.userId && modal.action) {
-      const user = users.find((u) => u.id === modal.userId);
-      if (!user) return;
-      let newStatus: UserStatus;
-      if (modal.action === 'VERIFY') {
-        newStatus = UserStatus.ACTIVE; // or whatever status you want after verification
-      } else if (modal.action === 'ACTIVATE') {
+    if (!modal.userId || !modal.action) return;
+
+    let newStatus: string;
+    switch (modal.action) {
+      case 'ACTIVATE':
         newStatus = UserStatus.ACTIVE;
-      } else {
+        break;
+      case 'DEACTIVATE':
         newStatus = UserStatus.INACTIVE;
-      }
-      await updateUserStatus(modal.userId, newStatus);
+        break;
+      case 'VERIFY':
+        newStatus = UserStatus.ACTIVE;
+        break;
+      default:
+        return;
     }
-    setModal({ open: false, userId: null, action: null });
+
+    await updateUserStatus(modal.userId, newStatus);
+    cancelModal();
   };
 
   const cancelModal = () =>
     setModal({ open: false, userId: null, action: null });
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1 container mx-auto py-8 px-4">
+    <div className="min-h-screen bg-gray-50">
+      <main className="p-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
@@ -155,24 +163,39 @@ export default function ManageUsersPage() {
             </div>
           </div>
 
+          {/* Tabs */}
+          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+            <button
+              onClick={() => setActiveTab('solver')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'solver'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Solver
+            </button>
+            <button
+              onClick={() => setActiveTab('creator')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'creator'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Creator
+            </button>
+          </div>
+
           <div className="flex flex-col md:flex-row gap-4 mb-6 justify-between">
             <input
               type="search"
-              placeholder="Search by name or username..."
+              placeholder={`Search ${activeTab === 'solver' ? 'solvers' : 'creators'} by name or username...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 w-full md:w-1/2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
             />
             <div className="flex gap-2 w-full md:w-auto justify-end">
-              <select
-                value={roleFilter}
-                onChange={(e) => setRoleFilter(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 h-10 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="">All Roles</option>
-                <option value="TEACHER">Creator</option>
-                <option value="STUDENT">Solver</option>
-              </select>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -210,13 +233,6 @@ export default function ManageUsersPage() {
                     (sortOrder === 'asc' ? ' ↑' : ' ↓')}
                 </TableHead>
                 <TableHead
-                  onClick={() => handleSort('role')}
-                  className="cursor-pointer select-none"
-                >
-                  Role
-                  {sortKey === 'role' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </TableHead>
-                <TableHead
                   onClick={() => handleSort('status')}
                   className="cursor-pointer select-none"
                 >
@@ -231,25 +247,15 @@ export default function ManageUsersPage() {
                 <TableRow key={user.id}>
                   <TableCell>
                     <Avatar className="h-10 w-10">
-                      {/* If you have user.avatar, use AvatarImage here */}
+                      <AvatarImage
+                        src={user.photoUrl || '/placeholder-user.jpg'}
+                        alt={user.name}
+                      />
                       <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                   </TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.username}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        user.role === 'TEACHER'
-                          ? user.verifiedAt === null
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-blue-100 text-blue-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}
-                    >
-                      {user.role}
-                    </span>
-                  </TableCell>
                   <TableCell>
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[user.status as keyof typeof STATUS_COLORS]}`}
@@ -328,6 +334,12 @@ export default function ManageUsersPage() {
               ))}
             </TableBody>
           </Table>
+
+          {filteredUsers.length === 0 && !loading && (
+            <div className="text-center py-8 text-gray-500">
+              No {activeTab === 'solver' ? 'solvers' : 'creators'} found.
+            </div>
+          )}
         </div>
       </main>
       {/* Ban/Unban Confirmation Modal */}

@@ -23,7 +23,7 @@ const navItems = [
 
 export function TeacherNav() {
   const pathname = usePathname();
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -63,6 +63,10 @@ export function TeacherNav() {
 
           {/* Right Side */}
           <div className="flex items-center space-x-4">
+            {/* Username */}
+            <span className="text-sm text-gray-600 font-medium">
+              {user?.username}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -70,8 +74,13 @@ export function TeacherNav() {
                   className="relative h-8 w-8 rounded-full"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
-                    <AvatarFallback>T</AvatarFallback>
+                    <AvatarImage
+                      src={user?.photoUrl || '/placeholder-user.jpg'}
+                      alt="Profile"
+                    />
+                    <AvatarFallback>
+                      {user?.name?.charAt(0) || 'T'}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -79,10 +88,10 @@ export function TeacherNav() {
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      Creator Account
+                      {user?.name || 'Creator Account'}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      teacher@example.com
+                      {user?.username || 'teacher@example.com'}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -117,6 +126,7 @@ export function TeacherNav() {
 
 export function TeacherNavLinks() {
   const pathname = usePathname();
+  const { user } = useAuthStore();
   return (
     <>
       {/* Navigation Links */}
@@ -141,21 +151,27 @@ export function TeacherNavLinks() {
       </div>
       {/* Right Side */}
       <div className="flex items-center space-x-4">
+        <span className="text-sm text-gray-500">{user?.username}</span>
+      </div>
+      <div className="flex items-center space-x-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-user.jpg" alt="Profile" />
-                <AvatarFallback>T</AvatarFallback>
+                <AvatarImage
+                  src={user?.photoUrl || '/placeholder-user.jpg'}
+                  alt="Profile"
+                />
+                <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Akun Guru</p>
+                <p className="text-sm font-medium leading-none">{user?.name}</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  teacher@example.com
+                  {user?.username}
                 </p>
               </div>
             </DropdownMenuLabel>
@@ -166,13 +182,6 @@ export function TeacherNavLinks() {
                 <span>Profil</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/dashboard">
-                <Users className="mr-2 h-4 w-4" />
-                <span>Solver View</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/" className="flex items-center">
                 <LogOut className="mr-2 h-4 w-4" />

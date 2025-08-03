@@ -52,7 +52,7 @@ const LoginPage: React.FC = () => {
     // Only redirect after hydration and if authenticated
     if (isHydrated && isAuthenticated) {
       if (user?.role === UserRole.ADMIN) {
-        router.push('/admin');
+        router.push('/manage-user');
       } else if (user?.role === UserRole.TEACHER) {
         router.push('/my-problem');
       } else if (user?.role === UserRole.STUDENT) {
