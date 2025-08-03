@@ -26,6 +26,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
+import { debounce } from 'lodash';
+import { authApi } from '@/lib/api';
 
 const registerFormSchema = z
   .object({
@@ -65,6 +67,8 @@ export default function RegisterPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setError,
+    clearErrors,
     watch,
     control
   } = useForm<RegisterFormValues>({
@@ -79,12 +83,39 @@ export default function RegisterPage() {
   });
 
   const password = watch('password');
+  const username = watch('username');
 
   // Password complexity check for guideline
   const passwordMeetsComplexity =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
       password
     );
+
+  const checkUsername = debounce(async (username: string) => {
+    if (!username) return;
+
+    try {
+      const data = await authApi.checkUsername({ username });
+
+      if (!data.available) {
+        setError('username', {
+          type: 'manual',
+          message: 'Username sudah digunakan'
+        });
+      } else {
+        clearErrors('username');
+      }
+    } catch (_error) {
+      setError('username', {
+        type: 'manual',
+        message: 'Gagal memeriksa username'
+      });
+    }
+  }, 400);
+
+  useEffect(() => {
+    checkUsername(username);
+  }, [username]);
 
   useEffect(() => {
     setMounted(true);

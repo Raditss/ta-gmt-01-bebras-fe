@@ -1,22 +1,26 @@
-import { apiCore } from "./core";
-import { User } from "@/store/auth.store";
+import { apiCore } from './core';
+import { User } from '@/store/auth.store';
 import {
   LoginRequest,
-  LoginResponse,
   loginRequestSchema,
+  LoginResponse,
   loginResponseSchema,
   RegisterRequest,
   registerRequestSchema,
   RegisterResponse,
   registerResponseSchema,
-} from "@/utils/validations/auth.validation";
+  UsernameRequest,
+  usernameRequestSchema,
+  UsernameResponse,
+  usernameResponseSchema
+} from '@/utils/validations/auth.validation';
 
 export const authApi = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     const validatedData = loginRequestSchema.parse(credentials);
 
     const response = await apiCore.post<LoginResponse>(
-      "/auth/login",
+      '/auth/login',
       validatedData
     );
 
@@ -28,7 +32,7 @@ export const authApi = {
     const validatedData = registerRequestSchema.parse(userData);
 
     const response = await apiCore.post<RegisterResponse>(
-      "/auth/register",
+      '/auth/register',
       validatedData
     );
 
@@ -36,12 +40,23 @@ export const authApi = {
     return validatedResponse;
   },
 
+  async checkUsername(userData: UsernameRequest): Promise<UsernameResponse> {
+    const validatedData = usernameRequestSchema.parse(userData);
+
+    const response = await apiCore.get<UsernameResponse>(
+      `/auth/check-username/${validatedData.username}`
+    );
+
+    const validatedResponse = usernameResponseSchema.parse(response.data);
+    return validatedResponse;
+  },
+
   async logout(): Promise<void> {
-    await apiCore.post("/auth/logout");
+    await apiCore.post('/auth/logout');
   },
 
   async getProfile(): Promise<User> {
-    const response = await apiCore.get<User>("/profile");
+    const response = await apiCore.get<User>('/profile');
     return response.data;
-  },
+  }
 };

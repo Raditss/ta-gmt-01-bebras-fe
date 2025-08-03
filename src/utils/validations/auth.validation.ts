@@ -38,6 +38,16 @@ export const registerRequestSchema = z.object({
   role: z.enum(Object.values(UserRole) as [string, ...string[]])
 });
 
+export const usernameRequestSchema = z.object({
+  username: z
+    .string()
+    .min(1, 'Username is required')
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      'Username must contain only letters, numbers, and underscores'
+    )
+});
+
 export const loginResponseSchema = z.object({
   accessToken: z.string(),
   user: z.object({
@@ -66,7 +76,14 @@ export const registerResponseSchema = z.object({
   })
 });
 
+export const usernameResponseSchema = z.object({
+  username: z.string(),
+  available: z.boolean()
+});
+
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 export type RegisterRequest = z.infer<typeof registerRequestSchema>;
+export type UsernameRequest = z.infer<typeof usernameRequestSchema>;
 export type LoginResponse = z.infer<typeof loginResponseSchema>;
 export type RegisterResponse = z.infer<typeof registerResponseSchema>;
+export type UsernameResponse = z.infer<typeof usernameResponseSchema>;
