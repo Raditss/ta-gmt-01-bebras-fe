@@ -1,11 +1,17 @@
 'use client';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Info, Lightbulb, Target, Fish } from 'lucide-react';
 import {
-  Shape,
-  ShapeContainer
-} from '@/components/features/question/cfg/shared/shape';
+  Info,
+  Lightbulb,
+  Target,
+  Fish,
+  MousePointer,
+  Eye,
+  CheckCircle,
+  ArrowRight
+} from 'lucide-react';
+import { Shape } from '@/components/features/question/cfg/shared/shape';
 
 export function CfgHelp() {
   return (
@@ -15,139 +21,463 @@ export function CfgHelp() {
           <Target className="w-5 h-5" />
           Tujuan Permainan
         </h3>
-        <p className="text-gray-700">
-          Bantu nelayan untuk menukar koleksi ikan yang dia miliki sekarang
-          menjadi koleksi ikan yang diinginkan pelanggannya. Gunakan aturan
-          perdagangan yang tersedia untuk melakukan pertukaran ikan.
+        <p className="text-gray-700 text-base">
+          <strong>Misi Anda:</strong> Bantu nelayan menukar koleksi ikan yang
+          dia miliki sekarang menjadi koleksi ikan yang diinginkan pelanggannya.
+          Anda adalah &quot;penasihat perdagangan&quot; yang akan membantu
+          nelayan memilih aturan perdagangan yang tepat untuk mencapai target.
         </p>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-red-600 flex items-center gap-2">
+          <Eye className="w-5 h-5" />
+          Kenali Elemen-elemen di Layar
+        </h3>
+        <div className="bg-red-50 p-4 rounded-lg border-2 border-red-200">
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-base font-bold flex-shrink-0 mt-1">
+                1
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-red-800 text-base mb-1">
+                  Meja Perdagangan Ikan (Kiri)
+                </p>
+                <p className="text-red-700 text-sm leading-relaxed">
+                  Tabel yang menampilkan semua aturan perdagangan. Setiap baris
+                  = 1 aturan. Kolom kiri = ikan yang harus Anda berikan, kolom
+                  kanan = ikan yang akan Anda dapatkan.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-base font-bold flex-shrink-0 mt-1">
+                2
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-red-800 text-base mb-1">
+                  Koleksi Ikan Sekarang (Kanan Atas)
+                </p>
+                <p className="text-red-700 text-sm leading-relaxed">
+                  Ikan-ikan yang dimiliki nelayan saat ini. Anda bisa KLIK
+                  ikan-ikan ini untuk memilihnya.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-base font-bold flex-shrink-0 mt-1">
+                3
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-red-800 text-base mb-1">
+                  Target Koleksi Ikan (Kanan Bawah)
+                </p>
+                <p className="text-red-700 text-sm leading-relaxed">
+                  Koleksi ikan yang diinginkan pelanggan. Ini adalah tujuan
+                  akhir Anda.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-base font-bold flex-shrink-0 mt-1">
+                4
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-red-800 text-base mb-1">
+                  Petunjuk Dinamis (Atas)
+                </p>
+                <p className="text-red-700 text-sm leading-relaxed">
+                  Kotak berwarna yang memberikan petunjuk tentang apa yang harus
+                  Anda lakukan selanjutnya.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-green-600 flex items-center gap-2">
           <Info className="w-5 h-5" />
-          Cara Bermain
+          Langkah-langkah Bermain (IKUTI URUTAN INI!)
         </h3>
-        <div className="space-y-4">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-medium text-blue-800 mb-3 flex items-center gap-2">
-              <Fish className="w-4 h-4" />
-              Langkah 1: Pahami Aturan Perdagangan
-            </h4>
-            <p className="text-blue-700 text-sm mb-3">
-              Lihat tabel aturan di sebelah kiri. Setiap baris menunjukkan
-              perdagangan yang bisa dilakukan. Tabel ini interaktif - ketika
-              Anda memilih ikan yang tepat, baris yang bisa diterapkan akan
-              menyala hijau:
-            </p>
-            <div className="bg-white p-3 rounded border">
-              <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
-                <div className="text-center">
-                  <div className="text-xs text-gray-600 mb-1">
-                    Ikan yang Anda miliki
-                  </div>
-                  <div className="flex justify-center gap-2">
-                    <ShapeContainer>
-                      <Shape type="FISH_GREEN" size="sm" />
-                    </ShapeContainer>
-                    <ShapeContainer>
-                      <Shape type="FISH_PURPLE" size="sm" />
-                    </ShapeContainer>
-                  </div>
-                </div>
-                <div className="text-center text-lg font-bold text-gray-700">
-                  →
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-600 mb-1">
-                    Ditukar menjadi
-                  </div>
-                  <div className="flex justify-center">
-                    <ShapeContainer>
-                      <Shape type="FISH_BLUE" size="sm" />
-                    </ShapeContainer>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-green-50 p-4 rounded-lg">
-            <h4 className="font-medium text-green-800 mb-3">
-              Langkah 2: Pilih Ikan untuk Ditukar
-            </h4>
-            <p className="text-green-700 text-sm mb-3">
-              Klik pada ikan-ikan di &quot;Koleksi Ikan Sekarang&quot; yang
-              sesuai dengan aturan. Ikan yang dipilih akan menyala dengan border
-              biru dan beranimasi:
+        <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg border-2 border-green-400">
+          <h4 className="font-bold text-green-800 mb-3 text-lg">
+            🎯 CONTOH LENGKAP: Dari Awal Sampai Selesai
+          </h4>
+          <div className="bg-white p-4 rounded-lg border-2 border-blue-300">
+            <p className="font-semibold text-blue-800 mb-3">
+              Skenario: Anda memiliki ikan Hijau dan Pink, ingin mendapatkan
+              ikan Biru
             </p>
-            <div className="bg-white p-3 rounded border">
-              <div className="text-center">
-                <div className="text-xs text-gray-600 mb-2">
-                  Contoh ikan terpilih:
-                </div>
-                <div className="flex justify-center gap-2">
-                  <ShapeContainer>
-                    <Shape type="FISH_GREEN" size="sm" selected={true} />
-                  </ShapeContainer>
-                  <ShapeContainer>
-                    <Shape type="FISH_PURPLE" size="sm" selected={true} />
-                  </ShapeContainer>
-                </div>
-              </div>
-            </div>
-            <p className="text-green-700 text-sm mt-2">
-              💡 <strong>Tips:</strong> Urutan pemilihan tidak penting, yang
-              penting adalah posisi ikan di koleksi Anda!
-            </p>
-          </div>
 
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <h4 className="font-medium text-purple-800 mb-3">
-              Langkah 3: Terapkan Aturan Perdagangan
-            </h4>
-            <p className="text-purple-700 text-sm mb-3">
-              Setelah memilih ikan yang tepat, baris aturan yang bisa diterapkan
-              akan menyala hijau di tabel. Klik langsung pada baris hijau
-              tersebut untuk menerapkan aturan:
-            </p>
-            <div className="bg-white p-3 rounded border">
-              <div className="bg-green-100 border-4 border-green-400 rounded-lg p-4 transition-all duration-300 ring-4 ring-green-400 ring-opacity-50 shadow-lg cursor-pointer">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex justify-center items-center p-4 bg-gradient-to-r from-slate-700 to-slate-800 rounded">
-                    <div className="flex gap-2">
-                      <ShapeContainer>
-                        <Shape type="FISH_GREEN" size="sm" />
-                      </ShapeContainer>
-                      <ShapeContainer>
-                        <Shape type="FISH_PURPLE" size="sm" />
-                      </ShapeContainer>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 items-center">
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">
+                    Koleksi Saat Ini:
+                  </p>
+                  <div className="flex justify-center gap-3 p-4 bg-gray-100 rounded min-h-[100px] items-center">
+                    <div className="w-14 h-14 flex items-center justify-center">
+                      <Shape type="fish_green" size="sm" />
+                    </div>
+                    <div className="w-14 h-14 flex items-center justify-center">
+                      <Shape type="fish_pink" size="sm" />
+                    </div>
+                    <div className="w-14 h-14 flex items-center justify-center">
+                      <Shape type="fish_orange" size="sm" />
                     </div>
                   </div>
-                  <div className="flex justify-center items-center p-4 bg-gradient-to-r from-slate-800 to-slate-900 rounded">
-                    <div className="flex">
-                      <ShapeContainer>
-                        <Shape type="FISH_BLUE" size="sm" />
-                      </ShapeContainer>
+                </div>
+                <div className="text-center">
+                  <ArrowRight className="w-8 h-8 mx-auto text-blue-600" />
+                  <p className="text-sm font-bold text-blue-600">GOAL</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">
+                    Target:
+                  </p>
+                  <div className="flex justify-center gap-3 p-4 bg-yellow-100 rounded min-h-[100px] items-center">
+                    <div className="w-14 h-14 flex items-center justify-center">
+                      <Shape type="fish_blue" size="sm" />
+                    </div>
+                    <div className="w-14 h-14 flex items-center justify-center">
+                      <Shape type="fish_orange" size="sm" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <p className="text-purple-700 text-sm mt-2">
-              💡 <strong>Tips:</strong> Baris hijau menandakan aturan yang bisa
-              diterapkan dengan ikan yang Anda pilih!
-            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+            <h4 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
+              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                1
+              </div>
+              LANGKAH 1: Baca Meja Perdagangan
+            </h4>
+            <div className="space-y-3">
+              <p className="text-blue-700 font-medium">
+                Pertama-tama, lihat tabel aturan perdagangan di sebelah KIRI
+                layar.
+              </p>
+              <div className="bg-white p-4 rounded border-2 border-blue-200">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>Contoh aturan yang tersedia:</strong>
+                </p>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center p-3 bg-gray-50 rounded">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Berikan:</p>
+                      <div className="flex justify-center gap-2">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_green" size="sm" />
+                        </div>
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_pink" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center text-lg font-bold text-gray-700">
+                      →
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Dapatkan:</p>
+                      <div className="flex justify-center">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_blue" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-[1fr,auto,1fr] gap-4 items-center p-3 bg-gray-50 rounded">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Berikan:</p>
+                      <div className="flex justify-center">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_orange" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center text-lg font-bold text-gray-700">
+                      →
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600 mb-1">Dapatkan:</p>
+                      <div className="flex justify-center gap-2">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_pink" size="sm" />
+                        </div>
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_green" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Alert>
+                <Eye className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>PENTING:</strong> Lihat semua aturan yang tersedia
+                  sebelum mulai bermain. Rencanakan strategi Anda!
+                </AlertDescription>
+              </Alert>
+            </div>
           </div>
 
-          <div className="bg-orange-50 p-4 rounded-lg">
-            <h4 className="font-medium text-orange-800 mb-2">
-              Langkah 4: Menuju Target
+          <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+            <h4 className="font-bold text-green-800 mb-3 flex items-center gap-2">
+              <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                2
+              </div>
+              LANGKAH 2: Pilih Ikan dengan KLIK
             </h4>
-            <p className="text-orange-700 text-sm">
-              Ulangi proses hingga koleksi ikan Anda sama persis dengan
-              &quot;Target Koleksi Ikan&quot;. Nelayan akan terlihat senang
-              ketika Anda berhasil mencapai target!
-            </p>
+            <div className="space-y-3">
+              <p className="text-green-700 font-medium">
+                Klik pada ikan-ikan di &quot;Koleksi Ikan Sekarang&quot; (kotak
+                kanan atas) yang sesuai dengan aturan.
+              </p>
+              <div className="bg-white p-4 rounded border-2 border-green-200">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>
+                    Contoh: Untuk menggunakan aturan Hijau+Pink→Biru, klik ikan
+                    hijau dan pink:
+                  </strong>
+                </p>
+                <div className="space-y-3">
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Sebelum diklik (normal):
+                    </p>
+                    <div className="flex justify-center gap-3 p-6 bg-gray-100 rounded min-h-[120px] items-center">
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <Shape type="fish_green" size="sm" />
+                      </div>
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <Shape type="fish_pink" size="sm" />
+                      </div>
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <Shape type="fish_orange" size="sm" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <ArrowRight className="w-6 h-6 mx-auto text-green-600" />
+                    <p className="text-sm font-bold text-green-600">
+                      KLIK ikan hijau dan pink
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-sm text-gray-600 mb-2">
+                      Setelah diklik (menyala biru dengan animasi):
+                    </p>
+                    <div className="flex justify-center gap-3 p-6 bg-gray-100 rounded min-h-[120px] items-center">
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <Shape type="fish_green" size="sm" selected={true} />
+                      </div>
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <Shape type="fish_pink" size="sm" selected={true} />
+                      </div>
+                      <div className="w-16 h-16 flex items-center justify-center">
+                        <Shape type="fish_orange" size="sm" />
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2 italic">
+                      ⚠️ Perhatikan: Ikan yang dipilih memiliki border biru,
+                      background biru muda, efek bayangan, dan beranimasi!
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <Alert>
+                <MousePointer className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>TIPS PENTING:</strong>
+                  <ul className="list-disc list-inside mt-1 space-y-1">
+                    <li>
+                      Urutan mengklik tidak penting (bisa klik pink dulu, hijau
+                      dulu, sama saja)
+                    </li>
+                    <li>
+                      Yang penting: pilih ikan yang BERSEBELAHAN di koleksi Anda
+                    </li>
+                    <li>Ikan terpilih akan menyala biru dan beranimasi</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            </div>
+          </div>
+
+          <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+            <h4 className="font-bold text-purple-800 mb-3 flex items-center gap-2">
+              <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                3
+              </div>
+              LANGKAH 3: Lihat Baris yang Dapat Diterapkan di Tabel
+            </h4>
+            <div className="space-y-3">
+              <p className="text-purple-700 font-medium">
+                Setelah memilih ikan yang tepat, baris di tabel perdagangan akan
+                BERKEDIP BIRU dan hanya membesar saat akan diklik.
+              </p>
+              <div className="bg-white p-4 rounded border-2 border-purple-200">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>
+                    Contoh baris yang bisa diterapkan (berkedip biru):
+                  </strong>
+                </p>
+                <div
+                  className="border-b-4 border-blue-400 last:border-b-0 transition-all duration-300 cursor-pointer hover:scale-105"
+                  style={{
+                    background: 'linear-gradient(to right, #dbeafe, #bfdbfe)',
+                    animation: 'pulseBlueBackground 1.5s ease-in-out infinite'
+                  }}
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div
+                      className="flex justify-center items-center p-4 rounded text-white"
+                      style={{ background: 'transparent' }}
+                    >
+                      <div className="flex gap-2">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_green" size="sm" />
+                        </div>
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_pink" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      className="flex justify-center items-center p-4 rounded text-white"
+                      style={{ background: 'transparent' }}
+                    >
+                      <div className="flex">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Shape type="fish_blue" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <style jsx>{`
+                  @keyframes pulseBlueBackground {
+                    0% {
+                      background: linear-gradient(to right, #dbeafe, #bfdbfe);
+                    }
+                    50% {
+                      background: linear-gradient(to right, #c7d2fe, #a5b4fc);
+                    }
+                    100% {
+                      background: linear-gradient(to right, #dbeafe, #bfdbfe);
+                    }
+                  }
+                `}</style>
+              </div>
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>VISUAL YANG HARUS DICARI:</strong> Baris yang berkedip
+                  biru dan membesar saat akan diklik menandakan aturan yang bisa
+                  diterapkan!
+                </AlertDescription>
+              </Alert>
+            </div>
+          </div>
+
+          <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+            <h4 className="font-bold text-orange-800 mb-3 flex items-center gap-2">
+              <div className="bg-orange-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                4
+              </div>
+              LANGKAH 4: KLIK Baris yang Dapat Diterapkan
+            </h4>
+            <div className="space-y-3">
+              <p className="text-orange-700 font-medium">
+                Klik langsung pada baris yang berkedip biru tersebut untuk
+                menerapkan aturan perdagangan.
+              </p>
+              <div className="bg-white p-4 rounded border-2 border-orange-200">
+                <p className="text-sm text-gray-700 mb-3">
+                  <strong>Apa yang terjadi setelah klik:</strong>
+                </p>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-4 items-center">
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                        Sebelum:
+                      </p>
+                      <div className="flex justify-center gap-3 p-6 bg-gray-100 rounded min-h-[120px] items-center">
+                        <div className="w-16 h-16 flex items-center justify-center">
+                          <Shape type="fish_green" size="sm" selected={true} />
+                        </div>
+                        <div className="w-16 h-16 flex items-center justify-center">
+                          <Shape type="fish_pink" size="sm" selected={true} />
+                        </div>
+                        <div className="w-16 h-16 flex items-center justify-center">
+                          <Shape type="fish_orange" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <ArrowRight className="w-8 h-8 mx-auto text-orange-600" />
+                      <p className="text-sm font-bold text-orange-600">
+                        KLIK BARIS BIRU
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">
+                        Sesudah:
+                      </p>
+                      <div className="flex justify-center gap-4 p-6 bg-green-100 rounded min-h-[120px] items-center">
+                        <div className="w-16 h-16 flex items-center justify-center">
+                          <Shape type="fish_blue" size="sm" />
+                        </div>
+                        <div className="w-16 h-16 flex items-center justify-center">
+                          <Shape type="fish_orange" size="sm" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Alert>
+                <Fish className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>HASIL:</strong> Ikan hijau + pink hilang, diganti
+                  dengan ikan biru. Sekarang Anda sudah mencapai target!
+                </AlertDescription>
+              </Alert>
+            </div>
+          </div>
+
+          <div className="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+            <h4 className="font-bold text-yellow-800 mb-3 flex items-center gap-2">
+              <div className="bg-yellow-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+                5
+              </div>
+              LANGKAH 5: Ulangi Jika Belum Selesai
+            </h4>
+            <div className="space-y-3">
+              <p className="text-yellow-700 font-medium">
+                Jika koleksi Anda belum sama dengan target, ulangi langkah 2-4
+                sampai selesai.
+              </p>
+              <Alert>
+                <Target className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>SELESAI:</strong> Permainan berakhir ketika
+                  &quot;Koleksi Ikan Sekarang&quot; PERSIS SAMA dengan
+                  &quot;Target Koleksi Ikan&quot;. Nelayan akan terlihat senang!
+                  🎉
+                </AlertDescription>
+              </Alert>
+            </div>
           </div>
         </div>
       </div>
@@ -155,57 +485,132 @@ export function CfgHelp() {
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-orange-600 flex items-center gap-2">
           <Lightbulb className="w-5 h-5" />
-          Tips & Trik
+          Tips Penting untuk Sukses
         </h3>
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Alert>
-            <Fish className="h-4 w-4" />
+            <Eye className="h-4 w-4" />
             <AlertDescription>
-              <strong>Perhatikan Meja Perdagangan:</strong> Lihat semua aturan
-              perdagangan yang tersedia. Aturan menunjukkan ikan mana yang bisa
-              ditukar dengan ikan apa.
+              <strong>STRATEGI UTAMA:</strong> Selalu mulai dengan melihat
+              TARGET terlebih dahulu, lalu cari aturan perdagangan yang bisa
+              membantu Anda mencapainya. Jangan asal pilih ikan!
             </AlertDescription>
           </Alert>
 
           <Alert>
-            <Lightbulb className="h-4 w-4" />
+            <MousePointer className="h-4 w-4" />
             <AlertDescription>
-              <strong>Urutan Perdagangan:</strong> Terkadang Anda perlu
-              melakukan beberapa perdagangan secara berurutan untuk mencapai
-              target. Rencanakan langkah Anda!
+              <strong>CARA KLIK YANG BENAR:</strong> Klik ikan satu per satu
+              sampai semuanya menyala biru. Kalau ada yang salah, klik lagi
+              untuk membatalkan pilihan.
+            </AlertDescription>
+          </Alert>
+
+          <Alert>
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>TANDA SUKSES:</strong> Jika Anda memilih ikan yang benar,
+              akan ada baris biru berkedip di tabel. Kalau tidak ada yang biru,
+              berarti pilihan Anda salah.
             </AlertDescription>
           </Alert>
 
           <Alert>
             <Target className="h-4 w-4" />
             <AlertDescription>
-              <strong>Gunakan Tombol Bantuan:</strong> Jika terjebak, gunakan
-              tombol &quot;Batalkan&quot; untuk membatalkan langkah terakhir,
-              atau &quot;Reset&quot; untuk memulai dari awal.
+              <strong>JIKA STUCK:</strong> Gunakan tombol &quot;Batalkan&quot;
+              untuk mundur satu langkah, atau &quot;Reset&quot; untuk mulai dari
+              awal. Jangan malu untuk mengulang!
             </AlertDescription>
           </Alert>
+
+          <div className="bg-red-50 p-4 rounded-lg border-2 border-red-400">
+            <h4 className="font-bold text-red-800 mb-3">
+              ⚠️ KESALAHAN UMUM YANG HARUS DIHINDARI:
+            </h4>
+            <ul className="space-y-2 text-red-700">
+              <li>
+                • <strong>Tidak baca target dulu:</strong> Harus lihat target
+                sebelum pilih ikan!
+              </li>
+              <li>
+                • <strong>Pilih ikan yang tidak bersebelahan:</strong> Ikan
+                harus bersebelahan di koleksi Anda!
+              </li>
+              <li>
+                • <strong>Tidak lihat baris biru:</strong> Kalau tidak ada yang
+                biru, jangan dipaksa klik!
+              </li>
+              <li>
+                • <strong>Terburu-buru:</strong> Ambil waktu untuk merencanakan
+                strategi!
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div className="bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-        <h4 className="font-semibold text-cyan-800 mb-2">
-          🎣 Tentang Nelayan dan Ikan
+      <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-lg border-2 border-cyan-400">
+        <h4 className="font-semibold text-cyan-800 mb-3 text-lg flex items-center gap-2">
+          🎣 Petunjuk Visual dari Nelayan
         </h4>
-        <p className="text-cyan-700 text-sm">
-          Nelayan akan menunjukkan ekspresi berbeda selama permainan:
-        </p>
-        <ul className="list-disc list-inside text-cyan-700 text-sm mt-2 space-y-1">
-          <li>
-            <strong>Melambaikan tangan:</strong> Siap memulai atau menunggu aksi
-          </li>
-          <li>
-            <strong>Berpikir:</strong> Sedang mempertimbangkan pilihan ikan yang
-            dipilih
-          </li>
-          <li>
-            <strong>Senang:</strong> Target tercapai! Perdagangan berhasil!
-          </li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-4 rounded-lg border border-cyan-200">
+            <div className="text-center mb-2">
+              <div className="text-3xl">👋</div>
+              <p className="font-bold text-cyan-800">Melambaikan Tangan</p>
+            </div>
+            <p className="text-cyan-700 text-sm">
+              Nelayan siap memulai atau menunggu Anda mengambil tindakan
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-cyan-200">
+            <div className="text-center mb-2">
+              <div className="text-3xl">🤔</div>
+              <p className="font-bold text-cyan-800">Berpikir</p>
+            </div>
+            <p className="text-cyan-700 text-sm">
+              Nelayan sedang mempertimbangkan pilihan ikan yang Anda pilih
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg border border-cyan-200">
+            <div className="text-center mb-2">
+              <div className="text-3xl">😄</div>
+              <p className="font-bold text-cyan-800">Senang</p>
+            </div>
+            <p className="text-cyan-700 text-sm">
+              Target tercapai! Perdagangan berhasil diselesaikan!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-lg border-2 border-yellow-500">
+        <h4 className="font-bold text-yellow-800 mb-3 text-lg">
+          🚀 RINGKASAN CEPAT:
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <p className="font-semibold text-yellow-800">LANGKAH SINGKAT:</p>
+            <ol className="list-decimal list-inside text-yellow-700 space-y-1">
+              <li>Lihat TARGET di kanan bawah</li>
+              <li>Pilih ikan dengan KLIK</li>
+              <li>Cari baris BIRU di tabel</li>
+              <li>KLIK baris biru</li>
+              <li>Ulangi sampai selesai</li>
+            </ol>
+          </div>
+          <div className="space-y-2">
+            <p className="font-semibold text-yellow-800">
+              TANDA VISUAL PENTING:
+            </p>
+            <ul className="list-disc list-inside text-yellow-700 space-y-1">
+              <li>Ikan terpilih: border biru + animasi</li>
+              <li>Aturan bisa dipakai: baris biru berkedip</li>
+              <li>Nelayan senang: target tercapai!</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

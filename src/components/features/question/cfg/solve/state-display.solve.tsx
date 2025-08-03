@@ -27,7 +27,7 @@ export function StateDisplaySolve({
     <div>
       <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>
       <div
-        className={`p-6 rounded-lg shadow-md min-h-32 flex items-center justify-center bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-slate-600 ${containerClassName}`}
+        className={`p-6 rounded-lg shadow-md min-h-32 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200 ${containerClassName}`}
       >
         <div className="flex flex-wrap justify-center gap-3 max-w-full">
           {state.map((obj, idx) => (

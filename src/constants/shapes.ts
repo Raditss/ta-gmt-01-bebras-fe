@@ -6,12 +6,7 @@ export const SUPPORTED_FISH = [
   'fish_grey',
   'fish_orange',
   'fish_pink',
-  'fish_red',
-  'fish_blue_skeleton',
-  'fish_green_skeleton',
-  'fish_orange_skeleton',
-  'fish_pink_skeleton',
-  'fish_red_skeleton'
+  'fish_red'
 ] as const;
 
 export type FishType = (typeof SUPPORTED_FISH)[number];
@@ -59,36 +54,6 @@ export const AVAILABLE_FISH = [
     type: 'fish_red' as FishType,
     name: 'Ikan Merah',
     path: '/kenney_fish-pack_2/Double/fish_red.png'
-  },
-  {
-    id: 8,
-    type: 'fish_blue_skeleton' as FishType,
-    name: 'Tulang Ikan Biru',
-    path: '/kenney_fish-pack_2/Double/fish_blue_skeleton.png'
-  },
-  {
-    id: 9,
-    type: 'fish_green_skeleton' as FishType,
-    name: 'Tulang Ikan Hijau',
-    path: '/kenney_fish-pack_2/Double/fish_green_skeleton.png'
-  },
-  {
-    id: 10,
-    type: 'fish_orange_skeleton' as FishType,
-    name: 'Tulang Ikan Oranye',
-    path: '/kenney_fish-pack_2/Double/fish_orange_skeleton.png'
-  },
-  {
-    id: 11,
-    type: 'fish_pink_skeleton' as FishType,
-    name: 'Tulang Ikan Pink',
-    path: '/kenney_fish-pack_2/Double/fish_pink_skeleton.png'
-  },
-  {
-    id: 12,
-    type: 'fish_red_skeleton' as FishType,
-    name: 'Tulang Ikan Merah',
-    path: '/kenney_fish-pack_2/Double/fish_red_skeleton.png'
   }
 ];
 
@@ -100,12 +65,7 @@ export const FISH_NAMES: Record<FishType, string> = {
   fish_grey: 'Ikan Abu-abu',
   fish_orange: 'Ikan Oranye',
   fish_pink: 'Ikan Pink',
-  fish_red: 'Ikan Merah',
-  fish_blue_skeleton: 'Tulang Ikan Biru',
-  fish_green_skeleton: 'Tulang Ikan Hijau',
-  fish_orange_skeleton: 'Tulang Ikan Oranye',
-  fish_pink_skeleton: 'Tulang Ikan Pink',
-  fish_red_skeleton: 'Tulang Ikan Merah'
+  fish_red: 'Ikan Merah'
 };
 
 // Sound queue types for interaction feedback
