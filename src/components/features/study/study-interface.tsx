@@ -36,6 +36,23 @@ export default function StudyInterface({ concept }: StudyInterfaceProps) {
     );
   }
 
+  // Get total pages for each study component
+  const getTotalPages = (concept: string): number => {
+    switch (concept) {
+      case 'cipher':
+        return 5; // CryptographyIntroPage, EncryptionTypesPage, CryptographyApplicationsPage, CipherNInteractivePage, RingCipherInteractivePage
+      case 'cfg':
+        return 6; // IntroductionPage, ComponentsPage, DerivationPage, ParseTreePage, ApplicationsPage, GameIntroPage
+      case 'pohon-keputusan':
+        return 3; // Adjust based on actual pages in PohonKeputusanStudy
+      default:
+        return 1;
+    }
+  };
+
+  const totalPages = getTotalPages(concept);
+  const isLastPage = currentPage >= totalPages - 1;
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -49,8 +66,10 @@ export default function StudyInterface({ concept }: StudyInterfaceProps) {
   };
 
   const handleNext = () => {
-    setCurrentPage((prev) => prev + 1);
-    scrollToTop();
+    if (!isLastPage) {
+      setCurrentPage((prev) => prev + 1);
+      scrollToTop();
+    }
   };
 
   return (
@@ -89,12 +108,13 @@ export default function StudyInterface({ concept }: StudyInterfaceProps) {
             </Button>
 
             <div className="text-sm text-gray-500">
-              Halaman {currentPage + 1}
+              Halaman {currentPage + 1} dari {totalPages}
             </div>
 
             <Button
               variant="outline"
               onClick={handleNext}
+              disabled={isLastPage}
               className="flex items-center gap-2"
             >
               Selanjutnya

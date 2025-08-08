@@ -31,7 +31,7 @@ const Dashboard = () => {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 p-6">
+      <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -50,7 +50,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header Banner */}
         <div className="bg-white rounded-3xl p-8 shadow-2xl relative overflow-visible min-h-[120px] flex items-center">

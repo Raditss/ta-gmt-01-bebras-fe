@@ -11,7 +11,7 @@ import {
   QuestionTypeEnum,
   getQuestionTypeByName
 } from '@/types/question-type.type';
-// import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
+import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
 import { QuestionTypeResponse } from '@/utils/validations/question-type.validation';
 import { questionTypeApi } from '@/lib/api/question-type.api';
 import { questionsApi } from '@/lib/api/questions.api';
@@ -160,18 +160,17 @@ export default function ProblemsPage() {
             />
 
             {/* Generate Random Question Button - Moved to Exercise page */}
-            {/* 
+
             <div className="w-full max-w-xs mx-auto">
               <Button
                 variant="default"
                 className="w-full bg-indigo-200 hover:bg-indigo-300 text-indigo-900 shadow-lg"
-                onClick={handleOpenGenerateModal}
+                onClick={_handleOpenGenerateModal}
                 disabled={!mounted}
               >
                 Kerjakan Soal Acak
               </Button>
             </div>
-            */}
           </div>
 
           {/* Problem grid */}
@@ -259,13 +258,12 @@ export default function ProblemsPage() {
       </footer>
 
       {/* Generator modal moved to Exercise page */}
-      {/*
+
       <QuestionTypeModal
-        open={isTypeModalOpen}
-        onClose={() => setIsTypeModalOpen(false)}
-        onSelectType={handleGenerateQuestion}
+        open={_isTypeModalOpen}
+        onClose={() => _setIsTypeModalOpen(false)}
+        onSelectType={_handleGenerateQuestion}
       />
-      */}
     </div>
   );
 }

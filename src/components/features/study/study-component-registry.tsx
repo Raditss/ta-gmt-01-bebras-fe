@@ -1,4 +1,4 @@
-import KriptografiStudy from '@/components/features/study/concepts/kriptografi-study';
+import CipherStudy from '@/components/features/study/concepts/cipher-study';
 import PohonKeputusanStudy from '@/components/features/study/concepts/pohon-keputusan-study';
 import CFGStudy from '@/components/features/study/concepts/cfg-study';
 
@@ -10,7 +10,7 @@ export const studyComponentRegistry: Record<
     setCurrentPage: (page: number) => void;
   }>
 > = {
-  kriptografi: KriptografiStudy,
+  cipher: CipherStudy,
   'pohon-keputusan': PohonKeputusanStudy,
   cfg: CFGStudy
 };

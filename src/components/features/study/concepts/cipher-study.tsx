@@ -1,23 +1,27 @@
 import {
   CryptographyIntroPage,
   EncryptionTypesPage,
-  CryptographyApplicationsPage
-} from './kriptografi-pages';
+  CryptographyApplicationsPage,
+  CipherNInteractivePage,
+  RingCipherInteractivePage
+} from './cipher-pages';
 
-interface KriptografiStudyProps {
+interface CipherStudyProps {
   currentPage: number;
   setCurrentPage: (page: number) => void;
 }
 
-export default function KriptografiStudy({
+export default function CipherStudy({
   currentPage,
   setCurrentPage: _setCurrentPage
-}: KriptografiStudyProps) {
+}: CipherStudyProps) {
   // Array of page components
   const pageComponents = [
     CryptographyIntroPage,
     EncryptionTypesPage,
-    CryptographyApplicationsPage
+    CryptographyApplicationsPage,
+    CipherNInteractivePage,
+    RingCipherInteractivePage
   ];
 
   // Get the current page component

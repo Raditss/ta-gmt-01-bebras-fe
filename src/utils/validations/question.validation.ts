@@ -57,6 +57,7 @@ export const questionResponseSchema = z.object({
       name: z.string(),
       description: z.string(),
       instructions: z.string(),
+      difficulty: z.string(),
       createdAt: dayJsSchema,
       updatedAt: dayJsSchema
     }),

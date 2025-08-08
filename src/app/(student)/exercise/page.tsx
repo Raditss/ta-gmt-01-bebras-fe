@@ -4,8 +4,8 @@ import { BookOpen, TreePine, Lock } from 'lucide-react';
 
 const learningCards = [
   {
-    id: 'kriptografi',
-    title: 'Kriptografi',
+    id: 'cipher',
+    title: 'Cipher',
     description: 'Pelajari teknik enkripsi dan dekripsi dalam keamanan data',
     icon: Lock,
     color: 'from-blue-500 to-blue-600'
@@ -28,7 +28,7 @@ const learningCards = [
 
 export default function ExercisePage() {
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -39,7 +39,7 @@ export default function ExercisePage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl shadow-lg p-8">
+        <div className="bg-gray-50 rounded-3xl shadow-lg p-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {learningCards.map((card) => {
               const IconComponent = card.icon;
