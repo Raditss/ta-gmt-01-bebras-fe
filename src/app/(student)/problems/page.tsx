@@ -11,7 +11,7 @@ import {
   QuestionTypeEnum,
   getQuestionTypeByName
 } from '@/types/question-type.type';
-import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
+// import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
 import { QuestionTypeResponse } from '@/utils/validations/question-type.validation';
 import { questionTypeApi } from '@/lib/api/question-type.api';
 import { questionsApi } from '@/lib/api/questions.api';
@@ -25,7 +25,7 @@ export default function ProblemsPage() {
     Record<QuestionTypeEnum, boolean>
   >({} as Record<QuestionTypeEnum, boolean>);
   const router = useRouter();
-  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
+  const [_isTypeModalOpen, _setIsTypeModalOpen] = useState(false);
   const { isAuthenticated, isHydrated } = useAuthStore();
 
   // Use the new hook for questions with search and pagination
@@ -94,11 +94,11 @@ export default function ProblemsPage() {
 
   // Don't hide the entire page during initial mount - just disable controls
 
-  const handleGenerateQuestion = async (type: QuestionTypeEnum) => {
+  const _handleGenerateQuestion = async (type: QuestionTypeEnum) => {
     console.log('handleGenerateQuestion called with type:', type);
 
     try {
-      setIsTypeModalOpen(false);
+      _setIsTypeModalOpen(false);
 
       // Show loading state while generating
       console.log('Generating question for type:', type);
@@ -123,7 +123,7 @@ export default function ProblemsPage() {
       console.error('Failed to generate question:', error);
       console.error('Error details:', error);
       // Reopen modal on error
-      setIsTypeModalOpen(true);
+      _setIsTypeModalOpen(true);
       // You could show an error toast here
       alert(
         `Gagal membuat soal: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}`
@@ -131,8 +131,8 @@ export default function ProblemsPage() {
     }
   };
 
-  const handleOpenGenerateModal = () => {
-    setIsTypeModalOpen(true);
+  const _handleOpenGenerateModal = () => {
+    _setIsTypeModalOpen(true);
   };
 
   return (
@@ -159,7 +159,8 @@ export default function ProblemsPage() {
               onQuestionTypeChange={!mounted ? () => {} : handleCategoryChange}
             />
 
-            {/* Generate Random Question Button - Outside filter box */}
+            {/* Generate Random Question Button - Moved to Exercise page */}
+            {/* 
             <div className="w-full max-w-xs mx-auto">
               <Button
                 variant="default"
@@ -170,6 +171,7 @@ export default function ProblemsPage() {
                 Kerjakan Soal Acak
               </Button>
             </div>
+            */}
           </div>
 
           {/* Problem grid */}
@@ -256,11 +258,14 @@ export default function ProblemsPage() {
         </div>
       </footer>
 
+      {/* Generator modal moved to Exercise page */}
+      {/*
       <QuestionTypeModal
         open={isTypeModalOpen}
         onClose={() => setIsTypeModalOpen(false)}
         onSelectType={handleGenerateQuestion}
       />
+      */}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { CipherNSolveModel } from '@/models/cipher-n/cipher-n.solve.model';
 import {
   GeneratedSolverProps,
@@ -168,10 +168,17 @@ function PolygonVisualization({
   );
 }
 
-export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
+export default function GeneratedCipherNSolver({
+  type,
+  difficulty
+}: GeneratedSolverProps) {
   // Use the generated question hook
   const { question, questionContent, loading, error, regenerate } =
-    useGeneratedQuestion<CipherNSolveModel>(type, CipherNSolveModel);
+    useGeneratedQuestion<CipherNSolveModel>(
+      type,
+      CipherNSolveModel,
+      difficulty
+    );
 
   // Add breathing glow animation
   useEffect(() => {
@@ -203,7 +210,7 @@ export default function GeneratedCipherNSolver({ type }: GeneratedSolverProps) {
   const [highlightedPosition, setHighlightedPosition] = useState<number>(0);
 
   const content = question?.getContent();
-  const vertices = content?.vertices || [];
+  const vertices = useMemo(() => content?.vertices || [], [content?.vertices]);
   const maxRotation = vertices.length - 1;
   const answer = question?.getAnswer();
   const currentVertex = answer?.currentVertex || 0;

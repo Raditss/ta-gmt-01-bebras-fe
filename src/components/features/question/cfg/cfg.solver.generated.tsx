@@ -23,10 +23,14 @@ import {
   FishermanMood
 } from '@/components/features/question/cfg/shared/fisherman';
 
-export default function GeneratedCfgSolver({ type }: GeneratedSolverProps) {
+export default function GeneratedCfgSolver({
+  type,
+  difficulty
+}: GeneratedSolverProps) {
   const { question, loading, error, regenerate } = useGeneratedQuestion(
     type,
-    CfgSolveModel
+    CfgSolveModel,
+    difficulty
   );
 
   const { playFishSelect, playFishDeselect, playTradeApply } = useSoundQueue();

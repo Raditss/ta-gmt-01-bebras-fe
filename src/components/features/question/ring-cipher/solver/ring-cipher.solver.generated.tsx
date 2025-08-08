@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { RingCipherSolveModel } from '@/models/ring-cipher/ring-cipher.solve.model';
 import {
   GeneratedSolverProps,
@@ -177,11 +177,16 @@ function RingVisualization({
 }
 
 export default function GeneratedRingCipherSolver({
-  type
+  type,
+  difficulty
 }: GeneratedSolverProps) {
   // Use the generated question hook
   const { question, questionContent, loading, error, regenerate } =
-    useGeneratedQuestion<RingCipherSolveModel>(type, RingCipherSolveModel);
+    useGeneratedQuestion<RingCipherSolveModel>(
+      type,
+      RingCipherSolveModel,
+      difficulty
+    );
 
   // Add breathing glow animation
   useEffect(() => {
@@ -218,7 +223,7 @@ export default function GeneratedRingCipherSolver({
   const [previewPositions, setPreviewPositions] = useState<number[]>([]);
 
   const content = question?.getContent();
-  const rings = content?.rings || [];
+  const rings = useMemo(() => content?.rings || [], [content?.rings]);
   const answer = question?.getAnswer();
   const ringPositions = answer?.ringPositions || rings.map(() => 0);
   const answerArr = answer?.encryptedMessage || [];

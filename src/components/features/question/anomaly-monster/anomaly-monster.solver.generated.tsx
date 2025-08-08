@@ -20,12 +20,14 @@ import { DynamicHelp } from '@/components/features/question/shared/dynamic-help'
 import { AlertTriangle } from 'lucide-react';
 
 export default function GeneratedAnomalyMonsterSolver({
-  type
+  type,
+  difficulty
 }: GeneratedSolverProps) {
   const { question, questionContent, loading, error, regenerate } =
     useGeneratedQuestion<AnomalyMonsterSolveModel>(
       type,
-      AnomalyMonsterSolveModel
+      AnomalyMonsterSolveModel,
+      difficulty
     );
 
   const [anomalies, setAnomalies] = useState<number[]>([]);

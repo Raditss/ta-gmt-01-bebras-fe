@@ -9,7 +9,8 @@ type GeneratedQuestionConstructionModel<
 
 export const useGeneratedQuestion = <GeneratedQuestionModel extends IQuestion>(
   type: QuestionTypeEnum,
-  generatedQuestionModel: GeneratedQuestionConstructionModel<GeneratedQuestionModel>
+  generatedQuestionModel: GeneratedQuestionConstructionModel<GeneratedQuestionModel>,
+  difficulty?: string
 ) => {
   const [question, setQuestion] = useState<GeneratedQuestionModel | null>(null);
   const [questionContent, setQuestionContent] = useState<string>('');
@@ -31,10 +32,11 @@ export const useGeneratedQuestion = <GeneratedQuestionModel extends IQuestion>(
 
       // Store original question content for API submission
       // Handle content that might already be a string (from backend) or an object
-      const contentString = typeof questionData.content === 'string' 
-        ? questionData.content 
-        : JSON.stringify(questionData.content);
-      
+      const contentString =
+        typeof questionData.content === 'string'
+          ? questionData.content
+          : JSON.stringify(questionData.content);
+
       setQuestionContent(contentString);
 
       // Populate question with generated content
@@ -59,10 +61,18 @@ export const useGeneratedQuestion = <GeneratedQuestionModel extends IQuestion>(
       setLoading(true);
       setError(null);
 
-      console.log('🎲 Generating new question for type:', type);
+      console.log(
+        '🎲 Generating new question for type:',
+        type,
+        'with difficulty:',
+        difficulty
+      );
 
-      // Generate new question
-      const generatedQuestion = await questionsApi.generateQuestion(type);
+      // Generate new question with provided difficulty
+      const generatedQuestion = await questionsApi.generateQuestion(
+        type,
+        difficulty
+      );
       console.log('📝 Generated question received:', generatedQuestion);
 
       // Store in sessionStorage
@@ -84,7 +94,7 @@ export const useGeneratedQuestion = <GeneratedQuestionModel extends IQuestion>(
     } finally {
       setLoading(false);
     }
-  }, [type, loadFromStorage]);
+  }, [type, difficulty, loadFromStorage]);
 
   useEffect(() => {
     const initializeQuestion = async () => {
