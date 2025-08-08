@@ -1,7 +1,8 @@
 import {
+  DecisionTreeApplicationsPage,
   DecisionTreeIntroPage,
   DecisionTreeWorkingPage,
-  DecisionTreeApplicationsPage
+  AnomalyMonsterInteractivePage
 } from './pohon-keputusan-pages';
 
 interface PohonKeputusanStudyProps {
@@ -17,7 +18,8 @@ export default function PohonKeputusanStudy({
   const pageComponents = [
     DecisionTreeIntroPage,
     DecisionTreeWorkingPage,
-    DecisionTreeApplicationsPage
+    DecisionTreeApplicationsPage,
+    AnomalyMonsterInteractivePage
   ];
 
   // Get the current page component

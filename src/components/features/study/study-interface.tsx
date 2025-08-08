@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { studyComponentRegistry } from '@/components/features/study/study-component-registry';
 import Link from 'next/link';
 
@@ -44,7 +44,7 @@ export default function StudyInterface({ concept }: StudyInterfaceProps) {
       case 'cfg':
         return 6; // IntroductionPage, ComponentsPage, DerivationPage, ParseTreePage, ApplicationsPage, GameIntroPage
       case 'pohon-keputusan':
-        return 3; // Adjust based on actual pages in PohonKeputusanStudy
+        return 4; // Adjust based on actual pages in PohonKeputusanStudy
       default:
         return 1;
     }
