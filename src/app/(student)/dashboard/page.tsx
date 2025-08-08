@@ -1,15 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { TrendingUp, Play, Target } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import { useDashboard } from '@/hooks/useDashboard';
 import Image from 'next/image';
 import RandomQuote from '@/components/ui/random-quotes';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { QuestionTypeModal } from '@/components/features/questions/question-type-modal';
+import { QuestionTypeEnum } from '@/types/question-type.type';
+import { questionsApi } from '@/lib/api/questions.api';
+import { useRouter } from 'next/navigation';
 
 const Dashboard = () => {
   const { user } = useAuthStore();
+  const router = useRouter();
+  const [isTypeModalOpen, setIsTypeModalOpen] = useState(false);
 
   // Use the dashboard hook to get all data
   const {
@@ -27,6 +33,47 @@ const Dashboard = () => {
     error,
     questionStatistics
   } = useDashboard();
+
+  const handleGenerateQuestion = async (type: QuestionTypeEnum) => {
+    console.log('handleGenerateQuestion called with type:', type);
+
+    try {
+      setIsTypeModalOpen(false);
+
+      // Show loading state while generating
+      console.log('Generating question for type:', type);
+
+      // Call backend to generate the question
+      console.log('Calling questionsApi.generateQuestion...');
+      const generatedQuestion = await questionsApi.generateQuestion(type);
+      console.log('Generated question received:', generatedQuestion);
+
+      // Store the generated question in sessionStorage for the solve page
+      sessionStorage.setItem(
+        'generatedQuestion',
+        JSON.stringify(generatedQuestion)
+      );
+      console.log('Question stored in sessionStorage');
+
+      // Navigate to the generated question solver
+      const targetUrl = `/problems/generated/${type}/solve`;
+      console.log('Navigating to:', targetUrl);
+      router.push(targetUrl);
+    } catch (error) {
+      console.error('Failed to generate question:', error);
+      console.error('Error details:', error);
+      // Reopen modal on error
+      setIsTypeModalOpen(true);
+      // You could show an error toast here
+      alert(
+        `Gagal membuat soal: ${error instanceof Error ? error.message : 'Kesalahan tidak diketahui'}`
+      );
+    }
+  };
+
+  const handleOpenGenerateModal = () => {
+    setIsTypeModalOpen(true);
+  };
 
   // Show loading state
   if (isLoading) {
@@ -183,7 +230,10 @@ const Dashboard = () => {
                   <Play className="w-4 h-4" />
                   Kerjakan Soal
                 </button>
-                <button className="w-full bg-white text-black rounded-full py-3 px-6 font-semibold flex items-center justify-center gap-3 border border-black/10 hover:bg-gray-50 transition-colors text-base shadow">
+                <button
+                  onClick={handleOpenGenerateModal}
+                  className="w-full bg-white text-black rounded-full py-3 px-6 font-semibold flex items-center justify-center gap-3 border border-black/10 hover:bg-gray-50 transition-colors text-base shadow"
+                >
                   <span className="inline-block">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -298,6 +348,13 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Question Type Modal */}
+      <QuestionTypeModal
+        open={isTypeModalOpen}
+        onClose={() => setIsTypeModalOpen(false)}
+        onSelectType={handleGenerateQuestion}
+      />
     </div>
   );
 };
