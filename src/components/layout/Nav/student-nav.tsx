@@ -24,8 +24,8 @@ import Image from 'next/image';
 
 const navItems = [
   { href: '/dashboard', label: 'Beranda', icon: Home },
-  { href: '/problems', label: 'Soal', icon: BookOpen },
   { href: '/exercise', label: 'Latihan', icon: GraduationCap },
+  { href: '/problems', label: 'Soal', icon: BookOpen },
   { href: '/leaderboard', label: 'Peringkat', icon: Trophy }
 ];
 
