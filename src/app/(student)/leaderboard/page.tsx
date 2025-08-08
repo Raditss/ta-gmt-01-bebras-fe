@@ -146,14 +146,14 @@ export default function LeaderboardPage() {
                         {/* Second Place */}
                         <div className="flex flex-col items-center">
                           <Avatar className="w-16 h-16 mb-3 ring-4 ring-blue-400">
-                            {topThree[1]?.user.props.photoUrl ? (
+                            {topThree[1]?.user.photoUrl ? (
                               <AvatarImage
-                                src={topThree[1]?.user.props.photoUrl}
-                                alt={topThree[1]?.user.props.name}
+                                src={topThree[1]?.user.photoUrl}
+                                alt={topThree[1]?.user.name}
                               />
                             ) : (
                               <AvatarFallback className="text-lg font-bold bg-blue-500 text-white">
-                                {topThree[1]?.user.props.name.charAt(0)}
+                                {topThree[1]?.user.name.charAt(0)}
                               </AvatarFallback>
                             )}
                           </Avatar>
@@ -161,7 +161,7 @@ export default function LeaderboardPage() {
                             {topThree[1]?.points} Points
                           </div>
                           <div className="text-lg font-bold text-gray-800 mb-2">
-                            {topThree[1]?.user.props.name}
+                            {topThree[1]?.user.name}
                           </div>
                           <div className="flex gap-3 mb-4">
                             <div className="text-center">
@@ -190,14 +190,14 @@ export default function LeaderboardPage() {
                         <div className="flex flex-col items-center relative -top-6">
                           <div className="text-4xl mb-2">👑</div>
                           <Avatar className="w-20 h-20 mb-3 ring-4 ring-yellow-400">
-                            {topThree[0]?.user.props.photoUrl ? (
+                            {topThree[0]?.user.photoUrl ? (
                               <AvatarImage
-                                src={topThree[0]?.user.props.photoUrl}
-                                alt={topThree[0]?.user.props.name}
+                                src={topThree[0]?.user.photoUrl}
+                                alt={topThree[0]?.user.name}
                               />
                             ) : (
                               <AvatarFallback className="text-xl font-bold bg-yellow-500 text-white">
-                                {topThree[0]?.user.props.name.charAt(0)}
+                                {topThree[0]?.user.name.charAt(0)}
                               </AvatarFallback>
                             )}
                           </Avatar>
@@ -205,7 +205,7 @@ export default function LeaderboardPage() {
                             {topThree[0]?.points} Points
                           </div>
                           <div className="text-xl font-bold text-gray-800 mb-2">
-                            {topThree[0]?.user.props.name}
+                            {topThree[0]?.user.name}
                           </div>
                           <div className="flex gap-3 mb-4">
                             <div className="text-center">
@@ -233,14 +233,14 @@ export default function LeaderboardPage() {
                         {/* Third Place */}
                         <div className="flex flex-col items-center">
                           <Avatar className="w-16 h-16 mb-3 ring-4 ring-purple-400">
-                            {topThree[2]?.user.props.photoUrl ? (
+                            {topThree[2]?.user.photoUrl ? (
                               <AvatarImage
-                                src={topThree[2]?.user.props.photoUrl}
-                                alt={topThree[2]?.user.props.name}
+                                src={topThree[2]?.user.photoUrl}
+                                alt={topThree[2]?.user.name}
                               />
                             ) : (
                               <AvatarFallback className="text-lg font-bold bg-purple-500 text-white">
-                                {topThree[2]?.user.props.name.charAt(0)}
+                                {topThree[2]?.user.name.charAt(0)}
                               </AvatarFallback>
                             )}
                           </Avatar>
@@ -248,7 +248,7 @@ export default function LeaderboardPage() {
                             {topThree[2]?.points} Points
                           </div>
                           <div className="text-lg font-bold text-gray-800 mb-2">
-                            {topThree[2]?.user.props.name}
+                            {topThree[2]?.user.name}
                           </div>
                           <div className="flex gap-3 mb-4">
                             <div className="text-center">
@@ -287,20 +287,20 @@ export default function LeaderboardPage() {
                               {getRankIcon(user.order)}
                             </div>
                             <Avatar className="w-10 h-10">
-                              {user.user.props.photoUrl ? (
+                              {user.user.photoUrl ? (
                                 <AvatarImage
-                                  src={user.user.props.photoUrl}
-                                  alt={user.user.props.name}
+                                  src={user.user.photoUrl}
+                                  alt={user.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="bg-gray-500 text-white">
-                                  {user.user.props.name.charAt(0)}
+                                  {user.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
                             <div>
                               <div className="font-semibold text-gray-800">
-                                {user.user.props.name}
+                                {user.user.name}
                               </div>
                               <div className="text-sm text-gray-600">
                                 {user.solved || 0} problems solved
@@ -339,14 +339,14 @@ export default function LeaderboardPage() {
                         {topThree[1] && (
                           <div className="flex flex-col items-center">
                             <Avatar className="w-16 h-16 mb-3 ring-4 ring-blue-400">
-                              {topThree[1]?.user.props.photoUrl ? (
+                              {topThree[1]?.user.photoUrl ? (
                                 <AvatarImage
-                                  src={topThree[1]?.user.props.photoUrl}
-                                  alt={topThree[1]?.user.props.name}
+                                  src={topThree[1]?.user.photoUrl}
+                                  alt={topThree[1]?.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="text-lg font-bold bg-blue-500 text-white">
-                                  {topThree[1]?.user.props.name.charAt(0)}
+                                  {topThree[1]?.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
@@ -354,7 +354,7 @@ export default function LeaderboardPage() {
                               {topThree[1]?.points} Points
                             </div>
                             <div className="text-lg font-bold text-gray-800 mb-2">
-                              {topThree[1]?.user.props.name}
+                              {topThree[1]?.user.name}
                             </div>
                             <div className="flex gap-3 mb-4">
                               <div className="text-center">
@@ -385,14 +385,14 @@ export default function LeaderboardPage() {
                           <div className="flex flex-col items-center relative -top-6">
                             <div className="text-4xl mb-2">👑</div>
                             <Avatar className="w-20 h-20 mb-3 ring-4 ring-yellow-400">
-                              {topThree[0]?.user.props.photoUrl ? (
+                              {topThree[0]?.user.photoUrl ? (
                                 <AvatarImage
-                                  src={topThree[0]?.user.props.photoUrl}
-                                  alt={topThree[0]?.user.props.name}
+                                  src={topThree[0]?.user.photoUrl}
+                                  alt={topThree[0]?.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="text-xl font-bold bg-yellow-500 text-white">
-                                  {topThree[0]?.user.props.name.charAt(0)}
+                                  {topThree[0]?.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
@@ -400,7 +400,7 @@ export default function LeaderboardPage() {
                               {topThree[0]?.points} Points
                             </div>
                             <div className="text-xl font-bold text-gray-800 mb-2">
-                              {topThree[0]?.user.props.name}
+                              {topThree[0]?.user.name}
                             </div>
                             <div className="flex gap-3 mb-4">
                               <div className="text-center">
@@ -430,14 +430,14 @@ export default function LeaderboardPage() {
                         {topThree[2] && (
                           <div className="flex flex-col items-center">
                             <Avatar className="w-16 h-16 mb-3 ring-4 ring-purple-400">
-                              {topThree[2]?.user.props.photoUrl ? (
+                              {topThree[2]?.user.photoUrl ? (
                                 <AvatarImage
-                                  src={topThree[2]?.user.props.photoUrl}
-                                  alt={topThree[2]?.user.props.name}
+                                  src={topThree[2]?.user.photoUrl}
+                                  alt={topThree[2]?.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="text-lg font-bold bg-purple-500 text-white">
-                                  {topThree[2]?.user.props.name.charAt(0)}
+                                  {topThree[2]?.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
@@ -445,7 +445,7 @@ export default function LeaderboardPage() {
                               {topThree[2]?.points} Points
                             </div>
                             <div className="text-lg font-bold text-gray-800 mb-2">
-                              {topThree[2]?.user.props.name}
+                              {topThree[2]?.user.name}
                             </div>
                             <div className="flex gap-3 mb-4">
                               <div className="text-center">
@@ -485,20 +485,20 @@ export default function LeaderboardPage() {
                               {getRankIcon(user.order)}
                             </div>
                             <Avatar className="w-10 h-10">
-                              {user.user.props.photoUrl ? (
+                              {user.user.photoUrl ? (
                                 <AvatarImage
-                                  src={user.user.props.photoUrl}
-                                  alt={user.user.props.name}
+                                  src={user.user.photoUrl}
+                                  alt={user.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="bg-gray-500 text-white">
-                                  {user.user.props.name.charAt(0)}
+                                  {user.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
                             <div>
                               <div className="font-semibold text-gray-800">
-                                {user.user.props.name}
+                                {user.user.name}
                               </div>
                               <div className="text-sm text-gray-600">
                                 {user.solved || 0} problems solved
@@ -537,14 +537,14 @@ export default function LeaderboardPage() {
                         {topThree[1] && (
                           <div className="flex flex-col items-center">
                             <Avatar className="w-16 h-16 mb-3 ring-4 ring-blue-400">
-                              {topThree[1]?.user.props.photoUrl ? (
+                              {topThree[1]?.user.photoUrl ? (
                                 <AvatarImage
-                                  src={topThree[1]?.user.props.photoUrl}
-                                  alt={topThree[1]?.user.props.name}
+                                  src={topThree[1]?.user.photoUrl}
+                                  alt={topThree[1]?.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="text-lg font-bold bg-blue-500 text-white">
-                                  {topThree[1]?.user.props.name.charAt(0)}
+                                  {topThree[1]?.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
@@ -552,7 +552,7 @@ export default function LeaderboardPage() {
                               {topThree[1]?.points} Points
                             </div>
                             <div className="text-lg font-bold text-gray-800 mb-2">
-                              {topThree[1]?.user.props.name}
+                              {topThree[1]?.user.name}
                             </div>
                             <div className="flex gap-3 mb-4">
                               <div className="text-center">
@@ -583,14 +583,14 @@ export default function LeaderboardPage() {
                           <div className="flex flex-col items-center relative -top-6">
                             <div className="text-4xl mb-2">👑</div>
                             <Avatar className="w-20 h-20 mb-3 ring-4 ring-yellow-400">
-                              {topThree[0]?.user.props.photoUrl ? (
+                              {topThree[0]?.user.photoUrl ? (
                                 <AvatarImage
-                                  src={topThree[0]?.user.props.photoUrl}
-                                  alt={topThree[0]?.user.props.name}
+                                  src={topThree[0]?.user.photoUrl}
+                                  alt={topThree[0]?.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="text-xl font-bold bg-yellow-500 text-white">
-                                  {topThree[0]?.user.props.name.charAt(0)}
+                                  {topThree[0]?.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
@@ -598,7 +598,7 @@ export default function LeaderboardPage() {
                               {topThree[0]?.points} Points
                             </div>
                             <div className="text-xl font-bold text-gray-800 mb-2">
-                              {topThree[0]?.user.props.name}
+                              {topThree[0]?.user.name}
                             </div>
                             <div className="flex gap-3 mb-4">
                               <div className="text-center">
@@ -628,14 +628,14 @@ export default function LeaderboardPage() {
                         {topThree[2] && (
                           <div className="flex flex-col items-center">
                             <Avatar className="w-16 h-16 mb-3 ring-4 ring-purple-400">
-                              {topThree[2]?.user.props.photoUrl ? (
+                              {topThree[2]?.user.photoUrl ? (
                                 <AvatarImage
-                                  src={topThree[2]?.user.props.photoUrl}
-                                  alt={topThree[2]?.user.props.name}
+                                  src={topThree[2]?.user.photoUrl}
+                                  alt={topThree[2]?.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="text-lg font-bold bg-purple-500 text-white">
-                                  {topThree[2]?.user.props.name.charAt(0)}
+                                  {topThree[2]?.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
@@ -643,7 +643,7 @@ export default function LeaderboardPage() {
                               {topThree[2]?.points} Points
                             </div>
                             <div className="text-lg font-bold text-gray-800 mb-2">
-                              {topThree[2]?.user.props.name}
+                              {topThree[2]?.user.name}
                             </div>
                             <div className="flex gap-3 mb-4">
                               <div className="text-center">
@@ -683,20 +683,20 @@ export default function LeaderboardPage() {
                               {getRankIcon(user.order)}
                             </div>
                             <Avatar className="w-10 h-10">
-                              {user.user.props.photoUrl ? (
+                              {user.user.photoUrl ? (
                                 <AvatarImage
-                                  src={user.user.props.photoUrl}
-                                  alt={user.user.props.name}
+                                  src={user.user.photoUrl}
+                                  alt={user.user.name}
                                 />
                               ) : (
                                 <AvatarFallback className="bg-gray-500 text-white">
-                                  {user.user.props.name.charAt(0)}
+                                  {user.user.name.charAt(0)}
                                 </AvatarFallback>
                               )}
                             </Avatar>
                             <div>
                               <div className="font-semibold text-gray-800">
-                                {user.user.props.name}
+                                {user.user.name}
                               </div>
                               <div className="text-sm text-gray-600">
                                 {user.solved || 0} problems solved

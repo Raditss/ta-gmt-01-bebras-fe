@@ -6,21 +6,13 @@ export enum TimeFrame {
 
 export interface LeaderboardItem {
   user: {
-    props: {
-      id: number;
-      username: string;
-      name: string;
-      photoUrl: string | null;
-      role: string;
-      status: string;
-      createdAt: string;
-      updatedAt: string;
-      verifiedAt: string | null;
-    };
+    id: number;
+    name: string;
+    username: string;
+    photoUrl: string | null;
   };
   points: number;
   streak: number;
-  badges: number;
   order: number;
   solved: number;
 }
