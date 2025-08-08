@@ -11,20 +11,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {
-  Home,
-  BookOpen,
-  Trophy,
-  User,
-  LogOut,
-  GraduationCap
-} from 'lucide-react';
+import { BookOpen, Home, LogOut, Trophy, User } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import Image from 'next/image';
 
 const navItems = [
   { href: '/dashboard', label: 'Beranda', icon: Home },
-  { href: '/exercise', label: 'Latihan', icon: GraduationCap },
+  // { href: '/exercise', label: 'Latihan', icon: GraduationCap },
   { href: '/problems', label: 'Soal', icon: BookOpen },
   { href: '/leaderboard', label: 'Peringkat', icon: Trophy }
 ];
