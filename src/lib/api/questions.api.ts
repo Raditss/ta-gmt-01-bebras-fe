@@ -88,12 +88,14 @@ export const questionsApi = {
   },
 
   async generateQuestion(
-    type: QuestionTypeEnum
+    type: QuestionTypeEnum,
+    difficulty?: string
   ): Promise<GeneratedQuestionResponse> {
     const response = await apiCore.post<GeneratedQuestionResponse>(
       `/questions/generate`,
       {
-        type
+        type,
+        ...(difficulty && { difficulty })
       }
     );
     return response.data;

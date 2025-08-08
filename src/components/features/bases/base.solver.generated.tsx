@@ -5,6 +5,7 @@ import { QuestionTypeEnum } from '@/types/question-type.type';
 
 export interface GeneratedSolverProps {
   type: QuestionTypeEnum;
+  difficulty?: string;
 }
 
 export interface GeneratedBaseSolver {
