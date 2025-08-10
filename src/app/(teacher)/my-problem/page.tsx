@@ -22,12 +22,15 @@ type SortState = {
   direction: 'asc' | 'desc';
 };
 
+type TabType = 'draft' | 'published';
+
 export default function MyProblemPage() {
   const [questions, setQuestions] = useState<QuestionResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>('draft');
   const [sort, setSort] = useState<SortState>({
     column: 'title',
     direction: 'asc'
@@ -56,7 +59,7 @@ export default function MyProblemPage() {
     new Set(questions.map((q) => q.props.questionType.name))
   );
 
-  // Filter questions by search and type
+  // Filter questions by search, type, and active tab
   const filteredQuestions = questions.filter((q) => {
     const matchesTitle = q.props.title
       .toLowerCase()
@@ -64,7 +67,9 @@ export default function MyProblemPage() {
     const matchesType = typeFilter
       ? q.props.questionType.name === typeFilter
       : true;
-    return matchesTitle && matchesType;
+    const matchesTab =
+      activeTab === 'draft' ? !q.props.isPublished : q.props.isPublished;
+    return matchesTitle && matchesType && matchesTab;
   });
 
   // Sort questions
@@ -107,6 +112,31 @@ export default function MyProblemPage() {
   return (
     <div className="max-w-5xl mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-6">Soal yang Saya Buat</h1>
+
+      {/* Tabs */}
+      <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+        <button
+          onClick={() => setActiveTab('draft')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'draft'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Draft
+        </button>
+        <button
+          onClick={() => setActiveTab('published')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            activeTab === 'published'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          Dipublikasi
+        </button>
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6 justify-between">
         <input
           type="text"
@@ -130,6 +160,7 @@ export default function MyProblemPage() {
           </select>
         </div>
       </div>
+
       {loading ? (
         <div className="text-center py-12">Memuat...</div>
       ) : error ? (
@@ -162,7 +193,7 @@ export default function MyProblemPage() {
               >
                 Status {sortArrow('status')}
               </TableHead>
-              <TableHead>Aksi</TableHead>
+              {activeTab === 'draft' && <TableHead>Aksi</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -174,24 +205,27 @@ export default function MyProblemPage() {
                 <TableCell>
                   {q.props.isPublished ? 'Dipublikasi' : 'Draft'}
                 </TableCell>
-                <TableCell>
-                  <Link href={`/problems/${q.props.id}`}>
-                    <Button size="sm" variant="outline">
-                      Lihat
-                    </Button>
-                  </Link>
-                  <Link
-                    href={`/add-problem/create/${q.props.questionType.name}/${q.props.id}`}
-                  >
-                    <Button size="sm" variant="ghost" className="ml-2">
-                      Edit
-                    </Button>
-                  </Link>
-                </TableCell>
+                {activeTab === 'draft' && (
+                  <TableCell>
+                    <Link
+                      href={`/add-problem/create/${q.props.questionType.name}/${q.props.id}`}
+                    >
+                      <Button size="sm" variant="ghost">
+                        Edit
+                      </Button>
+                    </Link>
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>
         </Table>
+      )}
+
+      {sortedQuestions.length === 0 && !loading && (
+        <div className="text-center py-8 text-gray-500">
+          Tidak ada soal {activeTab === 'draft' ? 'draft' : 'yang dipublikasi'}.
+        </div>
       )}
     </div>
   );

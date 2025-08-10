@@ -77,10 +77,7 @@ export function QuestionTypeModal({
       case QuestionTypeEnum.CFG:
         return 'Pedagang Ikan';
       case QuestionTypeEnum.ANOMALY_MONSTER:
-        return 'Monster yang Aneh';
-    }
-    if (name === 'fish-trader') {
-      return 'Pedagang Ikan';
+        return 'Anomali Monster';
     }
     return name
       .split('-')

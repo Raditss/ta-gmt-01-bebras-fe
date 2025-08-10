@@ -67,7 +67,7 @@ export function GeneratedSubmitSection({
   // Handle modal close
   const handleModalClose = useCallback(() => {
     setSubmissionResult(null);
-    router.push('/exercise');
+    router.push('/dashboard');
   }, [router]);
 
   // Handle cancel

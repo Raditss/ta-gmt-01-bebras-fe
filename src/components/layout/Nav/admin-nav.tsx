@@ -28,7 +28,7 @@ export function AdminNav() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/admin" className="flex items-center space-x-2">
+          <Link href="/manage-user" className="flex items-center space-x-2">
             <Image
               src="/graphic/Solvio-logo.svg"
               alt="logo"

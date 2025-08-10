@@ -31,6 +31,19 @@ export const usersApi = {
     return response.data;
   },
 
+  async getStudent(params?: GetUsersParams) {
+    const searchParams = new URLSearchParams();
+    if (params?.skip !== undefined)
+      searchParams.append('skip', params.skip.toString());
+    if (params?.take !== undefined)
+      searchParams.append('take', params.take.toString());
+    if (params?.search) searchParams.append('search', params.search);
+    const response = await apiCore.get(
+      `/users/students?${searchParams.toString()}`
+    );
+    return response.data;
+  },
+
   async updateUserStatus(data: UpdateUserStatusParams) {
     const response = await apiCore.post('/users/status', data);
     return response.data;

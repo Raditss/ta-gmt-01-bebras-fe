@@ -23,10 +23,30 @@ import { usersApi } from '@/lib/api/users.api';
 import { User } from '@/store/auth.store';
 import { UserStatus } from '@/types/user-status.type';
 
+// New interface for student data from API
+interface Student {
+  id: number;
+  username: string;
+  name: string;
+  status: string;
+  photoUrl: string | null;
+  total_score: number;
+  solved: number;
+}
+
+interface StudentResponse {
+  data: Student[];
+  meta: {
+    totalStudents: number;
+  };
+}
+
 const STATUS_COLORS = {
   PENDING: 'bg-yellow-100 text-yellow-800',
   VERIFIED: 'bg-green-100 text-green-800',
   ACTIVE: 'bg-green-100 text-green-800',
+  active: 'bg-green-100 text-green-800',
+  inactive: 'bg-red-100 text-red-800',
   UNDER_REVIEW: 'bg-blue-100 text-blue-800',
   BANNED: 'bg-red-100 text-red-800'
 };
@@ -35,6 +55,7 @@ type TabType = 'solver' | 'creator';
 
 export default function ManageUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('solver');
@@ -47,6 +68,11 @@ export default function ManageUsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<keyof User | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  // Pagination state for students
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const studentsPerPage = 20;
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -62,10 +88,33 @@ export default function ManageUsersPage() {
     }
   };
 
+  const fetchStudents = async (page: number = 1) => {
+    setLoading(true);
+    try {
+      const skip = (page - 1) * studentsPerPage;
+      const data = await usersApi.getStudent({
+        skip,
+        take: studentsPerPage,
+        search: search || undefined
+      });
+      const response = data as StudentResponse;
+      setStudents(response.data);
+      setTotalStudents(response.meta.totalStudents);
+    } catch {
+      setError('Failed to fetch students');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch users from API
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (activeTab === 'creator') {
+      fetchUsers();
+    } else {
+      fetchStudents(currentPage);
+    }
+  }, [activeTab, currentPage, search]);
 
   const handleSort = (key: keyof User) => {
     if (sortKey === key) {
@@ -92,17 +141,24 @@ export default function ManageUsersPage() {
     return 0;
   });
 
-  // Filter users based on active tab and other filters
+  // Filter users based on active tab and other filters (only for teachers)
   const filteredUsers = sortedUsers.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(search.toLowerCase()) ||
       user.username.toLowerCase().includes(search.toLowerCase());
-    const matchesTab =
-      activeTab === 'solver'
-        ? user.role === 'STUDENT'
-        : user.role === 'TEACHER';
+    const matchesTab = user.role === 'TEACHER';
     const matchesStatus = statusFilter ? user.status === statusFilter : true;
     return matchesSearch && matchesTab && matchesStatus;
+  });
+
+  // Filter students based on status filter
+  const filteredStudents = students.filter((student) => {
+    const matchesStatus = statusFilter
+      ? student.status === statusFilter ||
+        (statusFilter === 'ACTIVE' && student.status === 'active') ||
+        (statusFilter === 'INACTIVE' && student.status === 'inactive')
+      : true;
+    return matchesStatus;
   });
 
   const updateUserStatus = async (id: number, newStatus: string) => {
@@ -117,6 +173,18 @@ export default function ManageUsersPage() {
       await fetchUsers(); // Refresh the list
     } catch (error) {
       console.error('Failed to update user status:', error);
+    }
+  };
+
+  const updateStudentStatus = async (username: string, newStatus: string) => {
+    try {
+      await usersApi.updateUserStatus({
+        username,
+        status: newStatus
+      });
+      await fetchStudents(currentPage); // Refresh the list
+    } catch (error) {
+      console.error('Failed to update student status:', error);
     }
   };
 
@@ -145,12 +213,25 @@ export default function ManageUsersPage() {
         return;
     }
 
-    await updateUserStatus(modal.userId, newStatus);
+    if (activeTab === 'solver') {
+      const student = students.find((s) => s.id === modal.userId);
+      if (student) {
+        await updateStudentStatus(student.username, newStatus);
+      }
+    } else {
+      await updateUserStatus(modal.userId, newStatus);
+    }
     cancelModal();
   };
 
   const cancelModal = () =>
     setModal({ open: false, userId: null, action: null });
+
+  const totalPages = Math.ceil(totalStudents / studentsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -213,132 +294,229 @@ export default function ManageUsersPage() {
             <div className="text-center text-red-500 py-2">{error}</div>
           )}
 
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Avatar</TableHead>
-                <TableHead
-                  onClick={() => handleSort('name')}
-                  className="cursor-pointer select-none"
-                >
-                  Name
-                  {sortKey === 'name' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort('username')}
-                  className="cursor-pointer select-none"
-                >
-                  Username
-                  {sortKey === 'username' &&
-                    (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort('status')}
-                  className="cursor-pointer select-none"
-                >
-                  Status
-                  {sortKey === 'status' && (sortOrder === 'asc' ? ' ↑' : ' ↓')}
-                </TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src={user.photoUrl || '/placeholder-user.jpg'}
-                        alt={user.name}
-                      />
-                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  </TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[user.status as keyof typeof STATUS_COLORS]}`}
-                    >
-                      {user.status.replace('_', ' ')}
-                    </span>
-                  </TableCell>
-                  <TableCell className="space-x-2">
-                    {/* TEACHER: Not verified */}
-                    {user.role === 'TEACHER' && user.verifiedAt === null && (
-                      <Button
-                        size="sm"
-                        className="bg-green-400 hover:bg-green-500 text-black min-w-[90px]"
-                        onClick={() =>
-                          handleActivateDeactivate(user.id, 'VERIFY')
-                        }
-                      >
-                        Verify
-                      </Button>
-                    )}
-                    {/* TEACHER: Verified */}
-                    {user.role === 'TEACHER' &&
-                      user.verifiedAt !== null &&
-                      user.status === UserStatus.ACTIVE && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="min-w-[90px]"
-                          onClick={() =>
-                            handleActivateDeactivate(user.id, 'DEACTIVATE')
-                          }
+          {activeTab === 'solver' ? (
+            // Students Table
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Avatar</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Username</TableHead>
+                    <TableHead className="text-center">Total Score</TableHead>
+                    <TableHead className="text-center">Solved</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredStudents.map((student) => (
+                    <TableRow key={student.id}>
+                      <TableCell>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage
+                            src={student.photoUrl || '/placeholder-user.jpg'}
+                            alt={student.name}
+                          />
+                          <AvatarFallback>
+                            {student.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>{student.name}</TableCell>
+                      <TableCell>{student.username}</TableCell>
+                      <TableCell className="text-center">
+                        {student.total_score}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {student.solved}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[student.status as keyof typeof STATUS_COLORS]}`}
                         >
-                          Deactivate
-                        </Button>
-                      )}
-                    {user.role === 'TEACHER' &&
-                      user.verifiedAt !== null &&
-                      user.status === UserStatus.INACTIVE && (
-                        <Button
-                          size="sm"
-                          className="bg-blue-500 hover:bg-blue-600 text-white min-w-[90px]"
-                          onClick={() =>
-                            handleActivateDeactivate(user.id, 'ACTIVATE')
-                          }
-                        >
-                          Activate
-                        </Button>
-                      )}
-                    {/* STUDENT: Only ACTIVE/INACTIVE */}
-                    {user.role === 'STUDENT' &&
-                      user.status === UserStatus.INACTIVE && (
-                        <Button
-                          size="sm"
-                          className="bg-blue-500 hover:bg-blue-600 text-white min-w-[90px]"
-                          onClick={() =>
-                            handleActivateDeactivate(user.id, 'ACTIVATE')
-                          }
-                        >
-                          Activate
-                        </Button>
-                      )}
-                    {user.role === 'STUDENT' &&
-                      user.status === UserStatus.ACTIVE && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() =>
-                            handleActivateDeactivate(user.id, 'DEACTIVATE')
-                          }
-                        >
-                          Deactivate
-                        </Button>
-                      )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                          {student.status.replace('_', ' ')}
+                        </span>
+                      </TableCell>
+                      <TableCell className="space-x-2">
+                        {(student.status === 'ACTIVE' ||
+                          student.status === 'active') && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="min-w-[90px]"
+                            onClick={() =>
+                              handleActivateDeactivate(student.id, 'DEACTIVATE')
+                            }
+                          >
+                            Deactivate
+                          </Button>
+                        )}
+                        {(student.status === 'INACTIVE' ||
+                          student.status === 'inactive') && (
+                          <Button
+                            size="sm"
+                            className="bg-blue-500 hover:bg-blue-600 text-white min-w-[90px]"
+                            onClick={() =>
+                              handleActivateDeactivate(student.id, 'ACTIVATE')
+                            }
+                          >
+                            Activate
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
-          {filteredUsers.length === 0 && !loading && (
-            <div className="text-center py-8 text-gray-500">
-              No {activeTab === 'solver' ? 'solvers' : 'creators'} found.
-            </div>
+              {/* Pagination for Students */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6">
+                  <div className="text-sm text-gray-700">
+                    Showing {(currentPage - 1) * studentsPerPage + 1} to{' '}
+                    {Math.min(currentPage * studentsPerPage, totalStudents)} of{' '}
+                    {totalStudents} students
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+                    <span className="flex items-center px-3 py-2 text-sm">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {filteredStudents.length === 0 && !loading && (
+                <div className="text-center py-8 text-gray-500">
+                  No students found.
+                </div>
+              )}
+            </>
+          ) : (
+            // Teachers Table (unchanged)
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Avatar</TableHead>
+                    <TableHead
+                      onClick={() => handleSort('name')}
+                      className="cursor-pointer select-none"
+                    >
+                      Name
+                      {sortKey === 'name' &&
+                        (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </TableHead>
+                    <TableHead
+                      onClick={() => handleSort('username')}
+                      className="cursor-pointer select-none"
+                    >
+                      Username
+                      {sortKey === 'username' &&
+                        (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </TableHead>
+                    <TableHead
+                      onClick={() => handleSort('status')}
+                      className="cursor-pointer select-none"
+                    >
+                      Status
+                      {sortKey === 'status' &&
+                        (sortOrder === 'asc' ? ' ↑' : ' ↓')}
+                    </TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage
+                            src={user.photoUrl || '/placeholder-user.jpg'}
+                            alt={user.name}
+                          />
+                          <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.username}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[user.status as keyof typeof STATUS_COLORS]}`}
+                        >
+                          {user.status.replace('_', ' ')}
+                        </span>
+                      </TableCell>
+                      <TableCell className="space-x-2">
+                        {/* TEACHER: Not verified */}
+                        {user.role === 'TEACHER' &&
+                          user.verifiedAt === null && (
+                            <Button
+                              size="sm"
+                              className="bg-green-400 hover:bg-green-500 text-black min-w-[90px]"
+                              onClick={() =>
+                                handleActivateDeactivate(user.id, 'VERIFY')
+                              }
+                            >
+                              Verify
+                            </Button>
+                          )}
+                        {/* TEACHER: Verified */}
+                        {user.role === 'TEACHER' &&
+                          user.verifiedAt !== null &&
+                          user.status === UserStatus.ACTIVE && (
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="min-w-[90px]"
+                              onClick={() =>
+                                handleActivateDeactivate(user.id, 'DEACTIVATE')
+                              }
+                            >
+                              Deactivate
+                            </Button>
+                          )}
+                        {user.role === 'TEACHER' &&
+                          user.verifiedAt !== null &&
+                          user.status === UserStatus.INACTIVE && (
+                            <Button
+                              size="sm"
+                              className="bg-blue-500 hover:bg-blue-600 text-white min-w-[90px]"
+                              onClick={() =>
+                                handleActivateDeactivate(user.id, 'ACTIVATE')
+                              }
+                            >
+                              Activate
+                            </Button>
+                          )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+
+              {filteredUsers.length === 0 && !loading && (
+                <div className="text-center py-8 text-gray-500">
+                  No creators found.
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

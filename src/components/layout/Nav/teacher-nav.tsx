@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { BookOpen, Users, LogOut, User, Plus } from 'lucide-react';
+import { BookOpen, LogOut, User, Plus } from 'lucide-react';
 import { useAuthStore } from '@/store/auth.store';
 import Image from 'next/image';
 
@@ -100,12 +100,6 @@ export function TeacherNav() {
                   <Link href="/profile" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
                     <span>Profil</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard">
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Solver View</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
