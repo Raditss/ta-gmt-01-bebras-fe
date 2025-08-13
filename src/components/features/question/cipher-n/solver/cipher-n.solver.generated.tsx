@@ -391,7 +391,9 @@ export default function GeneratedCipherNSolver({
                         <strong>
                           &quot;{content.question.plaintext.toUpperCase()}&quot;
                         </strong>{' '}
-                        dengan menggunakan Poligon Enkripsi. <br />
+                        dengan menggunakan Poligon Enkripsi. Hasil enkripsi
+                        suatu huruf adalah 2 buah angka XY, X adalah nomor
+                        rotasi dan Y adalah nomor posisi. <br />
                         <br />
                         <strong>
                           <span className="text-amber-800 font-semibold">

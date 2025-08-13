@@ -390,7 +390,9 @@ export default function RingCipherSolver({ questionId }: BaseSolverProps) {
                         <strong>
                           &quot;{content.question.plaintext.toUpperCase()}&quot;
                         </strong>{' '}
-                        dengan menggunakan Cincin Enkripsi. <br />
+                        dengan menggunakan Cincin Enkripsi. Hasil enkripsi suatu
+                        huruf adalah 2 buah angka XY, X adalah nomor ring dan Y
+                        adalah jumlah langkah rotasi. <br />
                         <br />
                         <strong>
                           <span className="text-amber-800 font-semibold">
